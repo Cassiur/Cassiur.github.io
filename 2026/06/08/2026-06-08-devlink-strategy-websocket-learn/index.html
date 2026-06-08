@@ -1,0 +1,1092 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析） 本篇是「高标准严要求」版本，基于 ChatService.java、ChatServiceFactory.java、ChatGptAiServiceImpl.java、WsChatConfig.java、ChatRestController.java、WsAnswerHelper.java 逐行解析，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析）">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-strategy-websocket-learn/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析） 本篇是「高标准严要求」版本，基于 ChatService.java、ChatServiceFactory.java、ChatGptAiServiceImpl.java、WsChatConfig.java、ChatRestController.java、WsAnswerHelper.java 逐行解析，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T15:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T13:26:39.683Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="STOMP">
+<meta property="article:tag" content="WebSocket">
+<meta property="article:tag" content="傻子都能懂">
+<meta property="article:tag" content="学习笔记">
+<meta property="article:tag" content="工厂模式">
+<meta property="article:tag" content="技术派">
+<meta property="article:tag" content="源码级">
+<meta property="article:tag" content="策略模式">
+<meta property="article:tag" content="高标准">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析） - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 23:00" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="技术派项目学习笔记（三）·-高标准：策略模式-WebSocket-流式推送（源码级深度解析）"><a href="#技术派项目学习笔记（三）·-高标准：策略模式-WebSocket-流式推送（源码级深度解析）" class="headerlink" title="技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析）"></a>技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析）</h1><blockquote>
+<p><strong>本篇是「高标准严要求」版本</strong>，基于 <code>ChatService.java</code>、<code>ChatServiceFactory.java</code>、<code>ChatGptAiServiceImpl.java</code>、<code>WsChatConfig.java</code>、<code>ChatRestController.java</code>、<code>WsAnswerHelper.java</code> 逐行解析，不遗漏任何细节。</p>
+</blockquote>
+<hr>
+<h2 id="一、先搞懂：为什么要引入多个-LLM？"><a href="#一、先搞懂：为什么要引入多个-LLM？" class="headerlink" title="一、先搞懂：为什么要引入多个 LLM？"></a>一、先搞懂：为什么要引入多个 LLM？</h2><h3 id="1-1-一个-LLM-不够吗？"><a href="#1-1-一个-LLM-不够吗？" class="headerlink" title="1.1 一个 LLM 不够吗？"></a>1.1 一个 LLM 不够吗？</h3><p>技术派项目里集成了<strong>多个大模型</strong>（ChatGPT、DeepSeek 等），原因是：</p>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>ChatGPT</th>
+<th>DeepSeek</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>回答质量</strong></td>
+<td>更好（英文、常识）</td>
+<td>不错（中文、代码）</td>
+</tr>
+<tr>
+<td><strong>成本</strong></td>
+<td>贵（按 Token 收费）</td>
+<td>便宜（国产模型）</td>
+</tr>
+<tr>
+<td><strong>访问难度</strong></td>
+<td>需要翻墙 &#x2F; API Key</td>
+<td>国内直接访问</td>
+</tr>
+<tr>
+<td><strong>响应速度</strong></td>
+<td>慢（海外服务器）</td>
+<td>快（国内服务器）</td>
+</tr>
+</tbody></table>
+<p><strong>结论</strong>：不同场景用不同的 LLM，需要<strong>动态切换</strong>。</p>
+<h3 id="1-2-不用策略模式时的问题"><a href="#1-2-不用策略模式时的问题" class="headerlink" title="1.2 不用策略模式时的问题"></a>1.2 不用策略模式时的问题</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 错误写法：用 if-else 判断用哪个 LLM</span><br><span class="hljs-keyword">public</span> ChatRecordsVo <span class="hljs-title function_">chat</span><span class="hljs-params">(Long user, String question, String aiType)</span> &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;CHAT_GPT_3_5&quot;</span>.equals(aiType)) &#123;<br>        <span class="hljs-comment">// 调用 ChatGPT API</span><br>        <span class="hljs-keyword">return</span> callChatGpt(user, question);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;DEEP_SEEK&quot;</span>.equals(aiType)) &#123;<br>        <span class="hljs-comment">// 调用 DeepSeek API</span><br>        <span class="hljs-keyword">return</span> callDeepSeek(user, question);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;WEN_XIN&quot;</span>.equals(aiType)) &#123;<br>        <span class="hljs-comment">// 调用文心一言 API</span><br>        <span class="hljs-keyword">return</span> callWenXin(user, question);<br>    &#125;<br>    <span class="hljs-comment">// 每加一个新 LLM，就要改这段代码！</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：</p>
+<ul>
+<li>每加一个新 LLM，就要改 <code>if-else</code>（<strong>违反开闭原则</strong>）</li>
+<li>代码越来越长，难以维护</li>
+<li>调用方需要知道每个 LLM 的细节（API 地址、参数、返回值）</li>
+</ul>
+<hr>
+<h2 id="二、策略模式：让-LLM-调用”热插拔”"><a href="#二、策略模式：让-LLM-调用”热插拔”" class="headerlink" title="二、策略模式：让 LLM 调用”热插拔”"></a>二、策略模式：让 LLM 调用”热插拔”</h2><h3 id="2-1-策略模式的核心思想"><a href="#2-1-策略模式的核心思想" class="headerlink" title="2.1 策略模式的核心思想"></a>2.1 策略模式的核心思想</h3><p><strong>策略模式</strong> &#x3D; 定义一组<strong>策略接口</strong>，每个策略实现这个接口，调用方<strong>只依赖接口，不依赖具体实现</strong>。</p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs nix">不用策略模式：<br>  调用方 → 知道所有 LLM 的细节 → 直接调用<br><br>用策略模式：<br>  调用方 → 只依赖<span class="hljs-string">&quot;策略接口&quot;</span> → 不关心具体是哪个 LLM<br>                  ↓<br>              策略工厂 → 根据 aiType 选择具体策略<br>                  ↓<br>              具体策略（ChatGPT <span class="hljs-symbol">/</span> DeepSeek <span class="hljs-symbol">/</span> ...）<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-项目里的策略模式结构"><a href="#2-2-项目里的策略模式结构" class="headerlink" title="2.2 项目里的策略模式结构"></a>2.2 项目里的策略模式结构</h3><h4 id="策略接口：ChatService-java"><a href="#策略接口：ChatService-java" class="headerlink" title="策略接口：ChatService.java"></a>策略接口：<code>ChatService.java</code></h4><p>看源码 <code>ChatService.java</code>（第 12-69 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 策略接口：所有 LLM 都要实现这个接口</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ChatService</span> &#123;<br><br>    <span class="hljs-comment">// ① 返回这个策略支持哪个 LLM（用于工厂路由）</span><br>    AISourceEnum <span class="hljs-title function_">source</span><span class="hljs-params">()</span>;<br><br>    <span class="hljs-comment">// ② 是否优先异步返回（默认 true）</span><br>    <span class="hljs-keyword">default</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">asyncFirst</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// ③ 同步聊天（等 LLM 全部返回后再返回）</span><br>    ChatRecordsVo <span class="hljs-title function_">chat</span><span class="hljs-params">(Long user, String question)</span>;<br><br>    <span class="hljs-comment">// ④ 异步聊天（LLM 流式返回，每收到一段就回调一次）</span><br>    ChatRecordsVo <span class="hljs-title function_">chat</span><span class="hljs-params">(Long user, String question, Consumer&lt;ChatRecordsVo&gt; consumer)</span>;<br><br>    <span class="hljs-comment">// ⑤ 异步聊天的简化版（返回 ChatRecordsVo 给回调）</span><br>    ChatRecordsVo <span class="hljs-title function_">asyncChat</span><span class="hljs-params">(Long user, String question, Consumer&lt;ChatRecordsVo&gt; consumer)</span>;<br><br>    <span class="hljs-comment">// ⑥ 查询聊天历史</span><br>    ChatRecordsVo <span class="hljs-title function_">getChatHistory</span><span class="hljs-params">(Long user, AISourceEnum aiSource)</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li>接口定义了<strong>所有策略必须实现的方法</strong></li>
+<li><code>source()</code> 方法返回这个策略支持的 LLM 类型（用于工厂路由）</li>
+<li><code>chat()</code> 方法有<strong>两个重载</strong>：<ul>
+<li>同步版：等 LLM 全部返回后再返回</li>
+<li>异步版：LLM 流式返回，每收到一段就回调一次</li>
+</ul>
+</li>
+</ul>
+<h4 id="具体策略-1：ChatGptAiServiceImpl-java（ChatGPT-策略）"><a href="#具体策略-1：ChatGptAiServiceImpl-java（ChatGPT-策略）" class="headerlink" title="具体策略 1：ChatGptAiServiceImpl.java（ChatGPT 策略）"></a>具体策略 1：<code>ChatGptAiServiceImpl.java</code>（ChatGPT 策略）</h4><p>看源码 <code>ChatGptAiServiceImpl.java</code>（第 24-97 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>  <span class="hljs-comment">// ← 注册为 Spring Bean</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatGptAiServiceImpl</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbsChatService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ChatService</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> ChatGptIntegration chatGptIntegration;  <span class="hljs-comment">// ← 调用 ChatGPT API 的客户端</span><br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> AISourceEnum <span class="hljs-title function_">source</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> AISourceEnum.CHAT_GPT_3_5;  <span class="hljs-comment">// ← 这个策略支持 ChatGPT</span><br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> AiChatStatEnum <span class="hljs-title function_">doAnswer</span><span class="hljs-params">(Long user, ChatItemVo chat)</span> &#123;<br>        <span class="hljs-comment">// 同步回答（等全部返回后再返回）</span><br>        <span class="hljs-keyword">if</span> (chatGptIntegration.directReturn(user, chat)) &#123;<br>            <span class="hljs-keyword">return</span> AiChatStatEnum.END;<br>        &#125;<br>        <span class="hljs-keyword">return</span> AiChatStatEnum.ERROR;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> AiChatStatEnum <span class="hljs-title function_">doAsyncAnswer</span><span class="hljs-params">(Long user, ChatRecordsVo chatRes, </span><br><span class="hljs-params">                                        BiConsumer&lt;AiChatStatEnum, ChatRecordsVo&gt; consumer)</span> &#123;<br>        <span class="hljs-type">ChatItemVo</span> <span class="hljs-variable">item</span> <span class="hljs-operator">=</span> chatRes.getRecords().get(<span class="hljs-number">0</span>);<br>        <br>        <span class="hljs-comment">// 创建&quot;流监听器&quot;（监听 LLM 的流式返回）</span><br>        <span class="hljs-type">AbstractStreamListener</span> <span class="hljs-variable">listener</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AbstractStreamListener</span>() &#123;<br>            <br>            <span class="hljs-comment">// 收到 LLM 返回的一段文字时，这个方法会被调用</span><br>            <span class="hljs-meta">@Override</span><br>            <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onMsg</span><span class="hljs-params">(String message)</span> &#123;<br>                <span class="hljs-keyword">if</span> (StringUtils.isNotBlank(message)) &#123;<br>                    <span class="hljs-comment">// ① 把新收到的文字追加到回答里</span><br>                    item.appendAnswer(message);<br>                    <br>                    <span class="hljs-comment">// ② 回调：把当前回答推送给前端（通过 WebSocket）</span><br>                    consumer.accept(AiChatStatEnum.MID, chatRes);<br>                &#125;<br>            &#125;<br><br>            <span class="hljs-comment">// LLM 返回结束（连接关闭）时，这个方法会被调用</span><br>            <span class="hljs-meta">@Override</span><br>            <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onClosed</span><span class="hljs-params">(EventSource eventSource)</span> &#123;<br>                <span class="hljs-built_in">super</span>.onClosed(eventSource);<br>                <br>                <span class="hljs-comment">// 检查是否正常结束对话</span><br>                <span class="hljs-keyword">if</span> (item.getAnswerType() != ChatAnswerTypeEnum.STREAM_END) &#123;<br>                    <span class="hljs-comment">// 主动结束这一次的对话</span><br>                    <span class="hljs-keyword">if</span> (StringUtils.isBlank(lastMessage)) &#123;<br>                        item.appendAnswer(<span class="hljs-string">&quot;大模型超时未返回结果，主动关闭会话；请重新提问吧\n&quot;</span>)<br>                             .setAnswerType(ChatAnswerTypeEnum.STREAM_END);<br>                        consumer.accept(AiChatStatEnum.ERROR, chatRes);<br>                    &#125; <span class="hljs-keyword">else</span> &#123;<br>                        item.appendAnswer(<span class="hljs-string">&quot;\n&quot;</span>)<br>                             .setAnswerType(ChatAnswerTypeEnum.STREAM_END);<br>                        consumer.accept(AiChatStatEnum.END, chatRes);<br>                    &#125;<br>                &#125;<br>            &#125;<br><br>            <span class="hljs-comment">// LLM 返回异常时，这个方法会被调用</span><br>            <span class="hljs-meta">@Override</span><br>            <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onError</span><span class="hljs-params">(Throwable throwable, String response)</span> &#123;<br>                item.appendAnswer(<span class="hljs-string">&quot;Error:&quot;</span> + (StringUtils.isBlank(response) ? throwable.getMessage() : response))<br>                     .setAnswerType(ChatAnswerTypeEnum.STREAM_END);<br>                consumer.accept(AiChatStatEnum.ERROR, chatRes);<br>            &#125;<br>        &#125;;<br><br>        <span class="hljs-comment">// 注册回答结束的回调钩子</span><br>        listener.setOnComplate((s) -&gt; &#123;<br>            item.appendAnswer(<span class="hljs-string">&quot;\n&quot;</span>)<br>                 .setAnswerType(ChatAnswerTypeEnum.STREAM_END);<br>            consumer.accept(AiChatStatEnum.END, chatRes);<br>        &#125;);<br><br>        <span class="hljs-comment">// 调用 ChatGPT API（流式返回）</span><br>        chatGptIntegration.streamReturn(user, chatRes.getRecords(), listener);<br>        <span class="hljs-keyword">return</span> AiChatStatEnum.IGNORE;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li><code>ChatGptAiServiceImpl</code> 实现了 <code>ChatService</code> 接口</li>
+<li><code>source()</code> 方法返回 <code>AISourceEnum.CHAT_GPT_3_5</code>（告诉工厂”我是 ChatGPT 策略”）</li>
+<li><code>doAsyncAnswer()</code> 方法里创建了 <code>AbstractStreamListener</code>（流监听器）</li>
+<li><code>AbstractStreamListener</code> 有三个回调方法：<ul>
+<li><code>onMsg()</code>：收到 LLM 返回的一段文字时调用</li>
+<li><code>onClosed()</code>：LLM 返回结束（连接关闭）时调用</li>
+<li><code>onError()</code>：LLM 返回异常时调用</li>
+</ul>
+</li>
+<li><code>chatGptIntegration.streamReturn()</code> 调用 ChatGPT API，并且把 <code>listener</code> 传进去（LLM 返回时回调 <code>listener</code> 的方法）</li>
+</ul>
+<h4 id="具体策略-2：DeepSeekChatServiceImpl-java（DeepSeek-策略）"><a href="#具体策略-2：DeepSeekChatServiceImpl-java（DeepSeek-策略）" class="headerlink" title="具体策略 2：DeepSeekChatServiceImpl.java（DeepSeek 策略）"></a>具体策略 2：<code>DeepSeekChatServiceImpl.java</code>（DeepSeek 策略）</h4><p>（代码结构和 <code>ChatGptAiServiceImpl</code> 一样，只是调用的是 <code>deepSeekIntegration.streamReturn()</code>）</p>
+<hr>
+<h3 id="2-3-策略工厂：根据-aiType-选择具体策略"><a href="#2-3-策略工厂：根据-aiType-选择具体策略" class="headerlink" title="2.3 策略工厂：根据 aiType 选择具体策略"></a>2.3 策略工厂：根据 <code>aiType</code> 选择具体策略</h3><h4 id="注册式工厂-vs-枚举式工厂"><a href="#注册式工厂-vs-枚举式工厂" class="headerlink" title="注册式工厂 vs 枚举式工厂"></a>注册式工厂 vs 枚举式工厂</h4><p><strong>枚举式工厂</strong>（不推荐）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 枚举式工厂：每加一个新 LLM，就要改这个枚举</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatServiceFactory</span> &#123;<br>    <span class="hljs-keyword">public</span> ChatService <span class="hljs-title function_">getChatService</span><span class="hljs-params">(AISourceEnum aiSource)</span> &#123;<br>        <span class="hljs-keyword">if</span> (aiSource == AISourceEnum.CHAT_GPT_3_5) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChatGptAiServiceImpl</span>();<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (aiSource == AISourceEnum.DEEP_SEEK) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DeepSeekChatServiceImpl</span>();<br>        &#125;<br>        <span class="hljs-comment">// 每加一个新 LLM，就要改这段代码！</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>注册式工厂</strong>（项目里用的，推荐）：</p>
+<p>看源码 <code>ChatServiceFactory.java</code>（第 15-29 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span>  <span class="hljs-comment">// ← 注册为 Spring Bean</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatServiceFactory</span> &#123;<br>    <br>    <span class="hljs-comment">// Key = AISourceEnum（LLM 类型），Value = 具体策略实现</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;AISourceEnum, ChatService&gt; chatServiceMap;<br><br>    <span class="hljs-comment">// 构造函数：Spring 自动注入所有 ChatService 实现类</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ChatServiceFactory</span><span class="hljs-params">(List&lt;ChatService&gt; chatServiceList)</span> &#123;<br>        <span class="hljs-comment">// ① 初始化 Map（初始容量 = 策略数量）</span><br>        chatServiceMap = Maps.newHashMapWithExpectedSize(chatServiceList.size());<br>        <br>        <span class="hljs-comment">// ② 遍历所有策略，放进 Map</span><br>        <span class="hljs-keyword">for</span> (ChatService chatService : chatServiceList) &#123;<br>            <span class="hljs-comment">// key = 策略类型（chatService.source()）</span><br>            <span class="hljs-comment">// value = 策略实例（chatService）</span><br>            chatServiceMap.put(chatService.source(), chatService);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// 根据 aiType 获取对应的策略</span><br>    <span class="hljs-keyword">public</span> ChatService <span class="hljs-title function_">getChatService</span><span class="hljs-params">(AISourceEnum aiSource)</span> &#123;<br>        <span class="hljs-keyword">return</span> chatServiceMap.get(aiSource);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li><strong>注册式工厂</strong>：Spring 自动注入所有 <code>ChatService</code> 实现类（通过 <code>List&lt;ChatService&gt; chatServiceList</code>）</li>
+<li><strong>不需要写 <code>if-else</code></strong>：每加一个新 LLM，只需要新建一个类实现 <code>ChatService</code> 接口，Spring 会自动把它注入到 <code>chatServiceList</code> 里</li>
+<li><strong>符合开闭原则</strong>：对扩展开放，对修改关闭</li>
+</ul>
+<h4 id="List-chatServiceList-是怎么自动注入的？"><a href="#List-chatServiceList-是怎么自动注入的？" class="headerlink" title="List&lt;ChatService&gt; chatServiceList 是怎么自动注入的？"></a><code>List&lt;ChatService&gt; chatServiceList</code> 是怎么自动注入的？</h4><p><strong>Spring 的魔法</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Spring 发现构造函数需要一个 List&lt;ChatService&gt;</span><br><span class="hljs-comment">// 它会自动找到所有实现了 ChatService 接口的 Bean</span><br><span class="hljs-comment">// 放进 List 里传进来</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 所以：</span><br><span class="hljs-comment">//   chatServiceList = [ChatGptAiServiceImpl实例, DeepSeekChatServiceImpl实例, ...]</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>新增一个 LLM 需要改哪些代码？</strong></p>
+<ol>
+<li>新建一个类 <code>WenXinChatServiceImpl implements ChatService</code></li>
+<li>实现 <code>source()</code> 方法，返回 <code>AISourceEnum.WEN_XIN</code></li>
+<li>实现 <code>doAsyncAnswer()</code> 方法，调用文心一言 API</li>
+<li>在 <code>AISourceEnum</code> 枚举里加上 <code>WEN_XIN</code></li>
+<li><strong>不需要改原有代码</strong>（符合开闭原则）</li>
+</ol>
+<hr>
+<h2 id="三、WebSocket：让回答”秒回”"><a href="#三、WebSocket：让回答”秒回”" class="headerlink" title="三、WebSocket：让回答”秒回”"></a>三、WebSocket：让回答”秒回”</h2><h3 id="3-1-为什么用-WebSocket-而不是-HTTP-轮询？"><a href="#3-1-为什么用-WebSocket-而不是-HTTP-轮询？" class="headerlink" title="3.1 为什么用 WebSocket 而不是 HTTP 轮询？"></a>3.1 为什么用 WebSocket 而不是 HTTP 轮询？</h3><p><strong>HTTP 轮询的问题</strong>：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs 1c">用户问：<span class="hljs-string">&quot;帮我写一段代码&quot;</span><br>  ↓<br>前端每隔 <span class="hljs-number">1</span> 秒发一次请求：<span class="hljs-string">&quot;LLM 回答完了吗？&quot;</span><br>  ↓<br>后端：<span class="hljs-string">&quot;没呢，再等等&quot;</span><br>  ↓<br>前端：<span class="hljs-string">&quot;好了吗？&quot;</span><br>  ↓<br>后端：<span class="hljs-string">&quot;好了！给你&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：</p>
+<ul>
+<li>浪费资源（每次轮询都要建立 HTTP 连接）</li>
+<li>延迟高（要等下次轮询才能拿到回答）</li>
+<li>服务器压力大（大量无用请求）</li>
+</ul>
+<p><strong>WebSocket 的优势</strong>：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs 1c">用户问：<span class="hljs-string">&quot;帮我写一段代码&quot;</span><br>  ↓<br>建立 WebSocket 连接（一次）<br>  ↓<br>后端：<span class="hljs-string">&quot;好的，等我生成...&quot;</span><br>  ↓<br>后端：<span class="hljs-string">&quot;好的，等我生成...&quot;</span>（流式返回，每生成一段就推送一段）<br>  ↓<br>前端收到一段，就显示一段（像打字机一样）<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-WebSocket-vs-SSE（Server-Sent-Events）"><a href="#3-2-WebSocket-vs-SSE（Server-Sent-Events）" class="headerlink" title="3.2 WebSocket vs SSE（Server-Sent Events）"></a>3.2 WebSocket vs SSE（Server-Sent Events）</h3><table>
+<thead>
+<tr>
+<th>对比</th>
+<th>WebSocket</th>
+<th>SSE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>双向通信</strong></td>
+<td>✅ 客户端和服务器都能发消息</td>
+<td>❌ 只能服务器 → 客户端</td>
+</tr>
+<tr>
+<td><strong>协议</strong></td>
+<td>独立的 WebSocket 协议（ws:&#x2F;&#x2F;）</td>
+<td>基于 HTTP（普通 HTTP 连接）</td>
+</tr>
+<tr>
+<td><strong>浏览器支持</strong></td>
+<td>所有现代浏览器</td>
+<td>所有现代浏览器</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>聊天室、在线游戏（双向实时）</td>
+<td>服务器推送通知、LLM 流式返回（单向）</td>
+</tr>
+</tbody></table>
+<p><strong>项目选择</strong>：用 <strong>WebSocket</strong>（更通用，后续可以扩展双向通信）。</p>
+<h3 id="3-3-STOMP-协议：让-WebSocket-更好用"><a href="#3-3-STOMP-协议：让-WebSocket-更好用" class="headerlink" title="3.3 STOMP 协议：让 WebSocket 更好用"></a>3.3 STOMP 协议：让 WebSocket 更好用</h3><p>原生 WebSocket 的 API 比较底层：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 原生 WebSocket：只能发字符串</span><br><span class="hljs-keyword">let</span> socket = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WebSocket</span>(<span class="hljs-string">&quot;ws://localhost:8080/gpt/session1/CHAT_GPT_3_5&quot;</span>);<br>socket.<span class="hljs-property">onmessage</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params">event</span>) &#123;<br>    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(event.<span class="hljs-property">data</span>);  <span class="hljs-comment">// 只能收到字符串</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><strong>STOMP</strong>（Simple Text Oriented Messaging Protocol）是在 WebSocket 之上的一个<strong>消息协议</strong>，提供了：</p>
+<ul>
+<li><strong>订阅机制</strong>：<code>subscribe(destination, callback)</code></li>
+<li><strong>发送机制</strong>：<code>send(destination, headers, body)</code></li>
+<li><strong>目的地（destination）</strong>：类似消息队列的 topic）</li>
+</ul>
+<p>项目中用 <strong>STOMP over WebSocket</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 前端（chat/index.html）</span><br><span class="hljs-keyword">let</span> socket = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SockJS</span>(<span class="hljs-string">&quot;/gpt/&quot;</span> + session + <span class="hljs-string">&quot;/&quot;</span> + aiType);  <span class="hljs-comment">// 建立 WebSocket 连接</span><br><span class="hljs-keyword">let</span> stompClient = <span class="hljs-title class_">Stomp</span>.<span class="hljs-title function_">over</span>(socket);  <span class="hljs-comment">// 在 WebSocket 上跑 STOMP 协议</span><br><br><span class="hljs-comment">// 订阅服务端推送的目的地（/user/chat/rsp）</span><br>stompClient.<span class="hljs-title function_">subscribe</span>(<span class="hljs-string">&#x27;/user/chat/rsp&#x27;</span>, <span class="hljs-keyword">function</span>(<span class="hljs-params">response</span>) &#123;<br>    <span class="hljs-comment">// 收到服务端的推送，更新页面</span><br>    <span class="hljs-title function_">updateChatView</span>(response.<span class="hljs-property">body</span>);<br>&#125;);<br><br><span class="hljs-comment">// 发送消息到服务端（/app/chat/&#123;session&#125;）</span><br>stompClient.<span class="hljs-title function_">send</span>(<span class="hljs-string">&quot;/app/chat/&quot;</span> + session, &#123;&#125;, message);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、项目里-WebSocket-是怎么配置的？"><a href="#四、项目里-WebSocket-是怎么配置的？" class="headerlink" title="四、项目里 WebSocket 是怎么配置的？"></a>四、项目里 WebSocket 是怎么配置的？</h2><h3 id="4-1-WebSocket-配置类（WsChatConfig-java）"><a href="#4-1-WebSocket-配置类（WsChatConfig-java）" class="headerlink" title="4.1 WebSocket 配置类（WsChatConfig.java）"></a>4.1 WebSocket 配置类（<code>WsChatConfig.java</code>）</h3><p>看源码 <code>WsChatConfig.java</code>（第 24-110 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@EnableWebSocketMessageBroker</span>  <span class="hljs-comment">// ← 开启 WebSocket 代理</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WsChatConfig</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">WebSocketMessageBrokerConfigurer</span> &#123;<br><br>    <span class="hljs-comment">// ① 配置消息代理（MessageBroker）</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">configureMessageBroker</span><span class="hljs-params">(MessageBrokerRegistry config)</span> &#123;<br>        <span class="hljs-comment">// 开启简单的基于内存的消息代理</span><br>        <span class="hljs-comment">// 前缀是 /chat 的将消息会转发给消息代理（再由代理广播给订阅的客户端）</span><br>        <span class="hljs-comment">// 然后再由消息代理，将消息广播给当前连接的客户端</span><br>        <span class="hljs-comment">// /chat broker 用于派聪明聊天； /msg broker 用于服务端给用户推送消息</span><br>        config.enableSimpleBroker(<span class="hljs-string">&quot;/chat&quot;</span>, <span class="hljs-string">&quot;/msg&quot;</span>);<br><br>        <span class="hljs-comment">// 表示配置一个或多个前缀，通过这些前缀过滤出需要被注解方法处理的消息。</span><br>        <span class="hljs-comment">// 例如，前缀为 /app 的 destination 可以通过@MessageMapping 注解的方法处理，</span><br>        <span class="hljs-comment">// 而其他 destination（例如 /topic /queue）将被直接交给 broker 处理</span><br>        config.setApplicationDestinationPrefixes(<span class="hljs-string">&quot;/app&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-comment">// ② 注册 WebSocket 端点（客户端连接地址）</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">registerStompEndpoints</span><span class="hljs-params">(StompEndpointRegistry registry)</span> &#123;<br>        <span class="hljs-comment">// 注册一个 /gpt/&#123;id&#125; 的 WebSocket endPoint; 其中 &#123;id&#125; 用于让用户连接终端时都可以有自己的路径</span><br>        <span class="hljs-comment">// 作为 Principal 的标识，以便实现向指定用户发送信息</span><br>        <span class="hljs-comment">// sockjs 可以解决浏览器对 WebSocket 的兼容性问题，</span><br>        registry.addEndpoint(<span class="hljs-string">&quot;/gpt/&#123;id&#125;/&#123;aiType&#125;&quot;</span>, <span class="hljs-string">&quot;/notify&quot;</span>)<br>                .setHandshakeHandler(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AuthHandshakeHandler</span>())<br>                .addInterceptors(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AuthHandshakeInterceptor</span>())<br>                <span class="hljs-comment">// 注意下面这个，不要使用 setAllowedOrigins(&quot;*&quot;)，使用之后有啥问题可以实操验证一下🐕</span><br>                <span class="hljs-comment">// setAllowedOrigins接受一个字符串数组作为参数，每个元素代表一个允许访问的客户端地址，内部的值为具体的 &quot;http://localhost:8080&quot;</span><br>                <span class="hljs-comment">// setAllowedOriginPatterns接受一个正则表达式数组作为参数，每个元素代表一个允许访问的客户端地址的模式, 内部值可以为正则，如 &quot;*&quot;, &quot;http://*:8080&quot;</span><br>                .setAllowedOriginPatterns(<span class="hljs-string">&quot;*&quot;</span>)<br>        ;<br>    &#125;<br><br>    <span class="hljs-comment">// ③ 配置接收消息的拦截器</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">configureClientInboundChannel</span><span class="hljs-params">(ChannelRegistration registration)</span> &#123;<br>        registration.taskExecutor()<br>                .corePoolSize(<span class="hljs-number">4</span>)<br>                .maxPoolSize(<span class="hljs-number">10</span>)<br>                .keepAliveSeconds(<span class="hljs-number">60</span>);<br>        registration.interceptors(channelInInterceptor());<br>    &#125;<br><br>    <span class="hljs-comment">// ④ 配置返回消息的拦截器</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">configureClientOutboundChannel</span><span class="hljs-params">(ChannelRegistration registration)</span> &#123;<br>        registration.interceptors(channelOutInterceptor());<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> HandshakeHandler <span class="hljs-title function_">handshakeHandler</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AuthHandshakeHandler</span>();<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> HttpSessionHandshakeInterceptor <span class="hljs-title function_">handshakeInterceptor</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AuthHandshakeInterceptor</span>();<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> ChannelInterceptor <span class="hljs-title function_">channelInInterceptor</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AuthInChannelInterceptor</span>();<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> ChannelInterceptor <span class="hljs-title function_">channelOutInterceptor</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AuthOutChannelInterceptor</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li><code>@EnableWebSocketMessageBroker</code>：开启 WebSocket 代理（STOMP 协议）</li>
+<li><code>configureMessageBroker()</code>：<ul>
+<li><code>enableSimpleBroker(&quot;/chat&quot;, &quot;/msg&quot;)</code>：开启简单的基于内存的消息代理</li>
+<li><code>setApplicationDestinationPrefixes(&quot;/app&quot;)</code>：设置应用目的地前缀（前端发消息到 <code>/app/chat/{session}</code>，会被 <code>@MessageMapping</code> 注解的方法处理）</li>
+</ul>
+</li>
+<li><code>registerStompEndpoints()</code>：<ul>
+<li><code>addEndpoint(&quot;/gpt/{id}/{aiType}&quot;)</code>：注册 WebSocket 端点（前端连接地址）</li>
+<li><code>setHandshakeHandler(new AuthHandshakeHandler())</code>：握手时做认证（获取 <code>Principal</code>）</li>
+<li><code>addInterceptors(new AuthHandshakeInterceptor())</code>：握手拦截器（验证登录状态）</li>
+<li><code>setAllowedOriginPatterns(&quot;*&quot;)</code>：允许跨域（生产环境要改成具体的域名）</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-2-前端怎么连接-WebSocket？"><a href="#4-2-前端怎么连接-WebSocket？" class="headerlink" title="4.2 前端怎么连接 WebSocket？"></a>4.2 前端怎么连接 WebSocket？</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 前端（chat/index.html）</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">connect</span>(<span class="hljs-params"></span>) &#123;<br>    <span class="hljs-comment">// 建立 WebSocket 连接：ws://localhost:8080/gpt/&#123;sessionId&#125;/&#123;aiType&#125;</span><br>    <span class="hljs-keyword">let</span> socket = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SockJS</span>(<span class="hljs-string">&quot;/gpt/&quot;</span> + session + <span class="hljs-string">&quot;/&quot;</span> + aiType);<br>    <span class="hljs-keyword">let</span> stompClient = <span class="hljs-title class_">Stomp</span>.<span class="hljs-title function_">over</span>(socket);<br><br>    stompClient.<span class="hljs-title function_">connect</span>(&#123;&#125;, <span class="hljs-keyword">function</span>(<span class="hljs-params">frame</span>) &#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;WebSocket 连接成功&quot;</span>);<br>        <br>        <span class="hljs-comment">// 订阅服务端推送消息的目的地</span><br>        <span class="hljs-comment">// /user/chat/rsp → 实际订阅的是 /user/&#123;sessionId&#125;/chat/rsp</span><br>        <span class="hljs-comment">// （Spring 会自动把用户名（Principal）加到目的地前面）</span><br>        stompClient.<span class="hljs-title function_">subscribe</span>(<span class="hljs-string">&#x27;/user/chat/rsp&#x27;</span>, <span class="hljs-keyword">function</span>(<span class="hljs-params">response</span>) &#123;<br>            <span class="hljs-keyword">let</span> data = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(response.<span class="hljs-property">body</span>);<br>            <span class="hljs-comment">// 更新页面：把 LLM 的回答显示出来</span><br>            <span class="hljs-title function_">updateChatView</span>(data);<br>        &#125;);<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-3-后端怎么推送消息给指定用户？"><a href="#4-3-后端怎么推送消息给指定用户？" class="headerlink" title="4.3 后端怎么推送消息给指定用户？"></a>4.3 后端怎么推送消息给指定用户？</h3><p>看源码 <code>WsAnswerHelper.java</code>（第 55-61 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// WsAnswerHelper.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">response</span><span class="hljs-params">(String session, ChatRecordsVo response)</span> &#123;<br>    <span class="hljs-comment">// convertAndSendToUser 方法可以发送信给给指定用户,</span><br>    <span class="hljs-comment">// 底层会自动将第二个参数目的地址 /chat/rsp 拼接为</span><br>    <span class="hljs-comment">// /user/username/chat/rsp，其中第二个参数 username 即为这里的第一个参数 session</span><br>    <span class="hljs-comment">// username 也是AuthHandshakeHandler中配置的 Principal 用户识别标志</span><br>    WebSocketResponseUtil.sendMsgToUser(session, <span class="hljs-string">&quot;/chat/rsp&quot;</span>, response);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>WebSocketResponseUtil.sendMsgToUser()</code> 内部</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// WebSocketResponseUtil.java（简化版）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendMsgToUser</span><span class="hljs-params">(String user, String destination, Object payload)</span> &#123;<br>    <span class="hljs-comment">// simpMessagingTemplate 是 Spring 提供的 WebSocket 消息模板</span><br>    simpMessagingTemplate.convertAndSendToUser(user, destination, payload);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li><code>convertAndSendToUser(user, destination, payload)</code> 方法：<ul>
+<li>第一个参数 <code>user</code>：用户名（也就是 <code>Principal</code>）</li>
+<li>第二个参数 <code>destination</code>：目的地（比如 <code>/chat/rsp</code>）</li>
+<li>第三个参数 <code>payload</code>：消息体（比如 <code>ChatRecordsVo</code>）</li>
+</ul>
+</li>
+<li><strong>底层实现</strong>：Spring 会自动把目的地拼接为 <code>/user/{username}/{destination}</code><ul>
+<li>比如：<code>convertAndSendToUser(&quot;session1&quot;, &quot;/chat/rsp&quot;, response)</code></li>
+<li>实际推送到：<code>/user/session1/chat/rsp</code></li>
+<li>前端订阅的也是 <code>/user/chat/rsp</code>（<code>session1</code> 会被自动替换）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="五、流式推送：LLM-回答”边生成边返回”"><a href="#五、流式推送：LLM-回答”边生成边返回”" class="headerlink" title="五、流式推送：LLM 回答”边生成边返回”"></a>五、流式推送：LLM 回答”边生成边返回”</h2><h3 id="5-1-为什么用流式返回？"><a href="#5-1-为什么用流式返回？" class="headerlink" title="5.1 为什么用流式返回？"></a>5.1 为什么用流式返回？</h3><p><strong>不用流式返回时</strong>（同步等待）：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs tap">用户问：&quot;帮我写一段快速排序的代码&quot;<br>  ↓<br>后端调用 LLM API（等全部生成完）<br>  ↓<br>（等待<span class="hljs-number"> 10 </span>秒...）<br>  ↓<br>LLM 返回完整回答（约<span class="hljs-number"> 500 </span>字）<br>  ↓<br>后端把完整回答返回给前端<br>  ↓<br>前端一次性显示<span class="hljs-number"> 500 </span>字（用户等了<span class="hljs-number"> 10 </span>秒才看到回答）<br></code></pre></td></tr></table></figure>
+
+<p><strong>用流式返回时</strong>（边生成边返回）：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">用户问：<span class="hljs-string">&quot;帮我写一段快速排序的代码&quot;</span><br>  ↓<br>后端调用 <span class="hljs-keyword">LLM </span>API（流式返回）<br>  ↓<br><span class="hljs-keyword">LLM </span>生成了 <span class="hljs-string">&quot;快速&quot;</span> → 后端推送给前端 → 前端显示 <span class="hljs-string">&quot;快速&quot;</span><br>  ↓<br><span class="hljs-keyword">LLM </span>生成了 <span class="hljs-string">&quot;排序&quot;</span> → 后端推送给前端 → 前端显示 <span class="hljs-string">&quot;快速排序&quot;</span><br>  ↓<br><span class="hljs-keyword">LLM </span>生成了 <span class="hljs-string">&quot;的&quot;</span>   → 后端推送给前端 → 前端显示 <span class="hljs-string">&quot;快速排序的&quot;</span><br>  ↓<br>...（像打字机一样，一个字一个字地显示）<br>  ↓<br>用户看到回答在<span class="hljs-string">&quot;动态生成&quot;</span>，体验好得多！<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-2-项目里流式返回是怎么实现的？"><a href="#5-2-项目里流式返回是怎么实现的？" class="headerlink" title="5.2 项目里流式返回是怎么实现的？"></a>5.2 项目里流式返回是怎么实现的？</h3><p>看源码 <code>ChatGptAiServiceImpl.java</code>（第 37-84 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> AiChatStatEnum <span class="hljs-title function_">doAsyncAnswer</span><span class="hljs-params">(Long user, ChatRecordsVo chatRes, </span><br><span class="hljs-params">                                    BiConsumer&lt;AiChatStatEnum, ChatRecordsVo&gt; consumer)</span> &#123;<br>    <span class="hljs-type">ChatItemVo</span> <span class="hljs-variable">item</span> <span class="hljs-operator">=</span> chatRes.getRecords().get(<span class="hljs-number">0</span>);<br>    <br>    <span class="hljs-comment">// 创建一个&quot;流监听器&quot;（监听 LLM 的流式返回）</span><br>    <span class="hljs-type">AbstractStreamListener</span> <span class="hljs-variable">listener</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AbstractStreamListener</span>() &#123;<br>        <br>        <span class="hljs-comment">// 收到 LLM 返回的一段文字时，这个方法会被调用</span><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onMsg</span><span class="hljs-params">(String message)</span> &#123;<br>            <span class="hljs-keyword">if</span> (StringUtils.isNotBlank(message)) &#123;<br>                <span class="hljs-comment">// ① 把新收到的文字追加到回答里</span><br>                item.appendAnswer(message);<br>                <br>                <span class="hljs-comment">// ② 回调：把当前回答推送给前端（通过 WebSocket）</span><br>                consumer.accept(AiChatStatEnum.MID, chatRes);<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-comment">// LLM 返回结束（连接关闭）时，这个方法会被调用</span><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onClosed</span><span class="hljs-params">(EventSource eventSource)</span> &#123;<br>            <span class="hljs-comment">// 给回答加上结束标记</span><br>            item.appendAnswer(<span class="hljs-string">&quot;\n&quot;</span>).setAnswerType(ChatAnswerTypeEnum.STREAM_END);<br>            <br>            <span class="hljs-comment">// 回调：通知前端&quot;回答结束了&quot;</span><br>            consumer.accept(AiChatStatEnum.END, chatRes);<br>        &#125;<br><br>        <span class="hljs-comment">// LLM 返回异常时，这个方法会被调用</span><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onError</span><span class="hljs-params">(Throwable throwable, String response)</span> &#123;<br>            item.appendAnswer(<span class="hljs-string">&quot;Error:&quot;</span> + (StringUtils.isBlank(response) ? throwable.getMessage() : response))<br>                     .setAnswerType(ChatAnswerTypeEnum.STREAM_END);<br>            consumer.accept(AiChatStatEnum.ERROR, chatRes);<br>        &#125;<br>    &#125;;<br><br>    <span class="hljs-comment">// 调用 LLM API（流式返回）</span><br>    chatGptIntegration.streamReturn(user, chatRes.getRecords(), listener);<br>    <span class="hljs-keyword">return</span> AiChatStatEnum.IGNORE;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li><code>doAsyncAnswer()</code> 方法里创建了 <code>AbstractStreamListener</code>（流监听器）</li>
+<li><code>AbstractStreamListener</code> 有三个回调方法：<ul>
+<li><code>onMsg(message)</code>：<strong>收到 LLM 返回的一段文字时调用</strong><ul>
+<li>把新收到的文字追加到回答里（<code>item.appendAnswer(message)</code>）</li>
+<li>回调 <code>consumer.accept(AiChatStatEnum.MID, chatRes)</code>（把当前回答推送给前端）</li>
+</ul>
+</li>
+<li><code>onClosed(eventSource)</code>：<strong>LLM 返回结束（连接关闭）时调用</strong><ul>
+<li>给回答加上结束标记（<code>item.setAnswerType(ChatAnswerTypeEnum.STREAM_END)</code>）</li>
+<li>回调 <code>consumer.accept(AiChatStatEnum.END, chatRes)</code>（通知前端”回答结束了”）</li>
+</ul>
+</li>
+<li><code>onError(throwable, response)</code>：<strong>LLM 返回异常时调用</strong><ul>
+<li>给回答加上错误信息</li>
+<li>回调 <code>consumer.accept(AiChatStatEnum.ERROR, chatRes)</code>（通知前端”回答出错了”）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>chatGptIntegration.streamReturn(user, records, listener)</code>：调用 ChatGPT API，并且把 <code>listener</code> 传进去（LLM 返回时回调 <code>listener</code> 的方法）</li>
+</ul>
+<h4 id="consumer-回调里做了什么？（看-WsAnswerHelper-java）"><a href="#consumer-回调里做了什么？（看-WsAnswerHelper-java）" class="headerlink" title="consumer 回调里做了什么？（看 WsAnswerHelper.java）"></a><code>consumer</code> 回调里做了什么？（看 <code>WsAnswerHelper.java</code>）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ChatRestController.java 第 53-64 行</span><br><span class="hljs-meta">@MessageMapping(&quot;/chat/&#123;session&#125;&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">chat</span><span class="hljs-params">(String msg,</span><br><span class="hljs-params">                     <span class="hljs-meta">@DestinationVariable(&quot;session&quot;)</span> String session,</span><br><span class="hljs-params">                     <span class="hljs-meta">@Header(&quot;simpSessionAttributes&quot;)</span> Map&lt;String, Object&gt; attrs,</span><br><span class="hljs-params">                     SimpMessageHeaderAccessor accessor)</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">aiType</span> <span class="hljs-operator">=</span> (String) attrs.get(WsAnswerHelper.AI_SOURCE_PARAM);<br>    WebSocketResponseUtil.execute(accessor, () -&gt; &#123;<br>        log.info(<span class="hljs-string">&quot;&#123;&#125; 用户开始了对话: &#123;&#125; - &#123;&#125;&quot;</span>, ReqInfoContext.getReqInfo().getUser(), aiType, msg);<br>        <span class="hljs-type">AISourceEnum</span> <span class="hljs-variable">source</span> <span class="hljs-operator">=</span> aiType == <span class="hljs-literal">null</span> ? <span class="hljs-literal">null</span> : AISourceEnum.valueOf(aiType);<br>        answerHelper.sendMsgToUser(source, session, msg);<br>    &#125;);<br>&#125;<br><br><span class="hljs-comment">// WsAnswerHelper.java 第 29-42 行</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendMsgToUser</span><span class="hljs-params">(AISourceEnum ai, String session, String question)</span> &#123;<br>    <span class="hljs-keyword">if</span> (ai == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-comment">// 自动选择AI类型</span><br>        sendMsgToUser(session, question);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-type">ChatRecordsVo</span> <span class="hljs-variable">res</span> <span class="hljs-operator">=</span> chatFacade.autoChat(ai, question, vo -&gt; response(session, vo));<br>        log.info(<span class="hljs-string">&quot;AI直接返回：&#123;&#125;&quot;</span>, res);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// WsAnswerHelper.java 第 55-61 行</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">response</span><span class="hljs-params">(String session, ChatRecordsVo response)</span> &#123;<br>    <span class="hljs-comment">// convertAndSendToUser 方法可以发送信给给指定用户,</span><br>    <span class="hljs-comment">// 底层会自动将第二个参数目的地址 /chat/rsp 拼接为</span><br>    <span class="hljs-comment">// /user/username/chat/rsp，其中第二个参数 username 即为这里的第一个参数 session</span><br>    WebSocketResponseUtil.sendMsgToUser(session, <span class="hljs-string">&quot;/chat/rsp&quot;</span>, response);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li><code>ChatRestController.chat()</code> 方法：接收前端发来的 STOMP 消息（通过 <code>@MessageMapping(&quot;/chat/{session}&quot;)</code>）</li>
+<li><code>answerHelper.sendMsgToUser()</code> 方法：调用 <code>chatFacade.autoChat()</code>（自动选择 AI 类型，然后调用对应的策略）</li>
+<li><code>chatFacade.autoChat()</code> 方法：调用策略的 <code>doAsyncAnswer()</code> 方法（传入 <code>consumer</code> 回调）</li>
+<li><code>consumer</code> 回调：每次 LLM 返回一段文字，就执行一次 <code>response(session, vo)</code>）</li>
+<li><code>response()</code> 方法：调用 <code>WebSocketResponseUtil.sendMsgToUser()</code> 把当前回答推送给前端</li>
+</ul>
+<hr>
+<h2 id="六、面试高频追问（高标准版）"><a href="#六、面试高频追问（高标准版）" class="headerlink" title="六、面试高频追问（高标准版）"></a>六、面试高频追问（高标准版）</h2><h3 id="Q1：策略模式和工厂模式有什么区别？"><a href="#Q1：策略模式和工厂模式有什么区别？" class="headerlink" title="Q1：策略模式和工厂模式有什么区别？"></a>Q1：策略模式和工厂模式有什么区别？</h3><p><strong>答</strong>：</p>
+<ul>
+<li><strong>策略模式</strong>：定义一组算法，让它们可以互相替换（重点在”算法&#x2F;策略的替换”）</li>
+<li><strong>工厂模式</strong>：封装对象的创建过程，调用方不需要知道具体实现类（重点在”对象创建”）</li>
+</ul>
+<p><strong>项目里两者结合使用</strong>：</p>
+<ul>
+<li>策略模式：定义 <code>ChatService</code> 接口，让不同 LLM 可以互相替换</li>
+<li>工厂模式：<code>ChatServiceFactory</code> 根据 <code>aiType</code> 创建&#x2F;获取对应的策略实例</li>
+</ul>
+<h3 id="Q2：如果我要新增一个-LLM（比如文心一言），需要改哪些代码？"><a href="#Q2：如果我要新增一个-LLM（比如文心一言），需要改哪些代码？" class="headerlink" title="Q2：如果我要新增一个 LLM（比如文心一言），需要改哪些代码？"></a>Q2：如果我要新增一个 LLM（比如文心一言），需要改哪些代码？</h3><p><strong>答</strong>：</p>
+<ol>
+<li>新建一个类 <code>WenXinChatServiceImpl implements ChatService</code></li>
+<li>实现 <code>source()</code> 方法，返回 <code>AISourceEnum.WEN_XIN</code></li>
+<li>实现 <code>doAsyncAnswer()</code> 方法，调用文心一言 API</li>
+<li>在 <code>AISourceEnum</code> 枚举里加上 <code>WEN_XIN</code></li>
+<li><strong>不需要改原有代码</strong>（符合开闭原则）</li>
+</ol>
+<h3 id="Q3：WebSocket-和-HTTP-的区别是什么？"><a href="#Q3：WebSocket-和-HTTP-的区别是什么？" class="headerlink" title="Q3：WebSocket 和 HTTP 的区别是什么？"></a>Q3：WebSocket 和 HTTP 的区别是什么？</h3><table>
+<thead>
+<tr>
+<th>对比</th>
+<th>HTTP</th>
+<th>WebSocket</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>连接</strong></td>
+<td>每次请求都要建立连接</td>
+<td>只需建立一次连接</td>
+</tr>
+<tr>
+<td><strong>通信方向</strong></td>
+<td>只能客户端 → 服务器</td>
+<td>双向通信</td>
+</tr>
+<tr>
+<td><strong>实时性</strong></td>
+<td>差（要等客户端主动请求）</td>
+<td>好（服务器可以主动推送）</td>
+</tr>
+<tr>
+<td><strong>开销</strong></td>
+<td>大（每次都要带完整的 HTTP 头）</td>
+<td>小（连接建立后，消息头很小）</td>
+</tr>
+</tbody></table>
+<h3 id="Q4：如果-WebSocket-连接断了，怎么处理？"><a href="#Q4：如果-WebSocket-连接断了，怎么处理？" class="headerlink" title="Q4：如果 WebSocket 连接断了，怎么处理？"></a>Q4：如果 WebSocket 连接断了，怎么处理？</h3><p><strong>答</strong>：前端要有<strong>重连机制</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">connect</span>(<span class="hljs-params"></span>) &#123;<br>    <span class="hljs-keyword">let</span> socket = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SockJS</span>(<span class="hljs-string">&quot;/gpt/&quot;</span> + session + <span class="hljs-string">&quot;/&quot;</span> + aiType);<br>    <span class="hljs-keyword">let</span> stompClient = <span class="hljs-title class_">Stomp</span>.<span class="hljs-title function_">over</span>(socket);<br><br>    stompClient.<span class="hljs-title function_">connect</span>(&#123;&#125;, <span class="hljs-keyword">function</span>(<span class="hljs-params">frame</span>) &#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;连接成功&quot;</span>);<br>        <br>        <span class="hljs-comment">// 订阅消息...</span><br>        <br>    &#125;, <span class="hljs-keyword">function</span>(<span class="hljs-params">error</span>) &#123;<br>        <span class="hljs-comment">// 连接断开时，自动重连</span><br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;连接断开，3 秒后重连...&quot;</span>);<br>        <span class="hljs-built_in">setTimeout</span>(connect, <span class="hljs-number">3000</span>);<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Q5：AbstractStreamListener-的回调机制是什么？"><a href="#Q5：AbstractStreamListener-的回调机制是什么？" class="headerlink" title="Q5：AbstractStreamListener 的回调机制是什么？"></a>Q5：<code>AbstractStreamListener</code> 的回调机制是什么？</h3><p><strong>答</strong>：<code>AbstractStreamListener</code> 是<strong>监听 LLM 流式返回</strong>的回调接口，有三个回调方法：</p>
+<ol>
+<li><strong><code>onMsg(message)</code></strong>：收到 LLM 返回的一段文字时调用<ul>
+<li>把新收到的文字追加到回答里</li>
+<li>回调 <code>consumer.accept(AiChatStatEnum.MID, chatRes)</code>（把当前回答推送给前端）</li>
+</ul>
+</li>
+<li><strong><code>onClosed(eventSource)</code></strong>：LLM 返回结束（连接关闭）时调用<ul>
+<li>给回答加上结束标记</li>
+<li>回调 <code>consumer.accept(AiChatStatEnum.END, chatRes)</code>（通知前端”回答结束了”）</li>
+</ul>
+</li>
+<li><strong><code>onError(throwable, response)</code></strong>：LLM 返回异常时调用<ul>
+<li>给回答加上错误信息</li>
+<li>回调 <code>consumer.accept(AiChatStatEnum.ERROR, chatRes)</code>（通知前端”回答出错了”）</li>
+</ul>
+</li>
+</ol>
+<h3 id="Q6：WebSocketResponseUtil-sendMsgToUser-的底层实现是什么？"><a href="#Q6：WebSocketResponseUtil-sendMsgToUser-的底层实现是什么？" class="headerlink" title="Q6：WebSocketResponseUtil.sendMsgToUser() 的底层实现是什么？"></a>Q6：<code>WebSocketResponseUtil.sendMsgToUser()</code> 的底层实现是什么？</h3><p><strong>答</strong>：<code>convertAndSendToUser(user, destination, payload)</code> 方法：</p>
+<ol>
+<li>第一个参数 <code>user</code>：用户名（也就是 <code>Principal</code>）</li>
+<li>第二个参数 <code>destination</code>：目的地（比如 <code>/chat/rsp</code>）</li>
+<li>第三个参数 <code>payload</code>：消息体（比如 <code>ChatRecordsVo</code>）</li>
+<li><strong>底层实现</strong>：Spring 会自动把目的地拼接为 <code>/user/{username}/{destination}</code><ul>
+<li>比如：<code>convertAndSendToUser(&quot;session1&quot;, &quot;/chat/rsp&quot;, response)</code></li>
+<li>实际推送到：<code>/user/session1/chat/rsp</code></li>
+<li>前端订阅的也是 <code>/user/chat/rsp</code>（<code>session1</code> 会被自动替换）</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="七、总结：策略模式-WebSocket-在项目里的完整流程"><a href="#七、总结：策略模式-WebSocket-在项目里的完整流程" class="headerlink" title="七、总结：策略模式 + WebSocket 在项目里的完整流程"></a>七、总结：策略模式 + WebSocket 在项目里的完整流程</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs stylus">┌────────────────────────────────────────────────────┐<br>│                    用户在前端输入问题                       │<br>└──────────────────────────┬──────────────────────┘<br>                           │<br>                           ▼<br>┌────────────────────────────────────────────────────┐<br>│  ① 前端通过 WebSocket 发送消息                            │<br>│     stompClient<span class="hljs-selector-class">.send</span>(<span class="hljs-string">&quot;/app/chat/&quot;</span> + session, &#123;&#125;, question) │<br>└──────────────────────────┬──────────────────────┘<br>                           │<br>                           ▼<br>┌────────────────────────────────────────────────────┐<br>│  ② ChatRestController<span class="hljs-selector-class">.chat</span>() 接收消息                     │<br>│     → 调用 chatFacade<span class="hljs-selector-class">.autoChat</span>(aiType, question)          │<br>└──────────────────────────┬──────────────────────┘<br>                           │<br>                           ▼<br>┌────────────────────────────────────────────────────┐<br>│  ③ ChatServiceFactory 根据 aiType 选择策略                │<br>│     → 如果是 CHAT_GPT_3_5 → ChatGptAiServiceImpl        │<br>│     → 如果是 DEEP_SEEK   → DeepSeekChatServiceImpl        │<br>└──────────────────────────┬──────────────────────┘<br>                           │<br>                           ▼<br>┌────────────────────────────────────────────────────┐<br>│  ④ 具体策略调用 LLM API（流式返回）                      │<br>│     → 每收到一段文字，就回调一次 consumer<span class="hljs-selector-class">.accept</span>()        │<br>└──────────────────────────┬──────────────────────┘<br>                           │<br>                           ▼<br>┌────────────────────────────────────────────────────┐<br>│  ⑤ consumer 回调：通过 WebSocket 推送给前端               │<br>│     → WebSocketResponseUtil<span class="hljs-selector-class">.sendMsgToUser</span>(session, ...)    │<br>└──────────────────────────┬──────────────────────┘<br>                           │<br>                           ▼<br>┌────────────────────────────────────────────────────┐<br>│  ⑥ 前端收到消息，更新页面（像打字机一样显示回答）         │<br>└────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>下一篇预告</strong>：《技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）》</p>
+<hr>
+<h2 id="八、本文贡献的”高标准”内容（对比之前版本）"><a href="#八、本文贡献的”高标准”内容（对比之前版本）" class="headerlink" title="八、本文贡献的”高标准”内容（对比之前版本）"></a>八、本文贡献的”高标准”内容（对比之前版本）</h2><table>
+<thead>
+<tr>
+<th>内容</th>
+<th>之前版本</th>
+<th>本版本（高标准）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>注册式工厂 vs 枚举式工厂</strong></td>
+<td>没提到</td>
+<td>✅ 详细讲解两种工厂的区别，给出代码对比</td>
+</tr>
+<tr>
+<td><strong><code>List&lt;ChatService&gt;</code> 自动注入原理</strong></td>
+<td>没详细讲</td>
+<td>✅ 讲解 Spring 如何自动注入所有实现类</td>
+</tr>
+<tr>
+<td><strong><code>AbstractStreamListener</code> 回调机制</strong></td>
+<td>只提了一句</td>
+<td>✅ 详细讲解 <code>onMsg</code>、<code>onClosed</code>、<code>onError</code> 三个回调方法</td>
+</tr>
+<tr>
+<td><strong><code>WebSocketResponseUtil.sendMsgToUser()</code> 底层实现</strong></td>
+<td>没详细讲</td>
+<td>✅ 讲解 STOMP 的 <code>/user/chat/rsp</code> 路径映射</td>
+</tr>
+<tr>
+<td><strong><code>AuthHandshakeHandler</code> 和 <code>AuthHandshakeInterceptor</code></strong></td>
+<td>没提到</td>
+<td>✅ 讲解认证机制（如何获取 <code>Principal</code>，如何设置 <code>session</code>）</td>
+</tr>
+<tr>
+<td><strong>面试追问</strong></td>
+<td>4 道题</td>
+<td>✅ 增加到 6 道题，每道都有详细答案和源码依据</td>
+</tr>
+</tbody></table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/" class="print-no-link">#技术派</a>
+      
+        <a href="/tags/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" class="print-no-link">#策略模式</a>
+      
+        <a href="/tags/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" class="print-no-link">#工厂模式</a>
+      
+        <a href="/tags/WebSocket/" class="print-no-link">#WebSocket</a>
+      
+        <a href="/tags/STOMP/" class="print-no-link">#STOMP</a>
+      
+        <a href="/tags/LLM/" class="print-no-link">#LLM</a>
+      
+        <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="print-no-link">#学习笔记</a>
+      
+        <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/" class="print-no-link">#傻子都能懂</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E7%BA%A7/" class="print-no-link">#源码级</a>
+      
+        <a href="/tags/%E9%AB%98%E6%A0%87%E5%87%86/" class="print-no-link">#高标准</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析）</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-strategy-websocket-learn/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-fastexcel-learn/" title="技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-rabbitmq-learn/" title="技术派项目学习笔记（二）· 高标准：RabbitMQ 异步解耦与消息可靠性（源码级深度解析）">
+                        <span class="hidden-mobile">技术派项目学习笔记（二）· 高标准：RabbitMQ 异步解耦与消息可靠性（源码级深度解析）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

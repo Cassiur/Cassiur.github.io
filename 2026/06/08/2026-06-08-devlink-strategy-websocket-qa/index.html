@@ -1,0 +1,1071 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送 简历原文：「为解决多态大模型接入的扩展性问题，基于策略模式与工厂模式实现 LLM 调用链路的统一抽象与热插拔；后端结合 WebSocket 推送 Stream 流，实现前端毫秒级响应体验。」 面试口径：“我们项目要接入多个大模型（ChatGPT、Kimi、DeepSeek 等），如果写 if-else 判断类型再调用，新增">
+<meta property="og:type" content="article">
+<meta property="og:title" content="技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-strategy-websocket-qa/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送 简历原文：「为解决多态大模型接入的扩展性问题，基于策略模式与工厂模式实现 LLM 调用链路的统一抽象与热插拔；后端结合 WebSocket 推送 Stream 流，实现前端毫秒级响应体验。」 面试口径：“我们项目要接入多个大模型（ChatGPT、Kimi、DeepSeek 等），如果写 if-else 判断类型再调用，新增">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T11:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T11:05:41.102Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="STOMP">
+<meta property="article:tag" content="WebSocket">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="字节跳动">
+<meta property="article:tag" content="工厂模式">
+<meta property="article:tag" content="技术派">
+<meta property="article:tag" content="流式推送">
+<meta property="article:tag" content="策略模式">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 19:30" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          54 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="技术派面试拷打②：策略模式-工厂模式-WebSocket-流式推送"><a href="#技术派面试拷打②：策略模式-工厂模式-WebSocket-流式推送" class="headerlink" title="技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送"></a>技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送</h1><blockquote>
+<p>简历原文：「为解决多态大模型接入的扩展性问题，基于策略模式与工厂模式实现 LLM 调用链路的统一抽象与热插拔；后端结合 WebSocket 推送 Stream 流，实现前端毫秒级响应体验。」</p>
+<p>面试口径：<strong>“我们项目要接入多个大模型（ChatGPT、Kimi、DeepSeek 等），如果写 if-else 判断类型再调用，新增一个模型就要改主流程代码，违反开闭原则。所以用策略模式：定义 <code>ChatService</code> 接口，每个模型写一个实现类；用工厂模式（<code>ChatServiceFactory</code>）在启动时自动注册所有策略，调用时根据枚举类型直接拿对应的实现，新增模型只要加一个实现类，不动任何旧代码（热插拔）。前端用 WebSocket（STOMP 协议）订阅后端推送，后端用 <code>SimpMessagingTemplate</code> 逐段推送 LLM 生成的文本，前端收到一段渲染一段，不用等全部生成完才显示，实现毫秒级响应体验。”</strong></p>
+</blockquote>
+<hr>
+<h2 id="第一层：为什么要策略模式？（设计模式基础题）"><a href="#第一层：为什么要策略模式？（设计模式基础题）" class="headerlink" title="第一层：为什么要策略模式？（设计模式基础题）"></a>第一层：为什么要策略模式？（设计模式基础题）</h2><h3 id="Q1：不用策略模式，直接用-if-else-不行吗？有什么区别？"><a href="#Q1：不用策略模式，直接用-if-else-不行吗？有什么区别？" class="headerlink" title="Q1：不用策略模式，直接用 if-else 不行吗？有什么区别？"></a>Q1：不用策略模式，直接用 if-else 不行吗？有什么区别？</h3><p><strong>答：</strong> 用 if-else <strong>能跑，但不好维护</strong>。策略模式是为了解决”<strong>一堆 if-else 判断类型，然后执行不同逻辑</strong>“这种场景的。</p>
+<p><strong>if-else 版本（反面教材）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 糟糕的写法：所有逻辑耦合在一个方法里</span><br><span class="hljs-keyword">public</span> ChatRecordsVo <span class="hljs-title function_">chat</span><span class="hljs-params">(AISourceEnum type, Long user, String question)</span> &#123;<br>    <span class="hljs-keyword">if</span> (type == AISourceEnum.CHAT_GPT_3_5) &#123;<br>        <span class="hljs-comment">// 调用 ChatGPT 的逻辑（50 行）</span><br>        <span class="hljs-keyword">return</span> callChatGpt(user, question);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type == AISourceEnum.DEEP_SEEK) &#123;<br>        <span class="hljs-comment">// 调用 DeepSeek 的逻辑（50 行）</span><br>        <span class="hljs-keyword">return</span> callDeepSeek(user, question);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type == AISourceEnum.DOUBAO) &#123;<br>        <span class="hljs-comment">// 调用豆包的逻辑（50 行）</span><br>        <span class="hljs-keyword">return</span> callDoubao(user, question);<br>    &#125;<br>    <span class="hljs-comment">// 新增一个模型，就要改这个方法！违反开闭原则</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>问题：</strong></p>
+<ol>
+<li><strong>违反开闭原则</strong>：新增一个模型，要改这个 <code>if-else</code> 方法</li>
+<li><strong>代码臃肿</strong>：所有模型的逻辑都堆在一个类里，可读性差</li>
+<li><strong>无法独立测试</strong>：想单元测试 DeepSeek 的调用逻辑，但这个方法依赖所有模型</li>
+</ol>
+<p><strong>策略模式版本（项目里的写法）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ✅ 优雅的写法：定义策略接口</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ChatService</span> &#123;<br>    AISourceEnum <span class="hljs-title function_">source</span><span class="hljs-params">()</span>;  <span class="hljs-comment">// 每个策略告诉工厂&quot;我是哪个模型&quot;</span><br>    ChatRecordsVo <span class="hljs-title function_">chat</span><span class="hljs-params">(Long user, String question)</span>;<br>&#125;<br><br><span class="hljs-comment">// 每个模型写一个实现类（策略）</span><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatGptAiServiceImpl</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbsChatService</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> AISourceEnum <span class="hljs-title function_">source</span><span class="hljs-params">()</span> &#123; <span class="hljs-keyword">return</span> AISourceEnum.CHAT_GPT_3_5; &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> ChatRecordsVo <span class="hljs-title function_">chat</span><span class="hljs-params">(Long user, String question)</span> &#123;<br>        <span class="hljs-comment">// 只关心 ChatGPT 的调用逻辑（50 行）</span><br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 调用时：根本不用 if-else，工厂直接给实现类</span><br><span class="hljs-type">ChatService</span> <span class="hljs-variable">service</span> <span class="hljs-operator">=</span> chatServiceFactory.getChatService(AISourceEnum.CHAT_GPT_3_5);<br><span class="hljs-keyword">return</span> service.chat(user, question);<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“不用策略模式也能跑，但维护成本高。如果项目要接入 10 个大模型，if-else 版本要写 10 个 <code>else if</code>，新增模型要改主流程代码，违反开闭原则。策略模式把’调用哪个模型’的判断逻辑剥离到工厂里，每个模型独立成一个实现类，新增模型只要加一个类，不动任何旧代码（热插拔）。”</p>
+</blockquote>
+<hr>
+<h3 id="Q2：策略模式的核心角色有哪些？项目里分别是谁？"><a href="#Q2：策略模式的核心角色有哪些？项目里分别是谁？" class="headerlink" title="Q2：策略模式的核心角色有哪些？项目里分别是谁？"></a>Q2：策略模式的核心角色有哪些？项目里分别是谁？</h3><p><strong>答：</strong> 策略模式有三个核心角色：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>作用</th>
+<th>项目里的类</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>策略接口（Strategy）</strong></td>
+<td>定义所有策略的通用方法</td>
+<td><code>ChatService</code></td>
+</tr>
+<tr>
+<td><strong>具体策略（ConcreteStrategy）</strong></td>
+<td>实现策略接口，每个策略一种算法</td>
+<td><code>ChatGptAiServiceImpl</code>、<code>DeepSeekChatServiceImpl</code>、<code>DoubaoAiServiceImpl</code> 等</td>
+</tr>
+<tr>
+<td><strong>上下文&#x2F;工厂（Context&#x2F;Factory）</strong></td>
+<td>根据条件选择并执行对应的策略</td>
+<td><code>ChatServiceFactory</code></td>
+</tr>
+</tbody></table>
+<p><strong>项目里的类结构：</strong></p>
+<figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs isbl"><span class="hljs-variable">ChatService</span>（策略接口）<br>  ├── <span class="hljs-function"><span class="hljs-title">source</span>()：返回 <span class="hljs-variable">AISourceEnum</span>（我是谁？）</span><br><span class="hljs-function">  ├── <span class="hljs-title">chat</span>()：同步调用</span><br><span class="hljs-function">  └── <span class="hljs-title">asyncChat</span>()：异步调用（带 <span class="hljs-variable">Stream</span> 回调）</span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-variable">ChatGptAiServiceImpl</span>（具体策略：<span class="hljs-variable">ChatGPT</span>）</span><br><span class="hljs-function"><span class="hljs-variable">DeepSeekChatServiceImpl</span>（具体策略：<span class="hljs-variable">DeepSeek</span>）</span><br><span class="hljs-function"><span class="hljs-variable">DoubaoAiServiceImpl</span>（具体策略：豆包）</span><br><span class="hljs-function"><span class="hljs-variable">AliAiServiceImpl</span>（具体策略：阿里百炼）</span><br><span class="hljs-function"><span class="hljs-variable">ZhipuAiServiceImpl</span>（具体策略：智谱 <span class="hljs-variable">AI</span>）</span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-variable">ChatServiceFactory</span>（工厂：持有一个 <span class="hljs-variable">Map</span>，<span class="hljs-variable">key</span>=<span class="hljs-variable">AISourceEnum</span>，<span class="hljs-variable">value</span>=<span class="hljs-variable">ChatService</span> 实现）</span><br><span class="hljs-function">  └── <span class="hljs-title">getChatService</span>(<span class="hljs-variable">AISourceEnum</span>)：根据枚举直接拿实现类</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“策略模式有三个角色：策略接口（定义通用方法）、具体策略（每种算法的实现）、上下文&#x2F;工厂（选择并执行策略）。我们项目里，<code>ChatService</code> 是策略接口，每个大模型是一个具体策略实现类，<code>ChatServiceFactory</code> 是工厂，启动时自动注册所有策略，调用时根据 <code>AISourceEnum</code> 直接拿实现类。”</p>
+</blockquote>
+<hr>
+<h3 id="Q3：工厂模式有哪几种？项目里用的是哪种？为什么？"><a href="#Q3：工厂模式有哪几种？项目里用的是哪种？为什么？" class="headerlink" title="Q3：工厂模式有哪几种？项目里用的是哪种？为什么？"></a>Q3：工厂模式有哪几种？项目里用的是哪种？为什么？</h3><p><strong>答：</strong> 工厂模式有三种：<strong>简单工厂、工厂方法、抽象工厂</strong>。项目里用的是<strong>注册式工厂</strong>（属于简单工厂的变种）。</p>
+<p><strong>三种工厂的区别：</strong></p>
+<table>
+<thead>
+<tr>
+<th>工厂类型</th>
+<th>原理</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>简单工厂</strong></td>
+<td>一个工厂类，根据条件 <code>if-else</code> 创建对象</td>
+<td>简单</td>
+<td>新增产品要改工厂类，违反开闭原则</td>
+</tr>
+<tr>
+<td><strong>工厂方法</strong></td>
+<td>每种产品一个工厂类，实现同一个工厂接口</td>
+<td>符合开闭原则</td>
+<td>类爆炸（10 个产品 &#x3D; 10 个工厂类）</td>
+</tr>
+<tr>
+<td><strong>抽象工厂</strong></td>
+<td>工厂方法 + 产品族（一组相关产品）</td>
+<td>保证产品族兼容</td>
+<td>复杂，过度设计</td>
+</tr>
+</tbody></table>
+<p><strong>项目里的”注册式工厂”（推荐！）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 工厂持有所有策略的 Map</span><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatServiceFactory</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;AISourceEnum, ChatService&gt; chatServiceMap;<br><br>    <span class="hljs-comment">// ✅ Spring 自动注入所有 ChatService 的实现类（神奇！）</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ChatServiceFactory</span><span class="hljs-params">(List&lt;ChatService&gt; chatServiceList)</span> &#123;<br>        chatServiceMap = Maps.newHashMapWithExpectedSize(chatServiceList.size());<br>        <span class="hljs-keyword">for</span> (ChatService chatService : chatServiceList) &#123;<br>            <span class="hljs-comment">// 每个策略自己告诉工厂&quot;我是谁&quot;（通过 source() 方法）</span><br>            chatServiceMap.put(chatService.source(), chatService);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> ChatService <span class="hljs-title function_">getChatService</span><span class="hljs-params">(AISourceEnum aiSource)</span> &#123;<br>        <span class="hljs-keyword">return</span> chatServiceMap.get(aiSource);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么用注册式工厂？</strong></p>
+<ol>
+<li><strong>不用写 if-else</strong>：所有策略自动注册到 Map</li>
+<li><strong>新增策略零修改</strong>：加一个 <code>XxxAiServiceImpl</code>，工厂自动把它加进 Map（Spring 自动注入 <code>List&lt;ChatService&gt;</code>）</li>
+<li><strong>符合开闭原则</strong>：对扩展开放，对修改关闭</li>
+</ol>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“工厂模式有三种：简单工厂（if-else 判断）、工厂方法（每种产品一个工厂类）、抽象工厂（产品族）。我们项目用的是’注册式工厂’（简单工厂的变种）：工厂持有一个 Map，启动时 Spring 自动注入所有 <code>ChatService</code> 的实现类，调用 <code>source()</code> 方法把每个策略注册到 Map 里。新增一个模型时，只要加一个实现类，工厂自动注册，不用改任何旧代码。”</p>
+</blockquote>
+<hr>
+<h2 id="第二层：Spring-自动注入的魔法（Java-基础题）"><a href="#第二层：Spring-自动注入的魔法（Java-基础题）" class="headerlink" title="第二层：Spring 自动注入的魔法（Java 基础题）"></a>第二层：Spring 自动注入的魔法（Java 基础题）</h2><h3 id="Q4：ChatServiceFactory-的构造函数里，List-chatServiceList-是什么神器？为什么-Spring-能自动注入所有实现类？"><a href="#Q4：ChatServiceFactory-的构造函数里，List-chatServiceList-是什么神器？为什么-Spring-能自动注入所有实现类？" class="headerlink" title="Q4：ChatServiceFactory 的构造函数里，List&lt;ChatService&gt; chatServiceList 是什么神器？为什么 Spring 能自动注入所有实现类？"></a>Q4：<code>ChatServiceFactory</code> 的构造函数里，<code>List&lt;ChatService&gt; chatServiceList</code> 是什么神器？为什么 Spring 能自动注入所有实现类？</h3><p><strong>答：</strong> 这是 <strong>Spring 的泛化注入（by-type）</strong> 特性。</p>
+<p><strong>原理：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Spring 启动时：</span><br><span class="hljs-comment">// 1. 扫描所有 @Service / @Component 注解的类</span><br><span class="hljs-comment">// 2. 发现 ChatGptAiServiceImpl 实现了 ChatService → 放进容器</span><br><span class="hljs-comment">// 3. 发现 DeepSeekChatServiceImpl 实现了 ChatService → 放进容器</span><br><span class="hljs-comment">// ...</span><br><span class="hljs-comment">// 4. 创建 ChatServiceFactory 时，发现构造函数需要 List&lt;ChatService&gt;</span><br><span class="hljs-comment">//    → 把所有实现了 ChatService 的 Bean 打包成 List，注入进来！</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>如果有两个<code>ChatService</code> 实现类，但我想指定注入某一个怎么办？</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 方案 1：用 @Qualifier 指定 Bean 名字</span><br><span class="hljs-meta">@Autowired</span><br><span class="hljs-meta">@Qualifier(&quot;chatGptAiServiceImpl&quot;)</span><br><span class="hljs-keyword">private</span> ChatService chatService;<br><br><span class="hljs-comment">// 方案 2：用 @Primary 标注&quot;首选&quot;的实现类</span><br><span class="hljs-meta">@Primary</span><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatGptAiServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ChatService</span> &#123; ... &#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“<code>List&lt;ChatService&gt;</code> 是 Spring 的泛化注入特性。Spring 启动时会把所有实现了 <code>ChatService</code> 接口的 Bean 都找出来，打包成 List 注入进来。这样工厂不用手动注册，新增一个实现类时 Spring 自动把它加进 List，工厂的构造函数自动把它注册到 Map 里，实现零配置扩展。”</p>
+</blockquote>
+<hr>
+<h3 id="Q5：如果-ChatService-有-10-个实现类，但我想在工厂里按”模型厂商”分组（比如-OpenAI-系、阿里系），怎么办？"><a href="#Q5：如果-ChatService-有-10-个实现类，但我想在工厂里按”模型厂商”分组（比如-OpenAI-系、阿里系），怎么办？" class="headerlink" title="Q5：如果 ChatService 有 10 个实现类，但我想在工厂里按”模型厂商”分组（比如 OpenAI 系、阿里系），怎么办？"></a>Q5：如果 <code>ChatService</code> 有 10 个实现类，但我想在工厂里按”模型厂商”分组（比如 OpenAI 系、阿里系），怎么办？</h3><p><strong>答：</strong> 这是<strong>策略模式 + 工厂模式的进阶用法</strong>，可以给策略接口加一个”分组”方法。</p>
+<p><strong>方案 1：在 <code>AISourceEnum</code> 里加一个”厂商”字段</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">AISourceEnum</span> &#123;<br>    CHAT_GPT_3_5(<span class="hljs-string">&quot;OpenAI&quot;</span>),<br>    GPT_4(<span class="hljs-string">&quot;OpenAI&quot;</span>),<br>    DEEP_SEEK(<span class="hljs-string">&quot;DeepSeek&quot;</span>),<br>    DOUBAO(<span class="hljs-string">&quot;ByteDance&quot;</span>),<br>    ALI(<span class="hljs-string">&quot;Alibaba&quot;</span>);<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String vendor;  <span class="hljs-comment">// 厂商</span><br>    AISourceEnum(String vendor) &#123; <span class="hljs-built_in">this</span>.vendor = vendor; &#125;<br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getVendor</span><span class="hljs-params">()</span> &#123; <span class="hljs-keyword">return</span> vendor; &#125;<br>&#125;<br><br><span class="hljs-comment">// 工厂可以按厂商分组</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatServiceFactory</span> &#123;<br>    <span class="hljs-keyword">private</span> Map&lt;String, List&lt;ChatService&gt;&gt; vendorGroupedMap;  <span class="hljs-comment">// 按厂商分组</span><br>    <br>    <span class="hljs-keyword">public</span> List&lt;ChatService&gt; <span class="hljs-title function_">getByVendor</span><span class="hljs-params">(String vendor)</span> &#123;<br>        <span class="hljs-keyword">return</span> vendorGroupedMap.get(vendor);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>方案 2：用多个工厂（工厂方法模式）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 抽象工厂接口</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ChatServiceFactory</span> &#123;<br>    ChatService <span class="hljs-title function_">getChatService</span><span class="hljs-params">(AISourceEnum type)</span>;<br>&#125;<br><br><span class="hljs-comment">// OpenAI 工厂：只管 ChatGPT 系列</span><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenAIFactory</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ChatServiceFactory</span> &#123; ... &#125;<br><br><span class="hljs-comment">// 阿里工厂：只管通义千问</span><br><span class="hljs-meta">@Service</span>  <br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AlibabaFactory</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ChatServiceFactory</span> &#123; ... &#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“如果想按厂商分组，可以在 <code>AISourceEnum</code> 里加一个 <code>vendor</code> 字段，工厂里维护一个 <code>Map&lt;String, List&lt;ChatService&gt;&gt;</code> 按厂商分组。或者升级成’工厂方法模式’：定义一个抽象工厂接口，每个厂商实现一个工厂类（OpenAI 工厂、阿里工厂），调用时根据厂商选工厂，再从工厂里拿具体的模型策略。”</p>
+</blockquote>
+<hr>
+<h2 id="第三层：WebSocket-与-STOMP-协议（网络编程题）"><a href="#第三层：WebSocket-与-STOMP-协议（网络编程题）" class="headerlink" title="第三层：WebSocket 与 STOMP 协议（网络编程题）"></a>第三层：WebSocket 与 STOMP 协议（网络编程题）</h2><h3 id="Q6：为什么用-WebSocket-而不是-HTTP-轮询？区别是什么？"><a href="#Q6：为什么用-WebSocket-而不是-HTTP-轮询？区别是什么？" class="headerlink" title="Q6：为什么用 WebSocket 而不是 HTTP 轮询？区别是什么？"></a>Q6：为什么用 WebSocket 而不是 HTTP 轮询？区别是什么？</h3><p><strong>答：</strong> HTTP 是**”问一次，答一次”<strong>，WebSocket 是</strong>“建立连接后，服务端可以主动推消息”**。</p>
+<p><strong>HTTP 轮询的问题（反面教材）：</strong></p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs 1c">前端（每 <span class="hljs-number">1</span> 秒问一次）：<span class="hljs-string">&quot;AI 回复了吗？&quot;</span><br>后端：<span class="hljs-string">&quot;还没好，继续等。&quot;</span><br>前端（<span class="hljs-number">1</span> 秒后又问）：<span class="hljs-string">&quot;AI 回复了吗？&quot;</span>  <br>后端：<span class="hljs-string">&quot;还没好...&quot;</span><br>前端（再问）：<span class="hljs-string">&quot;AI 回复了吗？&quot;</span><br>后端：<span class="hljs-string">&quot;好了，给你。&quot;</span><br></code></pre></td></tr></table></figure>
+<p><strong>问题：</strong></p>
+<ol>
+<li><strong>浪费资源</strong>：每 1 秒发一次 HTTP 请求，服务器要处理大量无效请求</li>
+<li><strong>延迟高</strong>：最多有 1 秒的延迟（轮询间隔）</li>
+<li><strong>服务器压力大</strong>：1000 个用户 &#x3D; 每秒 1000 个轮询请求</li>
+</ol>
+<p><strong>WebSocket 的优势：</strong></p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">前端：<span class="hljs-string">&quot;我要建立 WebSocket 连接&quot;</span>（HTTP Upgrade 请求）<br>后端：<span class="hljs-string">&quot;好的，连接建立了（TCP 长连接）&quot;</span><br>        <span class="hljs-string">...</span>（AI 在生成文本）<br>后端（主动推）：<span class="hljs-string">&quot;AI 生成了第 1 段文本&quot;</span><br>后端（主动推）：<span class="hljs-string">&quot;AI 生成了第 2 段文本&quot;</span><br>后端（主动推）：<span class="hljs-string">&quot;AI 生成完了（Stream END）&quot;</span><br></code></pre></td></tr></table></figure>
+<p><strong>优势：</strong></p>
+<ol>
+<li><strong>服务端可以主动推消息</strong>（HTTP 做不到）</li>
+<li><strong>延迟极低</strong>（生成一段推一段，不用等全部完成）</li>
+<li><strong>节省资源</strong>（一条 TCP 连接搞定，不用每次 HTTP 请求）</li>
+</ol>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“HTTP 是短连接，客户端问一次服务器答一次，要实现服务端推消息只能用轮询（每隔 N 秒问一次’有新消息吗’），延迟高且浪费资源。WebSocket 是长连接，建立连接后服务端可以主动推消息，延迟低（毫秒级），适合 LLM 流式输出场景。我们项目里，AI 每生成一段文本，后端就通过 WebSocket 推一段，前端收到一段渲染一段，不用等全部生成完。”</p>
+</blockquote>
+<hr>
+<h3 id="Q7：为什么用-STOMP-协议而不是直接用原生-WebSocket？"><a href="#Q7：为什么用-STOMP-协议而不是直接用原生-WebSocket？" class="headerlink" title="Q7：为什么用 STOMP 协议而不是直接用原生 WebSocket？"></a>Q7：为什么用 STOMP 协议而不是直接用原生 WebSocket？</h3><p><strong>答：</strong> 原生 WebSocket <strong>只有最基础的消息通道</strong>（发文本&#x2F;二进制），没有<strong>消息路由、订阅、ACK 确认</strong>这些高级功能。STOMP 是在 WebSocket 之上的<strong>消息协议</strong>，相当于”给 WebSocket 加上消息队列的能力”。</p>
+<p><strong>原生 WebSocket 的问题：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 原生 WebSocket：只有 onopen / onmessage / onclose / onerror</span><br><span class="hljs-keyword">const</span> ws = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WebSocket</span>(<span class="hljs-string">&quot;ws://localhost:8080/gpt/123/ChatGPT&quot;</span>);<br><br>ws.<span class="hljs-property">onmessage</span> = <span class="hljs-function">(<span class="hljs-params">event</span>) =&gt;</span> &#123;<br>    <span class="hljs-comment">// 所有消息都到这里，要自己解析&quot;这是哪类消息&quot;</span><br>    <span class="hljs-keyword">if</span> (event.<span class="hljs-property">data</span>.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;NOTIFY:&quot;</span>)) &#123; ... &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (event.<span class="hljs-property">data</span>.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;CHAT:&quot;</span>)) &#123; ... &#125;<br>    <span class="hljs-comment">// 很麻烦！</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><strong>STOMP 的优势：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// STOMP：有&quot;订阅&quot;概念，不同目的地（destination）的消息分开处理</span><br><span class="hljs-keyword">const</span> stompClient = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StompJs</span>.<span class="hljs-title class_">Client</span>(&#123; <span class="hljs-attr">brokerURL</span>: <span class="hljs-string">&quot;ws://localhost:8080/gpt/123/ChatGPT&quot;</span> &#125;);<br><br><span class="hljs-comment">// 订阅 AI 回复频道（destination = /user/chat/rsp）</span><br>stompClient.<span class="hljs-title function_">subscribe</span>(<span class="hljs-string">&quot;/user/chat/rsp&quot;</span>, <span class="hljs-function">(<span class="hljs-params">message</span>) =&gt;</span> &#123;<br>    <span class="hljs-comment">// 这里只收到 AI 回复消息，不用自己判断类型</span><br>    <span class="hljs-title function_">appendText</span>(message.<span class="hljs-property">body</span>);<br>&#125;);<br><br><span class="hljs-comment">// 订阅通知频道（destination = /user/notify）</span><br>stompClient.<span class="hljs-title function_">subscribe</span>(<span class="hljs-string">&quot;/user/notify&quot;</span>, <span class="hljs-function">(<span class="hljs-params">message</span>) =&gt;</span> &#123;<br>    <span class="hljs-title function_">showNotification</span>(message.<span class="hljs-property">body</span>);<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p><strong>STOMP 的核心概念（类比 RabbitMQ）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>STOMP 概念</th>
+<th>类比 RabbitMQ</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>destination</strong></td>
+<td>routing key + queue</td>
+<td>消息的目的地（订阅哪个频道）</td>
+</tr>
+<tr>
+<td><strong>subscribe</strong></td>
+<td>consumer 订阅队列</td>
+<td>客户端订阅某个 destination</td>
+</tr>
+<tr>
+<td><strong>send</strong></td>
+<td>producer 发消息</td>
+<td>客户端&#x2F;服务端向某个 destination 发消息</td>
+</tr>
+<tr>
+<td><strong>ack</strong></td>
+<td>basicAck</td>
+<td>确认收到消息</td>
+</tr>
+</tbody></table>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“原生 WebSocket 只有基础的消息收发，没有消息路由、订阅、ACK 这些高级功能，所有消息都走同一个 onmessage 回调，要自己解析消息类型。STOMP 是在 WebSocket 之上的消息协议，支持 destination（消息路由）、subscribe（订阅）、ACK 确认等高级功能，代码更清晰。我们项目里，前端订阅 <code>/user/chat/rsp</code> 接收 AI 回复，后端通过 <code>SimpMessagingTemplate.convertAndSendToUser()</code> 推消息到这个 destination。”</p>
+</blockquote>
+<hr>
+<h3 id="Q8：项目里-WebSocket-是用哪个框架实现的？STOMP-的配置在哪里？"><a href="#Q8：项目里-WebSocket-是用哪个框架实现的？STOMP-的配置在哪里？" class="headerlink" title="Q8：项目里 WebSocket 是用哪个框架实现的？STOMP 的配置在哪里？"></a>Q8：项目里 WebSocket 是用哪个框架实现的？STOMP 的配置在哪里？</h3><p><strong>答：</strong> 用的是 <strong>Spring WebSocket（spring-websocket）</strong> 的 STOMP 支持，配置在 <code>WsChatConfig.java</code>。</p>
+<p><strong>核心配置</strong>（<code>WsChatConfig.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@EnableWebSocketMessageBroker</span>  <span class="hljs-comment">// 开启 STOMP  over WebSocket</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WsChatConfig</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">WebSocketMessageBrokerConfigurer</span> &#123;<br><br>    <span class="hljs-comment">// 1. 配置消息代理（Broker）：前端订阅的 destination 前缀</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">configureMessageBroker</span><span class="hljs-params">(MessageBrokerRegistry config)</span> &#123;<br>        <span class="hljs-comment">// /chat 开头的 destination → 走内存消息代理（给 AI 回复用）</span><br>        <span class="hljs-comment">// /msg 开头的 destination → 走内存消息代理（给通知推送用）</span><br>        config.enableSimpleBroker(<span class="hljs-string">&quot;/chat&quot;</span>, <span class="hljs-string">&quot;/msg&quot;</span>);<br>        <br>        <span class="hljs-comment">// 客户端发消息到哪个 destination（比如发送聊天消息）</span><br>        <span class="hljs-comment">// 前端发消息到 /app/chat/send → 后端 @MessageMapping(&quot;/chat/send&quot;) 处理</span><br>        config.setApplicationDestinationPrefixes(<span class="hljs-string">&quot;/app&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-comment">// 2. 注册 WebSocket 端点（前端连接的 URL）</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">registerStompEndpoints</span><span class="hljs-params">(StompEndpointRegistry registry)</span> &#123;<br>        <span class="hljs-comment">// 前端连接的 URL：ws://localhost:8080/gpt/&#123;userId&#125;/&#123;aiType&#125;</span><br>        registry.addEndpoint(<span class="hljs-string">&quot;/gpt/&#123;userId&#125;/&#123;aiType&#125;&quot;</span>)<br>                .setAllowedOriginPatterns(<span class="hljs-string">&quot;*&quot;</span>)  <span class="hljs-comment">// 允许跨域</span><br>                .setHandshakeHandler(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AuthHandshakeHandler</span>());  <span class="hljs-comment">// 握手时做认证</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>前端连接的 URL：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// ws://localhost:8080/gpt/123/ChatGPT</span><br><span class="hljs-comment">// 123 = 用户 ID，ChatGPT = AI 类型</span><br><span class="hljs-keyword">const</span> stompClient = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StompJs</span>.<span class="hljs-title class_">Client</span>(&#123;<br>    <span class="hljs-attr">brokerURL</span>: <span class="hljs-string">&quot;ws://localhost:8080/gpt/123/ChatGPT&quot;</span><br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“我们项目用 Spring WebSocket 的 STOMP 支持，配置在 <code>WsChatConfig.java</code>。核心配置有两部分：① <code>configureMessageBroker</code> 设置消息代理（&#x2F;chat、&#x2F;msg 开头的 destination 走内存代理）；② <code>registerStompEndpoints</code> 注册 WebSocket 端点（前端连接的 URL 是 <code>/gpt/{userId}/{aiType}</code>）。前端通过这个 URL 建立 STOMP 连接，然后订阅 <code>/user/chat/rsp</code> 接收 AI 回复。”</p>
+</blockquote>
+<hr>
+<h2 id="第四层：流式推送实现细节（LLM-集成题）"><a href="#第四层：流式推送实现细节（LLM-集成题）" class="headerlink" title="第四层：流式推送实现细节（LLM 集成题）"></a>第四层：流式推送实现细节（LLM 集成题）</h2><h3 id="Q9：后端是怎么”流式”推送-LLM-返回的文本的？SSE-和-WebSocket-有什么区别？"><a href="#Q9：后端是怎么”流式”推送-LLM-返回的文本的？SSE-和-WebSocket-有什么区别？" class="headerlink" title="Q9：后端是怎么”流式”推送 LLM 返回的文本的？SSE 和 WebSocket 有什么区别？"></a>Q9：后端是怎么”流式”推送 LLM 返回的文本的？SSE 和 WebSocket 有什么区别？</h3><p><strong>答：</strong> 后端用 <strong><code>SimpMessagingTemplate.convertAndSendToUser()</code></strong> 逐段推送，前端收到一段渲染一段。</p>
+<p><strong>流式推送的原理</strong>（以 ChatGPT 为例）：</p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs autoit"><span class="hljs-number">1.</span> 前端发送问题：<span class="hljs-string">&quot;你好&quot;</span><br>         ↓<br><span class="hljs-number">2.</span> 后端调用 ChatGPT API（stream=<span class="hljs-literal">true</span>）<br>         ↓<br><span class="hljs-number">3.</span> ChatGPT 返回：<br>   &#123;<span class="hljs-string">&quot;choices&quot;</span>:[&#123;<span class="hljs-string">&quot;delta&quot;</span>:&#123;<span class="hljs-string">&quot;content&quot;</span>:<span class="hljs-string">&quot;你&quot;</span>&#125;&#125;]&#125;<br>   &#123;<span class="hljs-string">&quot;choices&quot;</span>:[&#123;<span class="hljs-string">&quot;delta&quot;</span>:&#123;<span class="hljs-string">&quot;content&quot;</span>:<span class="hljs-string">&quot;好&quot;</span>&#125;&#125;]&#125;<br>   &#123;<span class="hljs-string">&quot;choices&quot;</span>:[&#123;<span class="hljs-string">&quot;delta&quot;</span>:&#123;<span class="hljs-string">&quot;content&quot;</span>:<span class="hljs-string">&quot;！&quot;</span>&#125;&#125;]&#125;<br>         ↓<br><span class="hljs-number">4.</span> 后端每收到一个 chunk，就通过 WebSocket 推给前端<br>   stompClient.<span class="hljs-built_in">send</span>(<span class="hljs-string">&quot;/app/chat&quot;</span>, <span class="hljs-string">&quot;你&quot;</span>)<span class="hljs-comment">;   ← 第 1 段</span><br>   stompClient.<span class="hljs-built_in">send</span>(<span class="hljs-string">&quot;/app/chat&quot;</span>, <span class="hljs-string">&quot;好&quot;</span>)<span class="hljs-comment">;   ← 第 2 段</span><br>   stompClient.<span class="hljs-built_in">send</span>(<span class="hljs-string">&quot;/app/chat&quot;</span>, <span class="hljs-string">&quot;！&quot;</span>)<span class="hljs-comment">;   ← 第 3 段</span><br>         ↓<br><span class="hljs-number">5.</span> 前端收到一段渲染一段（不用等全部完成）<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目里的实际代码</strong>（<code>ChatGptAiServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// AI 返回的流式监听器</span><br><span class="hljs-type">AbstractStreamListener</span> <span class="hljs-variable">listener</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AbstractStreamListener</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onMsg</span><span class="hljs-params">(String message)</span> &#123;<br>        <span class="hljs-keyword">if</span> (StringUtils.isNotBlank(message)) &#123;<br>            <span class="hljs-comment">// 把 AI 返回的这段文本，追加到答案里</span><br>            item.appendAnswer(message);<br>            <br>            <span class="hljs-comment">// ✅ 关键：通过 consumer 回调，触发 WebSocket 推送</span><br>            <span class="hljs-comment">// AiChatStatEnum.MID = &quot;中间状态&quot;，告诉前端&quot;还在生成中&quot;</span><br>            consumer.accept(AiChatStatEnum.MID, chatRes);<br>        &#125;<br>    &#125;<br>&#125;;<br><br><span class="hljs-comment">// 调用 ChatGPT API（stream=true）</span><br>chatGptIntegration.streamReturn(user, chatRes.getRecords(), listener);<br></code></pre></td></tr></table></figure>
+
+<p><strong>SSE（Server-Sent Events）和 WebSocket 的区别：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>SSE</th>
+<th>WebSocket</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>协议</strong></td>
+<td>HTTP（长连接）</td>
+<td>独立的 WS 协议（HTTP Upgrade）</td>
+</tr>
+<tr>
+<td><strong>方向</strong></td>
+<td>服务端 → 客户端（单向）</td>
+<td>双向（客户端和服务端都能发消息）</td>
+</tr>
+<tr>
+<td><strong>浏览器支持</strong></td>
+<td>原生支持（<code>EventSource</code> API）</td>
+<td>需要 <code>new WebSocket()</code></td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>服务端单向推消息（比如股价推送）</td>
+<td>双向通信（聊天、游戏）</td>
+</tr>
+</tbody></table>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“后端流式推送的实现：调用 LLM API 时开启 stream&#x3D;true，LLM 会逐段返回文本（SSE 格式），我们在回调里每收到一段就通过 <code>SimpMessagingTemplate.convertAndSendToUser()</code> 推给前端，前端收到一段渲染一段，不用等全部生成完。SSE 和 WebSocket 的区别是：SSE 是 HTTP 长连接，只能服务端→客户端单向推；WebSocket 是独立的协议，支持双向通信。聊天场景用 WebSocket 更合适，因为前端也要发消息给后端。”</p>
+</blockquote>
+<hr>
+<h3 id="Q10：SimpMessagingTemplate-是怎么用的？convertAndSendToUser-和-convertAndSend-有什么区别？"><a href="#Q10：SimpMessagingTemplate-是怎么用的？convertAndSendToUser-和-convertAndSend-有什么区别？" class="headerlink" title="Q10：SimpMessagingTemplate 是怎么用的？convertAndSendToUser 和 convertAndSend 有什么区别？"></a>Q10：<code>SimpMessagingTemplate</code> 是怎么用的？<code>convertAndSendToUser</code> 和 <code>convertAndSend</code> 有什么区别？</h3><p><strong>答：</strong> <code>SimpMessagingTemplate</code> 是 Spring 提供的<strong>消息推送工具类</strong>，类似 RabbitMQ 的 <code>RabbitTemplate</code>。</p>
+<p><strong><code>convertAndSend</code> vs <code>convertAndSendToUser</code>：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Autowired</span><br><span class="hljs-keyword">private</span> SimpMessagingTemplate messagingTemplate;<br><br><span class="hljs-comment">// 方案 1：推送给所有订阅了 /chat/rsp 的客户端（广播）</span><br>messagingTemplate.convertAndSend(<span class="hljs-string">&quot;/chat/rsp&quot;</span>, message);<br><span class="hljs-comment">// 所有在线用户都能收到（比如&quot;系统通知&quot;）</span><br><br><span class="hljs-comment">// 方案 2：推送给指定用户（点对点）</span><br><span class="hljs-comment">// ✅ 项目里用的是这个！</span><br>messagingTemplate.convertAndSendToUser(<br>    <span class="hljs-string">&quot;123&quot;</span>,           <span class="hljs-comment">// 用户 ID（Principal.name）</span><br>    <span class="hljs-string">&quot;/chat/rsp&quot;</span>,     <span class="hljs-comment">// destination（会自动加 /user/ 前缀）</span><br>    message<br>);<br><span class="hljs-comment">// 只有用户 123 能收到，其他用户收不到</span><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>convertAndSendToUser</code> 的魔法：</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs awk">后端调用：messagingTemplate.convertAndSendToUser(<span class="hljs-string">&quot;123&quot;</span>, <span class="hljs-string">&quot;/chat/rsp&quot;</span>, msg)<br>            ↓<br>Spring 自动转换成 destination：<span class="hljs-regexp">/user/</span><span class="hljs-number">123</span><span class="hljs-regexp">/chat/</span>rsp<br>            ↓<br>只有订阅了 <span class="hljs-regexp">/user/</span><span class="hljs-number">123</span><span class="hljs-regexp">/chat/</span>rsp 的会话才能收到<br>            ↓<br>用户 <span class="hljs-number">123</span> 的 WebSocket 连接收到了消息<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目里的实际代码</strong>（<code>WsAnswerHelper.java</code>，推测）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 推送 AI 回复给指定用户</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">response</span><span class="hljs-params">(Long userId, ChatRecordsVo chatRes)</span> &#123;<br>    simpMessagingTemplate.convertAndSendToUser(<br>        String.valueOf(userId),<br>        <span class="hljs-string">&quot;/chat/rsp&quot;</span>,   <span class="hljs-comment">// 前端订阅的 destination</span><br>        chatRes<br>    );<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“<code>SimpMessagingTemplate</code> 是 Spring 的消息推送工具。<code>convertAndSend(destination, msg)</code> 是广播（所有订阅了这个 destination 的客户端都能收到）；<code>convertAndSendToUser(userId, destination, msg)</code> 是点对点推送（只有指定用户能收到）。我们项目里用的是后者，因为 AI 回复只能给提问的那个人看。<code>convertAndSendToUser</code> 会自动把 destination 转换成 <code>/user/{userId}/chat/rsp</code>，只有这个用户的 WebSocket 连接能收到。”</p>
+</blockquote>
+<hr>
+<h3 id="Q11：如果-WebSocket-连接断了（比如网络不好），前端怎么重连？"><a href="#Q11：如果-WebSocket-连接断了（比如网络不好），前端怎么重连？" class="headerlink" title="Q11：如果 WebSocket 连接断了（比如网络不好），前端怎么重连？"></a>Q11：如果 WebSocket 连接断了（比如网络不好），前端怎么重连？</h3><p><strong>答：</strong> STOMP 客户端（比如 <code>stompjs</code>）支持<strong>自动重连机制</strong>。</p>
+<p><strong><code>stompjs</code> 的重连配置：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> stompClient = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StompJs</span>.<span class="hljs-title class_">Client</span>(&#123;<br>    <span class="hljs-attr">brokerURL</span>: <span class="hljs-string">&quot;ws://localhost:8080/gpt/123/ChatGPT&quot;</span>,<br>    <br>    <span class="hljs-comment">// ✅ 关键：配置重连调度器</span><br>    <span class="hljs-attr">reconnectDelay</span>: <span class="hljs-number">5000</span>,  <span class="hljs-comment">// 断线后 5 秒自动重连</span><br>    <span class="hljs-attr">heartbeatIncoming</span>: <span class="hljs-number">4000</span>,  <span class="hljs-comment">// 心跳：每 4 秒检查一次连接是否存活</span><br>    <span class="hljs-attr">heartbeatOutgoing</span>: <span class="hljs-number">4000</span>,<br>    <br>    <span class="hljs-comment">// 连接成功回调</span><br>    <span class="hljs-attr">onConnect</span>: <span class="hljs-function">(<span class="hljs-params">frame</span>) =&gt;</span> &#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;WebSocket 连接成功&quot;</span>);<br>        <span class="hljs-comment">// 重新订阅 AI 回复频道</span><br>        stompClient.<span class="hljs-title function_">subscribe</span>(<span class="hljs-string">&quot;/user/chat/rsp&quot;</span>, <span class="hljs-function">(<span class="hljs-params">msg</span>) =&gt;</span> &#123; ... &#125;);<br>    &#125;,<br>    <br>    <span class="hljs-comment">// 连接断开回调</span><br>    <span class="hljs-attr">onStompError</span>: <span class="hljs-function">(<span class="hljs-params">frame</span>) =&gt;</span> &#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&quot;WebSocket 连接断开&quot;</span>, frame);<br>        <span class="hljs-comment">// stompjs 会自动重连（如果配置了 reconnectDelay）</span><br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p><strong>后端也要处理连接断开：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Spring WebSocket 提供了 SessionDisconnectEvent 事件</span><br><span class="hljs-meta">@EventListener</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleWebSocketDisconnect</span><span class="hljs-params">(SessionDisconnectEvent event)</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">userId</span> <span class="hljs-operator">=</span> event.getUser().getName();<br>    log.info(<span class="hljs-string">&quot;用户 &#123;&#125; 的 WebSocket 连接断开&quot;</span>, userId);<br>    <span class="hljs-comment">// 可以做一些清理工作：比如标记&quot;该用户的 AI 对话状态为中断&quot;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“WebSocket 断线重连在前端做。我们用的 <code>stompjs</code> 客户端支持自动重连，配置 <code>reconnectDelay=5000</code>（断线后 5 秒重连）就行。同时配置 <code>heartbeatIncoming/Outgoing</code>（心跳检测），每 4 秒检查一次连接是否存活。后端可以监听 <code>SessionDisconnectEvent</code> 事件，在用户断线时做一些清理工作（比如取消正在进行的 AI 生成任务）。”</p>
+</blockquote>
+<hr>
+<h2 id="第五层：LLM-集成与流式处理（AI-集成题）"><a href="#第五层：LLM-集成与流式处理（AI-集成题）" class="headerlink" title="第五层：LLM 集成与流式处理（AI 集成题）"></a>第五层：LLM 集成与流式处理（AI 集成题）</h2><h3 id="Q12：项目里是怎么调用大模型-API-的？用的是什么-HTTP-客户端？"><a href="#Q12：项目里是怎么调用大模型-API-的？用的是什么-HTTP-客户端？" class="headerlink" title="Q12：项目里是怎么调用大模型 API 的？用的是什么 HTTP 客户端？"></a>Q12：项目里是怎么调用大模型 API 的？用的是什么 HTTP 客户端？</h3><p><strong>答：</strong> 从代码看，项目里用的是 <strong><code>com.plexpt.chatgpt</code></strong> 这个第三方库（ChatGPT 的 Java SDK）。</p>
+<p><strong>调用 LLM API 的两种方式：</strong></p>
+<p><strong>方式 1：直接用 <code>OkHttp</code> &#x2F; <code>HttpClient</code> 调用 HTTP API（底层）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>();<br><br><span class="hljs-comment">// 构造请求体（JSON）</span><br><span class="hljs-type">String</span> <span class="hljs-variable">requestBody</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    &#123;</span><br><span class="hljs-string">        &quot;model&quot;: &quot;gpt-3.5-turbo&quot;,</span><br><span class="hljs-string">        &quot;messages&quot;: [&#123;&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;你好&quot;&#125;],</span><br><span class="hljs-string">        &quot;stream&quot;: true</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">    &quot;&quot;&quot;</span>;<br><br><span class="hljs-comment">// 发送 HTTP POST 请求</span><br><span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>.Builder()<br>    .url(<span class="hljs-string">&quot;https://api.openai.com/v1/chat/completions&quot;</span>)<br>    .post(RequestBody.create(requestBody, MediaType.parse(<span class="hljs-string">&quot;application/json&quot;</span>)))<br>    .build();<br><br><span class="hljs-comment">// ✅ 关键：用 EventSource（SSE 客户端）接收流式返回</span><br><span class="hljs-type">EventSource</span> <span class="hljs-variable">eventSource</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">EventSource</span>.Builder(chatGptListener, request)<br>    .build();<br>eventSource.start();  <span class="hljs-comment">// 开始接收流式返回</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>方式 2：用封装好的 SDK（项目里的方式）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ChatGptIntegration.java（推测）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatGptIntegration</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ChatGPTClient client;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">streamReturn</span><span class="hljs-params">(Long user, List&lt;ChatItemVo&gt; messages, AbstractStreamListener listener)</span> &#123;<br>        <span class="hljs-comment">// 封装好的 SDK，直接调用</span><br>        client.streamChat(user, messages, listener);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么用 SDK 而不是直接 HTTP 调用？</strong></p>
+<ol>
+<li><strong>省代码</strong>：不用自己构造 HTTP 请求、处理 SSE 格式</li>
+<li><strong>错误处理更完善</strong>：SDK 帮你处理了重试、超时、错误码</li>
+<li><strong>维护方便</strong>：API 升级时只要升级 SDK，不用改业务代码</li>
+</ol>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“我们项目里用的是 <code>com.plexpt.chatgpt</code> 这个第三方 SDK（ChatGPT 的 Java 封装），底层是 OkHttp + EventSource（SSE 客户端）。调用时开启 <code>stream=true</code>，SDK 会逐段回调 <code>AbstractStreamListener.onMsg(message)</code>，我们在回调里把每段文本通过 WebSocket 推给前端。如果不用 SDK，也可以用 OkHttp 直接调 OpenAI 的 HTTP API，但要自己处理 SSE 格式解析，比较麻烦。”</p>
+</blockquote>
+<hr>
+<h3 id="Q13：如果调用-LLM-API-超时了（比如网络不好），项目里怎么处理的？"><a href="#Q13：如果调用-LLM-API-超时了（比如网络不好），项目里怎么处理的？" class="headerlink" title="Q13：如果调用 LLM API 超时了（比如网络不好），项目里怎么处理的？"></a>Q13：如果调用 LLM API 超时了（比如网络不好），项目里怎么处理的？</h3><p><strong>答：</strong> 从代码看，<code>AbstractStreamListener</code> 有 <code>onError</code> 回调，专门处理 API 调用失败的场景。</p>
+<p><strong>项目里的错误处理</strong>（<code>ChatGptAiServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">AbstractStreamListener</span> <span class="hljs-variable">listener</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AbstractStreamListener</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onMsg</span><span class="hljs-params">(String message)</span> &#123;<br>        <span class="hljs-comment">// 成功返回文本的回调</span><br>        item.appendAnswer(message);<br>        consumer.accept(AiChatStatEnum.MID, chatRes);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onError</span><span class="hljs-params">(Throwable throwable, String response)</span> &#123;<br>        <span class="hljs-comment">// ✅ 关键：API 调用失败时，给前端返回错误信息</span><br>        item.appendAnswer(<span class="hljs-string">&quot;Error:&quot;</span> + (StringUtils.isBlank(response) <br>                ? throwable.getMessage() : response))<br>                .setAnswerType(ChatAnswerTypeEnum.STREAM_END);<br>        consumer.accept(AiChatStatEnum.ERROR, chatRes);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onClosed</span><span class="hljs-params">(EventSource eventSource)</span> &#123;<br>        <span class="hljs-comment">// 连接关闭的回调（正常结束 or 异常结束）</span><br>        <span class="hljs-keyword">if</span> (item.getAnswerType() != ChatAnswerTypeEnum.STREAM_END) &#123;<br>            <span class="hljs-comment">// 如果 AI 没返回完就断连了 → 主动结束对话</span><br>            item.appendAnswer(<span class="hljs-string">&quot;大模型超时未返回结果，主动关闭会话；请重新提问吧\n&quot;</span>)<br>                 .setAnswerType(ChatAnswerTypeEnum.STREAM_END);<br>            consumer.accept(AiChatStatEnum.ERROR, chatRes);<br>        &#125;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><strong>API 超时重试策略：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 方案 1：OkHttp 的自动重试（底层）</span><br><span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>.Builder()<br>    .connectTimeout(<span class="hljs-number">10</span>, TimeUnit.SECONDS)  <span class="hljs-comment">// 连接超时 10 秒</span><br>    .readTimeout(<span class="hljs-number">30</span>, TimeUnit.SECONDS)       <span class="hljs-comment">// 读取超时 30 秒</span><br>    .retryOnConnectionFailure(<span class="hljs-literal">true</span>)            <span class="hljs-comment">// 自动重试连接失败</span><br>    .build();<br><br><span class="hljs-comment">// 方案 2：业务层重试（比如重试 3 次）</span><br><span class="hljs-meta">@Retryable(value = RuntimeException.class, maxAttempts = 3)</span><br><span class="hljs-keyword">public</span> ChatRecordsVo <span class="hljs-title function_">chatWithRetry</span><span class="hljs-params">(Long user, String question)</span> &#123;<br>    <span class="hljs-keyword">return</span> chatGptIntegration.streamReturn(user, question, listener);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“我们项目里，<code>AbstractStreamListener</code> 有 <code>onError</code> 回调，API 调用失败时会在答案后面追加错误信息（<code>Error: xxx</code>），然后通过 WebSocket 推给前端。<code>onClosed</code> 回调里会判断是不是正常结束（AI 返回完了），如果不是，会主动结束对话并提示用户’重新提问’。底层用的 OkHttp 可以配置连接超时和读取超时，也会自动重试连接失败。”</p>
+</blockquote>
+<hr>
+<h2 id="第六层：开放设计题（架构设计）"><a href="#第六层：开放设计题（架构设计）" class="headerlink" title="第六层：开放设计题（架构设计）"></a>第六层：开放设计题（架构设计）</h2><h3 id="Q14：如果让你设计一个”支持-10-个大模型”的聊天系统，你会怎么设计？"><a href="#Q14：如果让你设计一个”支持-10-个大模型”的聊天系统，你会怎么设计？" class="headerlink" title="Q14：如果让你设计一个”支持 10 个大模型”的聊天系统，你会怎么设计？"></a>Q14：如果让你设计一个”支持 10 个大模型”的聊天系统，你会怎么设计？</h3><p><strong>答：</strong> 这是<strong>策略模式的最佳实践场景</strong>，项目里的设计已经很不错了，但可以再优化。</p>
+<p><strong>V1（项目当前设计）：策略模式 + 注册式工厂</strong></p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs scss">ChatService（策略接口）<br>  ├── ChatGptAiServiceImpl<br>  ├── DeepSeekChatServiceImpl<br>  └── ...<br><br>ChatServiceFactory（注册式工厂）<br>  └── <span class="hljs-built_in">getChatService</span>(AISourceEnum) → 返回对应实现<br></code></pre></td></tr></table></figure>
+<p><strong>优点：</strong> 新增模型零修改（只要加实现类）<br><strong>缺点：</strong> 所有策略都在同一个 JVM 里，如果某个模型的 SDK 很重（比如要加载 1GB 的模型文件），会影响其他策略</p>
+<p><strong>V2（优化：策略模式 + 插件化）</strong></p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs stata">核心服务（不依赖具体 SDK）<br>  ├── ChatService 接口<br>  └── ChatServiceFactory<br><br>插件服务（独立 JVM 进程，按需启动）<br>  ├── chatgpt-<span class="hljs-keyword">plugin</span>（只依赖 ChatGPT SDK）<br>  ├── deepseek-<span class="hljs-keyword">plugin</span>（只依赖 DeepSeek SDK）<br>  └── ...<br><br>核心服务通过 HTTP / gRPC 调用插件服务<br>  → 某个插件的 SDK 崩溃了，不影响核心服务<br>  → 可以独立扩缩容（ChatGPT 用的人多，就多部署几个 chatgpt-<span class="hljs-keyword">plugin</span>）<br></code></pre></td></tr></table></figure>
+
+<p><strong>V3（终极：支持动态添加模型，不用重启服务）</strong></p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs nix">把策略实现类做成 Groovy 脚本 <span class="hljs-symbol">/</span> Java 动态加载<br>  → 新增模型时，上传一个 Groovy 脚本到服务器<br>  → 核心服务动态加载这个脚本，注册到工厂<br>  → 不用重启服务！<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答模板：</strong></p>
+<blockquote>
+<p>“如果要支持 10 个大模型，我会用策略模式 + 注册式工厂（项目里已经实现了）。进一步优化可以考虑插件化：把每个模型的 SDK 封装成独立进程（微服务），核心服务通过 gRPC 调用插件服务，这样某个模型的 SDK 崩溃了不会影响其他模型。如果要求动态添加模型（不用重启服务），可以把策略实现做成 Groovy 脚本，核心服务动态加载。”</p>
+</blockquote>
+<hr>
+<h3 id="Q15（附加）：项目里-LLM-的-API-Key-是怎么管理的？会不会泄露？"><a href="#Q15（附加）：项目里-LLM-的-API-Key-是怎么管理的？会不会泄露？" class="headerlink" title="Q15（附加）：项目里 LLM 的 API Key 是怎么管理的？会不会泄露？"></a>Q15（附加）：项目里 LLM 的 API Key 是怎么管理的？会不会泄露？</h3><p><strong>答：</strong> 从代码看，API Key 应该配置在 <code>application-ai.yml</code> 里，用 <strong>Spring 的 <code>@Value</code> 或 <code>@ConfigurationProperties</code></strong> 注入。</p>
+<p><strong>API Key 管理的三种方案：</strong></p>
+<p><strong>方案 1：配置文件（简单，但不安全）</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># application-ai.yml</span><br><span class="hljs-attr">chatgpt:</span><br>  <span class="hljs-attr">api-key:</span> <span class="hljs-string">&quot;sk-xxxxxxxxxxxxxxxx&quot;</span><br></code></pre></td></tr></table></figure>
+<p><strong>问题：</strong> 配置文件如果提交到 Git，API Key 就泄露了。</p>
+<p><strong>方案 2：环境变量（推荐）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 启动项目时传入环境变量</span><br>java -jar app.jar -Dchatgpt.api-key=<span class="hljs-variable">$&#123;CHATGPT_API_KEY&#125;</span><br></code></pre></td></tr></table></figure>
+<p>或者：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># application-ai.yml</span><br><span class="hljs-attr">chatgpt:</span><br>  <span class="hljs-attr">api-key:</span> <span class="hljs-string">$&#123;CHATGPT_API_KEY&#125;</span>  <span class="hljs-comment"># 从环境变量读取</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>方案 3：配置中心（生产环境推荐）</strong></p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs nix">Spring Cloud Config <span class="hljs-symbol">/</span> Nacos <span class="hljs-symbol">/</span> Apollo<br>  → API Key 存在配置中心，不落在本地配置文件<br>  → 可以动态刷新（不用重启服务）<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“我们项目里 API Key 配置在 <code>application-ai.yml</code> 里，通过 <code>@ConfigurationProperties</code> 注入到 <code>ChatGptIntegration</code> 类。生产环境会用环境变量或配置中心（Nacos &#x2F; Apollo）管理 API Key，避免提交到 Git 导致泄露。也可以在网关层统一做 API Key 的加密解密，进一步保证安全。”</p>
+</blockquote>
+<hr>
+<h2 id="总结：简历上这句话的面试回答模板"><a href="#总结：简历上这句话的面试回答模板" class="headerlink" title="总结：简历上这句话的面试回答模板"></a>总结：简历上这句话的面试回答模板</h2><blockquote>
+<p><strong>面试官</strong>：”你的简历上写了’策略模式 + 工厂模式实现 LLM 调用链路统一抽象，WebSocket 推送 Stream 流实现毫秒级响应’，你能详细讲一下吗？”</p>
+</blockquote>
+<p><strong>回答模板（背下来！）：</strong></p>
+<blockquote>
+<p>“好的。我们项目要接入多个大模型（ChatGPT、DeepSeek、豆包等），如果写 if-else 判断类型再调用，新增一个模型就要改主流程代码，违反开闭原则。</p>
+<p><strong>策略模式</strong>：我们定义了 <code>ChatService</code> 接口（策略接口），每个大模型写一个实现类（具体策略），比如 <code>ChatGptAiServiceImpl</code>、<code>DeepSeekChatServiceImpl</code>。每个实现类通过 <code>source()</code> 方法告诉工厂’我是哪个模型’。</p>
+<p><strong>工厂模式</strong>：我们用的是’注册式工厂’（<code>ChatServiceFactory</code>）。Spring 启动时自动注入所有 <code>ChatService</code> 的实现类（通过 <code>List&lt;ChatService&gt;</code> 构造函数注入），工厂在构造函数里把每个策略注册到 Map 里（key &#x3D; <code>AISourceEnum</code>，value &#x3D; 策略实现）。调用时只要 <code>factory.getChatService(AISourceEnum.CHAT_GPT_3_5)</code> 就能拿到对应的实现类，不用 if-else。新增模型只要加一个实现类，不动任何旧代码（热插拔）。</p>
+<p><strong>WebSocket 流式推送</strong>：前端通过 STOMP over WebSocket 建立长连接（URL &#x3D; <code>/gpt/{userId}/{aiType}</code>），订阅 <code>/user/chat/rsp</code> 接收 AI 回复。后端调用 LLM API 时开启 <code>stream=true</code>，LLM 逐段返回文本，我们在 <code>AbstractStreamListener.onMsg()</code> 回调里把每段文本通过 <code>SimpMessagingTemplate.convertAndSendToUser()</code> 推给前端。前端收到一段渲染一段，不用等全部生成完，实现毫秒级响应体验。”</p>
+</blockquote>
+<hr>
+<p><strong>下一篇预告：</strong> FastExcel + 线程池 + CountDownLatch 并发导出，百万级数据导出性能优化 🚀</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/" class="print-no-link">#字节跳动</a>
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/" class="print-no-link">#技术派</a>
+      
+        <a href="/tags/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" class="print-no-link">#策略模式</a>
+      
+        <a href="/tags/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" class="print-no-link">#工厂模式</a>
+      
+        <a href="/tags/WebSocket/" class="print-no-link">#WebSocket</a>
+      
+        <a href="/tags/STOMP/" class="print-no-link">#STOMP</a>
+      
+        <a href="/tags/LLM/" class="print-no-link">#LLM</a>
+      
+        <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="print-no-link">#设计模式</a>
+      
+        <a href="/tags/%E6%B5%81%E5%BC%8F%E6%8E%A8%E9%80%81/" class="print-no-link">#流式推送</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-strategy-websocket-qa/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-fastexcel-qa/" title="技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-rabbitmq-qa/" title="技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性">
+                        <span class="hidden-mobile">技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

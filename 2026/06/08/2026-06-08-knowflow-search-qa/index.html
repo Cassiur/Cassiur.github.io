@@ -1,0 +1,1156 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="KnowFlow ② 八股文：Elasticsearch 混合检索 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Elasticsearch 基础（5 道）Q1：Elasticsearch 是什么？和 MySQL 有什么区别？答： Elasticsearch（简称 ES）是一个分布式全文搜索引擎，底层用 Lucene，擅长模糊搜索、全文检索、向量检">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF）">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-search-qa/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="KnowFlow ② 八股文：Elasticsearch 混合检索 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Elasticsearch 基础（5 道）Q1：Elasticsearch 是什么？和 MySQL 有什么区别？答： Elasticsearch（简称 ES）是一个分布式全文搜索引擎，底层用 Lucene，擅长模糊搜索、全文检索、向量检">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T12:40:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T12:31:21.218Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Elasticsearch">
+<meta property="article:tag" content="KnowFlow">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="傻子都能懂">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="向量检索">
+<meta property="article:tag" content="字节跳动">
+<meta property="article:tag" content="混合检索">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF） - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 20:40" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="KnowFlow-②-八股文：Elasticsearch-混合检索"><a href="#KnowFlow-②-八股文：Elasticsearch-混合检索" class="headerlink" title="KnowFlow ② 八股文：Elasticsearch 混合检索"></a>KnowFlow ② 八股文：Elasticsearch 混合检索</h1><blockquote>
+<p>面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。</p>
+</blockquote>
+<hr>
+<h2 id="一、Elasticsearch-基础（5-道）"><a href="#一、Elasticsearch-基础（5-道）" class="headerlink" title="一、Elasticsearch 基础（5 道）"></a>一、Elasticsearch 基础（5 道）</h2><h3 id="Q1：Elasticsearch-是什么？和-MySQL-有什么区别？"><a href="#Q1：Elasticsearch-是什么？和-MySQL-有什么区别？" class="headerlink" title="Q1：Elasticsearch 是什么？和 MySQL 有什么区别？"></a>Q1：Elasticsearch 是什么？和 MySQL 有什么区别？</h3><p><strong>答：</strong></p>
+<p>Elasticsearch（简称 ES）是一个<strong>分布式全文搜索引擎</strong>，底层用 Lucene，擅长<strong>模糊搜索、全文检索、向量检索</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>MySQL（关系型数据库）</th>
+<th>Elasticsearch（搜索引擎）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>擅长</strong></td>
+<td>精确查询、事务、JOIN</td>
+<td>模糊搜索、全文检索、向量检索</td>
+</tr>
+<tr>
+<td><strong>索引结构</strong></td>
+<td>B+ 树（范围查询快）</td>
+<td>倒排索引（关键词查询快）</td>
+</tr>
+<tr>
+<td><strong>模糊搜索</strong></td>
+<td><code>LIKE &#39;%关键词%&#39;</code> 很慢（全表扫描）</td>
+<td>天生支持，毫秒级</td>
+</tr>
+<tr>
+<td><strong>向量检索</strong></td>
+<td>不支持</td>
+<td>原生支持 KNN（K 近邻）</td>
+</tr>
+<tr>
+<td><strong>事务</strong></td>
+<td>支持 ACID</td>
+<td>不支持（最终一致性）</td>
+</tr>
+</tbody></table>
+<p><strong>项目中为什么用 ES？</strong></p>
+<ul>
+<li>用户搜”怎么配置 Redis 线程池”，关键词可能在文档的任何位置</li>
+<li>MySQL 的 <code>LIKE</code> 很慢，且找不到语义相似的文档</li>
+<li>ES 的倒排索引 + BM25 算法，毫秒级返回结果</li>
+<li>ES 的 KNN 向量检索，能找到”意思相近但用词不同”的文档</li>
+</ul>
+<hr>
+<h3 id="Q2：倒排索引（Inverted-Index）是什么？为什么搜索快？"><a href="#Q2：倒排索引（Inverted-Index）是什么？为什么搜索快？" class="headerlink" title="Q2：倒排索引（Inverted Index）是什么？为什么搜索快？"></a>Q2：倒排索引（Inverted Index）是什么？为什么搜索快？</h3><p><strong>答：</strong></p>
+<p><strong>正排索引</strong>（MySQL 的 B+ 树）：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs 1c">文档ID → 文档内容<br><span class="hljs-number">1</span> → <span class="hljs-string">&quot;Redis 线程池配置方法&quot;</span><br><span class="hljs-number">2</span> → <span class="hljs-string">&quot;怎么设置 Redis 连接池&quot;</span><br><span class="hljs-number">3</span> → <span class="hljs-string">&quot;Redis 性能优化指南&quot;</span><br></code></pre></td></tr></table></figure>
+<p>搜”Redis 线程池”，要逐个文档扫描，很慢。</p>
+<p><strong>倒排索引</strong>（ES 的核心）：</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs prolog">关键词 → 出现的文档<span class="hljs-symbol">ID</span> 列表<br><span class="hljs-string">&quot;Redis&quot;</span>   → [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]<br><span class="hljs-string">&quot;线程池&quot;</span>  → [<span class="hljs-number">1</span>]<br><span class="hljs-string">&quot;配置&quot;</span>    → [<span class="hljs-number">1</span>]<br><span class="hljs-string">&quot;连接池&quot;</span>  → [<span class="hljs-number">2</span>]<br></code></pre></td></tr></table></figure>
+<p>搜”Redis 线程池”，先找到”Redis”对应的文档 [1,2,3]，再找到”线程池”对应的文档 [1]，取<strong>交集</strong> → 文档 1。</p>
+<p><strong>为什么快？</strong></p>
+<ul>
+<li>关键词 → 文档列表，是<strong>哈希查找</strong>，O(1)</li>
+<li>多个关键词取交集&#x2F;并集，用<strong>位图（BitSet）</strong> 操作，极快</li>
+</ul>
+<p><strong>面试加分</strong>：倒排索引包含两个结构：</p>
+<ol>
+<li><strong>Term Dictionary</strong>（关键词字典）：存储所有关键词，用 FST（有限状态转换器）压缩存储</li>
+<li><strong>Posting List</strong>（倒排列表）：每个关键词对应的文档 ID 列表，用 Roaring Bitmap 压缩存储</li>
+</ol>
+<hr>
+<h3 id="Q3：BM25-算法是什么？和-TF-IDF-有什么区别？"><a href="#Q3：BM25-算法是什么？和-TF-IDF-有什么区别？" class="headerlink" title="Q3：BM25 算法是什么？和 TF-IDF 有什么区别？"></a>Q3：BM25 算法是什么？和 TF-IDF 有什么区别？</h3><p><strong>答：</strong></p>
+<p>BM25 是 ES 默认的相关性评分算法，用来计算<strong>一个关键词在一个文档中有多重要</strong>。</p>
+<p><strong>TF-IDF 的问题</strong>：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs 1c">TF（词频）：一个词在文档中出现越多，越重要。<br>问题：某些词（<span class="hljs-string">&quot;的&quot;</span>、<span class="hljs-string">&quot;是&quot;</span>）出现很多，但不重要。<br><br>IDF（逆文档频率）：一个词在越多文档中出现，越不重要。<br>问题：没考虑文档长度。长文档天然有更高词频。<br></code></pre></td></tr></table></figure>
+
+<p><strong>BM25 的改进</strong>：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs routeros">1. TF 饱和：词频增加到一定程度，贡献不再线性增长<br>   （避免某个词重复 100 次就得分极高）<br><br>2. 文档长度归一化：<br>   长文档 ÷ 1.2，短文档 ÷ 0.8<br>   （避免长文档因为词多而得分高）<br><br>3. 可调参数 k1 和 b：<br>   <span class="hljs-attribute">k1</span>=1.2（TF 饱和点），<span class="hljs-attribute">b</span>=0.75（文档长度影响程度）<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的使用</strong>（<code>HybridSearchService.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// BM25 关键词匹配</span><br>s.query(q -&gt; q.bool(b -&gt; b<br>    .must(m -&gt; m.match(m -&gt; m<br>        .field(<span class="hljs-string">&quot;textContent&quot;</span>)<br>        .query(query)<br>    ))<br>))<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“BM25 是 ES 默认的相关性算法，解决了 TF-IDF 的两个问题：一是 TF 不会无限增长（饱和函数），二是考虑了文档长度归一化。我们项目中用 BM25 做关键词匹配，配合 KNN 向量检索，再用 RRF 融合两份结果。”</p>
+</blockquote>
+<hr>
+<h3 id="Q4：ES-的-Mapping-是什么？项目中怎么设计的？"><a href="#Q4：ES-的-Mapping-是什么？项目中怎么设计的？" class="headerlink" title="Q4：ES 的 Mapping 是什么？项目中怎么设计的？"></a>Q4：ES 的 Mapping 是什么？项目中怎么设计的？</h3><p><strong>答：</strong></p>
+<p>Mapping 是 ES 的<strong>表结构定义</strong>，类似 MySQL 的 <code>CREATE TABLE</code>。</p>
+<p><strong>项目中的 ES Mapping</strong>（<code>EsDocument.java</code> 实体类 + <code>EsIndexInitializer.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Document(indexName = &quot;knowledge_base&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">EsDocument</span> &#123;<br>    <span class="hljs-meta">@Id</span><br>    <span class="hljs-keyword">private</span> String id;  <span class="hljs-comment">// ES 文档 ID（通常用 chunkId）</span><br>    <br>    <span class="hljs-meta">@Field(type = FieldType.Text, analyzer = &quot;ik_max_word&quot;, searchAnalyzer = &quot;ik_smart&quot;)</span><br>    <span class="hljs-keyword">private</span> String textContent;  <span class="hljs-comment">// 文档内容，用 IK 分词器</span><br>    <br>    <span class="hljs-meta">@Field(type = FieldType.DenseVector, dims = 2048)</span>  <span class="hljs-comment">// 2048 维向量</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">float</span>[] vector;  <span class="hljs-comment">// Embedding 向量</span><br>    <br>    <span class="hljs-meta">@Field(type = FieldType.Keyword)</span>  <span class="hljs-comment">// 不分词，精确匹配</span><br>    <span class="hljs-keyword">private</span> String fileMd5;  <span class="hljs-comment">// 所属文件 MD5</span><br>    <br>    <span class="hljs-meta">@Field(type = FieldType.Keyword)</span><br>    <span class="hljs-keyword">private</span> String userId;  <span class="hljs-comment">// 上传用户 ID</span><br>    <br>    <span class="hljs-meta">@Field(type = FieldType.Boolean)</span><br>    <span class="hljs-keyword">private</span> Boolean isPublic;  <span class="hljs-comment">// 是否公开</span><br>    <br>    <span class="hljs-meta">@Field(type = FieldType.Keyword)</span><br>    <span class="hljs-keyword">private</span> String orgTag;  <span class="hljs-comment">// 组织标签（权限控制）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键设计点</strong>：</p>
+<ol>
+<li><strong><code>textContent</code> 用 <code>ik_max_word</code> 分词</strong>：中文要分词，”技术派项目” → [“技术”, “派”, “项目”]，不然搜”技术”找不到</li>
+<li><strong><code>vector</code> 用 <code>DenseVector</code> 类型</strong>：专门存向量，支持 KNN 检索</li>
+<li><strong><code>fileMd5</code>、<code>userId</code> 用 <code>Keyword</code> 类型</strong>：精确匹配，用于权限过滤</li>
+</ol>
+<p><strong>面试加分</strong>：为什么 <code>textContent</code> 的索引分词器和查询分词器不同？</p>
+<ul>
+<li><code>ik_max_word</code>：索引时<strong>最细粒度分词</strong>，尽量多分出词，提高召回率</li>
+<li><code>ik_smart</code>：查询时<strong>最粗粒度分词</strong>，分出最合理的词，提高准确率</li>
+</ul>
+<hr>
+<h3 id="Q5：ES-的-KNN-向量检索是什么？和-BM25-有什么区别？"><a href="#Q5：ES-的-KNN-向量检索是什么？和-BM25-有什么区别？" class="headerlink" title="Q5：ES 的 KNN 向量检索是什么？和 BM25 有什么区别？"></a>Q5：ES 的 KNN 向量检索是什么？和 BM25 有什么区别？</h3><p><strong>答：</strong></p>
+<p><strong>BM25</strong>（关键词匹配）：</p>
+<ul>
+<li>基于<strong>词频统计</strong>，找包含查询词最多的文档</li>
+<li>问题：<strong>语义理解为零</strong>。搜”怎么配置 Redis”，找不到”Redis 线程池设置方法”（用词不同但意思一样）</li>
+</ul>
+<p><strong>KNN</strong>（K 近邻向量检索）：</p>
+<ul>
+<li>把文档和查询都转成<strong>向量</strong>（2048 维浮点数）</li>
+<li>计算<strong>向量距离</strong>（余弦相似度或欧氏距离），距离越近越相关</li>
+<li>优势：<strong>语义理解</strong>。上面两个查询的向量很接近，能找到</li>
+</ul>
+<p><strong>项目中的 KNN 使用</strong>（<code>HybridSearchService.java</code> 第 91~100 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 生成查询向量</span><br>List&lt;Float&gt; queryVector = embedToVectorList(query);<br><br><span class="hljs-comment">// KNN 召回</span><br>s.knn(kn -&gt; kn<br>    .field(<span class="hljs-string">&quot;vector&quot;</span>)           <span class="hljs-comment">// 在 vector 字段上做 KNN</span><br>    .queryVector(queryVector)  <span class="hljs-comment">// 查询向量</span><br>    .k(recallK)                <span class="hljs-comment">// 召回 K 个近邻</span><br>    .numCandidates(recallK)   <span class="hljs-comment">// 候选集大小（越大越准，越慢）</span><br>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：KNN 有两种实现：</p>
+<ol>
+<li><strong>暴力搜索</strong>（Brute Force）：算查询向量和所有文档向量的距离，O(N)，准确但慢</li>
+<li><strong>HNSW</strong>（Hierarchical Navigable Small World）：用图结构加速，O(log N)，ES 8.x 默认用这个</li>
+</ol>
+<hr>
+<h2 id="二、混合检索架构（6-道）"><a href="#二、混合检索架构（6-道）" class="headerlink" title="二、混合检索架构（6 道）"></a>二、混合检索架构（6 道）</h2><h3 id="Q6：什么是混合检索？为什么只用向量检索不够？"><a href="#Q6：什么是混合检索？为什么只用向量检索不够？" class="headerlink" title="Q6：什么是混合检索？为什么只用向量检索不够？"></a>Q6：什么是混合检索？为什么只用向量检索不够？</h3><p><strong>答：</strong></p>
+<p><strong>只用向量检索的问题</strong>：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs 1c">用户查询：<span class="hljs-string">&quot;Redis 线程池配置&quot;</span><br>向量检索可能返回：<br>  <span class="hljs-punctuation">-</span> <span class="hljs-string">&quot;如何优化 Redis 性能&quot;</span>（语义相近，但没提配置）<br>  <span class="hljs-punctuation">-</span> <span class="hljs-string">&quot;Redis 连接池参数调优&quot;</span>（语义相近）<br>  <br>问题：没有强制要求包含<span class="hljs-string">&quot;线程池&quot;</span>或<span class="hljs-string">&quot;配置&quot;</span>关键词，<br>      可能返回很多语义相关但答非所问的文档。<br></code></pre></td></tr></table></figure>
+
+<p><strong>混合检索 &#x3D; 向量检索 + 关键词检索</strong>，两份结果融合：</p>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">向量检索：找语义相近的文档（召回率高）<br><span class="hljs-operator">+</span> <br>关键词检索（<span class="hljs-variable">BM25</span>）：找包含关键词的文档（准确率高）<br>↓<br><span class="hljs-variable">RRF</span> 融合：综合两份结果，取 <span class="hljs-built_in">Top</span> <span class="hljs-built_in">K</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的混合检索</strong>（<code>HybridSearchService.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 第一步：KNN 向量召回（粗排）</span><br>s.knn(kn -&gt; kn<br>    .field(<span class="hljs-string">&quot;vector&quot;</span>)<br>    .queryVector(queryVector)<br>    .k(topK * <span class="hljs-number">30</span>)  <span class="hljs-comment">// 召回窗口放大 30 倍</span><br>    .numCandidates(topK * <span class="hljs-number">30</span>)<br>);<br><br><span class="hljs-comment">// 第二步：必须包含关键词（精准过滤）</span><br>s.query(q -&gt; q.bool(b -&gt; b<br>    .must(m -&gt; m.match(m -&gt; m<br>        .field(<span class="hljs-string">&quot;textContent&quot;</span>)<br>        .query(query)<br>    ))<br>))<br><br><span class="hljs-comment">// 第三步：RRF 重排序（精排）</span><br>s.rescore(r -&gt; r<br>    .windowSize(recallK)<br>    .query(rq -&gt; rq<br>        .queryWeight(<span class="hljs-number">0.2d</span>)   <span class="hljs-comment">// KNN 分占 20%</span><br>        .rescoreQueryWeight(<span class="hljs-number">1.0d</span>)  <span class="hljs-comment">// BM25 分占 80%</span><br>        .query(rqq -&gt; rqq.match(m -&gt; m<br>            .field(<span class="hljs-string">&quot;textContent&quot;</span>)<br>            .query(query)<br>        ))<br>    )<br>);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q7：RRF（倒数秩融合）算法是什么？公式是什么？"><a href="#Q7：RRF（倒数秩融合）算法是什么？公式是什么？" class="headerlink" title="Q7：RRF（倒数秩融合）算法是什么？公式是什么？"></a>Q7：RRF（倒数秩融合）算法是什么？公式是什么？</h3><p><strong>答：</strong></p>
+<p>RRF（Reciprocal Rank Fusion）是一种<strong>多路召回结果融合</strong>的算法。</p>
+<p><strong>核心思想</strong>：一个文档在多个召回列表中排名越靠前，最终得分越高。</p>
+<p><strong>公式</strong>：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">RRF 得分 = Σ (1 / (k + rank_i))<br><br>其中：<br><span class="hljs-bullet">- </span>rank_i：文档在第 i 个召回列表中的排名（从 1 开始）<br><span class="hljs-bullet">- </span>k：常数，通常取 60（ES 默认）<br><span class="hljs-bullet">- </span>Σ：对所有召回列表求和<br></code></pre></td></tr></table></figure>
+
+<p><strong>举例</strong>：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs markdown">文档 A：<br><span class="hljs-bullet">  -</span> 向量检索排名：第 3 名 → 得分 = 1/(60+3) = 0.0159<br><span class="hljs-bullet">  -</span> BM25 排名：第 1 名 → 得分 = 1/(60+1) = 0.0164<br>  → RRF 总分 = 0.0323<br><br>文档 B：<br><span class="hljs-bullet">  -</span> 向量检索排名：第 1 名 → 得分 = 1/(60+1) = 0.0164<br><span class="hljs-bullet">  -</span> BM25 排名：第 10 名 → 得分 = 1/(60+10) = 0.0143<br>  → RRF 总分 = 0.0307<br><br>最终排名：文档 A &gt; 文档 B<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么比单纯”得分相加”好？</strong></p>
+<ul>
+<li>防止某个检索方式刷分（比如向量得分普遍很高）</li>
+<li>排名比得分更稳定（不同检索方式的得分尺度不同）</li>
+</ul>
+<hr>
+<h3 id="Q8：项目中-KNN-召回窗口为什么设为-topK-30？"><a href="#Q8：项目中-KNN-召回窗口为什么设为-topK-30？" class="headerlink" title="Q8：项目中 KNN 召回窗口为什么设为 topK * 30？"></a>Q8：项目中 KNN 召回窗口为什么设为 topK * 30？</h3><p><strong>答：</strong></p>
+<p><strong>原因</strong>：KNN 是粗排，BM25 + RRF 是精排。如果 KNN 只召回 topK 个，可能漏掉 BM25 认为很重要但向量距离稍远的文档。</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs tap">topK = 10（最终返回<span class="hljs-number"> 10 </span>个结果）<br>KNN 召回窗口 =<span class="hljs-number"> 10 </span>×<span class="hljs-number"> 30 </span>= 300<br><br>先召回<span class="hljs-number"> 300 </span>个向量近邻<br>↓<br>用 BM25 给这<span class="hljs-number"> 300 </span>个打分<br>↓<br>RRF 融合向量分 + BM25 分<br>↓<br>取最终 Top 10<br></code></pre></td></tr></table></figure>
+
+<p><strong>如果不放大召回窗口会怎样？</strong></p>
+<ul>
+<li>KNN 只召回 10 个 → BM25 只能在 10 个里挑 → 可能漏掉好文档</li>
+<li>放大到 300 个 → BM25 有更多选择 → 最终结果更准</li>
+</ul>
+<p><strong>代价</strong>：召回 300 个比 10 个慢。项目中 2048 维向量，HNSW 索引，300 个仍然在 50ms 内完成，可以接受。</p>
+<hr>
+<h3 id="Q9：混合检索的权限过滤是怎么实现的？"><a href="#Q9：混合检索的权限过滤是怎么实现的？" class="headerlink" title="Q9：混合检索的权限过滤是怎么实现的？"></a>Q9：混合检索的权限过滤是怎么实现的？</h3><p><strong>答：</strong></p>
+<p>企业知识库有<strong>多租户权限隔离</strong>：用户只能搜到自己有权限的文档。</p>
+<p><strong>权限规则</strong>：</p>
+<ol>
+<li>用户自己上传的文档 → 能搜到</li>
+<li>标记为”公开”的文档 → 能搜到</li>
+<li>同组织的文档 → 能搜到（通过 <code>orgTag</code> 判断）</li>
+<li>其他用户的私有文档 → 搜不到</li>
+</ol>
+<p><strong>项目中的实现</strong>（<code>HybridSearchService.java</code> 第 102~123 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs java">s.query(q -&gt; q.bool(b -&gt; b<br>    <span class="hljs-comment">// 必须命中关键词</span><br>    .must(m -&gt; m.match(m -&gt; m<br>        .field(<span class="hljs-string">&quot;textContent&quot;</span>)<br>        .query(query)<br>    ))<br>    <span class="hljs-comment">// 权限过滤（三个条件满足一个即可）</span><br>    .filter(f -&gt; f.bool(bf -&gt; bf<br>        .should(s1 -&gt; s1.term(t -&gt; t<br>            .field(<span class="hljs-string">&quot;userId&quot;</span>)<br>            .value(userDbId)  <span class="hljs-comment">// 条件1：自己的文档</span><br>        ))<br>        .should(s2 -&gt; s2.term(t -&gt; t<br>            .field(<span class="hljs-string">&quot;isPublic&quot;</span>)<br>            .value(<span class="hljs-literal">true</span>)         <span class="hljs-comment">// 条件2：公开的文档</span><br>        ))<br>        .should(s3 -&gt; &#123;<br>            <span class="hljs-comment">// 条件3：同组织的文档</span><br>            <span class="hljs-keyword">if</span> (userEffectiveTags.isEmpty()) &#123;<br>                <span class="hljs-keyword">return</span> s3.matchNone(mn -&gt; mn);<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (userEffectiveTags.size() == <span class="hljs-number">1</span>) &#123;<br>                <span class="hljs-keyword">return</span> s3.term(t -&gt; t<br>                    .field(<span class="hljs-string">&quot;orgTag&quot;</span>)<br>                    .value(userEffectiveTags.get(<span class="hljs-number">0</span>)));<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// 多个组织标签，用 should 组合</span><br>                <span class="hljs-keyword">return</span> s3.bool(inner -&gt; &#123;<br>                    userEffectiveTags.forEach(tag -&gt; <br>                        inner.should(sh -&gt; sh.term(t -&gt; t<br>                            .field(<span class="hljs-string">&quot;orgTag&quot;</span>)<br>                            .value(tag))));<br>                    <span class="hljs-keyword">return</span> inner;<br>                &#125;);<br>            &#125;<br>        &#125;)<br>    ))<br>))<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：为什么权限过滤要放在 <code>filter</code> 里，不放在 <code>must</code> 里？</p>
+<ul>
+<li><code>filter</code> 不计算相关性得分，只做<strong>是&#x2F;否过滤</strong>，速度快</li>
+<li><code>filter</code> 的结果会被 ES <strong>缓存</strong>（Filter Cache），相同权限的查询直接命中缓存</li>
+</ul>
+<hr>
+<h3 id="Q10：如果向量化失败了，项目有什么兜底方案？"><a href="#Q10：如果向量化失败了，项目有什么兜底方案？" class="headerlink" title="Q10：如果向量化失败了，项目有什么兜底方案？"></a>Q10：如果向量化失败了，项目有什么兜底方案？</h3><p><strong>答：</strong></p>
+<p>向量化（调用 Embedding API）可能失败的原因：</p>
+<ul>
+<li>LLM 服务超时</li>
+<li>网络抖动</li>
+<li>API 配额用完</li>
+</ul>
+<p><strong>项目中的兜底方案</strong>（<code>HybridSearchService.java</code> 第 84~87 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 生成查询向量</span><br>List&lt;Float&gt; queryVector = embedToVectorList(query);<br><br><span class="hljs-comment">// 如果向量生成失败，仅使用文本匹配</span><br><span class="hljs-keyword">if</span> (queryVector == <span class="hljs-literal">null</span>) &#123;<br>    logger.warn(<span class="hljs-string">&quot;向量生成失败，仅使用文本匹配进行搜索&quot;</span>);<br>    <span class="hljs-keyword">return</span> textOnlySearchWithPermission(query, userDbId, userEffectiveTags, topK);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>textOnlySearchWithPermission</code> 方法</strong>（只用 BM25，不用向量）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> List&lt;SearchResult&gt; <span class="hljs-title function_">textOnlySearchWithPermission</span><span class="hljs-params">(</span><br><span class="hljs-params">        String query, String userDbId, </span><br><span class="hljs-params">        List&lt;String&gt; userEffectiveTags, <span class="hljs-type">int</span> topK)</span> &#123;<br>    SearchResponse&lt;EsDocument&gt; response = esClient.search(s -&gt; s<br>        .index(<span class="hljs-string">&quot;knowledge_base&quot;</span>)<br>        .query(q -&gt; q.bool(b -&gt; b<br>            .must(m -&gt; m.match(m -&gt; m<br>                .field(<span class="hljs-string">&quot;textContent&quot;</span>)<br>                .query(query)<br>            ))<br>            .filter(<span class="hljs-comment">/* 权限过滤，同上 */</span>)<br>        ))<br>        .minScore(<span class="hljs-number">0.3d</span>)  <span class="hljs-comment">// 最低相关性得分，过滤掉完全不相关的</span><br>        .size(topK),<br>        EsDocument.class<br>    );<br>    <span class="hljs-comment">// 解析结果...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“向量化失败不影响核心功能。我们会 fallback 到纯文本检索（BM25），虽然语义理解能力弱一些，但关键词匹配仍然能返回相关文档。这在生产环境是很重要的降级策略。”</p>
+</blockquote>
+<hr>
+<h3 id="Q11：ES-的-min-score-是什么？为什么要用？"><a href="#Q11：ES-的-min-score-是什么？为什么要用？" class="headerlink" title="Q11：ES 的 min_score 是什么？为什么要用？"></a>Q11：ES 的 <code>min_score</code> 是什么？为什么要用？</h3><p><strong>答：</strong></p>
+<p><code>min_score</code> 是 ES 的<strong>最低相关性得分阈值</strong>，得分低于这个阈值的文档直接被过滤掉，不会返回。</p>
+<p><strong>为什么需要？</strong></p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs 1c">用户查询：<span class="hljs-string">&quot;Redis 线程池配置&quot;</span><br><br>如果不用 min_score，可能返回：<br>  <span class="hljs-punctuation">-</span> <span class="hljs-string">&quot;MySQL 索引优化指南&quot;</span>（完全不相关，但<span class="hljs-string">&quot;配置&quot;</span>一词碰巧命中）<br>  <span class="hljs-punctuation">-</span> 得分很低（<span class="hljs-number">0.05</span>），但仍然是<span class="hljs-string">&quot;命中&quot;</span>的<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的使用</strong>（第 243 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">.minScore(<span class="hljs-number">0.3d</span>)  <span class="hljs-comment">// 最低得分 0.3，低于这个的直接过滤</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>BM25 的得分范围</strong>：</p>
+<ul>
+<li>完全不相关：~0</li>
+<li>有些相关：0.1 ~ 0.5</li>
+<li>高度相关：0.5 ~ 数</li>
+</ul>
+<p><strong>面试加分</strong>：<code>min_score</code> 和 <code>filter</code> 的区别？</p>
+<ul>
+<li><code>filter</code>：是&#x2F;否过滤，不影响得分</li>
+<li><code>min_score</code>：得分阈值过滤，基于 BM25 或 RRF 的最终得分</li>
+</ul>
+<hr>
+<h2 id="三、Embedding-与向量化（4-道）"><a href="#三、Embedding-与向量化（4-道）" class="headerlink" title="三、Embedding 与向量化（4 道）"></a>三、Embedding 与向量化（4 道）</h2><h3 id="Q12：Embedding-是什么？怎么把文字变成向量？"><a href="#Q12：Embedding-是什么？怎么把文字变成向量？" class="headerlink" title="Q12：Embedding 是什么？怎么把文字变成向量？"></a>Q12：Embedding 是什么？怎么把文字变成向量？</h3><p><strong>答：</strong></p>
+<p><strong>Embedding</strong>（嵌入）是把<strong>文字映射到高维向量空间</strong>的操作。</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli"><span class="hljs-string">&quot;Redis 线程池配置&quot;</span> → Embedding API → [0.023, -0.118, 0.045, <span class="hljs-string">...</span>, 0.201]<br>                                              ↑<br>                                        2048 维向量<br><br><span class="hljs-string">&quot;Redis 连接池设置&quot;</span> → Embedding API → [0.025, -0.110, 0.050, <span class="hljs-string">...</span>, 0.198]<br>                                              ↑<br>                                        和上一句很接近！语义相近 → 向量距离近<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中调用的是谁的 Embedding API？</strong></p>
+<ul>
+<li>代码中是 <code>EmbeddingClient.java</code>，封装了对 LLM 的调用</li>
+<li>可能是 DeepSeek、通义千问、或开源 Embedding 模型</li>
+<li>输出是 2048 维浮点数向量</li>
+</ul>
+<p><strong>为什么是 2048 维？</strong></p>
+<ul>
+<li>维度越高，语义表达越精细，但存储和计算开销越大</li>
+<li>2048 维是效果和成本的平衡点</li>
+<li>ES 的 <code>DenseVector</code> 类型支持最多 2048 维（ES 8.x 支持到 4096 维）</li>
+</ul>
+<hr>
+<h3 id="Q13：项目中-Embedding-的维度为什么选-2048？可以调吗？"><a href="#Q13：项目中-Embedding-的维度为什么选-2048？可以调吗？" class="headerlink" title="Q13：项目中 Embedding 的维度为什么选 2048？可以调吗？"></a>Q13：项目中 Embedding 的维度为什么选 2048？可以调吗？</h3><p><strong>答：</strong></p>
+<p><strong>可以调</strong>，但要考虑：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>语义表达</th>
+<th>存储开销（每个向量）</th>
+<th>检索速度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>384 维</td>
+<td>一般</td>
+<td>1.5 KB</td>
+<td>很快</td>
+</tr>
+<tr>
+<td>768 维</td>
+<td>好</td>
+<td>3 KB</td>
+<td>快</td>
+</tr>
+<tr>
+<td>1536 维</td>
+<td>很好</td>
+<td>6 KB</td>
+<td>中等</td>
+</tr>
+<tr>
+<td><strong>2048 维</strong></td>
+<td><strong>很好</strong></td>
+<td><strong>8 KB</strong></td>
+<td><strong>中等偏慢</strong></td>
+</tr>
+<tr>
+<td>4096 维</td>
+<td>极好</td>
+<td>16 KB</td>
+<td>慢</td>
+</tr>
+</tbody></table>
+<p><strong>项目中的设定</strong>（<code>EsDocument.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Field(type = FieldType.DenseVector, dims = 2048)</span><br><span class="hljs-keyword">private</span> <span class="hljs-type">float</span>[] vector;<br></code></pre></td></tr></table></figure>
+
+<p><strong>如果要调维度，要做的事</strong>：</p>
+<ol>
+<li>重新调用 Embedding API（不同维度是不同模型）</li>
+<li>重新生成所有文档的向量（全量更新）</li>
+<li>修改 ES Mapping（<code>dims = 新维度</code>）</li>
+<li>重建索引（Reindex）</li>
+</ol>
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“我们选 2048 维是因为效果和成本的平衡点。如果追求极致性能，可以降到 768 维，存储和检索速度都能提升 2 倍，但语义表达能力会有所下降。这需要在实际业务场景中做 AB 测试来决定。”</p>
+</blockquote>
+<hr>
+<h3 id="Q14：Embedding-API-调用失败怎么办？有重试吗？"><a href="#Q14：Embedding-API-调用失败怎么办？有重试吗？" class="headerlink" title="Q14：Embedding API 调用失败怎么办？有重试吗？"></a>Q14：Embedding API 调用失败怎么办？有重试吗？</h3><p><strong>答：</strong></p>
+<p><strong>项目中的容错</strong>（<code>EmbeddingClient.java</code> 应该有，但原代码没完全展示）：</p>
+<p>典型的实现是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> List&lt;<span class="hljs-type">float</span>[]&gt; embed(List&lt;String&gt; texts) &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">retry</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (retry &lt; <span class="hljs-number">3</span>) &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// 调用 LLM Embedding API</span><br>            <span class="hljs-keyword">return</span> doEmbed(texts);<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            retry++;<br>            <span class="hljs-keyword">if</span> (retry &gt;= <span class="hljs-number">3</span>) &#123;<br>                logger.error(<span class="hljs-string">&quot;Embedding 失败，已重试 3 次&quot;</span>, e);<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;  <span class="hljs-comment">// 返回 null，上层会 fallback 到纯文本搜索</span><br>            &#125;<br>            Thread.sleep(<span class="hljs-number">1000</span> * retry);  <span class="hljs-comment">// 指数退避</span><br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：为什么不用 Spring Retry 或 Resilience4j？</p>
+<ul>
+<li>可以用，但 Embedding API 的失败通常是<strong>限流（Rate Limit）<strong>或</strong>超时</strong></li>
+<li>需要**指数退避（Exponential Backoff）**重试，这些框架都支持</li>
+</ul>
+<hr>
+<h3 id="Q15：向量检索和关键词检索，哪个更适合中文搜索？"><a href="#Q15：向量检索和关键词检索，哪个更适合中文搜索？" class="headerlink" title="Q15：向量检索和关键词检索，哪个更适合中文搜索？"></a>Q15：向量检索和关键词检索，哪个更适合中文搜索？</h3><p><strong>答：</strong></p>
+<p><strong>中文搜索的痛点</strong>：</p>
+<ul>
+<li>中文不分词，”技术派项目教程”是一整串</li>
+<li>要搜到，要么<strong>精确匹配每个字</strong>（BM25 + IK 分词）</li>
+<li>要么<strong>语义匹配</strong>（向量检索）</li>
+</ul>
+<p><strong>项目中用 IK 分词器</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Field(type = FieldType.Text, analyzer = &quot;ik_max_word&quot;, searchAnalyzer = &quot;ik_smart&quot;)</span><br><span class="hljs-keyword">private</span> String textContent;<br></code></pre></td></tr></table></figure>
+
+<p><strong>IK 分词效果</strong>：</p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs nix"><span class="hljs-string">&quot;技术派项目教程&quot;</span><br>→ <span class="hljs-params">ik_max_word:</span> [<span class="hljs-string">&quot;技术&quot;</span>, <span class="hljs-string">&quot;派&quot;</span>, <span class="hljs-string">&quot;项目&quot;</span>, <span class="hljs-string">&quot;教程&quot;</span>, <span class="hljs-string">&quot;技术派&quot;</span>, <span class="hljs-string">&quot;项目教程&quot;</span>]<br>→ <span class="hljs-params">ik_smart:</span>    [<span class="hljs-string">&quot;技术派&quot;</span>, <span class="hljs-string">&quot;项目教程&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<p><strong>向量检索对中文的优势</strong>：</p>
+<ul>
+<li>“Redis 线程池” 能匹配 “Redis 连接池配置”</li>
+<li>但可能对专有名词理解不准确（”技术派” 可能被拆成 “技术” + “派”）</li>
+</ul>
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“中文搜索我们两者结合用。BM25 负责关键词精确匹配，IK 分词器保证专业术语（如”技术派”）被正确切分；向量检索负责语义相似度匹配。两者通过 RRF 融合，既保证准确率，又提高召回率。”</p>
+</blockquote>
+<hr>
+<h2 id="四、综合设计题（5-道）"><a href="#四、综合设计题（5-道）" class="headerlink" title="四、综合设计题（5 道）"></a>四、综合设计题（5 道）</h2><h3 id="Q16：如果-ES-索引里有-1-亿条数据，检索会变慢吗？怎么优化？"><a href="#Q16：如果-ES-索引里有-1-亿条数据，检索会变慢吗？怎么优化？" class="headerlink" title="Q16：如果 ES 索引里有 1 亿条数据，检索会变慢吗？怎么优化？"></a>Q16：如果 ES 索引里有 1 亿条数据，检索会变慢吗？怎么优化？</h3><p><strong>答：</strong></p>
+<p><strong>会变慢</strong>，但 ES 是分布式的，可以优化。</p>
+<p><strong>优化手段</strong>：</p>
+<p><strong>1. 增加 Primary Shard 数量</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 创建索引时设置分片数</span><br>esClient.indices().create(c -&gt; c<br>    .index(<span class="hljs-string">&quot;knowledge_base&quot;</span>)<br>    .settings(s -&gt; s<br>        .numberOfShards(<span class="hljs-string">&quot;12&quot;</span>)   <span class="hljs-comment">// 12 个主分片</span><br>        .numberOfReplicas(<span class="hljs-string">&quot;1&quot;</span>)   <span class="hljs-comment">// 每个主分片 1 个副本</span><br>    )<br>)<br></code></pre></td></tr></table></figure>
+<ul>
+<li>1 亿条数据，12 个分片，每个分片约 800 万条</li>
+<li>查询时，12 个分片<strong>并行搜索</strong>，结果汇总</li>
+</ul>
+<p><strong>2. 用 HNSW 索引加速向量检索</strong></p>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">向量检索如果不建索引：暴力计算每个向量和查询向量的距离 → <span class="hljs-built_in">O</span><span class="hljs-punctuation">(</span><span class="hljs-built_in">N</span><span class="hljs-punctuation">)</span>，<span class="hljs-number">1</span> 亿条很慢<br>建了 <span class="hljs-variable">HNSW</span> 索引：用图结构加速 → <span class="hljs-built_in">O</span><span class="hljs-punctuation">(</span><span class="hljs-variable">log</span> <span class="hljs-built_in">N</span><span class="hljs-punctuation">)</span>，<span class="hljs-number">1</span> 亿条仍然很快<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 热数据预热（Warm Up）</strong></p>
+<ul>
+<li>ES 启动后，索引数据在磁盘，第一次查询要加载到内存（慢）</li>
+<li>配置 <code>index.store.preload: [&quot;nvd&quot;, &quot;dvd&quot;]</code> 让热数据常驻内存</li>
+</ul>
+<hr>
+<h3 id="Q17：如果知识库文档量涨到-1000-万，你的系统还能撑住吗？"><a href="#Q17：如果知识库文档量涨到-1000-万，你的系统还能撑住吗？" class="headerlink" title="Q17：如果知识库文档量涨到 1000 万，你的系统还能撑住吗？"></a>Q17：如果知识库文档量涨到 1000 万，你的系统还能撑住吗？</h3><p><strong>答：</strong></p>
+<p><strong>V1（当前项目）</strong>：单 ES 实例 + 单 MinIO 实例</p>
+<ul>
+<li>支持：100 万条向量，1000 个文档</li>
+</ul>
+<p><strong>V2（水平扩展）</strong>：</p>
+<ul>
+<li>ES 集群：3 个节点，12 个主分片，每个分片 1 个副本</li>
+<li>MinIO 集群：纠删码 N&#x3D;4, M&#x3D;2</li>
+<li>应用无状态化：3 个实例，Nginx 负载均衡</li>
+</ul>
+<p><strong>V3（性能优化）</strong>：</p>
+<ul>
+<li><strong>向量量化（Quantization）</strong>：把 2048 维 float 量化成 int8，存储和检索速度提升 4 倍</li>
+<li><strong>分层检索</strong>：热数据（最近 30 天上传的）放内存；冷数据放磁盘</li>
+<li><strong>预取（Prefetching）</strong>：用户输入查询时，前端先发一个前缀请求，后端提前检索，等用户点”搜索”时直接返回</li>
+</ul>
+<hr>
+<h3 id="Q18：ES-和-Milvus-Chroma-等专业向量数据库比，有什么优劣？"><a href="#Q18：ES-和-Milvus-Chroma-等专业向量数据库比，有什么优劣？" class="headerlink" title="Q18：ES 和 Milvus &#x2F; Chroma 等专业向量数据库比，有什么优劣？"></a>Q18：ES 和 Milvus &#x2F; Chroma 等专业向量数据库比，有什么优劣？</h3><p><strong>答：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Elasticsearch</th>
+<th>Milvus &#x2F; Chroma（专业向量 DB）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>优势</strong></td>
+<td>同时支持 BM25 和 KNN，混合检索原生支持</td>
+<td>向量检索性能极致（专门优化过）</td>
+</tr>
+<tr>
+<td><strong>劣势</strong></td>
+<td>向量检索性能不如专业向量 DB</td>
+<td>关键词检索能力弱，混合检索要自己实现</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>知识库、搜索引擎（需要混合检索）</td>
+<td>纯向量检索（推荐系统、图像检索）</td>
+</tr>
+<tr>
+<td><strong>运维</strong></td>
+<td>成熟，生态好</td>
+<td>相对新颖，踩坑多</td>
+</tr>
+</tbody></table>
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“我们选 ES 是因为需要做混合检索（BM25 + KNN），ES 原生支持这两者，RRF 融合也很方便。如果是纯向量检索场景（比如以图搜图），我会选 Milvus，它的向量检索性能比 ES 好很多。但知识库场景，ES 更合适。”</p>
+</blockquote>
+<hr>
+<h3 id="Q19：如果用户输入一段很长的查询（比如-500-字），你怎么处理？"><a href="#Q19：如果用户输入一段很长的查询（比如-500-字），你怎么处理？" class="headerlink" title="Q19：如果用户输入一段很长的查询（比如 500 字），你怎么处理？"></a>Q19：如果用户输入一段很长的查询（比如 500 字），你怎么处理？</h3><p><strong>答：</strong></p>
+<p><strong>问题</strong>：查询太长，Embedding API 有 token 限制（通常 8192 token），可能超限。</p>
+<p><strong>项目中的处理</strong>（<code>HybridSearchService.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 截断过长查询</span><br><span class="hljs-keyword">if</span> (query.length() &gt; <span class="hljs-number">1000</span>) &#123;<br>    query = query.substring(<span class="hljs-number">0</span>, <span class="hljs-number">1000</span>);<br>    logger.warn(<span class="hljs-string">&quot;查询过长，已截断到 1000 字符&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">// 生成查询向量</span><br>List&lt;Float&gt; queryVector = embedToVectorList(query);<br></code></pre></td></tr></table></figure>
+
+<p><strong>更好的方案</strong>：</p>
+<ol>
+<li><strong>查询压缩</strong>：用 LLM 把长查询压缩成核心关键词，再做检索</li>
+<li><strong>分段检索</strong>：把长查询分成多段，分别检索，结果 RRF 融合</li>
+<li><strong>HyDE（Hypothetical Document Embedding）</strong>：让 LLM 先生成一段”假设答案”，再用这段答案的向量去检索（效果很好！）</li>
+</ol>
+<hr>
+<h3 id="Q20：如果让你从零设计知识库系统的检索模块，你会怎么做？"><a href="#Q20：如果让你从零设计知识库系统的检索模块，你会怎么做？" class="headerlink" title="Q20：如果让你从零设计知识库系统的检索模块，你会怎么做？"></a>Q20：如果让你从零设计知识库系统的检索模块，你会怎么做？</h3><p><strong>答：</strong></p>
+<p><strong>MVP（最小可行产品）</strong>：</p>
+<ol>
+<li>文档上传 → 解析 → 切块（500 字&#x2F;块，重叠 50 字）</li>
+<li>Embedding → 存入 ES（vector 字段）</li>
+<li>用户查询 → Embedding → KNN 检索 → 返回 Top 5</li>
+</ol>
+<p><strong>V2（加入混合检索）</strong>：</p>
+<ol>
+<li>加入 BM25 关键词检索</li>
+<li>RRF 融合两路结果</li>
+<li>权限过滤（只能搜到自己有权限的）</li>
+</ol>
+<p><strong>V3（生产级）</strong>：</p>
+<ol>
+<li>查询改写（LLM 扩写查询，提高召回率）</li>
+<li>重排序模型（Cross-Encoder，对 Top 50 结果精排）</li>
+<li>检索结果缓存（Redis Cache，相同查询 5 分钟内直接返回）</li>
+<li>降级策略（Embedding 失败时 fallback 到纯文本检索）</li>
+</ol>
+<hr>
+<h2 id="五、简历话术准备"><a href="#五、简历话术准备" class="headerlink" title="五、简历话术准备"></a>五、简历话术准备</h2><p><strong>面试官问</strong>：”你在简历里写了混合检索架构，能详细讲一下吗？”</p>
+<p><strong>回答模板</strong>（背下来！）：</p>
+<blockquote>
+<p>“这个问题我从四个方面来讲。</p>
+<p><strong>第一，为什么需要混合检索</strong>。纯向量检索语义理解好，但可能返回答非所问的文档；纯关键词检索准确率高，但语义理解为零。我们把两者结合，既保证准确率，又提高召回率。</p>
+<p><strong>第二，具体怎么实现的</strong>。用 ES 的 KNN 做向量召回（粗排），用 BM25 做关键词匹配，再用 RRF（倒数秩融合）算法对两路结果重排序（精排）。KNN 召回窗口设为最终返回数量的 30 倍，避免漏掉好文档。</p>
+<p><strong>第三，权限过滤怎么做的</strong>。用户只能搜到自己上传的、公开的、或同组织的文档。把这个过滤条件放在 ES 的 <code>filter</code> 子句里，不计算得分，还能利用 Filter Cache 加速。</p>
+<p><strong>第四，降级策略</strong>。如果 Embedding API 调用失败，系统会自动 fallback 到纯文本检索（BM25），不影响核心功能。这在生产环境是很重要的容错机制。”</p>
+</blockquote>
+<hr>
+<p><em>© 2026 KnowFlow 面试手册 · 转载请注明出处</em></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
+        <a href="/tags/Elasticsearch/" class="print-no-link">#Elasticsearch</a>
+      
+        <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/" class="print-no-link">#向量检索</a>
+      
+        <a href="/tags/RAG/" class="print-no-link">#RAG</a>
+      
+        <a href="/tags/%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2/" class="print-no-link">#混合检索</a>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/" class="print-no-link">#字节跳动</a>
+      
+        <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/" class="print-no-link">#傻子都能懂</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF）</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-search-qa/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-knowflow-security-qa/" title="KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-knowflow-upload-qa/" title="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线">
+                        <span class="hidden-mobile">KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

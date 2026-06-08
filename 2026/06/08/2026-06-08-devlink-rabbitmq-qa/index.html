@@ -1,0 +1,1072 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性 简历原文：「将点赞通知等事件通过 RabbitMQ 异步解耦，消费端手动 Ack 保障消息至少处理一次；针对消息可靠性设计了生产端 Confirm 与死信兜底方案。」 面试口径：“点赞通知用 RabbitMQ 做异步解耦：用户点赞立即返回，通知消息异步处理，核心链路和非核心链路解耦。消费端用 manual ack，业务处理完成后才 basi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-rabbitmq-qa/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性 简历原文：「将点赞通知等事件通过 RabbitMQ 异步解耦，消费端手动 Ack 保障消息至少处理一次；针对消息可靠性设计了生产端 Confirm 与死信兜底方案。」 面试口径：“点赞通知用 RabbitMQ 做异步解耦：用户点赞立即返回，通知消息异步处理，核心链路和非核心链路解耦。消费端用 manual ack，业务处理完成后才 basi">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T11:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T11:03:36.222Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="RabbitMQ">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="字节跳动">
+<meta property="article:tag" content="手动Ack">
+<meta property="article:tag" content="技术派">
+<meta property="article:tag" content="死信队列">
+<meta property="article:tag" content="消息可靠性">
+<meta property="article:tag" content="消息队列">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 19:00" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          54 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="技术派面试拷打①：RabbitMQ-异步解耦与消息可靠性"><a href="#技术派面试拷打①：RabbitMQ-异步解耦与消息可靠性" class="headerlink" title="技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性"></a>技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性</h1><blockquote>
+<p>简历原文：「将点赞通知等事件通过 RabbitMQ 异步解耦，消费端手动 Ack 保障消息至少处理一次；针对消息可靠性设计了生产端 Confirm 与死信兜底方案。」</p>
+<p>面试口径：<strong>“点赞通知用 RabbitMQ 做异步解耦：用户点赞立即返回，通知消息异步处理，核心链路和非核心链路解耦。消费端用 manual ack，业务处理完成后才 basicAck，保证 at-least-once；重复消费靠 notify 表唯一索引做幂等。生产端开启 Confirm 回调，Broker 持久化失败后 nack 触发重发；消费失败进入死信队列（DLQ）人工兜底。”</strong></p>
+</blockquote>
+<hr>
+<h2 id="第一层：为什么需要消息队列？（架构设计题）"><a href="#第一层：为什么需要消息队列？（架构设计题）" class="headerlink" title="第一层：为什么需要消息队列？（架构设计题）"></a>第一层：为什么需要消息队列？（架构设计题）</h2><h3 id="Q1：你们项目里-RabbitMQ-是必须的吗？不用行不行？"><a href="#Q1：你们项目里-RabbitMQ-是必须的吗？不用行不行？" class="headerlink" title="Q1：你们项目里 RabbitMQ 是必须的吗？不用行不行？"></a>Q1：你们项目里 RabbitMQ 是必须的吗？不用行不行？</h3><p><strong>答：</strong> 不是必须的，但用了之后架构更清晰。</p>
+<p><strong>不用 MQ 的问题（同步通知）：</strong></p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">用户点赞<br>  → 写 user_foot 表<br>  → 更新文章点赞数<br>  → 更新作者积分<br>  → 生成通知消息（<span class="hljs-keyword">notify</span> 表）<br>  → 返回给用户<br></code></pre></td></tr></table></figure>
+<p>这一套下来，用户要等 <strong>所有操作都完成</strong> 才能看到”点赞成功”，如果通知生成很慢，用户就卡住了。</p>
+<p><strong>用了 MQ 之后（异步通知）：</strong></p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs 1c">用户点赞<br>  → 写 user_foot 表<br>  → 返回<span class="hljs-string">&quot;点赞成功&quot;</span>给用户（快！）<br>  → 发送消息到 RabbitMQ（很快，只是写内存）<br>      → 消费者异步处理：更新积分 <span class="hljs-punctuation">+</span> 生成通知<br></code></pre></td></tr></table></figure>
+<p>用户完全不用等通知生成，<strong>核心链路（点赞）和辅助链路（通知）解耦了</strong>。</p>
+<p><strong>项目里的实际代码</strong>（<code>UserFootServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 点赞消息走 RabbitMQ，其它走 Java 内置消息机制</span><br><span class="hljs-keyword">if</span> (notifyType.equals(NotifyTypeEnum.PRAISE) &amp;&amp; rabbitmqService.enabled()) &#123;<br>    rabbitmqService.publishMsg(<br>        CommonConstants.EXCHANGE_NAME_DIRECT,<br>        CommonConstants.QUERE_KEY_PRAISE,<br>        JsonUtil.toStr(foot));  <span class="hljs-comment">// 发送消息到 MQ</span><br>&#125;<br><span class="hljs-comment">// 不管 MQ 是否成功，主流程都已经完成，用户已经看到点赞成功</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>不用 MQ 会怎样？</strong> 如果通知生成要 200ms，用户点赞后就要等 200ms 才能继续操作。用 MQ 后，用户 5ms 内就能继续刷下一篇文章。</p>
+<hr>
+<h3 id="Q2：RabbitMQ、Kafka、RocketMQ-怎么选？（字节必考）"><a href="#Q2：RabbitMQ、Kafka、RocketMQ-怎么选？（字节必考）" class="headerlink" title="Q2：RabbitMQ、Kafka、RocketMQ 怎么选？（字节必考）"></a>Q2：RabbitMQ、Kafka、RocketMQ 怎么选？（字节必考）</h3><p><strong>答：</strong> 三个的定位不一样，选型要看场景。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>RabbitMQ</th>
+<th>Kafka</th>
+<th>RocketMQ</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>定位</strong></td>
+<td>传统消息队列，功能丰富</td>
+<td>分布式流平台，吞吐量极高</td>
+<td>阿里开源，电商场景打磨</td>
+</tr>
+<tr>
+<td><strong>吞吐量</strong></td>
+<td>万级 ~ 十万级 QPS</td>
+<td><strong>百万级 QPS</strong></td>
+<td>十万级 ~ 百万级 QPS</td>
+</tr>
+<tr>
+<td><strong>消息可靠性</strong></td>
+<td>支持事务、手动 Ack，很可靠</td>
+<td>靠副本机制，可能丢消息</td>
+<td>支持事务消息、顺序消息</td>
+</tr>
+<tr>
+<td><strong>延迟</strong></td>
+<td>微秒 ~ 毫秒级（最低）</td>
+<td>毫秒级</td>
+<td>毫秒级</td>
+</tr>
+<tr>
+<td><strong>顺序消息</strong></td>
+<td>不支持</td>
+<td>分区内有序</td>
+<td><strong>支持（电商订单场景）</strong></td>
+</tr>
+<tr>
+<td><strong>死信队列</strong></td>
+<td>原生支持（DLX）</td>
+<td>不支持（要自己实现）</td>
+<td>支持</td>
+</tr>
+<tr>
+<td><strong>延迟消息</strong></td>
+<td>需装插件（rabbitmq-delayed-message-exchange）</td>
+<td>不支持</td>
+<td><strong>原生支持（很方便）</strong></td>
+</tr>
+</tbody></table>
+<p><strong>本项目选 RabbitMQ 的理由：</strong></p>
+<ol>
+<li><strong>消息量不大</strong>（论坛点赞&#x2F;评论频率），不需要 Kafka 的百万级吞吐</li>
+<li><strong>需要消息可靠性</strong>（通知消息不能丢），RabbitMQ 的手动 Ack + Confirm 机制很成熟</li>
+<li><strong>需要死信队列兜底</strong>，RabbitMQ 原生支持，配置简单</li>
+<li><strong>运维简单</strong>，RabbitMQ Management UI 很好用，适合个人项目</li>
+</ol>
+<p><strong>面试回答模板：</strong></p>
+<blockquote>
+<p>“日志采集&#x2F;大数据管道用 Kafka，电商订单&#x2F;事务消息用 RocketMQ，业务解耦&#x2F;通知类用 RabbitMQ。我们项目是论坛场景，消息量不大但要求可靠性，所以选了 RabbitMQ。”</p>
+</blockquote>
+<hr>
+<h2 id="第二层：生产端消息可靠性"><a href="#第二层：生产端消息可靠性" class="headerlink" title="第二层：生产端消息可靠性"></a>第二层：生产端消息可靠性</h2><h3 id="Q3：你说生产端用了-Confirm-机制，具体是怎么工作的？"><a href="#Q3：你说生产端用了-Confirm-机制，具体是怎么工作的？" class="headerlink" title="Q3：你说生产端用了 Confirm 机制，具体是怎么工作的？"></a>Q3：你说生产端用了 Confirm 机制，具体是怎么工作的？</h3><p><strong>答：</strong> Confirm 机制是 RabbitMQ 的<strong>生产端确认机制</strong>，保证消息成功到达 Broker。</p>
+<p><strong>不用 Confirm 的问题：</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs">生产者 → 发送消息 → RabbitMQ（没收到！）<br>         ↑ 生产者不知道消息丢了，也不重发<br></code></pre></td></tr></table></figure>
+<p>消息在网络传输中丢了，生产者完全不知道。</p>
+<p><strong>Confirm 机制的工作原理：</strong></p>
+<ol>
+<li><strong>开启 Confirm</strong>：<code>channel.confirmSelect()</code></li>
+<li><strong>发送消息</strong>：正常发送，RabbitMQ 收到后会异步回调</li>
+<li><strong>ack 回调</strong>：RabbitMQ <strong>成功持久化</strong>后，调用 <code>ConfirmListener</code> 的 <code>handleAck</code>（告诉生产者：消息安全了）</li>
+<li><strong>nack 回调</strong>：RabbitMQ <strong>内部错误</strong>（比如磁盘满了），调用 <code>handleNack</code>（告诉生产者：消息丢了，重发吧）</li>
+</ol>
+<p><strong>项目里的实际代码</strong>（<code>RabbitmqServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 开启 Confirm 机制</span><br>channel.confirmSelect();<br><br><span class="hljs-comment">// 2. 注册 Confirm 回调</span><br>channel.addConfirmListener(<br>    <span class="hljs-comment">// ack 回调：Broker 已持久化，消息安全</span><br>    (deliveryTag, multiple) -&gt; <br>        log.info(<span class="hljs-string">&quot;消息已到达 Broker，deliveryTag=&#123;&#125;, exchange=&#123;&#125;&quot;</span>, deliveryTag, exchange),<br>    <span class="hljs-comment">// nack 回调：Broker 内部错误，需要重发</span><br>    (deliveryTag, multiple) -&gt; <br>        log.warn(<span class="hljs-string">&quot;消息被 Broker 拒绝（nack），deliveryTag=&#123;&#125;, msg=&#123;&#125;&quot;</span>, deliveryTag, message)<br>);<br><br><span class="hljs-comment">// 3. 发送消息</span><br>channel.basicPublish(exchange, routingKey, <span class="hljs-literal">null</span>, message.getBytes());<br><br><span class="hljs-comment">// 4. 同步等待确认（最多等 3 秒）</span><br>channel.waitForConfirmsOrDie(<span class="hljs-number">3000</span>);<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>waitForConfirmsOrDie(3000)</code> 是什么意思？</strong></p>
+<ul>
+<li>同步等待 Broker 的 Confirm 回调，最多等 3 秒</li>
+<li>如果 3 秒内没收到 ack → 抛异常，捕获后记录日志&#x2F;重发</li>
+<li>如果收到 nack → 直接抛异常</li>
+</ul>
+<p><strong>Confirm 和事务（tx）的区别？</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Confirm（推荐）</th>
+<th>事务（tx）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>性能</strong></td>
+<td>高（异步回调）</td>
+<td>低（同步阻塞，性能降 250 倍）</td>
+</tr>
+<tr>
+<td><strong>可靠性</strong></td>
+<td>同样可靠</td>
+<td>同样可靠</td>
+</tr>
+<tr>
+<td><strong>用法</strong></td>
+<td><code>confirmSelect()</code> + 监听回调</td>
+<td><code>txSelect()</code> + <code>txCommit()</code></td>
+</tr>
+</tbody></table>
+<p><strong>面试必说：</strong> “Confirm 是异步确认，性能远高于事务消息，生产环境都用 Confirm。”</p>
+<hr>
+<h3 id="Q4：Confirm-机制是异步的，项目里为什么还要用-waitForConfirmsOrDie-同步等待？"><a href="#Q4：Confirm-机制是异步的，项目里为什么还要用-waitForConfirmsOrDie-同步等待？" class="headerlink" title="Q4：Confirm 机制是异步的，项目里为什么还要用 waitForConfirmsOrDie 同步等待？"></a>Q4：Confirm 机制是异步的，项目里为什么还要用 <code>waitForConfirmsOrDie</code> 同步等待？</h3><p><strong>答：</strong> 这是一个<strong>取舍问题</strong>，项目里用的是”同步等待 Confirm”，适合<strong>消息量不大</strong>的场景。</p>
+<p><strong>纯异步 Confirm 的问题：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 纯异步：发送后立即返回，Confirm 回调在另一个线程执行</span><br>channel.addConfirmListener((deliveryTag, multiple) -&gt; &#123;<br>    <span class="hljs-comment">// 这里可能是 5 秒后才被调用（Broker 异步回调）</span><br>    log.info(<span class="hljs-string">&quot;消息已确认&quot;</span>);<br>&#125;);<br>channel.basicPublish(...);<br><span class="hljs-comment">// 发送完立即返回，不知道消息是否成功</span><br></code></pre></td></tr></table></figure>
+
+<p>如果消息量很大，纯异步更好（不阻塞发送线程）。但如果消息量不大，用 <code>waitForConfirmsOrDie</code> <strong>同步等待</strong>更简单：</p>
+<ul>
+<li>发送 → 阻塞等待 Broker 确认 → 确认成功才继续</li>
+<li>如果超时或 nack → 立即知道，可以重发</li>
+</ul>
+<p><strong>更好的方案（生产环境）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 批量发送 + 异步 Confirm + 失败重试队列</span><br>channel.addConfirmListener((deliveryTag, multiple) -&gt; &#123;<br>        <span class="hljs-comment">// ack：从&quot;待确认集合&quot;里删除</span><br>    &#125;, (deliveryTag, multiple) -&gt; &#123;<br>        <span class="hljs-comment">// nack：把消息重新放入发送队列</span><br>    &#125;);<br><br><span class="hljs-comment">// 批量发送</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000</span>; i++) &#123;<br>    channel.basicPublish(...);<br>&#125;<br><span class="hljs-comment">// 等待所有消息都被确认</span><br>channel.waitForConfirmsOrDie(<span class="hljs-number">5000</span>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“我们项目里消息量不大，用 <code>waitForConfirmsOrDie</code> 同步等待比较简单。如果消息量很大，应该用纯异步 Confirm + 失败重试队列，避免阻塞发送线程。”</p>
+</blockquote>
+<hr>
+<h3 id="Q5：如果-RabbitMQ-宕机了，生产端发送的消息会丢失吗？"><a href="#Q5：如果-RabbitMQ-宕机了，生产端发送的消息会丢失吗？" class="headerlink" title="Q5：如果 RabbitMQ 宕机了，生产端发送的消息会丢失吗？"></a>Q5：如果 RabbitMQ 宕机了，生产端发送的消息会丢失吗？</h3><p><strong>答：</strong> 会丢失，除非你做了<strong>消息持久化</strong>。</p>
+<p><strong>RabbitMQ 宕机消息丢失的三个阶段：</strong></p>
+<p><strong>阶段一：消息在 JVM 内存里，还没发给 RabbitMQ</strong></p>
+<ul>
+<li>解决：消息先存本地 DB（状态&#x3D;待发送），发送成功再改状态</li>
+</ul>
+<p><strong>阶段二：消息已发给 RabbitMQ，但 RabbitMQ 还没持久化（在内存里）就宕机了</strong></p>
+<ul>
+<li>解决：① 开启 Confirm 机制，确保 Broker 持久化后才算成功；② 队列和消息都设置持久化</li>
+</ul>
+<p><strong>阶段三：RabbitMQ 持久化了，但磁盘坏了</strong></p>
+<ul>
+<li>解决：RabbitMQ 镜像队列（高可用），消息存多台机器</li>
+</ul>
+<p><strong>项目里的持久化配置</strong>（<code>RabbitmqServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. Exchange 持久化：durable=true</span><br>channel.exchangeDeclare(exchange, exchangeType, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">null</span>);<br><span class="hljs-comment">//                                        ↑ 持久化</span><br><br><span class="hljs-comment">// 2. Queue 持久化：durable=true</span><br>channel.queueDeclare(queueName, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>, args);<br><span class="hljs-comment">//                              ↑ 持久化</span><br><br><span class="hljs-comment">// 3. 消息持久化：MessageProperties.PERSISTENT_TEXT_PLAIN</span><br><span class="hljs-comment">// （项目里没显式设置，这是个可以优化的点）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分：</strong> “我们项目里 Exchange 和 Queue 都设置了持久化，但消息本身的 deliveryMode 没显式设置，这是个可以优化的点，应该设置为 <code>MessageProperties.PERSISTENT_TEXT_PLAIN</code>（即 deliveryMode&#x3D;2）。”</p>
+<hr>
+<h2 id="第三层：消费端手动-Ack-与消息可靠性"><a href="#第三层：消费端手动-Ack-与消息可靠性" class="headerlink" title="第三层：消费端手动 Ack 与消息可靠性"></a>第三层：消费端手动 Ack 与消息可靠性</h2><h3 id="Q6：消费端手动-Ack-是怎么工作的？为什么不用自动-Ack？"><a href="#Q6：消费端手动-Ack-是怎么工作的？为什么不用自动-Ack？" class="headerlink" title="Q6：消费端手动 Ack 是怎么工作的？为什么不用自动 Ack？"></a>Q6：消费端手动 Ack 是怎么工作的？为什么不用自动 Ack？</h3><p><strong>答：</strong> 自动 Ack 是”发给消费者就立即确认”，如果消费者拿到消息后<strong>处理到一半宕机了</strong>，这条消息就永久丢失了。</p>
+<p><strong>自动 Ack 的问题：</strong></p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">RabbitMQ → 发送消息给消费者 → 立即 <span class="hljs-keyword">basicAck（消息从队列删除）</span><br><span class="hljs-keyword"></span>                                        ↓<br>                              消费者拿到消息，但处理到一半宕机了<br>                                        → 这条消息永远丢了！<br></code></pre></td></tr></table></figure>
+
+<p><strong>手动 Ack 的工作原理：</strong></p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs coq">RabbitMQ → 发送消息给消费者 → 不确认（消息还在队列里，状态=Unacked）<br>                                        ↓<br>                              消费者处理完成<br>                                        ↓<br>                              basicAck() → RabbitMQ 才删除消息<br>                                        ↓<br>                              如果消费者宕机了：Unacked 消息自动回到 Ready 状态，<br>                              被其他消费者重新消费（<span class="hljs-built_in">at</span>-least-<span class="hljs-built_in">once</span>）<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目里的实际代码</strong>（<code>RabbitmqServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 关闭自动 Ack（autoAck=false）</span><br>channel.basicConsume(queueName, <span class="hljs-literal">false</span>, consumer);<br><span class="hljs-comment">//                              ↑ 关键！false = 手动 Ack</span><br><br><span class="hljs-comment">// 2. 消费者处理完成后，才手动 Ack</span><br><span class="hljs-type">Consumer</span> <span class="hljs-variable">consumer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultConsumer</span>(channel) &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleDelivery</span><span class="hljs-params">(...)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">message</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(body, <span class="hljs-string">&quot;UTF-8&quot;</span>);<br>        <span class="hljs-comment">// 处理业务逻辑：保存通知到 DB</span><br>        notifyService.saveArticleNotify(...);<br>        <br>        <span class="hljs-comment">// 处理完成，才 Ack</span><br>        channel.basicAck(envelope.getDeliveryTag(), <span class="hljs-literal">false</span>);<br>        <span class="hljs-comment">//                          ↑ multiple=false：只确认当前这条</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>basicAck</code> 的第二个参数 <code>multiple</code> 是什么意思？</strong></p>
+<ul>
+<li><code>false</code>：只确认当前这条消息（deliveryTag）</li>
+<li><code>true</code>：确认当前这条 + 所有比它 deliveryTag 小的未确认消息（批量确认，提升性能）</li>
+</ul>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“自动 Ack 是发出去就确认，消费者拿到消息后宕机了消息就丢了。手动 Ack 是等业务处理完成后才确认，如果处理中途宕机，RabbitMQ 会把消息重新分发给其他消费者，保证 at-least-once。”</p>
+</blockquote>
+<hr>
+<h3 id="Q7：手动-Ack-保证了-at-least-once，那重复消费怎么办？你们项目里怎么处理幂等性？"><a href="#Q7：手动-Ack-保证了-at-least-once，那重复消费怎么办？你们项目里怎么处理幂等性？" class="headerlink" title="Q7：手动 Ack 保证了 at-least-once，那重复消费怎么办？你们项目里怎么处理幂等性？"></a>Q7：手动 Ack 保证了 at-least-once，那重复消费怎么办？你们项目里怎么处理幂等性？</h3><p><strong>答：</strong> at-least-once 必然导致<strong>重复消费</strong>，要解决幂等性问题。</p>
+<p><strong>重复消费的场景：</strong></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs css">消息被消费者 <span class="hljs-selector-tag">A</span> 拿到 → 处理完成，但网络抖动，basicAck() 超时<br>  → RabbitMQ 认为没确认，把消息重新入队<br>  → 消费者 <span class="hljs-selector-tag">B</span> 又拿到同一条消息 → 重复处理！<br></code></pre></td></tr></table></figure>
+
+<p><strong>幂等性设计：同样的消息，消费 1 次和消费 10 次，效果一样。</strong></p>
+<p><strong>方案 1：数据库唯一索引（最常用）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 项目里的 notify 表，应该有这些字段：</span><br>CREATE TABLE <span class="hljs-title function_">notify</span> <span class="hljs-params">(</span><br><span class="hljs-params">    id BIGINT PRIMARY KEY,</span><br><span class="hljs-params">    user_id BIGINT,</span><br><span class="hljs-params">    article_id BIGINT,</span><br><span class="hljs-params">    type INT,  -- 点赞通知/评论通知/收藏通知</span><br><span class="hljs-params">    create_time DATETIME,</span><br><span class="hljs-params">    UNIQUE KEY uk_user_article_type (user_id, article_id, type)</span><br>    -- 同一个人对同一篇文章的同一类通知，只能有一条<br>);<br><br><span class="hljs-comment">// 消费时：</span><br><span class="hljs-keyword">try</span> &#123;<br>    INSERT INTO <span class="hljs-title function_">notify</span><span class="hljs-params">(user_id, article_id, type)</span> VALUES(..., ..., ...);<br>&#125; <span class="hljs-keyword">catch</span> (DuplicateKeyException e) &#123;<br>    <span class="hljs-comment">// 唯一索引冲突 = 重复消费，直接忽略</span><br>    log.warn(<span class="hljs-string">&quot;重复消费，忽略&quot;</span>);<br>    channel.basicAck(deliveryTag, <span class="hljs-literal">false</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>方案 2：Redis SetNX（分布式锁）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 用消息的唯一 ID 做幂等</span><br><span class="hljs-type">String</span> <span class="hljs-variable">msgId</span> <span class="hljs-operator">=</span> envelope.getDeliveryTag() + <span class="hljs-string">&quot;_&quot;</span> + queueName;<br><span class="hljs-type">Boolean</span> <span class="hljs-variable">first</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue()<br>    .setIfAbsent(<span class="hljs-string">&quot;msg:processed:&quot;</span> + msgId, <span class="hljs-string">&quot;1&quot;</span>, Duration.ofHours(<span class="hljs-number">24</span>));<br><span class="hljs-keyword">if</span> (Boolean.FALSE.equals(first)) &#123;<br>    <span class="hljs-comment">// 已经处理过，直接 Ack 跳过</span><br>    channel.basicAck(deliveryTag, <span class="hljs-literal">false</span>);<br>    <span class="hljs-keyword">return</span>;<br>&#125;<br><span class="hljs-comment">// 第一次处理，执行业务逻辑</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>项目里的幂等处理：</strong> 从代码看，项目用 <code>notifyService.saveArticleNotify()</code> 保存通知，应该在 <code>notify</code> 表有唯一索引，防止重复插入。</p>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“我们项目里用 notify 表的唯一索引（user_id + article_id + type）做幂等，重复消费时数据库报 DuplicateKeyException，捕获后直接 Ack 跳过。也可以用 Redis SetNX 做幂等，但数据库唯一索引更简单可靠。”</p>
+</blockquote>
+<hr>
+<h3 id="Q8：如果消费者处理消息时一直卡住（比如远程调用超时），会怎么样？"><a href="#Q8：如果消费者处理消息时一直卡住（比如远程调用超时），会怎么样？" class="headerlink" title="Q8：如果消费者处理消息时一直卡住（比如远程调用超时），会怎么样？"></a>Q8：如果消费者处理消息时一直卡住（比如远程调用超时），会怎么样？</h3><p><strong>答：</strong> RabbitMQ 的 <strong>消费超时机制</strong> 会触发，但如果没设置，消息会一直卡在 Unacked 状态。</p>
+<p><strong>问题场景：</strong></p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs erlang">消费者拿到消息 → 调用远程 HTTP 接口（超时 <span class="hljs-number">30</span> 秒）→ 一直等...<br>  → 这条消息一直是 Unacked 状态<br>  → RabbitMQ 认为消费者还活着，不会重新分发这条消息<br>  → 如果所有消费者都卡住了 → 队列消息堆积，无法消费<br></code></pre></td></tr></table></figure>
+
+<p><strong>解决方案：</strong></p>
+<p><strong>1. 设置 <code>basicQos</code>（限制每个消费者同时处理的最大消息数）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 每个消费者最多同时处理 10 条消息，超过 10 条时不再推送新消息</span><br><span class="hljs-comment">// 防止消费者堆积太多 Unacked 消息，导致内存溢出</span><br>channel.basicQos(<span class="hljs-number">10</span>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 设置消费超时（Spring AMQP 的 <code>@RabbitListener</code>）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RabbitListener(queues = &quot;queue.praise&quot;, </span><br><span class="hljs-meta">                containerFactory = &quot;rabbitListenerContainerFactory&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">consume</span><span class="hljs-params">(Message message)</span> &#123;<br>    <span class="hljs-comment">// Spring 的默认超时是 30 分钟</span><br>    <span class="hljs-comment">// 可以自定义 ContainerFactory 设置超时</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 业务代码里设置超时</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleDelivery</span><span class="hljs-params">(...)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 设置 HTTP 超时</span><br>        httpClient.setConnectTimeout(<span class="hljs-number">3000</span>);<br>        httpClient.setReadTimeout(<span class="hljs-number">5000</span>);<br>        <span class="hljs-comment">// 处理业务...</span><br>        channel.basicAck(...);<br>    &#125; <span class="hljs-keyword">catch</span> (TimeoutException e) &#123;<br>        <span class="hljs-comment">// 超时了，拒绝消息并不重新入队（进入死信队列）</span><br>        channel.basicNack(deliveryTag, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“如果消费者一直卡住，消息会一直处于 Unacked 状态，RabbitMQ 不会重新分发。解决方法是：① <code>basicQos</code> 限制每个消费者同时处理的最大消息数；② 业务代码里设置远程调用超时；③ 超时时用 <code>basicNack(requeue=false)</code> 让消息进入死信队列，不让它一直卡住。”</p>
+</blockquote>
+<hr>
+<h2 id="第四层：死信队列（DLQ）兜底方案"><a href="#第四层：死信队列（DLQ）兜底方案" class="headerlink" title="第四层：死信队列（DLQ）兜底方案"></a>第四层：死信队列（DLQ）兜底方案</h2><h3 id="Q9：死信队列（Dead-Letter-Queue）是什么？你们项目里怎么用的？"><a href="#Q9：死信队列（Dead-Letter-Queue）是什么？你们项目里怎么用的？" class="headerlink" title="Q9：死信队列（Dead Letter Queue）是什么？你们项目里怎么用的？"></a>Q9：死信队列（Dead Letter Queue）是什么？你们项目里怎么用的？</h3><p><strong>答：</strong> 死信队列是<strong>装”无法正常消费的消息”的队列</strong>，相当于”垃圾回收站”。</p>
+<p><strong>消息变成”死信”的三种情况：</strong></p>
+<ol>
+<li><strong>消费者拒绝消息</strong>（<code>basicReject</code> &#x2F; <code>basicNack</code>）且 <code>requeue=false</code>（不重新入队）</li>
+<li><strong>消息 TTL 过期</strong>（设置了消息的存活时间，超时没人消费）</li>
+<li><strong>队列达到最大长度</strong>（队列满了，最早进来的消息被挤掉）</li>
+</ol>
+<p><strong>项目里的死信队列配置</strong>（<code>RabbitmqServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 声明死信交换机（DLX = Dead Letter Exchange）</span><br>channel.exchangeDeclare(CommonConstants.EXCHANGE_NAME_DLX, <br>                       BuiltinExchangeType.DIRECT, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">null</span>);<br><br><span class="hljs-comment">// 2. 声明死信队列（DLQ = Dead Letter Queue）</span><br><span class="hljs-comment">// 持久化，消息存磁盘，重启不丢</span><br>channel.queueDeclare(CommonConstants.DLX_QUEUE_NAME_PRAISE, <br>                     <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">null</span>);<br><br><span class="hljs-comment">// 3. 死信队列绑定到死信交换机</span><br>channel.queueBind(CommonConstants.DLX_QUEUE_NAME_PRAISE,<br>                  CommonConstants.EXCHANGE_NAME_DLX,<br>                  CommonConstants.DLX_QUEUE_KEY_PRAISE);<br><br><span class="hljs-comment">// 4. 主队列绑定死信交换机（关键配置！）</span><br>Map&lt;String, Object&gt; args = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>args.put(<span class="hljs-string">&quot;x-dead-letter-exchange&quot;</span>, CommonConstants.EXCHANGE_NAME_DLX);<br>args.put(<span class="hljs-string">&quot;x-dead-letter-routing-key&quot;</span>, CommonConstants.DLX_QUEUE_KEY_PRAISE);<br>args.put(<span class="hljs-string">&quot;x-message-ttl&quot;</span>, <span class="hljs-number">30000</span>);  <span class="hljs-comment">// 消息 30 秒过期后进入死信队列</span><br><br>channel.queueDeclare(queueName, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>, args);<br></code></pre></td></tr></table></figure>
+
+<p><strong>死信队列的工作流程：</strong></p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs routeros">主队列 queue.praise<br>  → 消费者处理失败（basicNack, <span class="hljs-attribute">requeue</span>=<span class="hljs-literal">false</span>）<br>  → 消息被发送到死信交换机 EXCHANGE_NAME_DLX<br>  → 根据 routing-key 路由到死信队列 DLX_QUEUE_NAME_PRAISE<br>  → 人工排查：为什么这条消息处理失败？<br>  → 修复 Bug 后，从死信队列重新消费<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“死信队列是消息处理失败后的兜底方案。我们项目里，消费者处理失败时 <code>basicNack(requeue=false)</code>，消息自动进入死信队列。后续人工排查失败原因（可能是代码 Bug 或数据问题），修复后从死信队列重新消费。相当于给消息一个’复活’的机会。”</p>
+</blockquote>
+<hr>
+<h3 id="Q10：死信队列里的消息应该怎么处理？能不能自动重试？"><a href="#Q10：死信队列里的消息应该怎么处理？能不能自动重试？" class="headerlink" title="Q10：死信队列里的消息应该怎么处理？能不能自动重试？"></a>Q10：死信队列里的消息应该怎么处理？能不能自动重试？</h3><p><strong>答：</strong> 死信队列里的消息通常<strong>不能自动重试</strong>（因为上次消费失败了，重试大概率还会失败），需要<strong>人工介入</strong>。</p>
+<p><strong>处理死信队列的三种策略：</strong></p>
+<p><strong>策略 1：人工排查 + 手动重发（最常用）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 写一个管理接口，运营人员可以查看死信队列</span><br>GET /admin/dlq/messages?queue=dlx.queue.praise<br><br><span class="hljs-comment">// 人工判断：这条消息是不是因为代码 Bug 导致的失败？</span><br><span class="hljs-comment">// 如果是 Bug → 修复代码 → 手动重发到主队列</span><br>POST /admin/dlq/republish<br>&#123;<br>    <span class="hljs-string">&quot;messageId&quot;</span>: <span class="hljs-string">&quot;xxx&quot;</span>,<br>    <span class="hljs-string">&quot;targetQueue&quot;</span>: <span class="hljs-string">&quot;queue.praise&quot;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>策略 2：延迟自动重试（谨慎使用）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 死信队列的消费者：等待一段时间后，重新发送到主队列</span><br><span class="hljs-meta">@RabbitListener(queues = &quot;dlx.queue.praise&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">consumeDlq</span><span class="hljs-params">(Message message)</span> &#123;<br>    <span class="hljs-comment">// 解析消息</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">body</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(message.getBody());<br>    <span class="hljs-type">int</span> <span class="hljs-variable">retryCount</span> <span class="hljs-operator">=</span> message.getMessageProperties().getHeader(<span class="hljs-string">&quot;x-retry-count&quot;</span>);<br>    <br>    <span class="hljs-keyword">if</span> (retryCount &gt;= <span class="hljs-number">3</span>) &#123;<br>        <span class="hljs-comment">// 重试 3 次还失败 → 记录到数据库，人工处理</span><br>        log.error(<span class="hljs-string">&quot;消息重试 3 次仍失败，需人工处理: &#123;&#125;&quot;</span>, body);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 等待 1 分钟后再重试（给系统恢复的时间）</span><br>    Thread.sleep(<span class="hljs-number">60000</span>);<br>    <br>    <span class="hljs-comment">// 重试次数 +1，重新发送到主队列</span><br>    message.getMessageProperties().setHeader(<span class="hljs-string">&quot;x-retry-count&quot;</span>, retryCount + <span class="hljs-number">1</span>);<br>    rabbitTemplate.send(<span class="hljs-string">&quot;exchange.direct&quot;</span>, <span class="hljs-string">&quot;queue.praise&quot;</span>, message);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>策略 3：报警 + 日志记录</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 死信队列有消息进入时，立即发报警（钉钉/邮件）</span><br><span class="hljs-meta">@RabbitListener(queues = &quot;dlx.queue.praise&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">consumeDlq</span><span class="hljs-params">(Message message)</span> &#123;<br>    <span class="hljs-comment">// 发钉钉报警</span><br>    dingTalkService.send(<span class="hljs-string">&quot;⚠️ 死信队列有新消息进入，请排查！\n消息内容：&quot;</span> + <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(message.getBody()));<br>    <br>    <span class="hljs-comment">// 记录到数据库</span><br>    dlqMessageService.save(message);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“死信队列里的消息一般不能自动重试，因为上次已经失败了，重试大概率还会失败。我们的处理方式是：① 死信队列有消息进入时发报警（钉钉&#x2F;邮件）；② 人工排查失败原因（代码 Bug 还是数据问题）；③ 修复后手动重发到主队列。如果非要自动重试，要限制重试次数（比如 3 次），超过后转人工处理。”</p>
+</blockquote>
+<hr>
+<h2 id="第五层：RabbitMQ-高可用与运维"><a href="#第五层：RabbitMQ-高可用与运维" class="headerlink" title="第五层：RabbitMQ 高可用与运维"></a>第五层：RabbitMQ 高可用与运维</h2><h3 id="Q11：RabbitMQ-怎么保证高可用？如果单台-RabbitMQ-宕机了怎么办？"><a href="#Q11：RabbitMQ-怎么保证高可用？如果单台-RabbitMQ-宕机了怎么办？" class="headerlink" title="Q11：RabbitMQ 怎么保证高可用？如果单台 RabbitMQ 宕机了怎么办？"></a>Q11：RabbitMQ 怎么保证高可用？如果单台 RabbitMQ 宕机了怎么办？</h3><p><strong>答：</strong> 单台 RabbitMQ 是<strong>单点故障</strong>，要用<strong>镜像队列（Mirrored Queue）</strong> 或 <strong>Quorum Queue</strong> 实现高可用。</p>
+<p><strong>镜像队列（RabbitMQ 3.8 之前的方式）：</strong></p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs crmsh"><span class="hljs-number">3</span> 台 RabbitMQ 组成集群：<br>  - <span class="hljs-keyword">Node</span> <span class="hljs-title">A</span>（主队列）：处理所有读写请求<br>  - <span class="hljs-keyword">Node</span> <span class="hljs-title">B</span>（镜像）：主队列的副本，只读<br>  - <span class="hljs-keyword">Node</span> <span class="hljs-title">C</span>（镜像）：主队列的副本，只读<br><br>如果 <span class="hljs-keyword">Node</span> <span class="hljs-title">A</span> 宕机 → 从 <span class="hljs-keyword">Node</span> <span class="hljs-title">B</span> 或 <span class="hljs-keyword">Node</span> <span class="hljs-title">C</span> 中选举新的主队列<br>                  → 消息不丢失（因为镜像里有完整数据）<br></code></pre></td></tr></table></figure>
+
+<p><strong>Quorum Queue（RabbitMQ 3.8+ 推荐）：</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs markdown">基于 Raft 一致性协议，数据强一致<br><span class="hljs-bullet">  -</span> 写消息：大多数节点确认才算成功（比如 3 个节点，至少 2 个确认）<br><span class="hljs-bullet">  -</span> 宕机：自动选举新 Leader，数据不丢<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目里的配置：</strong> 从代码看，项目用的是单台 RabbitMQ（<code>switchFlag=false</code> 默认关闭），生产环境应该开启镜像队列或 Quorum Queue。</p>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“单台 RabbitMQ 是单点故障，生产环境要用镜像队列或 Quorum Queue。我们项目是个人学习项目，用的是单台 RabbitMQ；如果上生产，会配置镜像队列（所有节点的队列数据一致，主节点宕机后从节点自动接管）。新版本的 RabbitMQ 推荐用 Quorum Queue，基于 Raft 协议，数据强一致。”</p>
+</blockquote>
+<hr>
+<h3 id="Q12：RabbitMQ-的消息积压（堆积）了怎么办？"><a href="#Q12：RabbitMQ-的消息积压（堆积）了怎么办？" class="headerlink" title="Q12：RabbitMQ 的消息积压（堆积）了怎么办？"></a>Q12：RabbitMQ 的消息积压（堆积）了怎么办？</h3><p><strong>答：</strong> 消息积压说明<strong>消费者处理速度 &lt; 生产者发送速度</strong>，要扩容消费者或优化消费逻辑。</p>
+<p><strong>导致积压的原因：</strong></p>
+<ol>
+<li><strong>消费者处理能力不足</strong>（比如消费者只有 1 个，但消息量是 1 万&#x2F;秒）</li>
+<li><strong>消费者挂了</strong>（所有消费者都宕机了，消息只进不出）</li>
+<li><strong>消费逻辑太慢</strong>（比如每条消息要处理 5 秒，但每秒来 100 条）</li>
+</ol>
+<p><strong>解决方案：</strong></p>
+<p><strong>1. 扩容消费者（最直接）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 启动多个消费者实例（水平扩容）</span><br><span class="hljs-comment">// RabbitMQ 会自动把消息分发给所有消费者（轮询）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 优化消费逻辑（提升单消费者处理能力）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 慢：逐条处理</span><br><span class="hljs-keyword">for</span> (Message msg : messages) &#123;<br>    handle(msg);  <span class="hljs-comment">// 每条处理 100ms</span><br>&#125;<br><br><span class="hljs-comment">// 快：批量处理</span><br>List&lt;Message&gt; batch = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(<span class="hljs-number">100</span>);<br><span class="hljs-keyword">for</span> (Message msg : messages) &#123;<br>    batch.add(msg);<br>    <span class="hljs-keyword">if</span> (batch.size() &gt;= <span class="hljs-number">100</span>) &#123;<br>        handleBatch(batch);  <span class="hljs-comment">// 批量处理 100 条，只需 500ms</span><br>        batch.clear();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 紧急预案：新建一个”加速队列”</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">正常情况：生产者 → 主队列（queue.praise）→ 消费者（慢）<br>紧急情况：生产者 → 加速队列（queue.praise.fast）→ 更多消费者（<span class="hljs-number">20</span> 个）<br>              → 消费完后，把积压消息也导到加速队列<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“消息积压说明消费者速度跟不上生产者。解决方案：① 扩容消费者（启动多个消费者实例，RabbitMQ 会自动负载均衡）；② 优化消费逻辑（比如批量处理代替逐条处理）；③ 紧急情况可以新建一个’加速队列’，分配更多消费者去处理积压消息。”</p>
+</blockquote>
+<hr>
+<h2 id="第六层：项目代码细节与开放题"><a href="#第六层：项目代码细节与开放题" class="headerlink" title="第六层：项目代码细节与开放题"></a>第六层：项目代码细节与开放题</h2><h3 id="Q13：你们项目里-RabbitMQ-的-switchFlag-是-false，默认是关闭的，为什么？"><a href="#Q13：你们项目里-RabbitMQ-的-switchFlag-是-false，默认是关闭的，为什么？" class="headerlink" title="Q13：你们项目里 RabbitMQ 的 switchFlag 是 false，默认是关闭的，为什么？"></a>Q13：你们项目里 RabbitMQ 的 <code>switchFlag</code> 是 <code>false</code>，默认是关闭的，为什么？</h3><p><strong>答：</strong> 因为<strong>本地开发不一定安装 RabbitMQ</strong>，关闭时走 Spring 内部的<strong>事件总线</strong>（<code>ApplicationEventPublisher</code>），功能等价，但不需要依赖外部中间件。</p>
+<p><strong>代码里的实现</strong>（<code>UserFootServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (notifyType.equals(NotifyTypeEnum.PRAISE) &amp;&amp; rabbitmqService.enabled()) &#123;<br>    <span class="hljs-comment">// switchFlag=true：走 RabbitMQ</span><br>    rabbitmqService.publishMsg(...);<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-comment">// switchFlag=false：走 Spring 内部事件总线</span><br>    applicationEventPublisher.publishEvent(<span class="hljs-keyword">new</span> <span class="hljs-title class_">NotifyEvent</span>(...));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Spring 事件总线的原理：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 发布事件</span><br>applicationEventPublisher.publishEvent(<span class="hljs-keyword">new</span> <span class="hljs-title class_">NotifyEvent</span>(...));<br><br><span class="hljs-comment">// 监听事件（同步执行，等价于直接调用方法）</span><br><span class="hljs-meta">@EventListener</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleNotifyEvent</span><span class="hljs-params">(NotifyEvent event)</span> &#123;<br>    notifyService.saveArticleNotify(...);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么本地开发不用 RabbitMQ？</strong></p>
+<ol>
+<li>安装 RabbitMQ 麻烦（要装 Erlang，要配置）</li>
+<li>本地调试时，直接用 Spring 事件总线更简单（不用启动 RabbitMQ）</li>
+<li>部署到服务器时，再把 <code>switchFlag</code> 改为 <code>true</code></li>
+</ol>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“我们项目 <code>switchFlag</code> 默认是 <code>false</code>，因为本地开发不一定安装 RabbitMQ。关闭时走 Spring 内部的 <code>ApplicationEventPublisher</code>（事件总线），功能和 MQ 等价，但不需要依赖外部中间件。部署到测试&#x2F;生产环境时，再把 <code>switchFlag</code> 改为 <code>true</code>，走真正的 RabbitMQ。”</p>
+</blockquote>
+<hr>
+<h3 id="Q14：如果让你设计一个”点赞通知系统”，日活-100-万，你会怎么设计？"><a href="#Q14：如果让你设计一个”点赞通知系统”，日活-100-万，你会怎么设计？" class="headerlink" title="Q14：如果让你设计一个”点赞通知系统”，日活 100 万，你会怎么设计？"></a>Q14：如果让你设计一个”点赞通知系统”，日活 100 万，你会怎么设计？</h3><p><strong>答：</strong> 这是一道<strong>系统设计题</strong>，要综合考虑性能、可靠性、成本。</p>
+<p><strong>V1（最简单）：RabbitMQ 直接异步处理</strong></p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs excel">用户点赞 → 写 <span class="hljs-built_in">DB</span> → 发消息到 RabbitMQ<br>                      → 消费者异步生成通知<br></code></pre></td></tr></table></figure>
+<p>问题：如果日活 100 万，平均每人点赞 2 次 → 每天 200 万条通知消息，RabbitMQ 能扛住，但通知表会很大。</p>
+<p><strong>V2（引入批量处理）：消费者每积攒 100 条通知，再批量 INSERT</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 消费者里用内存队列积攒消息</span><br>List&lt;NotifyDO&gt; batch = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(<span class="hljs-number">100</span>);<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleDelivery</span><span class="hljs-params">(...)</span> &#123;<br>    batch.add(parse(message));<br>    <span class="hljs-keyword">if</span> (batch.size() &gt;= <span class="hljs-number">100</span>) &#123;<br>        notifyService.batchInsert(batch);  <span class="hljs-comment">// 批量 INSERT</span><br>        batch.clear();<br>    &#125;<br>    channel.basicAck(...);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>问题：如果消费者宕机，内存里的通知就丢了。</p>
+<p><strong>V3（最终方案）：RabbitMQ + 批量 + 定时任务兜底</strong></p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">用户点赞 → 写 DB（点赞记录）<br>          → 发消息到 RabbitMQ（通知任务）<br><br>消费者：积攒 <span class="hljs-number">100</span> 条或每隔 <span class="hljs-number">5</span> 秒，批量 <span class="hljs-keyword">INSERT</span> 到 <span class="hljs-keyword">notify</span> 表<br>         如果消费者宕机 → 消息重新入队，其他消费者接手<br><br>兜底：定时任务每天凌晨 <span class="hljs-number">2</span> 点扫描&quot;点赞了但没生成通知&quot;的记录，补生成<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答模板：</strong></p>
+<blockquote>
+<p>“日活 100 万的点赞通知系统，我会这样设计：① 用户点赞立即写 DB 并返回，同时发消息到 RabbitMQ；② 消费者积攒 100 条或每隔 5 秒批量 INSERT 通知表（减少 DB 压力）；③ 消费者宕机后，RabbitMQ 的手动 Ack 保证消息不丢，其他消费者接手；④ 定时任务兜底，每天凌晨扫描’有点赞记录但没通知’的数据，补生成。这样就兼顾了性能（批量 INSERT）和可靠性（RabbitMQ 手动 Ack + 定时任务兜底）。”</p>
+</blockquote>
+<hr>
+<h3 id="Q15（附加）：RabbitMQ-的消息是有序的吗？怎么保证顺序消费？"><a href="#Q15（附加）：RabbitMQ-的消息是有序的吗？怎么保证顺序消费？" class="headerlink" title="Q15（附加）：RabbitMQ 的消息是有序的吗？怎么保证顺序消费？"></a>Q15（附加）：RabbitMQ 的消息是有序的吗？怎么保证顺序消费？</h3><p><strong>答：</strong> RabbitMQ <strong>不保证全局有序</strong>，但可以保证<strong>同一个队列里的消息按 FIFO 顺序被同一个消费者消费</strong>。</p>
+<p><strong>问题场景：</strong></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs css">生产者发送：msg1（订单创建）→ msg2（订单支付）→ msg3（订单完成）<br>              ↓<br>RabbitMQ 队列：msg1 → msg2 → msg3（队列里是有序的）<br>              ↓<br>消费者 <span class="hljs-selector-tag">A</span> 拿到 msg1 和 msg3（msg2 被消费者 <span class="hljs-selector-tag">B</span> 拿走了！）<br>              → 消费顺序乱了！msg3 比 msg2 先处理<br></code></pre></td></tr></table></figure>
+
+<p><strong>保证顺序消费的方案：</strong></p>
+<p><strong>方案 1：同一个订单的消息，始终路由到同一个队列（推荐）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 根据订单 ID 的 hash 值，路由到固定的队列</span><br><span class="hljs-type">int</span> <span class="hljs-variable">queueIndex</span> <span class="hljs-operator">=</span> orderId.hashCode() % QUEUE_COUNT;<br><span class="hljs-type">String</span> <span class="hljs-variable">queueName</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;queue.order.&quot;</span> + queueIndex;<br>channel.basicPublish(exchange, queueName, ...);<br></code></pre></td></tr></table></figure>
+<p>这样，同一个订单的所有消息都会到同一个队列，被同一个消费者顺序处理。</p>
+<p><strong>方案 2：用 RabbitMQ 的</strong>单个消费者 + 单线程处理**</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 不扩容消费者，只有 1 个消费者</span><br><span class="hljs-comment">// 这样队列里的消息一定是顺序处理的</span><br><span class="hljs-comment">// 缺点：性能差，不适合高并发</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“RabbitMQ 不保证全局有序。要保证顺序消费，可以用’相同业务 ID 路由到同一个队列’的方案，比如根据订单 ID 的 hash 值路由，这样同一个订单的消息始终被同一个消费者顺序处理。或者简单粗暴地只用 1 个消费者，但性能差。我们项目里点赞通知不需要保证顺序，所以没有做这个优化。”</p>
+</blockquote>
+<hr>
+<h2 id="总结：简历上这句话的面试回答模板"><a href="#总结：简历上这句话的面试回答模板" class="headerlink" title="总结：简历上这句话的面试回答模板"></a>总结：简历上这句话的面试回答模板</h2><blockquote>
+<p><strong>面试官</strong>：”你的简历上写了’RabbitMQ 异步解耦，手动 Ack 保证消息至少处理一次，Confirm 和死信队列兜底’，你能详细讲一下吗？”</p>
+</blockquote>
+<p><strong>回答模板（背下来！）：</strong></p>
+<blockquote>
+<p>“好的。我们项目里点赞操作后需要生成通知消息，如果同步执行，用户要等通知生成完才能继续操作，体验不好。所以用 RabbitMQ 做异步解耦：用户点赞后立即返回，通知消息异步处理。</p>
+<p><strong>生产端可靠性</strong>：我们开启了 Confirm 机制，<code>channel.confirmSelect()</code> 后，RabbitMQ 成功持久化消息才会异步回调 <code>handleAck</code>，如果 Broker 内部错误会回调 <code>handleNack</code>，我们在 nack 回调里记录日志并准备重发。同时用 <code>waitForConfirmsOrDie(3000)</code> 同步等待确认，3 秒超时算发送失败。</p>
+<p><strong>消费端可靠性</strong>：我们关闭了自动 Ack（<code>autoAck=false</code>），等业务逻辑处理完成后才调用 <code>basicAck</code>。这样如果消费者处理中途宕机，RabbitMQ 会把消息重新分发给其他消费者，保证 at-least-once。重复消费问题，我们用 notify 表的唯一索引（user_id + article_id + type）做幂等，重复插入时捕获 DuplicateKeyException 直接忽略。</p>
+<p><strong>死信队列兜底</strong>：消费者处理失败时，我们用 <code>basicNack(requeue=false)</code> 让消息进入死信队列（DLQ）。后续人工排查失败原因，修复后手动重发到主队列。相当于给消息一个’复活’的机会，不会丢失。</p>
+<p>整体来说，这套方案保证了点赞通知的<strong>高性能</strong>（异步解耦）和<strong>高可靠</strong>（Confirm + 手动 Ack + 死信队列兜底）。”</p>
+</blockquote>
+<hr>
+<p><strong>下一篇预告：</strong> 策略模式 + 工厂模式实现 LLM 调用链路统一抽象，以及 WebSocket 推送 Stream 流实现毫秒级响应 🔜</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/" class="print-no-link">#字节跳动</a>
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/" class="print-no-link">#技术派</a>
+      
+        <a href="/tags/RabbitMQ/" class="print-no-link">#RabbitMQ</a>
+      
+        <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="print-no-link">#消息队列</a>
+      
+        <a href="/tags/%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7/" class="print-no-link">#消息可靠性</a>
+      
+        <a href="/tags/%E6%89%8B%E5%8A%A8Ack/" class="print-no-link">#手动Ack</a>
+      
+        <a href="/tags/%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/" class="print-no-link">#死信队列</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-rabbitmq-qa/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-strategy-websocket-qa/" title="技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-mq-interview-deep/" title="消息队列面试八股文（深度版）｜RabbitMQ + Kafka 30题讲透">
+                        <span class="hidden-mobile">消息队列面试八股文（深度版）｜RabbitMQ + Kafka 30题讲透</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

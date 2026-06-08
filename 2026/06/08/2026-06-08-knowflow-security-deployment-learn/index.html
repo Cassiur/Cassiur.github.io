@@ -1,0 +1,995 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解安全机制（JWT 认证、RBAC 权限控制、组织标签授权）和部署方案（K8s、Prometheus 监控）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、安全机制概述傻子都能懂的解释： 想象你是一个网站的老板：  认证（Authentication）：确认用户是谁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KnowFlow 项目学习笔记（三）：安全 + 部署深度解析">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-security-deployment-learn/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解安全机制（JWT 认证、RBAC 权限控制、组织标签授权）和部署方案（K8s、Prometheus 监控）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、安全机制概述傻子都能懂的解释： 想象你是一个网站的老板：  认证（Authentication）：确认用户是谁">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T14:15:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T13:41:59.256Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="JWT">
+<meta property="article:tag" content="K8s">
+<meta property="article:tag" content="KnowFlow">
+<meta property="article:tag" content="Prometheus">
+<meta property="article:tag" content="RBAC">
+<meta property="article:tag" content="Spring Security">
+<meta property="article:tag" content="安全">
+<meta property="article:tag" content="部署">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>KnowFlow 项目学习笔记（三）：安全 + 部署深度解析 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="KnowFlow 项目学习笔记（三）：安全 + 部署深度解析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 22:15" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">KnowFlow 项目学习笔记（三）：安全 + 部署深度解析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p><strong>写在前面</strong>：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解安全机制（JWT 认证、RBAC 权限控制、组织标签授权）和部署方案（K8s、Prometheus 监控）。并指出源码里的 <strong>3 处严重问题</strong>（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。</p>
+</blockquote>
+<hr>
+<h2 id="一、安全机制概述"><a href="#一、安全机制概述" class="headerlink" title="一、安全机制概述"></a>一、安全机制概述</h2><p><strong>傻子都能懂的解释</strong>：</p>
+<p>想象你是一个网站的老板：</p>
+<ul>
+<li><strong>认证（Authentication）</strong>：确认用户是谁（比如”张三”登录了）</li>
+<li><strong>授权（Authorization）</strong>：确认用户能做什么（比如”张三”是”普通用户”，只能看普通文档；”李四”是”管理员”，能看所有文档）</li>
+</ul>
+<p><strong>KnowFlow 的安全机制</strong>：</p>
+<ol>
+<li><strong>JWT 认证</strong>：用户登录后，服务器返回一个 token（类似”通行证”），后续请求都带上这个 token</li>
+<li><strong>RBAC 权限控制</strong>：基于角色的访问控制（比如”普通用户”只能看文档，”管理员”能管理知识库）</li>
+<li><strong>组织标签授权</strong>：基于组织标签的权限控制（比如”技术部”的人只能看”技术部”的文档）</li>
+</ol>
+<hr>
+<h2 id="二、源码解析：SecurityConfig-java"><a href="#二、源码解析：SecurityConfig-java" class="headerlink" title="二、源码解析：SecurityConfig.java"></a>二、源码解析：<code>SecurityConfig.java</code></h2><p><strong>文件位置</strong>：<code>PaiSmart-zuzhi/src/main/java/com/yizhaoqi/smartpai/config/SecurityConfig.java</code></p>
+<h3 id="2-1-Spring-Security-配置：securityFilterChain-方法"><a href="#2-1-Spring-Security-配置：securityFilterChain-方法" class="headerlink" title="2.1 Spring Security 配置：securityFilterChain() 方法"></a>2.1 Spring Security 配置：<code>securityFilterChain()</code> 方法</h3><p><strong>源码（第 39-91 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> SecurityFilterChain <span class="hljs-title function_">securityFilterChain</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 禁用CSRF保护</span><br>        http.csrf(csrf -&gt; csrf.disable())<br>                <span class="hljs-comment">// 配置请求的授权规则</span><br>                .authorizeHttpRequests(authorize -&gt; authorize<br>                        <span class="hljs-comment">// 允许静态资源访问</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/&quot;</span>, <span class="hljs-string">&quot;/test.html&quot;</span>, <span class="hljs-string">&quot;/static/test.html&quot;</span>, <span class="hljs-string">&quot;/static/**&quot;</span>, <span class="hljs-string">&quot;/*.js&quot;</span>, <span class="hljs-string">&quot;/*.css&quot;</span>, <span class="hljs-string">&quot;/*.ico&quot;</span>).permitAll()<br>                        <span class="hljs-comment">// 允许 Swagger/OpenAPI 文档访问</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/swagger-ui/**&quot;</span>, <span class="hljs-string">&quot;/v3/api-docs/**&quot;</span>, <span class="hljs-string">&quot;/swagger-ui.html&quot;</span>).permitAll()<br>                        <span class="hljs-comment">// 允许 Actuator 监控端点访问（Prometheus 采集）</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/actuator/**&quot;</span>).permitAll()<br>                        <span class="hljs-comment">// 允许 WebSocket 连接</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/chat/**&quot;</span>, <span class="hljs-string">&quot;/ws/**&quot;</span>).permitAll()<br>                        <span class="hljs-comment">// 允许登录注册接口</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/api/v1/users/register&quot;</span>, <span class="hljs-string">&quot;/api/v1/users/login&quot;</span>).permitAll()<br>                        <span class="hljs-comment">// 允许测试接口</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/api/v1/test/**&quot;</span>).permitAll()<br>                        <span class="hljs-comment">// 文件上传和下载相关接口 - 普通用户和管理员都可访问</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/api/v1/upload/**&quot;</span>, <span class="hljs-string">&quot;/api/v1/parse&quot;</span>, <span class="hljs-string">&quot;/api/v1/documents/download&quot;</span>, <span class="hljs-string">&quot;/api/v1/documents/preview&quot;</span>).hasAnyRole(<span class="hljs-string">&quot;USER&quot;</span>, <span class="hljs-string">&quot;ADMIN&quot;</span>)<br>                        <span class="hljs-comment">// 对话历史相关接口 - 用户只能查看自己的历史，管理员可以查看所有</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/api/v1/users/conversation/**&quot;</span>).hasAnyRole(<span class="hljs-string">&quot;USER&quot;</span>, <span class="hljs-string">&quot;ADMIN&quot;</span>)<br>                        <span class="hljs-comment">// 搜索接口 - 普通用户和管理员都可访问</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/api/search/**&quot;</span>).hasAnyRole(<span class="hljs-string">&quot;USER&quot;</span>, <span class="hljs-string">&quot;ADMIN&quot;</span>)<br>                        <span class="hljs-comment">// 聊天相关接口 - WebSocket停止Token获取 (允许匿名访问)</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/api/chat/websocket-token&quot;</span>).permitAll()<br>                        <span class="hljs-comment">// 管理员专属接口 - 知识库管理、系统状态、用户活动监控</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/api/v1/admin/**&quot;</span>).hasRole(<span class="hljs-string">&quot;ADMIN&quot;</span>)<br>                        <span class="hljs-comment">// 用户组织标签管理接口</span><br>                        .requestMatchers(<span class="hljs-string">&quot;/api/v1/users/primary-org&quot;</span>).hasAnyRole(<span class="hljs-string">&quot;USER&quot;</span>, <span class="hljs-string">&quot;ADMIN&quot;</span>)<br>                        <span class="hljs-comment">// 其他请求需要认证</span><br>                        .anyRequest().authenticated())<br>                <span class="hljs-comment">// 配置会话管理策略</span><br>                <span class="hljs-comment">// 设置会话创建策略为STATELESS，表示不会创建会话，通常用于无状态的API应用</span><br>                .sessionManagement(session -&gt; session<br>                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))<br>                <span class="hljs-comment">// 添加JWT认证过滤器</span><br>                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)<br>                <span class="hljs-comment">// 添加组织标签授权过滤器</span><br>                .addFilterAfter(orgTagAuthorizationFilter, JwtAuthenticationFilter.class);<br><br>        <span class="hljs-comment">// 记录安全配置加载成功的信息</span><br>        logger.info(<span class="hljs-string">&quot;Security configuration loaded successfully.&quot;</span>);<br>        <span class="hljs-comment">// 返回配置好的安全过滤链</span><br>        <span class="hljs-keyword">return</span> http.build();<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        <span class="hljs-comment">// 记录配置安全过滤链失败的错误信息</span><br>        logger.error(<span class="hljs-string">&quot;Failed to configure security filter chain&quot;</span>, e);<br>        <span class="hljs-comment">// 抛出异常，以便外部处理</span><br>        <span class="hljs-keyword">throw</span> e;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>逐行解析（傻子都能懂版）</strong>：</p>
+<ol>
+<li><p><strong>第 43 行</strong>：<code>http.csrf(csrf -&gt; csrf.disable())</code></p>
+<ul>
+<li>禁用 CSRF 保护</li>
+<li><strong>为什么禁用？</strong> 因为用的是 JWT（无状态），不需要 CSRF token</li>
+</ul>
+</li>
+<li><p><strong>第 45-71 行</strong>：配置请求的授权规则</p>
+<ul>
+<li><code>.permitAll()</code>：允许所有人访问（不需要登录）</li>
+<li><code>.hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;)</code>：需要”USER”或”ADMIN”角色</li>
+<li><code>.hasRole(&quot;ADMIN&quot;)</code>：需要”ADMIN”角色</li>
+<li><code>.authenticated()</code>：需要登录（任何角色都可以）</li>
+</ul>
+</li>
+<li><p><strong>第 74-75 行</strong>：配置会话管理策略</p>
+<ul>
+<li><code>SessionCreationPolicy.STATELESS</code>：不创建会话（每次请求都带 JWT token）</li>
+</ul>
+</li>
+<li><p><strong>第 77 行</strong>：添加 JWT 认证过滤器</p>
+<ul>
+<li>在每个请求之前，先验证 JWT token（确认用户是谁）</li>
+</ul>
+</li>
+<li><p><strong>第 79 行</strong>：添加组织标签授权过滤器</p>
+<ul>
+<li>在 JWT 认证之后，检查用户是否有权限访问该文档（基于组织标签）</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="三、JWT-认证机制"><a href="#三、JWT-认证机制" class="headerlink" title="三、JWT 认证机制"></a>三、JWT 认证机制</h2><h3 id="3-1-什么是-JWT？"><a href="#3-1-什么是-JWT？" class="headerlink" title="3.1 什么是 JWT？"></a>3.1 什么是 JWT？</h3><p><strong>傻子都能懂的解释</strong>：</p>
+<p><strong>JWT（JSON Web Token）</strong> 是一个”通行证”：</p>
+<ul>
+<li>用户登录后，服务器生成一个 JWT（包含用户 ID、角色、过期时间）</li>
+<li>用户后续请求都带上这个 JWT（放在 HTTP Header 里：<code>Authorization: Bearer xxx</code>）</li>
+<li>服务器验证 JWT 是否合法（签名是否正确、是否过期）</li>
+<li>如果合法，就知道用户是谁（不需要查数据库）</li>
+</ul>
+<p><strong>JWT 的结构</strong>：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Header</span>.Payload.Signature<br></code></pre></td></tr></table></figure>
+
+<p>比如：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs llvm">eyJhbGciOiJIUzI<span class="hljs-number">1</span>NiJ<span class="hljs-number">9</span>.eyJ<span class="hljs-number">1</span><span class="hljs-keyword">c</span><span class="hljs-number">2</span>VySWQiOjEwMDF<span class="hljs-number">9</span>.xxx<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Header</strong>：加密算法（比如 HMAC256）</li>
+<li><strong>Payload</strong>：用户信息（比如 <code>{&quot;userId&quot;: 1001}</code>）</li>
+<li><strong>Signature</strong>：签名（用来验证 JWT 是否被篡改）</li>
+</ul>
+<hr>
+<h3 id="3-2-JWT-认证流程"><a href="#3-2-JWT-认证流程" class="headerlink" title="3.2 JWT 认证流程"></a>3.2 JWT 认证流程</h3><p><strong>流程</strong>：</p>
+<ol>
+<li>用户登录：<code>POST /api/v1/users/login</code>，传用户名和密码</li>
+<li>服务器验证用户名和密码（查数据库）</li>
+<li>如果正确，生成 JWT token（包含用户 ID、角色、过期时间）</li>
+<li>返回 JWT token 给前端</li>
+<li>前端后续请求都带上 JWT token（<code>Authorization: Bearer xxx</code>）</li>
+<li>后端用 JWT 认证过滤器验证 token（确认用户是谁）</li>
+</ol>
+<hr>
+<h2 id="四、RBAC-权限控制"><a href="#四、RBAC-权限控制" class="headerlink" title="四、RBAC 权限控制"></a>四、RBAC 权限控制</h2><h3 id="4-1-什么是-RBAC？"><a href="#4-1-什么是-RBAC？" class="headerlink" title="4.1 什么是 RBAC？"></a>4.1 什么是 RBAC？</h3><p><strong>傻子都能懂的解释</strong>：</p>
+<p><strong>RBAC（Role-Based Access Control）</strong> 是基于角色的访问控制：</p>
+<ul>
+<li><strong>用户</strong>：比如”张三”、”李四”</li>
+<li><strong>角色</strong>：比如”普通用户”、”管理员”</li>
+<li><strong>权限</strong>：比如”查看文档”、”上传文档”、”删除文档”</li>
+</ul>
+<p><strong>关系</strong>：</p>
+<ul>
+<li>用户和角色是多对多（一个用户可以有多个角色，一个角色可以分配给多个用户）</li>
+<li>角色和权限是多对多（一个角色可以有多个权限，一个权限可以分配给多个角色）</li>
+</ul>
+<p><strong>KnowFlow 的角色</strong>：</p>
+<ul>
+<li><code>ROLE_USER</code>：普通用户（能上传文档、搜索文档）</li>
+<li><code>ROLE_ADMIN</code>：管理员（能管理知识库、查看系统状态）</li>
+</ul>
+<hr>
+<h3 id="4-2-RBAC-的实现"><a href="#4-2-RBAC-的实现" class="headerlink" title="4.2 RBAC 的实现"></a>4.2 RBAC 的实现</h3><p><strong>数据库表设计</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 用户表</span><br><span class="hljs-keyword">CREATE TABLE</span> users (<br>    id <span class="hljs-type">BIGINT</span> <span class="hljs-keyword">PRIMARY KEY</span>,<br>    username <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">255</span>),<br>    password <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">255</span>),<br>    role <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">50</span>)  <span class="hljs-comment">-- &#x27;ROLE_USER&#x27; 或 &#x27;ROLE_ADMIN&#x27;</span><br>);<br><br><span class="hljs-comment">-- 权限表（可选，如果权限很多的话）</span><br><span class="hljs-keyword">CREATE TABLE</span> permissions (<br>    id <span class="hljs-type">BIGINT</span> <span class="hljs-keyword">PRIMARY KEY</span>,<br>    name <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">255</span>)  <span class="hljs-comment">-- &#x27;view_document&#x27;, &#x27;upload_document&#x27;, etc.</span><br>);<br><br><span class="hljs-comment">-- 角色权限表（可选）</span><br><span class="hljs-keyword">CREATE TABLE</span> role_permissions (<br>    role <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">50</span>),<br>    permission_id <span class="hljs-type">BIGINT</span><br>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>Spring Security 配置</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">.requestMatchers(<span class="hljs-string">&quot;/api/v1/upload/**&quot;</span>).hasAnyRole(<span class="hljs-string">&quot;USER&quot;</span>, <span class="hljs-string">&quot;ADMIN&quot;</span>)<br>.requestMatchers(<span class="hljs-string">&quot;/api/v1/admin/**&quot;</span>).hasRole(<span class="hljs-string">&quot;ADMIN&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、组织标签授权"><a href="#五、组织标签授权" class="headerlink" title="五、组织标签授权"></a>五、组织标签授权</h2><h3 id="5-1-什么是组织标签？"><a href="#5-1-什么是组织标签？" class="headerlink" title="5.1 什么是组织标签？"></a>5.1 什么是组织标签？</h3><p><strong>傻子都能懂的解释</strong>：</p>
+<p><strong>组织标签</strong>就是”部门”（比如”技术部”、”产品部”）：</p>
+<ul>
+<li>每个文档都有一个组织标签（比如”技术部”的文档）</li>
+<li>每个用户都有一个组织标签（比如”技术部”的用户）</li>
+<li>用户只能看到自己所在部门的文档（除非是公开文档）</li>
+</ul>
+<p><strong>层级关系</strong>：</p>
+<ul>
+<li>比如”技术部”下面有”前端组”、”后端组”</li>
+<li>如果用户属于”技术部”，他能看到”技术部”、”前端组”、”后端组”的所有文档</li>
+</ul>
+<hr>
+<h3 id="5-2-组织标签授权的实现"><a href="#5-2-组织标签授权的实现" class="headerlink" title="5.2 组织标签授权的实现"></a>5.2 组织标签授权的实现</h3><p><strong>过滤器</strong>：<code>OrgTagAuthorizationFilter</code></p>
+<p><strong>流程</strong>：</p>
+<ol>
+<li>用户请求访问文档：<code>GET /api/v1/documents/123</code></li>
+<li>过滤器获取用户的组织标签（比如”技术部”）</li>
+<li>过滤器检查文档的组织标签（比如”技术部”）</li>
+<li>如果用户的组织标签和文档的组织标签匹配，允许访问</li>
+<li>如果不匹配，检查文档是否是”公开”的</li>
+<li>如果不是公开的，返回 403 Forbidden</li>
+</ol>
+<hr>
+<h2 id="六、部署方案"><a href="#六、部署方案" class="headerlink" title="六、部署方案"></a>六、部署方案</h2><h3 id="6-1-Kubernetes（K8s）部署"><a href="#6-1-Kubernetes（K8s）部署" class="headerlink" title="6.1 Kubernetes（K8s）部署"></a>6.1 Kubernetes（K8s）部署</h3><p><strong>什么是 K8s？</strong></p>
+<ul>
+<li>K8s 是一个容器编排平台（用来管理 Docker 容器）</li>
+<li>好处：<ol>
+<li><strong>自动扩容</strong>：如果流量大了，自动增加 Pod（容器）数量</li>
+<li><strong>自动恢复</strong>：如果某个 Pod 挂了，自动重启</li>
+<li><strong>负载均衡</strong>：把请求分发到多个 Pod</li>
+</ol>
+</li>
+</ul>
+<p><strong>KnowFlow 的 K8s 部署</strong>：</p>
+<ul>
+<li><strong>Deployment</strong>：定义应用的副本数量（比如 3 个副本）</li>
+<li><strong>Service</strong>：定义如何访问应用（比如 LoadBalancer）</li>
+<li><strong>Ingress</strong>：定义路由规则（比如 <code>api.example.com</code> 转发到后端服务）</li>
+</ul>
+<hr>
+<h3 id="6-2-Prometheus-监控"><a href="#6-2-Prometheus-监控" class="headerlink" title="6.2 Prometheus 监控"></a>6.2 Prometheus 监控</h3><p><strong>什么是 Prometheus？</strong></p>
+<ul>
+<li>Prometheus 是一个监控系统和时序数据库</li>
+<li>用来收集应用的指标（比如 QPS、响应时间、错误率）</li>
+</ul>
+<p><strong>KnowFlow 的监控指标</strong>：</p>
+<ul>
+<li><strong>文件上传计数器</strong>：<code>file_upload_counter</code>（记录上传文件的数量）</li>
+<li><strong>搜索耗时</strong>：<code>search_timer</code>（记录搜索的耗时）</li>
+<li><strong>JVM 指标</strong>：内存使用、GC 次数</li>
+</ul>
+<p><strong>Prometheus 配置</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">scrape_configs:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">job_name:</span> <span class="hljs-string">&#x27;knowflow&#x27;</span><br>    <span class="hljs-attr">metrics_path:</span> <span class="hljs-string">&#x27;/actuator/prometheus&#x27;</span><br>    <span class="hljs-attr">static_configs:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">targets:</span> [<span class="hljs-string">&#x27;localhost:8080&#x27;</span>]<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、❗❗-源码里的问题"><a href="#七、❗❗-源码里的问题" class="headerlink" title="七、❗❗ 源码里的问题"></a>七、❗❗ 源码里的问题</h2><h3 id="问题-1：JWT-secret-硬编码在代码里！"><a href="#问题-1：JWT-secret-硬编码在代码里！" class="headerlink" title="问题 1：JWT secret 硬编码在代码里！"></a>问题 1：JWT secret 硬编码在代码里！</h3><p><strong>看代码（假设在 <code>JwtAuthenticationFilter.java</code> 里）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">SECRET</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;my-secret-key&quot;</span>;  <span class="hljs-comment">// ❗❗ 硬编码！</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：</p>
+<ul>
+<li>JWT secret 是用来签名 JWT 的（如果 secret 泄露，攻击者可以伪造 JWT）</li>
+<li>硬编码在代码里，容易被反编译（如果代码开源，secret 就泄露了）</li>
+</ul>
+<p><strong>修复方案：用环境变量</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Value(&quot;$&#123;jwt.secret&#125;&quot;)</span><br><span class="hljs-keyword">private</span> String secret;  <span class="hljs-comment">// 从环境变量读取</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>更好的方案</strong>：用 K8s 的 Secret</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># k8s-secret.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Secret</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">jwt-secret</span><br><span class="hljs-attr">type:</span> <span class="hljs-string">Opaque</span><br><span class="hljs-attr">data:</span><br>  <span class="hljs-attr">jwt-secret:</span> <span class="hljs-string">base64-encoded-secret</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="问题-2：JWT-没有设置过期时间，或者过期时间太长！"><a href="#问题-2：JWT-没有设置过期时间，或者过期时间太长！" class="headerlink" title="问题 2：JWT 没有设置过期时间，或者过期时间太长！"></a>问题 2：JWT 没有设置过期时间，或者过期时间太长！</h3><p><strong>看代码（假设在 <code>JwtTokenUtil.java</code> 里）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">generateToken</span><span class="hljs-params">(UserDetails userDetails)</span> &#123;<br>    <span class="hljs-keyword">return</span> Jwts.builder()<br>            .setSubject(userDetails.getUsername())<br>            .setExpiration(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(System.currentTimeMillis() + <span class="hljs-number">365</span> * <span class="hljs-number">24</span> * <span class="hljs-number">60</span> * <span class="hljs-number">60</span> * <span class="hljs-number">1000</span>))  <span class="hljs-comment">// ❗❗ 365 天！</span><br>            .signWith(SignatureAlgorithm.HS256, secret)<br>            .compact();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：</p>
+<ul>
+<li>JWT 过期时间太长（365 天），如果 token 泄露，攻击者可以长期使用</li>
+<li>没有刷新 token 机制（用户需要重新登录）</li>
+</ul>
+<p><strong>修复方案：设置合理的过期时间 + 刷新 token</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">generateToken</span><span class="hljs-params">(UserDetails userDetails)</span> &#123;<br>    <span class="hljs-keyword">return</span> Jwts.builder()<br>            .setSubject(userDetails.getUsername())<br>            .setExpiration(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(System.currentTimeMillis() + <span class="hljs-number">1</span> * <span class="hljs-number">60</span> * <span class="hljs-number">60</span> * <span class="hljs-number">1000</span>))  <span class="hljs-comment">// 1 小时</span><br>            .signWith(SignatureAlgorithm.HS256, secret)<br>            .compact();<br>&#125;<br><br><span class="hljs-comment">// 刷新 token</span><br><span class="hljs-keyword">public</span> String <span class="hljs-title function_">refreshToken</span><span class="hljs-params">(String oldToken)</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">username</span> <span class="hljs-operator">=</span> extractUsername(oldToken);<br>    <span class="hljs-keyword">return</span> generateToken(username);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="问题-3：敏感接口没有限流，容易被攻击！"><a href="#问题-3：敏感接口没有限流，容易被攻击！" class="headerlink" title="问题 3：敏感接口没有限流，容易被攻击！"></a>问题 3：敏感接口没有限流，容易被攻击！</h3><p><strong>看代码（第 55-57 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">.requestMatchers(<span class="hljs-string">&quot;/api/v1/users/register&quot;</span>, <span class="hljs-string">&quot;/api/v1/users/login&quot;</span>).permitAll()<br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：</p>
+<ul>
+<li>登录注册接口没有限流（攻击者可以暴力破解密码）</li>
+<li>没有验证码（容易被自动化脚本攻击）</li>
+</ul>
+<p><strong>修复方案：加限流</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 用 Redis + Lua 脚本实现限流</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAllowed</span><span class="hljs-params">(String ip)</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;rate_limit:&quot;</span> + ip;<br>    <span class="hljs-type">Long</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue().increment(key);<br>    <span class="hljs-keyword">if</span> (count == <span class="hljs-number">1</span>) &#123;<br>        redisTemplate.expire(key, <span class="hljs-number">1</span>, TimeUnit.MINUTES);  <span class="hljs-comment">// 1 分钟内</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> count &lt;= <span class="hljs-number">100</span>;  <span class="hljs-comment">// 最多 100 次/分钟</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="八、面试八股文"><a href="#八、面试八股文" class="headerlink" title="八、面试八股文"></a>八、面试八股文</h2><h3 id="8-1-什么是-JWT？为什么要用-JWT？"><a href="#8-1-什么是-JWT？为什么要用-JWT？" class="headerlink" title="8.1 什么是 JWT？为什么要用 JWT？"></a>8.1 什么是 JWT？为什么要用 JWT？</h3><p><strong>答</strong>：</p>
+<ul>
+<li>JWT 是一个”通行证”（包含用户信息的 token）</li>
+<li>好处：<ol>
+<li><strong>无状态</strong>：服务器不需要存 session（适合分布式系统）</li>
+<li><strong>跨域</strong>：可以在多个服务之间传递用户信息</li>
+<li><strong>移动端友好</strong>：移动端不喜欢用 cookie（JWT 可以用 Header 传递）</li>
+</ol>
+</li>
+</ul>
+<h3 id="8-2-什么是-RBAC？为什么要用-RBAC？"><a href="#8-2-什么是-RBAC？为什么要用-RBAC？" class="headerlink" title="8.2 什么是 RBAC？为什么要用 RBAC？"></a>8.2 什么是 RBAC？为什么要用 RBAC？</h3><p><strong>答</strong>：</p>
+<ul>
+<li>RBAC 是基于角色的访问控制</li>
+<li>好处：<ol>
+<li><strong>灵活性</strong>：用户可以分配多个角色</li>
+<li><strong>可维护性</strong>：权限变更只需要改角色，不需要改用户</li>
+<li><strong>安全性</strong>：最小权限原则（用户只有需要的权限）</li>
+</ol>
+</li>
+</ul>
+<h3 id="8-3-什么是-K8s？为什么要用-K8s？"><a href="#8-3-什么是-K8s？为什么要用-K8s？" class="headerlink" title="8.3 什么是 K8s？为什么要用 K8s？"></a>8.3 什么是 K8s？为什么要用 K8s？</h3><p><strong>答</strong>：</p>
+<ul>
+<li>K8s 是一个容器编排平台</li>
+<li>好处：<ol>
+<li><strong>自动扩容</strong>：流量大了自动增加 Pod</li>
+<li><strong>自动恢复</strong>：Pod 挂了自动重启</li>
+<li><strong>负载均衡</strong>：把请求分发到多个 Pod</li>
+</ol>
+</li>
+</ul>
+<h3 id="8-4-什么是-Prometheus？为什么要用-Prometheus？"><a href="#8-4-什么是-Prometheus？为什么要用-Prometheus？" class="headerlink" title="8.4 什么是 Prometheus？为什么要用 Prometheus？"></a>8.4 什么是 Prometheus？为什么要用 Prometheus？</h3><p><strong>答</strong>：</p>
+<ul>
+<li>Prometheus 是一个监控系统和时序数据库</li>
+<li>好处：<ol>
+<li><strong>实时监控</strong>：可以实时查看应用的指标</li>
+<li><strong>告警</strong>：指标异常时自动告警</li>
+<li><strong>可视化</strong>：配合 Grafana 可以画图表</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="九、总结"><a href="#九、总结" class="headerlink" title="九、总结"></a>九、总结</h2><p><strong>KnowFlow 的安全机制</strong>：</p>
+<ol>
+<li><strong>JWT 认证</strong>：无状态的认证方式（适合分布式系统）</li>
+<li><strong>RBAC 权限控制</strong>：基于角色的访问控制（灵活、可维护）</li>
+<li><strong>组织标签授权</strong>：基于组织标签的权限控制（适合企业场景）</li>
+</ol>
+<p><strong>KnowFlow 的部署方案</strong>：</p>
+<ol>
+<li><strong>K8s</strong>：容器编排（自动扩容、自动恢复）</li>
+<li><strong>Prometheus</strong>：监控（实时监控、告警）</li>
+</ol>
+<p><strong>源码里的问题（❗❗）</strong>：</p>
+<ol>
+<li>JWT secret 硬编码在代码里</li>
+<li>JWT 没有设置过期时间，或者过期时间太长</li>
+<li>敏感接口没有限流，容易被攻击</li>
+</ol>
+<p><strong>修复方案</strong>：</p>
+<ol>
+<li>用环境变量或 K8s Secret 存储 JWT secret</li>
+<li>设置合理的过期时间（1 小时）+ 刷新 token 机制</li>
+<li>加限流（Redis + Lua 脚本）</li>
+</ol>
+<hr>
+<p><strong>参考资料</strong>：</p>
+<ul>
+<li>Spring Security 官方文档：<a target="_blank" rel="noopener" href="https://spring.io/projects/spring-security">https://spring.io/projects/spring-security</a></li>
+<li>JWT 官方文档：<a target="_blank" rel="noopener" href="https://jwt.io/introduction">https://jwt.io/introduction</a></li>
+<li>Kubernetes 官方文档：<a target="_blank" rel="noopener" href="https://kubernetes.io/docs/">https://kubernetes.io/docs/</a></li>
+<li>Prometheus 官方文档：<a target="_blank" rel="noopener" href="https://prometheus.io/docs/">https://prometheus.io/docs/</a></li>
+</ul>
+<hr>
+<p><strong>最后更新</strong>：2026-06-08 22:15:00</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DevLink%E9%9D%A2%E8%AF%95%E6%89%8B%E5%86%8C/" class="category-chain-item">DevLink面试手册</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
+        <a href="/tags/Prometheus/" class="print-no-link">#Prometheus</a>
+      
+        <a href="/tags/JWT/" class="print-no-link">#JWT</a>
+      
+        <a href="/tags/RBAC/" class="print-no-link">#RBAC</a>
+      
+        <a href="/tags/K8s/" class="print-no-link">#K8s</a>
+      
+        <a href="/tags/Spring-Security/" class="print-no-link">#Spring Security</a>
+      
+        <a href="/tags/%E5%AE%89%E5%85%A8/" class="print-no-link">#安全</a>
+      
+        <a href="/tags/%E9%83%A8%E7%BD%B2/" class="print-no-link">#部署</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>KnowFlow 项目学习笔记（三）：安全 + 部署深度解析</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-security-deployment-learn/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-rabbitmq-learn/" title="技术派项目学习笔记（二）· 高标准：RabbitMQ 异步解耦与消息可靠性（源码级深度解析）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">技术派项目学习笔记（二）· 高标准：RabbitMQ 异步解耦与消息可靠性（源码级深度解析）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-knowflow-hybrid-search-learn/" title="KnowFlow 项目学习笔记（二）：混合检索深度解析">
+                        <span class="hidden-mobile">KnowFlow 项目学习笔记（二）：混合检索深度解析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

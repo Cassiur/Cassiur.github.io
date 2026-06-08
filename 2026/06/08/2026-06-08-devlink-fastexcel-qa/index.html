@@ -1,0 +1,1093 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出 简历原文：「基于 FastExcel + 自定义线程池（8 线程）+ CountDownLatch 实现数据分片并发导出，将百万级数据导出耗时从 3.5s 压缩至 1.4s，性能提升约 2.5 倍；采用 ArrayBlockingQueue 有界队列 + CallerRunsPolicy 背压策略防止 O">
+<meta property="og:type" content="article">
+<meta property="og:title" content="技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-fastexcel-qa/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出 简历原文：「基于 FastExcel + 自定义线程池（8 线程）+ CountDownLatch 实现数据分片并发导出，将百万级数据导出耗时从 3.5s 压缩至 1.4s，性能提升约 2.5 倍；采用 ArrayBlockingQueue 有界队列 + CallerRunsPolicy 背压策略防止 O">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T12:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T11:08:03.476Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="ArrayBlockingQueue">
+<meta property="article:tag" content="CallerRunsPolicy">
+<meta property="article:tag" content="CountDownLatch">
+<meta property="article:tag" content="FastExcel">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="字节跳动">
+<meta property="article:tag" content="并发编程">
+<meta property="article:tag" content="性能优化">
+<meta property="article:tag" content="技术派">
+<meta property="article:tag" content="线程池">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 20:00" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          64 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="技术派面试拷打③：FastExcel-线程池-CountDownLatch-并发导出"><a href="#技术派面试拷打③：FastExcel-线程池-CountDownLatch-并发导出" class="headerlink" title="技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出"></a>技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出</h1><blockquote>
+<p>简历原文：「基于 FastExcel + 自定义线程池（8 线程）+ CountDownLatch 实现数据分片并发导出，将百万级数据导出耗时从 3.5s 压缩至 1.4s，性能提升约 2.5 倍；采用 ArrayBlockingQueue 有界队列 + CallerRunsPolicy 背压策略防止 OOM，FastExcel 写操作保持单线程串行保证线程安全。」</p>
+<p>面试口径：<strong>“百万级数据导出用了分片并发方案：先查总量算分片数（5片×20万），自定义线程池（8核心线程，I&#x2F;O 密集型选 2×CPU，ArrayBlockingQueue 有界队列防 OOM，CallerRunsPolicy 背压）并发执行分片 DB 查询，CountDownLatch 等所有分片完成后汇总，最后单线程 FastExcel 写出（POI 非线程安全）。实测 3.5s → 1.4s，提升 2.5 倍，瓶颈从查询转移到了写出。”</strong></p>
+</blockquote>
+<hr>
+<h2 id="第一层：为什么要并发导出？（性能优化基础题）"><a href="#第一层：为什么要并发导出？（性能优化基础题）" class="headerlink" title="第一层：为什么要并发导出？（性能优化基础题）"></a>第一层：为什么要并发导出？（性能优化基础题）</h2><h3 id="Q1：不用并发，单线程导出有什么问题？瓶颈在哪？"><a href="#Q1：不用并发，单线程导出有什么问题？瓶颈在哪？" class="headerlink" title="Q1：不用并发，单线程导出有什么问题？瓶颈在哪？"></a>Q1：不用并发，单线程导出有什么问题？瓶颈在哪？</h3><p><strong>答：</strong> 单线程导出的瓶颈在 <strong>DB 查询</strong>（I&#x2F;O 阻塞），多线程可以把这个瓶颈打满。</p>
+<p><strong>单线程导出流程（慢）：</strong></p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs tap">主线程：<br>  1. 查 DB 总量（SELECT COUNT(*) →<span class="hljs-number"> 1 </span>秒）<br>  2. 分页查询第<span class="hljs-number"> 1 </span>页（1000 条）→ FastExcel 写出<br>  3. 分页查询第<span class="hljs-number"> 2 </span>页（1000 条）→ FastExcel 写出<br>  ...（重复<span class="hljs-number"> 1000 </span>次）<br>  4. 完成<br></code></pre></td></tr></table></figure>
+<p><strong>问题：</strong> DB 查询是 I&#x2F;O 操作（等待数据库返回），CPU 在等待期间是<strong>空闲的</strong>。单线程只能一条一条查，总耗时 &#x3D; 页数 × 单页查询时间。</p>
+<p><strong>并发导出流程（快）：</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs markdown">主线程：<br><span class="hljs-bullet">  1.</span> 查 DB 总量（1 秒）<br><span class="hljs-bullet">  2.</span> 计算分片数（比如 5 个分片，每个分片 20 万条）<br><span class="hljs-bullet">  3.</span> 提交 5 个分片任务到线程池（并发执行！）<br><span class="hljs-code">     ├── 分片 1（线程 1）：查询第 1~20 万条</span><br><span class="hljs-code">     ├── 分片 2（线程 2）：查询第 20~40 万条</span><br><span class="hljs-code">     └── ...（同时进行）</span><br><span class="hljs-code">  4. CountDownLatch.await() 等待所有分片完成</span><br><span class="hljs-code">  5. 汇总所有分片数据</span><br><span class="hljs-code">  6. 单线程 FastExcel 写出</span><br></code></pre></td></tr></table></figure>
+<p><strong>优势：</strong> 5 个分片的 DB 查询<strong>同时进行</strong>（只要 DB 能扛住并发查询），总耗时 ≈ 最慢的那个分片的时间（而不是所有分片时间之和）。</p>
+<p><strong>项目里的实测数据：</strong></p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs excel">单线程：<span class="hljs-number">3.5</span> 秒（瓶颈：<span class="hljs-built_in">DB</span> 查询）<br>并发：  <span class="hljs-number">1.4</span> 秒（瓶颈：FastExcel 写出）<br>提升：  <span class="hljs-number">2.5</span> 倍<br></code></pre></td></tr></table></figure>
+<p><strong>为什么提升不是 5 倍（分片数）？</strong> 因为：</p>
+<ol>
+<li><strong>线程池不是无限大</strong>：最多 8 个线程同时跑，5 个分片可以完全并行</li>
+<li><strong>写出是单线程</strong>：汇总后 FastExcel 写出也要时间，这部分没优化</li>
+<li><strong>DB 并发查询有上限</strong>：数据库的连接池、CPU、磁盘 I&#x2F;O 都有上限</li>
+</ol>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“单线程导出的瓶颈在 DB 查询（I&#x2F;O 阻塞），CPU 在等待期间是空闲的。并发导出把数据分成多个分片，用多线程同时查询 DB，把 I&#x2F;O 等待时间重叠起来，总耗时 ≈ 最慢的分片时间。我们项目实测从 3.5s 降到 1.4s，提升 2.5 倍。之所以不是 5 倍（分片数），是因为写出是单线程的，而且 DB 并发查询也有上限。”</p>
+</blockquote>
+<hr>
+<h3 id="Q2：为什么用-FastExcel-而不是-EasyExcel？两者有什么区别？"><a href="#Q2：为什么用-FastExcel-而不是-EasyExcel？两者有什么区别？" class="headerlink" title="Q2：为什么用 FastExcel 而不是 EasyExcel？两者有什么区别？"></a>Q2：为什么用 FastExcel 而不是 EasyExcel？两者有什么区别？</h3><p><strong>答：</strong> FastExcel 是 <strong>EasyExcel 的社区维护版</strong>（EasyExcel 官方已停止维护），API 完全兼容，但性能更好、Bug 更少。</p>
+<p><strong>EasyExcel 的问题：</strong></p>
+<ol>
+<li><strong>官方已停止维护</strong>（2023 年后不再更新）</li>
+<li><strong>有一些已知 Bug</strong>（比如大文件导出时内存泄漏）</li>
+<li><strong>性能不是最优</strong>（FastExcel 在某些场景下比 EasyExcel 快 20~30%）</li>
+</ol>
+<p><strong>FastExcel 的优势：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>EasyExcel</th>
+<th>FastExcel</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>维护状态</strong></td>
+<td>❌ 已停止维护（2023）</td>
+<td>✅ 社区活跃维护</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>基准</td>
+<td>快 20~30%</td>
+</tr>
+<tr>
+<td><strong>内存占用</strong></td>
+<td>较高</td>
+<td>优化过，更低</td>
+</tr>
+<tr>
+<td><strong>API 兼容性</strong></td>
+<td>-</td>
+<td>✅ 完全兼容 EasyExcel</td>
+</tr>
+<tr>
+<td><strong>Bug 修复</strong></td>
+<td>❌ 不再修复</td>
+<td>✅ 持续修复</td>
+</tr>
+</tbody></table>
+<p><strong>项目里的依赖配置（<code>pom.xml</code>）：</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>cn.idev<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>fastexcel<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>$&#123;fastexcel.version&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>  <span class="hljs-comment">&lt;!-- 1.0.0 --&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-comment">&lt;!-- 不再用 com.alibaba:easypoi 或 com.alibaba:easyexcel --&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>FastExcel 的基本用法（和 EasyExcel 一模一样）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 写 Excel（和 EasyExcel 用法完全一样）</span><br>FastExcel.write(response.getOutputStream(), RequestCountExcelDO.class)<br>        .sheet(<span class="hljs-string">&quot;request_count全量导出&quot;</span>)<br>        .doWrite(allData);<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“EasyExcel 官方已经停止维护了（2023 年后），有一些已知 Bug 和安全漏洞没人修。FastExcel 是社区维护的替代方案，API 完全兼容 EasyExcel（迁移成本为零），性能还更好（快 20~30%）。我们项目里直接用 FastExcel，不用改代码。”</p>
+</blockquote>
+<hr>
+<h2 id="第二层：线程池参数设计（Java-并发核心题）"><a href="#第二层：线程池参数设计（Java-并发核心题）" class="headerlink" title="第二层：线程池参数设计（Java 并发核心题）"></a>第二层：线程池参数设计（Java 并发核心题）</h2><h3 id="Q3：线程池的-7-个参数，你项目里是怎么设计的？为什么？"><a href="#Q3：线程池的-7-个参数，你项目里是怎么设计的？为什么？" class="headerlink" title="Q3：线程池的 7 个参数，你项目里是怎么设计的？为什么？"></a>Q3：线程池的 7 个参数，你项目里是怎么设计的？为什么？</h3><p><strong>答：</strong> 线程池的参数设计是<strong>面试必考</strong>，要根据任务类型（CPU 密集型 vs I&#x2F;O 密集型）来选。</p>
+<p><strong>线程池的 7 个参数：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>(<br>    corePoolSize,     <span class="hljs-comment">// 1. 核心线程数（常驻线程）</span><br>    maximumPoolSize,  <span class="hljs-comment">// 2. 最大线程数（紧急扩容用）</span><br>    keepAliveTime,    <span class="hljs-comment">// 3. 空闲线程存活时间</span><br>    unit,             <span class="hljs-comment">// 4. 时间单位</span><br>    workQueue,         <span class="hljs-comment">// 5. 工作队列（存等待执行的任务）</span><br>    threadFactory,     <span class="hljs-comment">// 6. 线程工厂（给线程起名字）</span><br>    handler            <span class="hljs-comment">// 7. 拒绝策略（队列满了怎么办）</span><br>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目里的参数设计</strong>（<code>StatisticsSettingServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ThreadPoolExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>(<br>    <span class="hljs-number">8</span>,                  <span class="hljs-comment">// ① 核心线程数 = 8</span><br>    <span class="hljs-number">16</span>,                 <span class="hljs-comment">// ② 最大线程数 = 16</span><br>    <span class="hljs-number">60L</span>, TimeUnit.SECONDS,  <span class="hljs-comment">// ③ 空闲线程 60 秒后回收</span><br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayBlockingQueue</span>&lt;&gt;(shardCount + <span class="hljs-number">1</span>),  <span class="hljs-comment">// ④ 有界队列，长度 = 分片数 + 1</span><br>    r -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(r, <span class="hljs-string">&quot;excel-export-&quot;</span> + r.hashCode()),  <span class="hljs-comment">// ⑤ 线程名自定义（便于排查）</span><br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>.CallerRunsPolicy()  <span class="hljs-comment">// ⑥ 拒绝策略：调用者自己执行</span><br>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么核心线程数选 8？（关键！）</strong></p>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">任务类型：<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 密集型（<span class="hljs-variable">DB</span> 查询是 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 操作，等待期间 <span class="hljs-variable">CPU</span> 空闲）<br><br>公式：核心线程数 <span class="hljs-operator">=</span> <span class="hljs-variable">CPU</span> 核心数 × <span class="hljs-number">2</span><br>     （<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 密集型，<span class="hljs-variable">CPU</span> 等待 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 时可以切换去执行其他线程）<br><br>我的机器：<span class="hljs-variable">CPU</span> <span class="hljs-number">4</span> 核 → <span class="hljs-number">4</span> × <span class="hljs-number">2</span> <span class="hljs-operator">=</span> <span class="hljs-number">8</span>  ← 这就是 <span class="hljs-number">8</span> 的由来！<br></code></pre></td></tr></table></figure>
+
+<p><strong>如果是 CPU 密集型任务（比如复杂计算）：</strong></p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">公式：核心线程数 = <span class="hljs-meta">CPU</span> 核心数 + <span class="hljs-number">1</span><br>     （+<span class="hljs-number">1</span> 是为了防页缺失，让 <span class="hljs-meta">CPU</span> 永远不空闲）<br><br><span class="hljs-number">4</span> 核 <span class="hljs-meta">CPU</span> → 核心线程数 = <span class="hljs-number">5</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“我们项目里的任务是 I&#x2F;O 密集型（DB 查询要等待数据库返回，CPU 在等待期间是空闲的），所以核心线程数选 <code>2 × CPU核心数</code>（我的机器 4 核 → 8 个核心线程）。最大线程数选 16（核心 × 2），作为紧急扩容。如果是 CPU 密集型任务，核心线程数应该选 <code>CPU核心数 + 1</code>（比如 4 核 → 5 个线程）。”</p>
+</blockquote>
+<hr>
+<h3 id="Q4：为什么用-ArrayBlockingQueue-而不是-LinkedBlockingQueue？（必考）"><a href="#Q4：为什么用-ArrayBlockingQueue-而不是-LinkedBlockingQueue？（必考）" class="headerlink" title="Q4：为什么用 ArrayBlockingQueue 而不是 LinkedBlockingQueue？（必考）"></a>Q4：为什么用 ArrayBlockingQueue 而不是 LinkedBlockingQueue？（必考）</h3><p><strong>答：</strong> ArrayBlockingQueue 是<strong>有界队列</strong>，可以限制队列长度，防止 OOM；LinkedBlockingQueue 默认是<strong>无界队列</strong>（长度 <code>Integer.MAX_VALUE</code>），可能撑爆内存。</p>
+<p><strong>两者对比：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ArrayBlockingQueue</th>
+<th>LinkedBlockingQueue</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>队列长度</strong></td>
+<td>构造时必须指定（有界）</td>
+<td>默认 <code>Integer.MAX_VALUE</code>（无界）</td>
+</tr>
+<tr>
+<td><strong>内存风险</strong></td>
+<td>✅ 安全（可以限制队列长度）</td>
+<td>❌ 危险（可能无限堆积任务，导致 OOM）</td>
+</tr>
+<tr>
+<td><strong>锁的实现</strong></td>
+<td>1 把锁（入队和出队用同一把锁）</td>
+<td>2 把锁（入队锁和出队锁分离，并发度更高）</td>
+</tr>
+<tr>
+<td><strong>吞吐量</strong></td>
+<td>较低</td>
+<td>较高（锁分离）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>需要限制并发任务数（背压）</td>
+<td>任务量不可预估，但内存充足</td>
+</tr>
+</tbody></table>
+<p><strong>为什么项目里选 ArrayBlockingQueue？（关键！）</strong></p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs tap">导出任务是重量级任务（每个分片查询<span class="hljs-number"> 20 </span>万条数据，占用内存很大）<br><br>如果用 LinkedBlockingQueue（无界）：<br>  → 线程池满了（8 个核心线程都在忙）<br>  → 新任务无限进入 LinkedBlockingQueue<br>  → 队列里堆积了<span class="hljs-number"> 1000 </span>个等待执行的任务<br>  → 每个任务占用 100MB 内存 →<span class="hljs-number"> 1000 </span>× 100MB = 100GB！<br>  → OOM！<br><br>用 ArrayBlockingQueue（有界，长度 = 分片数 + 1）：<br>  → 队列最多存（分片数 + 1）个任务<br>  → 队列满了 → 触发拒绝策略（CallerRunsPolicy）<br>  → 调用者线程自己执行任务（背压效果，防止 OOM）<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“ArrayBlockingQueue 是有界队列，构造时必须指定长度，可以防止任务无限堆积导致 OOM；LinkedBlockingQueue 默认是无界的（<code>Integer.MAX_VALUE</code>），如果任务生产速度 &gt; 消费速度，队列会无限增长，最终 OOM。我们项目里导出任务是重量级的（每个分片查询 20 万条），用 ArrayBlockingQueue 限制队列长度 &#x3D; 分片数 + 1，配合 CallerRunsPolicy 实现背压，保护系统不被压垮。”</p>
+</blockquote>
+<hr>
+<h3 id="Q5：CallerRunsPolicy-是什么？四种拒绝策略对比？（必考）"><a href="#Q5：CallerRunsPolicy-是什么？四种拒绝策略对比？（必考）" class="headerlink" title="Q5：CallerRunsPolicy 是什么？四种拒绝策略对比？（必考）"></a>Q5：CallerRunsPolicy 是什么？四种拒绝策略对比？（必考）</h3><p><strong>答：</strong> CallerRunsPolicy 是<strong>让提交任务的线程自己执行</strong>这个任务，起到”背压”效果（提交速度 &gt; 处理速度时，提交方会被阻塞，自然限速）。</p>
+<p><strong>四种拒绝策略对比：</strong></p>
+<table>
+<thead>
+<tr>
+<th>拒绝策略</th>
+<th>行为</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>AbortPolicy</strong>（默认）</td>
+<td>抛异常（<code>RejectedExecutionException</code>）</td>
+<td>失败快速感知</td>
+<td>会抛异常，要自己处理</td>
+<td>重要任务，不能丢</td>
+</tr>
+<tr>
+<td><strong>CallerRunsPolicy</strong> ✅</td>
+<td><strong>让提交任务的线程自己执行</strong></td>
+<td>不抛异常；提交方变慢 &#x3D; 自然限速（背压）</td>
+<td>提交方线程被占用（比如 HTTP 线程）</td>
+<td><strong>Web 场景（我们项目）</strong></td>
+</tr>
+<tr>
+<td><strong>DiscardPolicy</strong></td>
+<td>直接丢弃新任务，不抛异常</td>
+<td>不抛异常</td>
+<td>任务丢了，不知道</td>
+<td>不重要的任务（比如日志记录）</td>
+</tr>
+<tr>
+<td><strong>DiscardOldestPolicy</strong></td>
+<td>丢弃队列里最老的任务，然后重试提交</td>
+<td>保留最新任务</td>
+<td>老任务丢了</td>
+<td>实时性要求高（只要最新数据）</td>
+</tr>
+</tbody></table>
+<p><strong>CallerRunsPolicy 的背压机制（关键！）：</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs markdown">场景：线程池满了（8 个核心线程都在忙）+ 队列也满了（ArrayBlockingQueue 满了）<br><br>正常流程（没有拒绝策略）：<br><span class="hljs-bullet">  1.</span> 主线程提交任务 9 → 队列满了 → 创建新线程（直到 maximumPoolSize）<br><span class="hljs-bullet">  2.</span> 主线程提交任务 10 → 线程数 = maximumPoolSize，队列也满 → 抛异常！<br><br>CallerRunsPolicy：<br><span class="hljs-bullet">  1.</span> 主线程提交任务 9 → 队列满了<br><span class="hljs-bullet">  2.</span> 不抛异常！→ 主线程<span class="hljs-strong">**自己执行**</span>任务 9（不提交到线程池了）<br><span class="hljs-bullet">  3.</span> 主线程在执行任务 9 期间，<span class="hljs-strong">**不能提交新任务**</span>（被阻塞了）<br><span class="hljs-bullet">  4.</span> 线程池里有线程完成了任务 → 队列空出一个位置<br><span class="hljs-bullet">  5.</span> 主线程提交任务 10 → 进入队列 → 成功<br></code></pre></td></tr></table></figure>
+<p><strong>效果：</strong> 提交速度 &gt; 处理速度时，提交方（主线程）会被阻塞，<strong>自然限速</strong>，保护系统。</p>
+<p><strong>项目里的应用场景：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 主线程（HTTP 请求线程）提交分片任务</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; shardCount; i++) &#123;<br>    executor.submit(() -&gt; queryShard(i));  <span class="hljs-comment">// 提交到线程池</span><br>&#125;<br><span class="hljs-comment">// 如果线程池满了 + 队列满了 → 主线程自己执行分片查询</span><br><span class="hljs-comment">// → 主线程被占用 → 无法接收新 HTTP 请求 → 自然限速</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“四种拒绝策略：AbortPolicy（抛异常）、CallerRunsPolicy（提交方自己执行，背压）、DiscardPolicy（直接丢弃）、DiscardOldestPolicy（丢弃最老的任务）。我们项目选 CallerRunsPolicy，因为导出任务是 Web 场景（HTTP 请求触发），如果线程池满了，让 HTTP 线程自己执行导出任务，HTTP 线程就被占用了，无法接收新请求，自然限速，保护系统不被压垮。这是最简单的背压实现方式。”</p>
+</blockquote>
+<hr>
+<h2 id="第三层：CountDownLatch-原理（并发工具题）"><a href="#第三层：CountDownLatch-原理（并发工具题）" class="headerlink" title="第三层：CountDownLatch 原理（并发工具题）"></a>第三层：CountDownLatch 原理（并发工具题）</h2><h3 id="Q6：CountDownLatch-的原理是什么？和-CyclicBarrier-有什么区别？（必考）"><a href="#Q6：CountDownLatch-的原理是什么？和-CyclicBarrier-有什么区别？（必考）" class="headerlink" title="Q6：CountDownLatch 的原理是什么？和 CyclicBarrier 有什么区别？（必考）"></a>Q6：CountDownLatch 的原理是什么？和 CyclicBarrier 有什么区别？（必考）</h3><p><strong>答：</strong> CountDownLatch 是<strong>倒计时门栓</strong>，一个或多个线程等待 N 个线程完成后再继续；CyclicBarrier 是<strong>集合点</strong>，N 个线程都到达集合点后再同时继续。</p>
+<p><strong>CountDownLatch 的工作原理：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 主线程：等待 5 个分片任务完成</span><br><span class="hljs-type">CountDownLatch</span> <span class="hljs-variable">latch</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CountDownLatch</span>(<span class="hljs-number">5</span>);  <span class="hljs-comment">// 计数器 = 5</span><br><br><span class="hljs-comment">// 分片线程 1：完成 → countDown()</span><br>latch.countDown();  <span class="hljs-comment">// 计数器 5 → 4</span><br><br><span class="hljs-comment">// 分片线程 2：完成 → countDown()</span><br>latch.countDown();  <span class="hljs-comment">// 计数器 4 → 3</span><br><br><span class="hljs-comment">// ...（其他分片）</span><br><br><span class="hljs-comment">// 分片线程 5：完成 → countDown()</span><br>latch.countDown();  <span class="hljs-comment">// 计数器 1 → 0 → 主线程被唤醒！</span><br><br><span class="hljs-comment">// 主线程：阻塞等待（计数器 &gt; 0 时就一直等）</span><br>latch.await();  <span class="hljs-comment">// 计数器 = 0 了，继续往下执行（汇总数据 + 写出 Excel）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>CountDownLatch vs CyclicBarrier：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>CountDownLatch</th>
+<th>CyclicBarrier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>核心语义</strong></td>
+<td>等待 N 个线程<strong>完成</strong></td>
+<td>N 个线程<strong>互相等待</strong>，都到了再同时继续</td>
+</tr>
+<tr>
+<td><strong>是否可复用</strong></td>
+<td>❌ 一次性（计数器到 0 就完了）</td>
+<td>✅ 可复用（自动重置计数器）</td>
+</tr>
+<tr>
+<td><strong>典型场景</strong></td>
+<td>主线程等子线程完成（我们项目）</td>
+<td>多个线程互相等待，都准备好了再同时开始（比如模拟并发测试）</td>
+</tr>
+<tr>
+<td><strong>是否有回调</strong></td>
+<td>❌ 没有</td>
+<td>✅ 支持（所有线程都到达后，先执行回调，再同时继续）</td>
+</tr>
+</tbody></table>
+<p><strong>CyclicBarrier 的例子（帮助理解）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 3 个玩家互相等待，都准备好了再同时开始游戏</span><br><span class="hljs-type">CyclicBarrier</span> <span class="hljs-variable">barrier</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CyclicBarrier</span>(<span class="hljs-number">3</span>, () -&gt; &#123;<br>    System.out.println(<span class="hljs-string">&quot;所有玩家都准备好了，开始游戏！&quot;</span>);<br>&#125;);<br><br><span class="hljs-comment">// 玩家 1 线程：</span><br>barrier.await();  <span class="hljs-comment">// 等待其他玩家（计数器 3 → 2）</span><br><br><span class="hljs-comment">// 玩家 2 线程：</span><br>barrier.await();  <span class="hljs-comment">// 等待其他玩家（计数器 2 → 1）</span><br><br><span class="hljs-comment">// 玩家 3 线程：</span><br>barrier.await();  <span class="hljs-comment">// 计数器 1 → 0 → 触发回调 → 3 个线程同时被唤醒，开始游戏</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“CountDownLatch 是’等待 N 个线程完成’（倒计时门栓），CyclicBarrier 是’N 个线程互相等待，都到了再同时继续’（集合点）。我们项目里用 CountDownLatch，主线程提交 5 个分片任务后调用 <code>await()</code> 阻塞等待，每个分片任务完成后调用 <code>countDown()</code>，等 5 个分片都完成了（计数器 &#x3D; 0），主线程才被唤醒，继续汇总数据。CyclicBarrier 适合’多个线程互相等待’的场景（比如并发测试），而且可以复用（自动重置计数器），CountDownLatch 是一次性的。”</p>
+</blockquote>
+<hr>
+<h3 id="Q7：CountDownLatch-await-超时了怎么处理？项目里是怎么做的？"><a href="#Q7：CountDownLatch-await-超时了怎么处理？项目里是怎么做的？" class="headerlink" title="Q7：CountDownLatch.await 超时了怎么处理？项目里是怎么做的？"></a>Q7：CountDownLatch.await 超时了怎么处理？项目里是怎么做的？</h3><p><strong>答：</strong> <code>await(long timeout, TimeUnit unit)</code> 可以设置超时时间，超时后返回 <code>false</code>（表示”等待超时，还有任务没完成”）。</p>
+<p><strong>超时的处理逻辑：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 主线程：等待所有分片完成，最多等 10 分钟</span><br><span class="hljs-type">boolean</span> <span class="hljs-variable">finished</span> <span class="hljs-operator">=</span> latch.await(<span class="hljs-number">10</span>, TimeUnit.MINUTES);<br><br><span class="hljs-keyword">if</span> (!finished) &#123;<br>    <span class="hljs-comment">// 超时了！还有分片没完成</span><br>    log.error(<span class="hljs-string">&quot;导出超时：部分分片未完成&quot;</span>);<br>    <br>    <span class="hljs-comment">// 方案 1：取消所有还在跑的任务</span><br>    executor.shutdownNow();  <span class="hljs-comment">// 发中断信号给所有线程</span><br>    <br>    <span class="hljs-comment">// 方案 2：返回&quot;导出失败&quot;给前端</span><br>    response.getWriter().write(<span class="hljs-string">&quot;导出超时，请减少数据量后重试&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目里的实际代码</strong>（<code>StatisticsSettingServiceImpl.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">finished</span> <span class="hljs-operator">=</span> latch.await(<span class="hljs-number">10</span>, TimeUnit.MINUTES);<br>    <span class="hljs-keyword">if</span> (!finished) &#123;<br>        log.error(<span class="hljs-string">&quot;[并发导出] 等待超时，部分分片未完成&quot;</span>);<br>        <span class="hljs-comment">// 这里可以返回&quot;导出失败&quot;给前端</span><br>    &#125;<br>&#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>    Thread.currentThread().interrupt();  <span class="hljs-comment">// 恢复中断标志</span><br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;导出被中断&quot;</span>, e);<br>&#125; <span class="hljs-keyword">finally</span> &#123;<br>    executor.shutdown();  <span class="hljs-comment">// 关闭线程池，释放资源</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么设置超时时间？（关键！）</strong></p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs excel">如果不设置超时：<br>  → 某个分片任务卡死了（比如 <span class="hljs-built_in">DB</span> 连接断了，一直在等待）<br>  → CountDownLatch 永远等不到（计数器永远到不了 <span class="hljs-number">0</span>）<br>  → 主线程永远阻塞 → 内存泄漏（线程不释放）<br></code></pre></td></tr></table></figure>
+
+<p><strong>更好的方案：Future.get(timeout)（推荐！）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 提交任务时，记录 Future</span><br>List&lt;Future&lt;?&gt;&gt; futures = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; shardCount; i++) &#123;<br>    Future&lt;?&gt; future = executor.submit(() -&gt; queryShard(i));<br>    futures.add(future);<br>&#125;<br><br><span class="hljs-comment">// 等所有 Future 完成（带超时）</span><br><span class="hljs-keyword">for</span> (Future&lt;?&gt; future : futures) &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        future.get(<span class="hljs-number">10</span>, TimeUnit.MINUTES);  <span class="hljs-comment">// 每个任务最多等 10 分钟</span><br>    &#125; <span class="hljs-keyword">catch</span> (TimeoutException e) &#123;<br>        future.cancel(<span class="hljs-literal">true</span>);  <span class="hljs-comment">// 超时 → 取消任务</span><br>        log.error(<span class="hljs-string">&quot;分片任务超时&quot;</span>, e);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>优势：</strong> 可以知道”哪个分片超时了”，而 CountDownLatch 只能知道”有任务超时了”，不知道是哪个。</p>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“CountDownLatch.await 可以设置超时时间，超时后返回 false。我们项目里设置了 10 分钟超时，如果超时了，会关闭线程池并返回’导出超时’给前端。更好的方案是用 <code>Future.get(timeout)</code> 代替 CountDownLatch，这样可以知道’哪个分片超时了’，方便排查问题。设置超时是为了防止’某个分片卡死导致主线程永远阻塞’的内存泄漏问题。”</p>
+</blockquote>
+<hr>
+<h2 id="第四层：FastExcel-非线程安全（Excel-处理题）"><a href="#第四层：FastExcel-非线程安全（Excel-处理题）" class="headerlink" title="第四层：FastExcel 非线程安全（Excel 处理题）"></a>第四层：FastExcel 非线程安全（Excel 处理题）</h2><h3 id="Q8：为什么数据查询用多线程，但-FastExcel-写入用单线程？"><a href="#Q8：为什么数据查询用多线程，但-FastExcel-写入用单线程？" class="headerlink" title="Q8：为什么数据查询用多线程，但 FastExcel 写入用单线程？"></a>Q8：为什么数据查询用多线程，但 FastExcel 写入用单线程？</h3><p><strong>答：</strong> 因为 <strong>FastExcel（底层是 Apache POI 的 SXSSFWorkbook）非线程安全</strong>，多线程同时写一个 Excel 文件会导致<strong>文件损坏或数据错乱</strong>。</p>
+<p><strong>FastExcel 的底层（Apache POI）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// FastExcel.write() 底层创建的是 SXSSFWorkbook（流式写出）</span><br><span class="hljs-comment">// SXSSFWorkbook 的内部状态（当前行号、临时文件句柄等）不是线程安全的</span><br><br><span class="hljs-comment">// 线程 1：写入行 1~1000</span><br>workbook.write(row1);  <span class="hljs-comment">// 内部：当前行号 = 1，写入临时文件</span><br><br><span class="hljs-comment">// 线程 2：同时写入行 1001~2000（还没等线程 1 写完！）</span><br>workbook.write(row1001);  <span class="hljs-comment">// 内部：当前行号 = 1001（被线程 2 改了！）</span><br>                              <span class="hljs-comment">// 线程 1 再写 → 行号乱了 → 文件损坏！</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>项目里的方案：多线程查询 + 单线程汇总 + 单线程写出</strong></p>
+<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs pf">步骤 <span class="hljs-number">1</span>：多线程并发查询 DB（快！）<br>  ├── 分片 <span class="hljs-number">1</span> 线程：查询第 <span class="hljs-number">1</span>~<span class="hljs-number">20</span> 万条 → 结果存 List1<br>  ├── 分片 <span class="hljs-number">2</span> 线程：查询第 <span class="hljs-number">20</span>~<span class="hljs-number">40</span> 万条 → 结果存 List2<br>  └── ...<br><br>步骤 <span class="hljs-number">2</span>：主线程汇总（快！）<br>  <span class="hljs-literal">all</span>Data = new ArrayList<span class="hljs-variable">&lt;&gt;</span>();<br>  <span class="hljs-literal">all</span>Data.addAll(List1);<br>  <span class="hljs-literal">all</span>Data.addAll(List2);<br>  ...<br><br>步骤 <span class="hljs-number">3</span>：单线程 FastExcel 写出（慢，但必须串行）<br>  FastExcel.write(outputStream, RequestCountExcelDO.class)<br>          .sheet(<span class="hljs-string">&quot;导出&quot;</span>)<br>          .doWrite(<span class="hljs-literal">all</span>Data);  // 只有一个线程在写，安全<br></code></pre></td></tr></table></figure>
+
+<p><strong>如果一定要并发写 Excel，怎么办？（方案：多个文件合并）</strong></p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs smali">方案：每个线程写一个临时 Excel 文件，最后合并成一个文件<br><br>线程 1：写 temp1.xlsx（1~20 万条）<br>线程 2：写 temp2.xlsx（20~40 万条）<br><span class="hljs-keyword">.</span>..<br><br>主线程：用 POI 的 Sheet 复制，把 temp2.xlsx、temp3.xlsx... 合并到最终文件<br>      → 删掉临时文件<br></code></pre></td></tr></table></figure>
+<p><strong>缺点：</strong> 合并 Excel 很慢，而且占用双倍磁盘空间（临时文件 + 最终文件），<strong>性价比不高</strong>，不如单线程写出。</p>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“FastExcel 底层是 Apache POI 的 SXSSFWorkbook，内部状态（当前行号、临时文件句柄）不是线程安全的，多线程同时写一个 Excel 会导致文件损坏。我们项目里用’多线程查询 + 单线程写出’的方案：多个线程并发查 DB（打满 I&#x2F;O 瓶颈），CountDownLatch 等所有分片完成后，主线程汇总数据，最后单线程 FastExcel 写出。如果想并发写，可以让每个线程写临时文件，最后合并，但合并很慢，性价比不高。”</p>
+</blockquote>
+<hr>
+<h3 id="Q9：FastExcel-和-Apache-POI-是什么关系？为什么不用原生的-POI？"><a href="#Q9：FastExcel-和-Apache-POI-是什么关系？为什么不用原生的-POI？" class="headerlink" title="Q9：FastExcel 和 Apache POI 是什么关系？为什么不用原生的 POI？"></a>Q9：FastExcel 和 Apache POI 是什么关系？为什么不用原生的 POI？</h3><p><strong>答：</strong> FastExcel（和 EasyExcel）是 <strong>Apache POI 的封装</strong>，解决了 POI 的<strong>内存溢出（OOM）</strong> 问题。</p>
+<p><strong>Apache POI 的问题：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// POI 原生用法（危险！）</span><br><span class="hljs-type">XSSFWorkbook</span> <span class="hljs-variable">workbook</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">XSSFWorkbook</span>();  <span class="hljs-comment">// 把所有数据装载到内存！</span><br><span class="hljs-type">XSSFSheet</span> <span class="hljs-variable">sheet</span> <span class="hljs-operator">=</span> workbook.createSheet(<span class="hljs-string">&quot;sheet1&quot;</span>);<br><br><span class="hljs-keyword">for</span> (RowData row : allData) &#123;  <span class="hljs-comment">// 100 万条数据</span><br>    <span class="hljs-type">XSSFRow</span> <span class="hljs-variable">row</span> <span class="hljs-operator">=</span> sheet.createRow(i);<br>    <span class="hljs-comment">// 问题：所有行都留在内存里，100 万行 → 几个 GB 内存！</span><br>&#125;<br><br>workbook.write(outputStream);<br></code></pre></td></tr></table></figure>
+<p><strong>问题：</strong> <code>XSSFWorkbook</code> 是<strong>将所有数据装载到内存</strong>（DOM 模式），100 万行数据可能占用几个 GB 内存，直接 OOM。</p>
+<p><strong>FastExcel（EasyExcel）的解决方案：SXSSF（流式写出）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// FastExcel 底层用的是 SXSSFWorkbook（流式写出）</span><br><span class="hljs-comment">// 原理：数据先写临时文件（磁盘），内存里只保留最新的 100 行（可配置）</span><br><br><span class="hljs-type">SXSSFWorkbook</span> <span class="hljs-variable">workbook</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SXSSFWorkbook</span>(<span class="hljs-number">100</span>);  <span class="hljs-comment">// 内存里只保留 100 行</span><br><span class="hljs-comment">//        ↑ 超过 100 行的数据刷到磁盘临时文件</span><br><br><span class="hljs-keyword">for</span> (RowData row : allData) &#123;  <span class="hljs-comment">// 100 万条数据</span><br>    <span class="hljs-type">SXSSFRow</span> <span class="hljs-variable">row</span> <span class="hljs-operator">=</span> sheet.createRow(i);<br>    <span class="hljs-comment">// 行号 &gt; 100 时，自动刷到磁盘临时文件（内存不涨）</span><br>&#125;<br><br>workbook.write(outputStream);  <span class="hljs-comment">// 从临时文件读取数据，写出到 Excel</span><br>workbook.dispose();  <span class="hljs-comment">// 删掉临时文件</span><br></code></pre></td></tr></table></figure>
+<p><strong>效果：</strong> 100 万行数据导出，内存占用稳定在 <strong>200MB 左右</strong>（不会随着数据量增长），而 POI 原生用法可能占用 <strong>5GB+</strong>。</p>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“Apache POI 的原生用法（<code>XSSFWorkbook</code>）是把所有数据装载到内存，100 万行可能占用几个 GB 内存，容易 OOM。FastExcel（和 EasyExcel）底层用的是 <code>SXSSFWorkbook</code>（流式写出），数据先写临时文件（磁盘），内存里只保留最新的 100 行（可配置），100 万行导出内存稳定在 200MB 左右。我们项目直接用 FastExcel API（更简洁），底层自动用 SXSSF，不用自己操心内存问题。”</p>
+</blockquote>
+<hr>
+<h2 id="第五层：分片设计与数据汇总（数据处理题）"><a href="#第五层：分片设计与数据汇总（数据处理题）" class="headerlink" title="第五层：分片设计与数据汇总（数据处理题）"></a>第五层：分片设计与数据汇总（数据处理题）</h2><h3 id="Q10：分片（Shard）是怎么设计的？分片数怎么算？"><a href="#Q10：分片（Shard）是怎么设计的？分片数怎么算？" class="headerlink" title="Q10：分片（Shard）是怎么设计的？分片数怎么算？"></a>Q10：分片（Shard）是怎么设计的？分片数怎么算？</h3><p><strong>答：</strong> 分片数 &#x3D; <strong>总记录数 ÷ 每片大小</strong>（向上取整），每个分片负责查询”一段连续的数据”。</p>
+<p><strong>分片设计：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 查总记录数</span><br><span class="hljs-type">long</span> <span class="hljs-variable">total</span> <span class="hljs-operator">=</span> requestCountService.count();  <span class="hljs-comment">// 比如 100 万</span><br><br><span class="hljs-comment">// 2. 定义每片大小（比如 20 万条）</span><br><span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">BATCH_SIZE</span> <span class="hljs-operator">=</span> <span class="hljs-number">200_000</span>;<br><br><span class="hljs-comment">// 3. 计算分片数（向上取整）</span><br><span class="hljs-type">int</span> <span class="hljs-variable">shardCount</span> <span class="hljs-operator">=</span> (<span class="hljs-type">int</span>) Math.ceil((<span class="hljs-type">double</span>) total / BATCH_SIZE);<br><span class="hljs-comment">// 100 万 ÷ 20 万 = 5 片</span><br><br><span class="hljs-comment">// 4. 每个分片查询的数据范围：</span><br><span class="hljs-comment">//    分片 0：OFFSET 0, LIMIT 200000（第 1~20 万条）</span><br><span class="hljs-comment">//    分片 1：OFFSET 200000, LIMIT 200000（第 20~40 万条）</span><br><span class="hljs-comment">//    分片 2：OFFSET 400000, LIMIT 200000（第 40~60 万条）</span><br><span class="hljs-comment">//    ...</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>每个分片的查询参数：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; shardCount; i++) &#123;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">shardIndex</span> <span class="hljs-operator">=</span> i;<br>    executor.submit(() -&gt; &#123;<br>        <span class="hljs-comment">// 分页参数：pageNum = shardIndex + 1，pageSize = BATCH_SIZE</span><br>        <span class="hljs-type">PageParam</span> <span class="hljs-variable">pageParam</span> <span class="hljs-operator">=</span> PageParam.newPageInstance(<br>                (<span class="hljs-type">long</span>) (shardIndex + <span class="hljs-number">1</span>),  <span class="hljs-comment">// pageNum（从 1 开始）</span><br>                (<span class="hljs-type">long</span>) BATCH_SIZE             <span class="hljs-comment">// pageSize</span><br>        );<br>        List&lt;RequestCountDO&gt; batch = requestCountService.listRequestCount(pageParam);<br>        shardResults.set(shardIndex, batch);  <span class="hljs-comment">// 存到对应位置</span><br>        latch.countDown();<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么要分片？（关键！）</strong></p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs n1ql">不分片（单线程分页查询）：<br>  <span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> request_count <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">0</span>, <span class="hljs-number">200000</span>;   // 第 1 页（20 万条）<br>  <span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> request_count <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">200000</span>, <span class="hljs-number">200000</span>;  // 第 2 页（20 万条）<br>  ...（重复 5 次）<br>  总耗时 = 每页查询时间之和（比如 5 × 0.7s = 3.5s）<br><br>分片（多线程并发查询）：<br>  线程 1：<span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> request_count <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">0</span>, <span class="hljs-number">200000</span>;  // 第 1 页<br>  线程 2：<span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> request_count <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">200000</span>, <span class="hljs-number">200000</span>;  // 第 2 页<br>  ...（同时进行）<br>  总耗时 ≈ 最慢的那个分片（比如 0.9s）<br></code></pre></td></tr></table></figure>
+
+<p><strong>每片大小怎么选？（调优题）</strong></p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs tap">太大（比如<span class="hljs-number"> 50 </span>万条/片）：<br>  → 单个分片查询很慢（DB 查询<span class="hljs-number"> 50 </span>万条要<span class="hljs-number"> 2 </span>秒）<br>  → 并发度低（分片数少，线程池利用率不高）<br><br>太小（比如<span class="hljs-number"> 1 </span>万条/片）：<br>  → 分片数太多（100 万 ÷<span class="hljs-number"> 1 </span>万 =<span class="hljs-number"> 100 </span>个分片）<br>  → 线程池频繁上下文切换（100 个任务抢<span class="hljs-number"> 8 </span>个线程）<br>  → 汇总时 `allData.addAll(shard)` 调用次数太多<br><br>最优：20 万 ~<span class="hljs-number"> 50 </span>万条/片（根据机器性能和 DB 性能调优）<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“分片数 &#x3D; 总记录数 ÷ 每片大小（向上取整），每个分片负责查询一段连续的数据（OFFSET &#x3D; shardIndex × BATCH_SIZE，LIMIT &#x3D; BATCH_SIZE）。分片是为了让多线程并发查询 DB，把 I&#x2F;O 等待时间重叠起来。每片大小选 20 万 ~ 50 万条（根据 DB 性能调优），太大会导致单分片查询慢、并发度低；太小会导致分片数太多，线程上下文切换频繁。”</p>
+</blockquote>
+<hr>
+<h3 id="Q11：汇总数据时，为什么用-CopyOnWriteArrayList-而不是-ArrayList？"><a href="#Q11：汇总数据时，为什么用-CopyOnWriteArrayList-而不是-ArrayList？" class="headerlink" title="Q11：汇总数据时，为什么用 CopyOnWriteArrayList 而不是 ArrayList？"></a>Q11：汇总数据时，为什么用 <code>CopyOnWriteArrayList</code> 而不是 <code>ArrayList</code>？</h3><p><strong>答：</strong> 项目里<strong>没有用 <code>CopyOnWriteArrayList</code></strong>！看源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 项目里用的是 ArrayList（主线程写，分片线程读，但读的是不同位置！）</span><br>List&lt;List&lt;RequestCountExcelDO&gt;&gt; shardResults = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(shardCount);<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; shardCount; i++) shardResults.add(<span class="hljs-literal">null</span>);<br><br><span class="hljs-comment">// 分片线程：shardResults.set(shardIndex, batch)</span><br><span class="hljs-comment">//                             ↑ 写入指定位置（线程安全，因为不同线程写不同位置）</span><br><br><span class="hljs-comment">// 主线程：shardResults.get(i)</span><br><span class="hljs-comment">//                   ↑ 读取指定位置（分片线程已经写完了，因为 CountDownLatch.await() 保证了顺序）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么 <code>ArrayList</code> 在这里是安全的？（关键！）</strong></p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs routeros">1. 每个分片线程写入的是**不同位置**（shardResults.<span class="hljs-built_in">set</span>(shardIndex, <span class="hljs-built_in">..</span>.))<br>   → 没有并发写同一个位置的问题<br><br>2. CountDownLatch.await() 保证了：<br>   → 主线程读取 shardResults 时，所有分片线程都已经写完（<span class="hljs-built_in">set</span> 完成）<br>   → 没有<span class="hljs-string">&quot;主线程读到 null&quot;</span>的问题<br></code></pre></td></tr></table></figure>
+
+<p><strong>那什么时候需要用 <code>CopyOnWriteArrayList</code>？</strong></p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs arduino">场景：多个线程**同时读写**同一个 List（增删改查都在并发）<br><br><span class="hljs-comment">// ❌ ArrayList 线程不安全</span><br>List&lt;<span class="hljs-type">String</span>&gt; list = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();<br><span class="hljs-comment">// 线程 1：list.add(&quot;A&quot;)</span><br><span class="hljs-comment">// 线程 2：list.add(&quot;B&quot;)</span><br><span class="hljs-comment">// 可能丢数据（两个线程同时操作内部数组，覆盖彼此的写入）</span><br><br><span class="hljs-comment">// ✅ CopyOnWriteArrayList 线程安全</span><br>List&lt;<span class="hljs-type">String</span>&gt; list = <span class="hljs-keyword">new</span> CopyOnWriteArrayList&lt;&gt;();<br><span class="hljs-comment">// 线程 1：list.add(&quot;A&quot;)  → 内部：复制一份新数组，写入后再替换引用（慢，但安全）</span><br><span class="hljs-comment">// 线程 2：list.add(&quot;B&quot;)  → 同上</span><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>CopyOnWriteArrayList</code> 的原理：</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs markdown">写入时：<br><span class="hljs-bullet">  1.</span> 复制一份新数组（长度 = 旧数组.length + 1）<br><span class="hljs-bullet">  2.</span> 在新数组里写入数据<br><span class="hljs-bullet">  3.</span> 把内部引用指向新数组（volatile 保证可见性）<br><br>读取时：<br>  → 直接读当前引用指向的数组（不加锁，很快）<br></code></pre></td></tr></table></figure>
+
+<p><strong>优点：</strong> 读操作非常快（不加锁）<br><strong>缺点：</strong> 写操作很慢（每次都要复制数组），适合<strong>读多写少</strong>的场景（比如白名单、配置文件）。</p>
+<p><strong>面试回答：</strong></p>
+<blockquote>
+<p>“我们项目里其实没用 <code>CopyOnWriteArrayList</code>，用的是 <code>ArrayList</code>，因为：① 每个分片线程写入的是不同位置（<code>set(shardIndex, ...)</code>），没有并发写冲突；② <code>CountDownLatch.await()</code> 保证了主线程读取时所有分片都已经写完。如果要多个线程同时读写同一个 List，才需要用 <code>CopyOnWriteArrayList</code>（写时复制新数组，读时直接读不加锁），适合读多写少的场景（比如白名单）。”</p>
+</blockquote>
+<hr>
+<h2 id="第六层：开放设计题（架构设计）"><a href="#第六层：开放设计题（架构设计）" class="headerlink" title="第六层：开放设计题（架构设计）"></a>第六层：开放设计题（架构设计）</h2><h3 id="Q12：如果导出数据量很大（比如-1-亿条），你的方案能撑住吗？会出什么问题？"><a href="#Q12：如果导出数据量很大（比如-1-亿条），你的方案能撑住吗？会出什么问题？" class="headerlink" title="Q12：如果导出数据量很大（比如 1 亿条），你的方案能撑住吗？会出什么问题？"></a>Q12：如果导出数据量很大（比如 1 亿条），你的方案能撑住吗？会出什么问题？</h3><p><strong>答：</strong> 1 亿条数据用当前方案<strong>撑不住</strong>，会出多个问题，需要升级架构。</p>
+<p><strong>当前方案的问题（1 亿条时）：</strong></p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs tap">问题 1：DB 分页查询太慢<br>  → SELECT * FROM table LIMIT 90000000, 100000（偏移量<span class="hljs-number"> 9000 </span>万！）<br>  → MySQL 要遍历前<span class="hljs-number"> 9000 </span>万条记录，才能找到第<span class="hljs-number"> 9000 </span>万~9100 万条<br>  → 查询时间随偏移量增大而急剧增加（偏移<span class="hljs-number"> 9000 </span>万时可能要<span class="hljs-number"> 10 </span>秒+）<br><br>问题 2：汇总数据占用内存太大<br>  →<span class="hljs-number"> 1 </span>亿条数据，每条占<span class="hljs-number"> 200 </span>字节 → 20GB 内存！<br>  → 即使分片查询，汇总时也要把所有数据放在一个 List 里 → OOM<br><br>问题 3：单线程写出太慢<br>  →<span class="hljs-number"> 1 </span>亿条数据，FastExcel 写出可能需要<span class="hljs-number"> 10 </span>分钟+<br>  → HTTP 请求早就超时了<br></code></pre></td></tr></table></figure>
+
+<p><strong>升级方案 V2（解决 DB 分页慢的问题）：用</strong>主键分批查询<strong>代替 <code>LIMIT offset, size</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 慢：LIMIT 90000000, 100000（偏移量太大）</span><br>SELECT * FROM request_count ORDER BY id LIMIT <span class="hljs-number">90000000</span>, <span class="hljs-number">100000</span>;<br><br><span class="hljs-comment">// ✅ 快： WHERE id &gt; lastId（利用索引，恒定时间）</span><br><span class="hljs-type">long</span> <span class="hljs-variable">lastId</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br><span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>    List&lt;RequestCountDO&gt; batch = requestCountService.listByIdRange(lastId, BATCH_SIZE);<br>    <span class="hljs-keyword">if</span> (batch.isEmpty()) <span class="hljs-keyword">break</span>;<br>    lastId = batch.get(batch.size() - <span class="hljs-number">1</span>).getId();  <span class="hljs-comment">// 下一批的起始 ID</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>原理：</strong> <code>LIMIT offset, size</code> 的 offset 越大越慢（MySQL 要遍历前 offset 条记录）；<code>WHERE id &gt; lastId LIMIT size</code> 利用主键索引，无论 lastId 多大，查询时间恒定（毫秒级）。</p>
+<p><strong>升级方案 V3（解决汇总内存太大的问题）：</strong> 边查边写（流式处理），不汇总**</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs markdown">当前方案：<br><span class="hljs-bullet">  1.</span> 多线程查询所有分片 → 汇总到一个大 List（20GB 内存）<br><span class="hljs-bullet">  2.</span> 单线程 FastExcel 写出这个大 List<br><br>V3 方案（流式）：<br><span class="hljs-bullet">  1.</span> 多线程查询分片（不变）<br><span class="hljs-bullet">  2.</span> 每个分片查询完成后，<span class="hljs-strong">**立即写出到临时文件**</span>（不汇总）<br><span class="hljs-bullet">  3.</span> 所有分片写完后，合并临时文件成一个 Excel<br></code></pre></td></tr></table></figure>
+
+<p><strong>升级方案 V4（解决单线程写出慢的问题）：</strong> 用 <strong>异步导出 + 进度通知</strong></p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-number">1</span>. 用户点击<span class="hljs-string">&quot;导出&quot;</span> → 立即返回<span class="hljs-string">&quot;导出任务已创建，任务 ID = xxx&quot;</span><br><span class="hljs-number">2</span>. 后端异步执行导出（多线程查询 + 写出）<br><span class="hljs-number">3</span>. 导出完成后：<br>   → 方案 A：存到服务器，用户轮询<span class="hljs-string">&quot;导出状态接口&quot;</span>下载<br>   → 方案 <span class="hljs-keyword">B：通过 </span>WebSocket 推送<span class="hljs-string">&quot;导出完成&quot;</span>通知，附带下载链接<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答模板：</strong></p>
+<blockquote>
+<p>“1 亿条数据用当前方案撑不住，会有三个问题：① DB 分页查询太慢（<code>LIMIT offset, size</code> 偏移量大时很慢），要解决得用’主键分批查询’（<code>WHERE id &gt; lastId</code>）代替 LIMIT；② 汇总数据占用内存太大（1 亿条可能 20GB），要解决得用’边查边写’，不汇总全量数据；③ 单线程写出太慢，要解决得用’异步导出 + 进度通知’（用户点击导出后立即返回，后端异步执行，完成后通知用户下载）。”</p>
+</blockquote>
+<hr>
+<h3 id="Q13（附加）：如果让你设计一个”百万级数据导出系统”，支持并发导出、进度通知、失败重试，你会怎么设计？"><a href="#Q13（附加）：如果让你设计一个”百万级数据导出系统”，支持并发导出、进度通知、失败重试，你会怎么设计？" class="headerlink" title="Q13（附加）：如果让你设计一个”百万级数据导出系统”，支持并发导出、进度通知、失败重试，你会怎么设计？"></a>Q13（附加）：如果让你设计一个”百万级数据导出系统”，支持并发导出、进度通知、失败重试，你会怎么设计？</h3><p><strong>答：</strong> 这是一道<strong>系统设计题</strong>，要综合考虑性能、可靠性、用户体验。</p>
+<p><strong>完整方案：</strong></p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs routeros">┌─────────────────────────────────────────────────────┐<br>│                    导出系统架构                         │<br>├─────────────────────────────────────────────────────┤<br>│                                                     │<br>│  1. 用户点击<span class="hljs-string">&quot;导出&quot;</span>                                │<br>│     → 创建导出任务（<span class="hljs-attribute">status</span>=PROCESSING）              │<br>│     → 返回任务 ID 给前端                           │<br>│                                                     │<br>│  2. 后端异步执行导出（@Async 或 MQ）              │<br>│     → 多线程分片查询 DB                            │<br>│     → 进度更新：每完成一个分片，更新任务进度（10% → 50% → 100%） │<br>│     → 推送给前端（WebSocket 或轮询接口）             │<br>│                                                     │<br>│  3. 导出完成                                       │<br>│     → 更新任务状态（<span class="hljs-attribute">status</span>=SUCCESS，downloadUrl=xxx）│<br>│     → 通知用户（WebSocket 推送 + 站内信）           │<br>│                                                     │<br>│  4. 导出失败                                       │<br>│     → 更新任务状态（<span class="hljs-attribute">status</span>=FAILED，errorMsg=xxx）    │<br>│     → 重试：最多重试 3 次（指数退避）               │<br>│     → 3 次还失败 → 通知用户<span class="hljs-string">&quot;导出失败，请重试&quot;</span>        │<br>│                                                     │<br>│  5. 用户下载                                        │<br>│     → <span class="hljs-built_in">GET</span> /export/download?<span class="hljs-attribute">taskId</span>=xxx               │<br>│     → 返回 Excel 文件流                             │<br>│                                                     │<br>└─────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<p><strong>数据库设计（导出任务表）：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE TABLE</span> export_task (<br>    id <span class="hljs-type">BIGINT</span> <span class="hljs-keyword">PRIMARY KEY</span>,<br>    user_id <span class="hljs-type">BIGINT</span> <span class="hljs-keyword">NOT NULL</span>,           <span class="hljs-comment">-- 谁导出的</span><br>    task_type <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">50</span>) <span class="hljs-keyword">NOT NULL</span>,    <span class="hljs-comment">-- 导出类型（用户数据、订单数据...）</span><br>    status <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">NOT NULL</span>,       <span class="hljs-comment">-- PROCESSING / SUCCESS / FAILED</span><br>    progress <span class="hljs-type">INT</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-number">0</span>,            <span class="hljs-comment">-- 进度（0~100）</span><br>    download_url <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">500</span>),         <span class="hljs-comment">-- 下载链接（OSS/本地文件）</span><br>    error_msg TEXT,                   <span class="hljs-comment">-- 失败原因</span><br>    retry_count <span class="hljs-type">INT</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-number">0</span>,         <span class="hljs-comment">-- 已重试次数</span><br>    created_at DATETIME,<br>    updated_at DATETIME,<br>    INDEX idx_user_status (user_id, status)<br>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>进度通知（WebSocket 推送）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 后端：更新进度时推送</span><br><span class="hljs-meta">@Autowired</span><br><span class="hljs-keyword">private</span> SimpMessagingTemplate messagingTemplate;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateProgress</span><span class="hljs-params">(Long taskId, <span class="hljs-type">int</span> progress)</span> &#123;<br>    <span class="hljs-type">ExportTask</span> <span class="hljs-variable">task</span> <span class="hljs-operator">=</span> exportTaskService.getById(taskId);<br>    <br>    <span class="hljs-comment">// 推送给指定用户</span><br>    messagingTemplate.convertAndSendToUser(<br>        String.valueOf(task.getUserId()),<br>        <span class="hljs-string">&quot;/export/progress&quot;</span>,<br>        Map.of(<span class="hljs-string">&quot;taskId&quot;</span>, taskId, <span class="hljs-string">&quot;progress&quot;</span>, progress)<br>    );<br>&#125;<br><br><span class="hljs-comment">// 前端：订阅进度</span><br>stompClient.subscribe(<span class="hljs-string">&quot;/user/export/progress&quot;</span>, (message) =&gt; &#123;<br>    console.log(<span class="hljs-string">&quot;导出进度：&quot;</span> + message.body.progress + <span class="hljs-string">&quot;%&quot;</span>);<br>    updateProgressBar(message.body.progress);<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答模板：</strong></p>
+<blockquote>
+<p>“百万级数据导出系统，我会这样设计：① 用户点击导出后立即返回任务 ID，后端异步执行（@Async 或 MQ），不阻塞用户操作；② 导出任务存数据库（状态、进度、下载链接），支持查询导出状态；③ 多线程分片查询 DB（用主键分批代替 LIMIT offset），边查边写临时文件（不汇总全量数据，防 OOM）；④ 进度通过 WebSocket 推送给前端（<code>/user/export/progress</code>），用户能看到’当前进度 60%’；⑤ 导出完成后通知用户下载，失败则重试 3 次（指数退避），还失败就通知用户’导出失败，请重试’。”</p>
+</blockquote>
+<hr>
+<h2 id="总结：简历上这句话的面试回答模板"><a href="#总结：简历上这句话的面试回答模板" class="headerlink" title="总结：简历上这句话的面试回答模板"></a>总结：简历上这句话的面试回答模板</h2><blockquote>
+<p><strong>面试官</strong>：”你的简历上写了’FastExcel + 线程池 + CountDownLatch 实现并发导出，性能提升 2.5 倍’，你能详细讲一下吗？”</p>
+</blockquote>
+<p><strong>回答模板（背下来！）：</strong></p>
+<blockquote>
+<p>“好的。百万级数据导出的瓶颈在 DB 查询（I&#x2F;O 阻塞），单线程导出要 3.5 秒（逐页查询，总耗时是各页之和）。</p>
+<p><strong>分片并发方案</strong>：先查总记录数，按每片 20 万条计算分片数（比如 100 万条 &#x3D; 5 个分片），用自定义线程池（8 核心线程，I&#x2F;O 密集型选 2×CPU）并发执行分片查询。</p>
+<p><strong>线程池设计</strong>：用 ArrayBlockingQueue 有界队列（长度 &#x3D; 分片数 + 1）防止 OOM，配合 CallerRunsPolicy 实现背压（线程池满了就让 HTTP 线程自己执行，自然限速）。</p>
+<p><strong>等待所有分片完成</strong>：用 CountDownLatch（计数器 &#x3D; 分片数），主线程调 <code>await()</code> 阻塞等待，每个分片完成后 <code>countDown()</code>，等所有分片完成（计数器 &#x3D; 0）才继续汇总。</p>
+<p><strong>单线程写出</strong>：FastExcel 底层是 Apache POI 的 SXSSFWorkbook，非线程安全，多线程同时写会文件损坏，所以汇总后单线程写出。</p>
+<p><strong>性能提升</strong>：3.5s → 1.4s，提升 2.5 倍，瓶颈从 DB 查询转移到了写出。如果数据量更大（比如 1 亿条），会用’主键分批查询’代替 LIMIT offset，并改成’异步导出 + 进度通知’的方案。”</p>
+</blockquote>
+<hr>
+<p><strong>全部三篇面试拷打已完成！🎉<br>访问你的博客查看完整内容：</strong></p>
+<ul>
+<li>① RabbitMQ 异步解耦：<a href="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-rabbitmq-qa/">https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-rabbitmq-qa/</a></li>
+<li>② 策略模式 + WebSocket：<a href="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-strategy-websocket-qa/">https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-strategy-websocket-qa/</a></li>
+<li>③ FastExcel 并发导出：<a href="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-fastexcel-qa/">https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-fastexcel-qa/</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/" class="print-no-link">#字节跳动</a>
+      
+        <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" class="print-no-link">#并发编程</a>
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/" class="print-no-link">#技术派</a>
+      
+        <a href="/tags/FastExcel/" class="print-no-link">#FastExcel</a>
+      
+        <a href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" class="print-no-link">#线程池</a>
+      
+        <a href="/tags/CountDownLatch/" class="print-no-link">#CountDownLatch</a>
+      
+        <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="print-no-link">#性能优化</a>
+      
+        <a href="/tags/ArrayBlockingQueue/" class="print-no-link">#ArrayBlockingQueue</a>
+      
+        <a href="/tags/CallerRunsPolicy/" class="print-no-link">#CallerRunsPolicy</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-fastexcel-qa/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-knowflow-upload-qa/" title="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-strategy-websocket-qa/" title="技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送">
+                        <span class="hidden-mobile">技术派面试拷打②：策略模式 + 工厂模式 + WebSocket 流式推送</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

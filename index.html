@@ -1,0 +1,1105 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta property="og:type" content="website">
+<meta property="og:title" content="WhyAlwaysMe 的树洞">
+<meta property="og:url" content="https://whyalwaysme.lol/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="看见即慈悲"></span>
+          
+        </div>
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      <div class="container nopadding-x-md">
+        <div id="board"
+          style="margin-top: 0">
+          
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-md-10 m-auto">
+                
+
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-08-devlink-fastexcel-learn/" target="_self">
+          技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-devlink-fastexcel-learn/" target="_self">
+        <div>
+          技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析） 本篇是「高标准严要求」版本，基于 StatisticsSettingServiceImpl.java 逐行解析，不遗漏任何细节。适合面试前通读，确保被拷问时能对答如流。   一、先搞懂：为什么要做”并发导出”？1.1 不用并发时的问题假设你要导出 100 万条数据到 Excel： 123456不用并发（单线
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 23:30" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">#并发编程</a>
+            
+              <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/">#技术派</a>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">#学习笔记</a>
+            
+              <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/">#傻子都能懂</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E7%BA%A7/">#源码级</a>
+            
+              <a href="/tags/%E9%AB%98%E6%A0%87%E5%87%86/">#高标准</a>
+            
+              <a href="/tags/FastExcel/">#FastExcel</a>
+            
+              <a href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/">#线程池</a>
+            
+              <a href="/tags/CountDownLatch/">#CountDownLatch</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-08-devlink-strategy-websocket-learn/" target="_self">
+          技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析）
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-devlink-strategy-websocket-learn/" target="_self">
+        <div>
+          技术派项目学习笔记（三）· 高标准：策略模式 + WebSocket 流式推送（源码级深度解析） 本篇是「高标准严要求」版本，基于 ChatService.java、ChatServiceFactory.java、ChatGptAiServiceImpl.java、WsChatConfig.java、ChatRestController.java、WsAnswerHelper.java 逐行解析，
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 23:00" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/">#技术派</a>
+            
+              <a href="/tags/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">#策略模式</a>
+            
+              <a href="/tags/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">#工厂模式</a>
+            
+              <a href="/tags/WebSocket/">#WebSocket</a>
+            
+              <a href="/tags/STOMP/">#STOMP</a>
+            
+              <a href="/tags/LLM/">#LLM</a>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">#学习笔记</a>
+            
+              <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/">#傻子都能懂</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E7%BA%A7/">#源码级</a>
+            
+              <a href="/tags/%E9%AB%98%E6%A0%87%E5%87%86/">#高标准</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-08-devlink-rabbitmq-learn/" target="_self">
+          技术派项目学习笔记（二）· 高标准：RabbitMQ 异步解耦与消息可靠性（源码级深度解析）
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-devlink-rabbitmq-learn/" target="_self">
+        <div>
+          技术派项目学习笔记（二）· 高标准：RabbitMQ 异步解耦与消息可靠性（源码级深度解析） 本篇是「高标准严要求」版本，基于 RabbitmqServiceImpl.java 逐行解析，不遗漏任何细节。适合面试前通读，确保被拷问时能对答如流。   一、先搞懂：为什么要引入消息队列？1.1 没有消息队列时的问题假设用户点赞了一篇文章，系统需要完成以下事情： 1234567891011用户点赞  ↓
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 22:30" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/">#技术派</a>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">#学习笔记</a>
+            
+              <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/">#傻子都能懂</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E7%BA%A7/">#源码级</a>
+            
+              <a href="/tags/%E9%AB%98%E6%A0%87%E5%87%86/">#高标准</a>
+            
+              <a href="/tags/RabbitMQ/">#RabbitMQ</a>
+            
+              <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">#消息队列</a>
+            
+              <a href="/tags/%E5%BC%82%E6%AD%A5%E8%A7%A3%E8%80%A6/">#异步解耦</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-08-knowflow-security-deployment-learn/" target="_self">
+          KnowFlow 项目学习笔记（三）：安全 + 部署深度解析
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-knowflow-security-deployment-learn/" target="_self">
+        <div>
+          写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解安全机制（JWT 认证、RBAC 权限控制、组织标签授权）和部署方案（K8s、Prometheus 监控）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、安全机制概述傻子都能懂的解释： 想象你是一个网站的老板：  认证（Authentication）：确认用户是谁
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 22:15" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DevLink%E9%9D%A2%E8%AF%95%E6%89%8B%E5%86%8C/" class="category-chain-item">DevLink面试手册</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/KnowFlow/">#KnowFlow</a>
+            
+              <a href="/tags/Prometheus/">#Prometheus</a>
+            
+              <a href="/tags/JWT/">#JWT</a>
+            
+              <a href="/tags/RBAC/">#RBAC</a>
+            
+              <a href="/tags/K8s/">#K8s</a>
+            
+              <a href="/tags/Spring-Security/">#Spring Security</a>
+            
+              <a href="/tags/%E5%AE%89%E5%85%A8/">#安全</a>
+            
+              <a href="/tags/%E9%83%A8%E7%BD%B2/">#部署</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-08-knowflow-hybrid-search-learn/" target="_self">
+          KnowFlow 项目学习笔记（二）：混合检索深度解析
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-knowflow-hybrid-search-learn/" target="_self">
+        <div>
+          写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解混合检索的实现细节（向量检索 + 文本匹配、KNN 召回、BM25 Rescore、权限过滤）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是混合检索？傻子都能懂的解释： 想象你要在知识库里搜索”如何学习 Java”：  传统搜索（只用文本匹配）：搜索”如何
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 22:00" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DevLink%E9%9D%A2%E8%AF%95%E6%89%8B%E5%86%8C/" class="category-chain-item">DevLink面试手册</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/KnowFlow/">#KnowFlow</a>
+            
+              <a href="/tags/Elasticsearch/">#Elasticsearch</a>
+            
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/">#向量检索</a>
+            
+              <a href="/tags/%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2/">#混合检索</a>
+            
+              <a href="/tags/BM25/">#BM25</a>
+            
+              <a href="/tags/KNN/">#KNN</a>
+            
+              <a href="/tags/%E6%9D%83%E9%99%90%E8%BF%87%E6%BB%A4/">#权限过滤</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-08-knowflow-upload-pipeline-learn/" target="_self">
+          KnowFlow 项目学习笔记（一）：上传流水线深度解析
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-knowflow-upload-pipeline-learn/" target="_self">
+        <div>
+          写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解文件上传流水线的实现细节（分片上传、断点续传、MinIO 存储、Redis Bitmap 去重）。并指出源码里的 4 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是上传流水线？傻子都能懂的解释： 想象你要上传一个 100MB 的文件到服务器：  传统方式：直接上传整个文件，如果
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 21:45" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DevLink%E9%9D%A2%E8%AF%95%E6%89%8B%E5%86%8C/" class="category-chain-item">DevLink面试手册</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/KnowFlow/">#KnowFlow</a>
+            
+              <a href="/tags/MinIO/">#MinIO</a>
+            
+              <a href="/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">#文件上传</a>
+            
+              <a href="/tags/%E5%88%86%E7%89%87%E4%B8%8A%E4%BC%A0/">#分片上传</a>
+            
+              <a href="/tags/Redis-Bitmap/">#Redis Bitmap</a>
+            
+              <a href="/tags/%E6%96%AD%E7%82%B9%E7%BB%AD%E4%BC%A0/">#断点续传</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-07-algorithm-interview-deep/" target="_self">
+          算法面试八股文——30道LeetCode高频题（BAT面试必刷）
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-07-algorithm-interview-deep/" target="_self">
+        <div>
+          写在前面：本文精选 LeetCode Hot 100 + 面试150 中 BAT 大厂最高频的 30 道题，每道题都配有一句话总结 + 深度解析 + 面试加分回答 + 完整代码。背下这 30 道，算法面试过关率 80%+。   目录 【数组&#x2F;哈希表】两数之和 【数组&#x2F;双指针】盛最多水的容器 【数组&#x2F;滑动窗口】无重复字符的最长子串 【数组&#x2F;滑动窗口】最小覆盖
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 21:30" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/" class="category-chain-item">面试准备</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E9%9D%A2%E8%AF%95/">#面试</a>
+            
+              <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/">#八股文</a>
+            
+              <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+            
+              <a href="/tags/LeetCode/">#LeetCode</a>
+            
+              <a href="/tags/%E9%AB%98%E9%A2%91%E9%A2%98/">#高频题</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-08-devlink-cache-strategies-learn/" target="_self">
+          技术派项目学习笔记（一）：三种缓存策略深度解析
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-devlink-cache-strategies-learn/" target="_self">
+        <div>
+          写在前面：本学习笔记基于技术派（PaiCoding）项目源码逐行解析，深度讲解三种缓存策略（Write Through、Write Back、Cache Aside）的实现细节、优缺点、适用场景。并指出源码里的 5 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、项目背景：高并发互动场景的缓存设计技术派项目面临的高并发互动场景：  阅读量计数：用户每浏览
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 21:30" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DevLink%E9%9D%A2%E8%AF%95%E6%89%8B%E5%86%8C/" class="category-chain-item">DevLink面试手册</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/">#技术派</a>
+            
+              <a href="/tags/%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5/">#缓存策略</a>
+            
+              <a href="/tags/Write-Through/">#Write Through</a>
+            
+              <a href="/tags/Write-Back/">#Write Back</a>
+            
+              <a href="/tags/Cache-Aside/">#Cache Aside</a>
+            
+              <a href="/tags/Redis-Pipeline/">#Redis Pipeline</a>
+            
+              <a href="/tags/%E4%B8%BB%E4%BB%8E%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB/">#主从读写分离</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-08-knowflow-security-qa/" target="_self">
+          KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-knowflow-security-qa/" target="_self">
+        <div>
+          KnowFlow ③ 八股文：Spring Security + JWT + K8s 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Spring Security 基础（5 道）Q1：Spring Security 是做什么的？你们项目怎么配置的？答： Spring Security 是 Spring 的安全框架，负责认证（你是谁？） 和 授权（你
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 20:50" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/KnowFlow/">#KnowFlow</a>
+            
+              <a href="/tags/%E9%9D%A2%E8%AF%95/">#面试</a>
+            
+              <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/">#八股文</a>
+            
+              <a href="/tags/JWT/">#JWT</a>
+            
+              <a href="/tags/RBAC/">#RBAC</a>
+            
+              <a href="/tags/K8s/">#K8s</a>
+            
+              <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/">#云原生</a>
+            
+              <a href="/tags/Spring-Security/">#Spring Security</a>
+            
+              <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/">#字节跳动</a>
+            
+              <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/">#傻子都能懂</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/08/2026-06-08-knowflow-search-qa/" target="_self">
+          KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF）
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-knowflow-search-qa/" target="_self">
+        <div>
+          KnowFlow ② 八股文：Elasticsearch 混合检索 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Elasticsearch 基础（5 道）Q1：Elasticsearch 是什么？和 MySQL 有什么区别？答： Elasticsearch（简称 ES）是一个分布式全文搜索引擎，底层用 Lucene，擅长模糊搜索、全文检索、向量检
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 20:40" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/KnowFlow/">#KnowFlow</a>
+            
+              <a href="/tags/Elasticsearch/">#Elasticsearch</a>
+            
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/">#向量检索</a>
+            
+              <a href="/tags/RAG/">#RAG</a>
+            
+              <a href="/tags/%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2/">#混合检索</a>
+            
+              <a href="/tags/%E9%9D%A2%E8%AF%95/">#面试</a>
+            
+              <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/">#八股文</a>
+            
+              <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/">#字节跳动</a>
+            
+              <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/">#傻子都能懂</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

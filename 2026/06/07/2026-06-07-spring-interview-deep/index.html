@@ -1,0 +1,1232 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="Q37：拦截器（Interceptor）和过滤器（Filter）的区别？一句话总结：Filter 是 Servlet 规范，拦截所有 HTTP 请求；Interceptor 是 Spring MVC 规范，只拦截进入 Controller 的请求。执行顺序是：Filter → Interceptor → Controller。 深度解析： 想象你去办证件：  Filter（过滤器）：像大门保安，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WhyAlwaysMe 的树洞">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-spring-interview-deep/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="Q37：拦截器（Interceptor）和过滤器（Filter）的区别？一句话总结：Filter 是 Servlet 规范，拦截所有 HTTP 请求；Interceptor 是 Spring MVC 规范，只拦截进入 Controller 的请求。执行顺序是：Filter → Interceptor → Controller。 深度解析： 想象你去办证件：  Filter（过滤器）：像大门保安，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T13:25:22.373Z">
+<meta property="article:modified_time" content="2026-06-08T18:19:48.083Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text=""></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-07 21:25" pubdate>
+          2026年6月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          65 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header"></h1>
+            
+            
+              <div class="markdown-body">
+                
+                <hr>
+<h3 id="Q37：拦截器（Interceptor）和过滤器（Filter）的区别？"><a href="#Q37：拦截器（Interceptor）和过滤器（Filter）的区别？" class="headerlink" title="Q37：拦截器（Interceptor）和过滤器（Filter）的区别？"></a>Q37：拦截器（Interceptor）和过滤器（Filter）的区别？</h3><p><strong>一句话总结</strong>：<strong>Filter 是 Servlet 规范</strong>，拦截所有 HTTP 请求；<strong>Interceptor 是 Spring MVC 规范</strong>，只拦截进入 Controller 的请求。执行顺序是：<strong>Filter → Interceptor → Controller</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p>想象你去办证件：</p>
+<ul>
+<li><strong>Filter（过滤器）</strong>：像大门保安，所有进大楼的人（所有 HTTP 请求）都要经过他检查。</li>
+<li><strong>Interceptor（拦截器）</strong>：像楼层前台，只有去特定楼层（Controller）的人才会被他检查。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Filter（Servlet 规范，web.xml 或 @WebFilter 配置）</span><br><span class="hljs-meta">@WebFilter(&quot;/*&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Filter</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doFilter</span><span class="hljs-params">(ServletRequest request, ServletResponse response, FilterChain chain)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;Filter：请求进入&quot;</span>);<br>        chain.doFilter(request, response);  <span class="hljs-comment">// 放行</span><br>        System.out.println(<span class="hljs-string">&quot;Filter：响应返回&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// Interceptor（Spring MVC 规范，实现 HandlerInterceptor）</span><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyInterceptor</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">HandlerInterceptor</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">preHandle</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;Interceptor：进入 Controller 前&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;  <span class="hljs-comment">// 返回 true 放行，false 拦截</span><br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">postHandle</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;Interceptor：Controller 执行后，视图渲染前&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">afterCompletion</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;Interceptor：视图渲染后（可处理异常）&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>执行顺序图</strong>：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs stylus">HTTP 请求<br>   ↓<br>Filter<span class="hljs-selector-class">.doFilter</span> (所有请求)<br>   ↓<br>DispatcherServlet<br>   ↓<br>Interceptor<span class="hljs-selector-class">.preHandle</span> (只拦截 Controller)<br>   ↓<br>Controller 方法执行<br>   ↓<br>Interceptor<span class="hljs-selector-class">.postHandle</span><br>   ↓<br>Interceptor<span class="hljs-selector-class">.afterCompletion</span><br>   ↓<br>Filter<span class="hljs-selector-class">.doFilter</span> 返回<br>   ↓<br>HTTP 响应<br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Filter</th>
+<th>Interceptor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>规范</td>
+<td>Servlet 规范（Java EE）</td>
+<td>Spring MVC 规范</td>
+</tr>
+<tr>
+<td>拦截范围</td>
+<td>所有 HTTP 请求（包括静态资源）</td>
+<td>只拦截进入 Controller 的请求</td>
+</tr>
+<tr>
+<td>注入 Spring Bean</td>
+<td>不能直接注入（需用 WebApplicationContext 获取）</td>
+<td>可以直接注入（是 Spring 管理的 Bean）</td>
+</tr>
+<tr>
+<td>执行时机</td>
+<td>最外层（最早执行，最晚结束）</td>
+<td>DispatcherServlet 内部（Controller 前后）</td>
+</tr>
+<tr>
+<td>配置方式</td>
+<td>@WebFilter 或 web.xml</td>
+<td>实现 WebMvcConfigurer 的 addInterceptors</td>
+</tr>
+</tbody></table>
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>Filter 和 Interceptor 的核心区别是<strong>规范不同、拦截范围不同</strong>。Filter 是 Servlet 规范，拦截所有请求；Interceptor 是 Spring MVC 规范，只拦截 Controller 请求。实际项目中，登录校验、权限校验用 Interceptor 更方便（可以直接注入 TokenService 等 Bean），而编码转换、CORS 处理用 Filter 更合适（在 Spring 之前执行）。</p>
+</blockquote>
+<hr>
+<h3 id="Q38：Spring-Boot-Actuator-是做什么的？有哪些常用端点？"><a href="#Q38：Spring-Boot-Actuator-是做什么的？有哪些常用端点？" class="headerlink" title="Q38：Spring Boot Actuator 是做什么的？有哪些常用端点？"></a>Q38：Spring Boot Actuator 是做什么的？有哪些常用端点？</h3><p><strong>一句话总结</strong>：<strong>Actuator 是 Spring Boot 的监控神器</strong>，提供了很多开箱即用的端点（Endpoint），可以查看应用的健康状态、配置信息、Bean 信息、内存使用情况等，是<strong>生产环境监控的标配</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p>想象你的应用是一辆车，Actuator 就是<strong>仪表盘</strong>，实时显示车速、油量、水温、发动机状态……</p>
+<p><strong>常用端点（Endpoint）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>说明</th>
+<th>是否默认开启</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/actuator/health</code></td>
+<td>应用健康状态（磁盘空间、数据库、Redis 等）</td>
+<td>✅ 开启</td>
+</tr>
+<tr>
+<td><code>/actuator/info</code></td>
+<td>应用自定义信息（版本号、描述等）</td>
+<td>✅ 开启</td>
+</tr>
+<tr>
+<td><code>/actuator/beans</code></td>
+<td>容器中所有的 Bean</td>
+<td>❌ 关闭</td>
+</tr>
+<tr>
+<td><code>/actuator/configprops</code></td>
+<td>所有的配置属性</td>
+<td>❌ 关闭</td>
+</tr>
+<tr>
+<td><code>/actuator/env</code></td>
+<td>环境变量和配置文件属性</td>
+<td>❌ 关闭</td>
+</tr>
+<tr>
+<td><code>/actuator/mappings</code></td>
+<td>所有的 @RequestMapping 路径</td>
+<td>❌ 关闭</td>
+</tr>
+<tr>
+<td><code>/actuator/metrics</code></td>
+<td>性能指标（JVM 内存、GC、线程池等）</td>
+<td>❌ 关闭</td>
+</tr>
+<tr>
+<td><code>/actuator/threaddump</code></td>
+<td>线程快照（类似 jstack）</td>
+<td>❌ 关闭</td>
+</tr>
+<tr>
+<td><code>/actuator/heapdump</code></td>
+<td>堆转储文件（类似 jmap）</td>
+<td>❌ 关闭</td>
+</tr>
+</tbody></table>
+<p><strong>启用方式</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># application.yml</span><br><span class="hljs-attr">management:</span><br>  <span class="hljs-attr">endpoints:</span><br>    <span class="hljs-attr">web:</span><br>      <span class="hljs-attr">exposure:</span><br>        <span class="hljs-attr">include:</span> <span class="hljs-string">health,info,beans,env,metrics,threaddump</span>  <span class="hljs-comment"># 暴露哪些端点</span><br>  <span class="hljs-attr">endpoint:</span><br>    <span class="hljs-attr">health:</span><br>      <span class="hljs-attr">show-details:</span> <span class="hljs-string">always</span>  <span class="hljs-comment"># 显示健康详情（默认 never）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>示例：查看应用健康状态</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 请求</span><br>curl http://localhost:8080/actuator/health<br><br><span class="hljs-comment"># 响应</span><br>&#123;<br>  <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;UP&quot;</span>,<br>  <span class="hljs-string">&quot;components&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;db&quot;</span>: &#123; <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;UP&quot;</span>, <span class="hljs-string">&quot;details&quot;</span>: &#123; <span class="hljs-string">&quot;database&quot;</span>: <span class="hljs-string">&quot;MySQL&quot;</span>, <span class="hljs-string">&quot;version&quot;</span>: <span class="hljs-string">&quot;8.0.33&quot;</span> &#125; &#125;,<br>    <span class="hljs-string">&quot;diskSpace&quot;</span>: &#123; <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;UP&quot;</span>, <span class="hljs-string">&quot;details&quot;</span>: &#123; <span class="hljs-string">&quot;total&quot;</span>: 500000000, <span class="hljs-string">&quot;free&quot;</span>: 300000000 &#125; &#125;,<br>    <span class="hljs-string">&quot;redis&quot;</span>: &#123; <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;UP&quot;</span>, <span class="hljs-string">&quot;details&quot;</span>: &#123; <span class="hljs-string">&quot;version&quot;</span>: <span class="hljs-string">&quot;6.2.6&quot;</span> &#125; &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>自定义健康检查</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomHealthIndicator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">HealthIndicator</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Health <span class="hljs-title function_">health</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 检查第三方服务是否可用</span><br>        <span class="hljs-keyword">if</span> (isThirdPartyServiceUp()) &#123;<br>            <span class="hljs-keyword">return</span> Health.up().withDetail(<span class="hljs-string">&quot;service&quot;</span>, <span class="hljs-string">&quot;第三方服务正常&quot;</span>).build();<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> Health.down().withDetail(<span class="hljs-string">&quot;service&quot;</span>, <span class="hljs-string">&quot;第三方服务不可用&quot;</span>).build();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>Actuator 是 Spring Boot 生产就绪（Production-ready）的核心功能。除了监控，Actuator 还支持<strong>自定义端点</strong>（@Endpoint 注解）、<strong>集成 Prometheus + Grafana</strong>（通过 micrometer）实现可视化监控。在微服务架构中，Actuator 的 <code>/actuator/health</code> 端点通常被 Kubernetes 的存活探针（liveness probe）和就绪探针（readiness probe）调用，决定 Pod 是否需要重启或是否接收流量。</p>
+</blockquote>
+<hr>
+<h3 id="Q39：Spring-中的-Value-和-ConfigurationProperties-有什么区别？"><a href="#Q39：Spring-中的-Value-和-ConfigurationProperties-有什么区别？" class="headerlink" title="Q39：Spring 中的 @Value 和 @ConfigurationProperties 有什么区别？"></a>Q39：Spring 中的 @Value 和 @ConfigurationProperties 有什么区别？</h3><p><strong>一句话总结</strong>：<strong>@Value 适合注入单个属性</strong>，<strong>@ConfigurationProperties 适合批量绑定属性</strong>（类型安全、支持校验、支持复杂类型）。</p>
+<p><strong>深度解析</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># application.yml</span><br><span class="hljs-attr">app:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">我的应用</span><br>  <span class="hljs-attr">max-connections:</span> <span class="hljs-number">100</span><br>  <span class="hljs-attr">timeout:</span> <span class="hljs-string">5000ms</span><br>  <span class="hljs-attr">servers:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.1</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.2</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>方式一：@Value（注入单个属性）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AppConfig</span> &#123;<br>    <span class="hljs-meta">@Value(&quot;$&#123;app.name&#125;&quot;)</span><br>    <span class="hljs-keyword">private</span> String appName;<br>    <br>    <span class="hljs-meta">@Value(&quot;$&#123;app.max-connections&#125;&quot;)</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> maxConnections;<br>    <br>    <span class="hljs-meta">@Value(&quot;$&#123;app.timeout:3000&#125;&quot;)</span>  <span class="hljs-comment">// 冒号后面是默认值</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> timeout;<br>    <br>    <span class="hljs-comment">// 问题：无法直接将 servers 绑定为 List&lt;String&gt;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>方式二：@ConfigurationProperties（批量绑定，推荐）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-meta">@ConfigurationProperties(prefix = &quot;app&quot;)</span>  <span class="hljs-comment">// 绑定前缀为 app 的所有属性</span><br><span class="hljs-meta">@Data</span>  <span class="hljs-comment">// Lombok 自动生成 getter/setter</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AppProperties</span> &#123;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> maxConnections;<br>    <span class="hljs-keyword">private</span> Duration timeout;  <span class="hljs-comment">// 支持 Duration 类型（自动解析 5000ms）</span><br>    <span class="hljs-keyword">private</span> List&lt;String&gt; servers;  <span class="hljs-comment">// 支持 List、Map 等复杂类型</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>@Value</th>
+<th>@ConfigurationProperties</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>绑定方式</td>
+<td>逐个绑定（@Value(“${key}”)）</td>
+<td>批量绑定（prefix + 字段名自动匹配）</td>
+</tr>
+<tr>
+<td>类型安全</td>
+<td>❌ 不支持（key 写错编译不报错）</td>
+<td>✅ 支持（字段名和配置文件自动匹配）</td>
+</tr>
+<tr>
+<td>复杂类型</td>
+<td>❌ 不支持（List、Map 需自定义转换器）</td>
+<td>✅ 支持（List、Map、嵌套对象）</td>
+</tr>
+<tr>
+<td>数据校验</td>
+<td>❌ 不支持</td>
+<td>✅ 支持（@Validated + @NotNull 等）</td>
+</tr>
+<tr>
+<td>默认值</td>
+<td>支持（${key:defaultValue}）</td>
+<td>不支持（字段类型为包装类，未配置即为 null）</td>
+</tr>
+<tr>
+<td>推荐场景</td>
+<td>注入少量零散配置</td>
+<td>绑定一组相关配置（如数据库连接池配置）</td>
+</tr>
+</tbody></table>
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>@ConfigurationProperties 的核心优势是<strong>类型安全</strong>和<strong>支持复杂类型</strong>。实际项目中，所有的<strong>自定义配置</strong>都应该用 @ConfigurationProperties（创建一个 <code>XxxProperties</code> 类），所有的<strong>零散配置</strong>（如 @Value(“${app.version}”)）才用 @Value。另外，@ConfigurationProperties 支持 JSR-303 校验（@Validated + @NotNull），可以在应用启动时就能发现配置错误，而不是运行时才报错。</p>
+</blockquote>
+<hr>
+<h3 id="Q40：Spring-Boot-中的-Profile-是做什么的？如何切换？"><a href="#Q40：Spring-Boot-中的-Profile-是做什么的？如何切换？" class="headerlink" title="Q40：Spring Boot 中的 Profile 是做什么的？如何切换？"></a>Q40：Spring Boot 中的 Profile 是做什么的？如何切换？</h3><p><strong>一句话总结</strong>：<strong>Profile 用来区分不同环境的配置</strong>（开发、测试、生产），通过 <code>spring.profiles.active</code> 指定当前激活的 Profile，Spring Boot 会自动加载对应的配置文件（如 <code>application-dev.yml</code>）。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>多环境配置的结构</strong>：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs applescript">src/main/resources/<br>├── <span class="hljs-built_in">application</span>.yml           <span class="hljs-comment"># 公共配置（所有环境共享）</span><br>├── <span class="hljs-built_in">application</span>-dev.yml       <span class="hljs-comment"># 开发环境配置</span><br>├── <span class="hljs-built_in">application</span>-test.yml      <span class="hljs-comment"># 测试环境配置</span><br>└── <span class="hljs-built_in">application</span>-prod.yml     <span class="hljs-comment"># 生产环境配置</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># application.yml（公共配置）</span><br><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">application:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">my-app</span><br>  <span class="hljs-attr">profiles:</span><br>    <span class="hljs-attr">active:</span> <span class="hljs-string">dev</span>  <span class="hljs-comment"># 默认激活 dev 环境（可以被命令行覆盖）</span><br><br><span class="hljs-attr">server:</span><br>  <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span>  <span class="hljs-comment"># 所有环境共享</span><br><br><span class="hljs-meta">---</span><br><span class="hljs-comment"># application-dev.yml（开发环境）</span><br><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">config:</span><br>    <span class="hljs-attr">activate:</span><br>      <span class="hljs-attr">on-profile:</span> <span class="hljs-string">dev</span><br><br><span class="hljs-attr">server:</span><br>  <span class="hljs-attr">port:</span> <span class="hljs-number">8081</span>  <span class="hljs-comment"># 开发环境端口</span><br><br><span class="hljs-attr">app:</span><br>  <span class="hljs-attr">datasource:</span><br>    <span class="hljs-attr">url:</span> <span class="hljs-string">jdbc:mysql://localhost:3306/dev_db</span><br>    <span class="hljs-attr">username:</span> <span class="hljs-string">root</span><br>    <span class="hljs-attr">password:</span> <span class="hljs-string">root</span><br><br><span class="hljs-meta">---</span><br><span class="hljs-comment"># application-prod.yml（生产环境）</span><br><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">config:</span><br>    <span class="hljs-attr">activate:</span><br>      <span class="hljs-attr">on-profile:</span> <span class="hljs-string">prod</span><br><br><span class="hljs-attr">app:</span><br>  <span class="hljs-attr">datasource:</span><br>    <span class="hljs-attr">url:</span> <span class="hljs-string">jdbc:mysql://prod-db:3306/prod_db</span><br>    <span class="hljs-attr">username:</span> <span class="hljs-string">$&#123;DB_USERNAME&#125;</span>  <span class="hljs-comment"># 从环境变量读取（生产环境密码不能写死）</span><br>    <span class="hljs-attr">password:</span> <span class="hljs-string">$&#123;DB_PASSWORD&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>切换 Profile 的三种方式</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 方式一：命令行参数（优先级最高，推荐使用）</span><br>java -jar my-app.jar --spring.profiles.active=prod<br><br><span class="hljs-comment"># 方式二：环境变量</span><br><span class="hljs-built_in">export</span> SPRING_PROFILES_ACTIVE=prod<br>java -jar my-app.jar<br><br><span class="hljs-comment"># 方式三：修改 application.yml（不推荐，需要重新打包）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>@Profile 注解（按环境加载 Bean）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 只在 dev 环境下加载这个 Bean</span><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@Profile(&quot;dev&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DevConfig</span> &#123;<br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">dataSource</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HikariDataSource</span>();  <span class="hljs-comment">// 开发环境用 HikariCP</span><br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 只在 prod 环境下加载这个 Bean</span><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@Profile(&quot;prod&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProdConfig</span> &#123;<br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">dataSource</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DruidDataSource</span>();  <span class="hljs-comment">// 生产环境用 Druid</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>Profile 的核心价值是<strong>环境隔离</strong>。实际项目中，一定要注意：<strong>生产环境的配置文件不能提交到 Git</strong>（可能包含数据库密码、API 密钥等敏感信息）！正确的做法是：生产环境配置通过<strong>环境变量</strong>或<strong>命令行参数</strong>传入，或者使用<strong>配置中心</strong>（如 Nacos、Apollo）统一管理。另外，<code>spring.profiles.active</code> 的优先级是：命令行参数 &gt; 环境变量 &gt; application.yml，所以生产环境用命令行指定 Profile 是最安全的。</p>
+</blockquote>
+<hr>
+<h3 id="Q41：Spring-中-WebClient-和-RestTemplate-的区别？"><a href="#Q41：Spring-中-WebClient-和-RestTemplate-的区别？" class="headerlink" title="Q41：Spring 中 WebClient 和 RestTemplate 的区别？"></a>Q41：Spring 中 WebClient 和 RestTemplate 的区别？</h3><p><strong>一句话总结</strong>：<strong>RestTemplate 是同步阻塞的</strong>（已不推荐），<strong>WebClient 是异步非阻塞的</strong>（基于 Project Reactor，支持响应式编程），是 Spring 5 引入的新一代 HTTP 客户端。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>RestTemplate（同步阻塞，已 deprecated）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// RestTemplate（Spring 3 引入，Spring 5 标记为 deprecated）</span><br><span class="hljs-type">RestTemplate</span> <span class="hljs-variable">restTemplate</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RestTemplate</span>();<br><br><span class="hljs-comment">// 同步调用：线程会阻塞，直到收到响应</span><br><span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> restTemplate.getForObject(<span class="hljs-string">&quot;https://api.example.com/users/1&quot;</span>, User.class);<br>System.out.println(user);  <span class="hljs-comment">// 只有收到响应后才会执行这里</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>WebClient（异步非阻塞，推荐）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// WebClient（Spring 5 引入，基于 Reactor）</span><br><span class="hljs-type">WebClient</span> <span class="hljs-variable">webClient</span> <span class="hljs-operator">=</span> WebClient.create();<br><br><span class="hljs-comment">// 异步调用：线程不会阻塞，立即返回 Mono&lt;User&gt;</span><br>Mono&lt;User&gt; userMono = webClient.get()<br>    .uri(<span class="hljs-string">&quot;https://api.example.com/users/&#123;id&#125;&quot;</span>, <span class="hljs-number">1</span>)<br>    .retrieve()<br>    .bodyToMono(User.class);<br><br><span class="hljs-comment">// 非阻塞：可以链式处理响应</span><br>userMono<br>    .map(User::getName)<br>    .subscribe(name -&gt; System.out.println(<span class="hljs-string">&quot;用户名：&quot;</span> + name));<br><br><span class="hljs-comment">// 阻塞获取结果（如果需要同步结果）</span><br><span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> userMono.block();  <span class="hljs-comment">// 不推荐（失去了非阻塞的优势）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>RestTemplate</th>
+<th>WebClient</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>编程模型</td>
+<td>同步阻塞（调用线程会等待）</td>
+<td>异步非阻塞（基于 Reactor）</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>低（线程阻塞，吞吐量受限）</td>
+<td>高（少量线程处理大量请求）</td>
+</tr>
+<tr>
+<td>响应式支持</td>
+<td>❌ 不支持</td>
+<td>✅ 支持（Mono、Flux）</td>
+</tr>
+<tr>
+<td>超时配置</td>
+<td>复杂（需自定义 ClientHttpRequestFactory）</td>
+<td>简单（.timeout(Duration))</td>
+</tr>
+<tr>
+<td>状态</td>
+<td>deprecated（Spring 5+ 不推荐）</td>
+<td>推荐（Spring 5+ 的官方推荐）</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>传统 MVC 项目（同步调用）</td>
+<td>响应式项目（Spring WebFlux）或高并发场景</td>
+</tr>
+</tbody></table>
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>RestTemplate 被 deprecated 的根本原因是<strong>同步阻塞模型的性能瓶颈</strong>：一个请求对应一个线程，线程在等待响应时会一直阻塞，导致线程资源耗尽。WebClient 基于 Reactor，采用事件驱动模型，少量线程就能处理大量并发请求，吞吐量远超 RestTemplate。不过，如果你的项目不是响应式项目（没用 Spring WebFlux），用 RestTemplate 也完全没问题，只是未来可能会被移除。新项目建议直接用 WebClient。</p>
+</blockquote>
+<hr>
+<h3 id="Q42：Spring-Boot-中如何实现全局异常处理？"><a href="#Q42：Spring-Boot-中如何实现全局异常处理？" class="headerlink" title="Q42：Spring Boot 中如何实现全局异常处理？"></a>Q42：Spring Boot 中如何实现全局异常处理？</h3><p><strong>一句话总结</strong>：使用 <strong>@ControllerAdvice + @ExceptionHandler</strong> 实现全局异常处理，可以捕获所有 Controller 抛出的异常，统一返回格式化的错误响应，避免在每个 Controller 中写重复的 try-catch。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>传统方式（不推荐）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 每个 Controller 方法都写 try-catch，重复代码太多</span><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserController</span> &#123;<br>    <span class="hljs-meta">@GetMapping(&quot;/users/&#123;id&#125;&quot;)</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getUser</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> Long id)</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">return</span> userService.findById(id);<br>        &#125; <span class="hljs-keyword">catch</span> (UserNotFoundException e) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ResponseStatusException</span>(HttpStatus.NOT_FOUND, e.getMessage());<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ResponseStatusException</span>(HttpStatus.INTERNAL_SERVER_ERROR, <span class="hljs-string">&quot;服务器内部错误&quot;</span>);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>全局异常处理（推荐）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 统一异常处理类</span><br><span class="hljs-meta">@ControllerAdvice</span>  <span class="hljs-comment">// 拦截所有 @RequestMapping 方法抛出的异常</span><br><span class="hljs-meta">@ResponseBody</span>  <span class="hljs-comment">// 返回 JSON（如果返回视图则不需要）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GlobalExceptionHandler</span> &#123;<br>    <br>    <span class="hljs-comment">// 处理自定义业务异常</span><br>    <span class="hljs-meta">@ExceptionHandler(BusinessException.class)</span><br>    <span class="hljs-keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="hljs-title function_">handleBusinessException</span><span class="hljs-params">(BusinessException e)</span> &#123;<br>        <span class="hljs-type">ErrorResponse</span> <span class="hljs-variable">error</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ErrorResponse</span>(e.getCode(), e.getMessage());<br>        <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);<br>    &#125;<br>    <br>    <span class="hljs-comment">// 处理参数校验异常（@Valid 失败）</span><br>    <span class="hljs-meta">@ExceptionHandler(MethodArgumentNotValidException.class)</span><br>    <span class="hljs-keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="hljs-title function_">handleValidationException</span><span class="hljs-params">(MethodArgumentNotValidException e)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">message</span> <span class="hljs-operator">=</span> e.getBindingResult().getFieldError().getDefaultMessage();<br>        <span class="hljs-type">ErrorResponse</span> <span class="hljs-variable">error</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ErrorResponse</span>(<span class="hljs-number">400</span>, message);<br>        <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);<br>    &#125;<br>    <br>    <span class="hljs-comment">// 处理资源未找到异常</span><br>    <span class="hljs-meta">@ExceptionHandler(NoResourceFoundException.class)</span><br>    <span class="hljs-keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="hljs-title function_">handleNotFoundException</span><span class="hljs-params">(NoResourceFoundException e)</span> &#123;<br>        <span class="hljs-type">ErrorResponse</span> <span class="hljs-variable">error</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ErrorResponse</span>(<span class="hljs-number">404</span>, <span class="hljs-string">&quot;资源未找到：&quot;</span> + e.getResourcePath());<br>        <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);<br>    &#125;<br>    <br>    <span class="hljs-comment">// 处理所有其他异常（兜底）</span><br>    <span class="hljs-meta">@ExceptionHandler(Exception.class)</span><br>    <span class="hljs-keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="hljs-title function_">handleException</span><span class="hljs-params">(Exception e)</span> &#123;<br>        e.printStackTrace();  <span class="hljs-comment">// 打印堆栈（生产环境应该记录日志）</span><br>        <span class="hljs-type">ErrorResponse</span> <span class="hljs-variable">error</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ErrorResponse</span>(<span class="hljs-number">500</span>, <span class="hljs-string">&quot;服务器内部错误&quot;</span>);<br>        <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 统一错误响应类</span><br><span class="hljs-meta">@Data</span><br><span class="hljs-meta">@AllArgsConstructor</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ErrorResponse</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> code;<br>    <span class="hljs-keyword">private</span> String message;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">LocalDateTime</span> <span class="hljs-variable">timestamp</span> <span class="hljs-operator">=</span> LocalDateTime.now();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>执行流程</strong>：</p>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs coffeescript">Controller 抛出异常<br>   ↓<br>@ControllerAdvice 拦截<br>   ↓<br>根据异常类型匹配 @ExceptionHandler 方法<br>   ↓<br>执行对应的异常处理方法<br>   ↓<br>返回统一格式的错误响应（<span class="hljs-built_in">JSON</span>）<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>@ControllerAdvice 是 Spring 提供的<strong>全局异常处理神器</strong>。除了异常处理，@ControllerAdvice 还可以做<strong>全局数据绑定</strong>（@InitBinder）和<strong>全局数据预处理</strong>（@ModelAttribute）。实际项目中，一定要定义一个<strong>自定义业务异常</strong>（BusinessException），区分业务错误（如”用户不存在”）和系统错误（如数据库连接失败），前者返回 400 给前端，后者返回 500 并记录日志。另外，@ControllerAdvice 只能拦截进入 Controller 的请求，过滤器（Filter）或拦截器（Interceptor）中抛出的异常它拦不到，需要在 Filter 中单独处理。</p>
+</blockquote>
+<hr>
+<h3 id="Q43：Spring-中的事务传播机制有哪些？什么场景用哪一类？"><a href="#Q43：Spring-中的事务传播机制有哪些？什么场景用哪一类？" class="headerlink" title="Q43：Spring 中的事务传播机制有哪些？什么场景用哪一类？"></a>Q43：Spring 中的事务传播机制有哪些？什么场景用哪一类？</h3><p><strong>一句话总结</strong>：Spring 定义了 <strong>7 种事务传播机制</strong>，决定<strong>当一个事务方法调用另一个事务方法时，事务如何传播</strong>。最常用的是 <strong>REQUIRED</strong>（默认，支持当前事务）和 <strong>REQUIRES_NEW</strong>（新建事务，挂起当前事务）。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>7 种传播机制</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>传播机制</th>
+<th>说明</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>REQUIRED（默认）</td>
+<td>支持当前事务，如果当前没有事务，就新建一个</td>
+<td>大部分场景（如 Service 方法调用另一个 Service 方法）</td>
+</tr>
+<tr>
+<td>SUPPORTS</td>
+<td>支持当前事务，如果当前没有事务，就以非事务方式执行</td>
+<td>查询方法（可有可无事务）</td>
+</tr>
+<tr>
+<td>MANDATORY</td>
+<td>支持当前事务，如果当前没有事务，就抛异常</td>
+<td>强制要求调用方有事务（不常用）</td>
+</tr>
+<tr>
+<td>REQUIRES_NEW</td>
+<td><strong>新建事务</strong>，如果当前有事务，把当前事务挂起</td>
+<td>日志记录（无论主事务是否回滚，日志都要提交）</td>
+</tr>
+<tr>
+<td>NOT_SUPPORTED</td>
+<td>以非事务方式执行，如果当前有事务，把当前事务挂起</td>
+<td>不希望事务影响性能的场景（如发送短信）</td>
+</tr>
+<tr>
+<td>NEVER</td>
+<td>以非事务方式执行，如果当前有事务，就抛异常</td>
+<td>强制要求非事务（不常用）</td>
+</tr>
+<tr>
+<td>NESTED</td>
+<td>如果当前有事务，就在嵌套事务中执行（保存点）</td>
+<td>嵌套事务（外层回滚，内层也回滚；内层回滚，外层可以继续）</td>
+</tr>
+</tbody></table>
+<p><strong>示例：REQUIRED vs REQUIRES_NEW</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderService</span> &#123;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> PaymentService paymentService;<br>    <br>    <span class="hljs-meta">@Transactional(propagation = Propagation.REQUIRED)</span>  <span class="hljs-comment">// 默认</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createOrder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 1. 创建订单</span><br>        orderDao.insert(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Order</span>());<br>        <br>        <span class="hljs-comment">// 2. 调用支付服务</span><br>        paymentService.pay();  <span class="hljs-comment">// 如果 pay() 抛异常，订单会回滚</span><br>        <br>        <span class="hljs-comment">// 3. 如果这里抛异常，支付也会回滚（同一个事务）</span><br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;创建订单失败&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PaymentService</span> &#123;<br>    <span class="hljs-meta">@Transactional(propagation = Propagation.REQUIRES_NEW)</span>  <span class="hljs-comment">// 新建事务</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">pay</span><span class="hljs-params">()</span> &#123;<br>        paymentDao.insert(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Payment</span>());<br>        <span class="hljs-comment">// 无论外层事务是否回滚，这里的支付记录都会提交</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>嵌套事务（NESTED）示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> LogService logService;<br>    <br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> &#123;<br>        userDao.update();  <span class="hljs-comment">// 更新用户</span><br>        <br>        <span class="hljs-keyword">try</span> &#123;<br>            logService.saveLog();  <span class="hljs-comment">// 嵌套事务（保存点）</span><br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            <span class="hljs-comment">// 日志保存失败，不影响用户更新</span><br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LogService</span> &#123;<br>    <span class="hljs-meta">@Transactional(propagation = Propagation.NESTED)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">saveLog</span><span class="hljs-params">()</span> &#123;<br>        logDao.insert();  <span class="hljs-comment">// 如果这里抛异常，只回滚日志，不影响用户更新</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>事务传播机制是 Spring 事务面试的<strong>超高频题</strong>。最核心的是 REQUIRED（默认，90% 场景用这个）和 REQUIRES_NEW（独立事务，如日志记录）。NESTED 和 REQUIRES_NEW 的区别是：REQUIRES_NEW 是完全独立的两个事务，外层回滚不影响内层；NESTED 是嵌套事务（保存点），外层回滚内层也回滚，但内层回滚不影响外层。实际项目中，如果一个方法需要调用另一个事务方法，且希望<strong>被调用方法的回滚不影响当前方法</strong>，就用 REQUIRES_NEW；如果希望<strong>被调用方回滚不影响调用方，但调用方回滚时被调用方也回滚</strong>，就用 NESTED。</p>
+</blockquote>
+<hr>
+<h3 id="Q44：Spring-中事务的隔离级别有哪些？和数据库隔离级别的关系？"><a href="#Q44：Spring-中事务的隔离级别有哪些？和数据库隔离级别的关系？" class="headerlink" title="Q44：Spring 中事务的隔离级别有哪些？和数据库隔离级别的关系？"></a>Q44：Spring 中事务的隔离级别有哪些？和数据库隔离级别的关系？</h3><p><strong>一句话总结</strong>：Spring 定义了 <strong>5 种事务隔离级别</strong>（对应数据库的 4 种 + 默认使用数据库隔离级别），通过 <code>@Transactional(isolation = ...)</code> 指定，最终<strong>由数据库实现</strong>，Spring 只是传递参数。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Spring 的 5 种隔离级别</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>Spring 隔离级别</th>
+<th>对应数据库</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DEFAULT（默认）</td>
+<td>使用底层数据库的默认隔离级别</td>
+<td>MySQL 默认 REPEATABLE_READ，Oracle 默认 READ_COMMITTED</td>
+</tr>
+<tr>
+<td>READ_UNCOMMITTED</td>
+<td>读未提交</td>
+<td>脏读、不可重复读、幻读都可能发生（几乎不用）</td>
+</tr>
+<tr>
+<td>READ_COMMITTED</td>
+<td>读已提交</td>
+<td>解决脏读，但不可重复读和幻读仍可能发生</td>
+</tr>
+<tr>
+<td>REPEATABLE_READ</td>
+<td>可重复读</td>
+<td>解决脏读和不可重复读，但幻读仍可能发生</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>串行化</td>
+<td>所有问题都解决，但性能极差（表级锁）</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-comment">// 使用 READ_COMMITTED（解决脏读，性能较好）</span><br>    <span class="hljs-meta">@Transactional(isolation = Isolation.READ_COMMITTED)</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">findById</span><span class="hljs-params">(Long id)</span> &#123;<br>        <span class="hljs-keyword">return</span> userDao.findById(id);<br>    &#125;<br>    <br>    <span class="hljs-comment">// 使用 SERIALIZABLE（绝对数据一致性，但性能差）</span><br>    <span class="hljs-meta">@Transactional(isolation = Isolation.SERIALIZABLE)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">transferMoney</span><span class="hljs-params">(Long from, Long to, BigDecimal amount)</span> &#123;<br>        <span class="hljs-comment">// 转账操作，必须保证绝对一致性</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Spring 隔离级别和数据库的关系</strong>：</p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs nix">Spring 的 @Transactional(isolation <span class="hljs-operator">=</span> ...)<br>   ↓  （只是设置，不实现）<br>JDBC 的 Connection.setTransactionIsolation(...)<br>   ↓  （传递给数据库）<br>数据库（MySQL <span class="hljs-symbol">/</span> Oracle <span class="hljs-symbol">/</span> PostgreSQL）<br>   ↓  （真正实现隔离级别）<br>加锁（MVCC <span class="hljs-symbol">/</span> 间隙锁 <span class="hljs-symbol">/</span> 表锁）<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>重要</strong>：Spring 本身<strong>不实现</strong>隔离级别，它只是通过 JDBC 把隔离级别传递给数据库，由数据库来实现。如果数据库不支持某个隔离级别（如 MySQL 支持所有 4 种，但 Oracle 只支持 READ_COMMITTED 和 SERIALIZABLE），设置无效。</p>
+</blockquote>
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>Spring 的隔离级别最终是由<strong>数据库实现</strong>的，Spring 只是传参。很多人以为设置了 <code>@Transactional(isolation = ...)</code> 就万事大吉，但实际上：① 如果数据库不支持该隔离级别（如 Oracle 不支持 REPEATABLE_READ），设置无效；② 隔离级别越高，性能越差（SERIALIZABLE 几乎等于单线程执行）。实际项目中，MySQL 默认用 REPEATABLE_READ 就够了，只有特殊场景（如金融转账）才需要手动设置更高隔离级别。另外，Spring 的 DEFAULT 隔离级别表示”使用数据库的默认隔离级别”，这是最常用、最安全的设置。</p>
+</blockquote>
+<hr>
+<h3 id="Q45：Spring-中-Transactional-注解失效的常见场景有哪些？"><a href="#Q45：Spring-中-Transactional-注解失效的常见场景有哪些？" class="headerlink" title="Q45：Spring 中 @Transactional 注解失效的常见场景有哪些？"></a>Q45：Spring 中 @Transactional 注解失效的常见场景有哪些？</h3><p><strong>一句话总结</strong>：@Transactional 失效的<strong>最常见原因</strong>是：<strong>私有方法、自调用、异常类型不匹配、传播机制配置错误、数据库引擎不支持事务</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>失效场景一：方法不是 public（最常见）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-comment">// ❌ 失效：@Transactional 只能应用在 public 方法上</span><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUserPrivate</span><span class="hljs-params">()</span> &#123;<br>        userDao.update();<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;故意报错&quot;</span>);<br>        <span class="hljs-comment">// 这里不会回滚！因为私有方法不会被 Spring 代理</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>失效场景二：自调用（同一个类中方法互调）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createUser</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// ❌ 失效：自调用（this 调用，不经过代理对象）</span><br>        <span class="hljs-built_in">this</span>.insertUser();  <span class="hljs-comment">// 事务失效！</span><br>    &#125;<br>    <br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">insertUser</span><span class="hljs-params">()</span> &#123;<br>        userDao.insert();<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;故意报错&quot;</span>);<br>        <span class="hljs-comment">// 这里不会回滚！因为 this.insertUser() 是目标对象调用，不是代理对象调用</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>解决方案（自调用问题）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 方案A：通过 ApplicationContext 获取代理对象（不推荐，代码侵入性强）</span><br><span class="hljs-meta">@Autowired</span><br><span class="hljs-keyword">private</span> ApplicationContext context;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createUser</span><span class="hljs-params">()</span> &#123;<br>    context.getBean(UserService.class).insertUser();  <span class="hljs-comment">// 通过代理对象调用</span><br>&#125;<br><br><span class="hljs-comment">// 方案B：拆分成两个 Service（推荐）</span><br><span class="hljs-comment">// UserService 调用 UserServiceHelper</span><br><span class="hljs-meta">@Autowired</span><br><span class="hljs-keyword">private</span> UserServiceHelper helper;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createUser</span><span class="hljs-params">()</span> &#123;<br>    helper.insertUser();  <span class="hljs-comment">// 通过另一个 Bean 调用（经过代理）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>失效场景三：异常类型不匹配（默认只回滚 RuntimeException 和 Error）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> &#123;<br>        userDao.update();<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IOException</span>(<span class="hljs-string">&quot;IO 异常&quot;</span>);  <span class="hljs-comment">// ❌ 不会回滚！</span><br>        <span class="hljs-comment">// 默认情况下，@Transactional 只回滚 RuntimeException 和 Error，不回滚受检异常（IOException、SQLException 等）</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>解决方案</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 方案A：指定回滚异常类型</span><br><span class="hljs-meta">@Transactional(rollbackFor = Exception.class)</span>  <span class="hljs-comment">// ✅ 所有 Exception 都回滚</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    userDao.update();<br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IOException</span>(<span class="hljs-string">&quot;IO 异常&quot;</span>);  <span class="hljs-comment">// 现在会回滚</span><br>&#125;<br><br><span class="hljs-comment">// 方案B：将受检异常转为运行时异常</span><br><span class="hljs-meta">@Transactional</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        fileService.write();<br>    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);  <span class="hljs-comment">// 转为 RuntimeException（会回滚）</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>失效场景四：数据库引擎不支持事务</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// MySQL 的 MyISAM 引擎不支持事务</span><br><span class="hljs-comment">// 如果你的表是 MyISAM 引擎，@Transactional 完全无效！</span><br><span class="hljs-comment">// 解决：改为 InnoDB 引擎</span><br>ALTER TABLE <span class="hljs-type">user</span> <span class="hljs-variable">ENGINE</span> <span class="hljs-operator">=</span> InnoDB;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>@Transactional 失效是 Spring 面试的<strong>超高频题</strong>。90% 的失效都是因为<strong>自调用</strong>（同一个类中方法互调）。原因是 Spring 的事务是通过<strong>代理对象</strong>实现的，自调用时 <code>this</code> 指向目标对象，而不是代理对象，所以事务逻辑不会生效。解决办法是<strong>拆类</strong>（将两个方法放到不同的 Service 中）。另外，很多人不知道 <code>@Transactional</code> 默认只回滚 <code>RuntimeException</code> 和 <code>Error</code>，如果遇到 <code>IOException</code> 或 <code>SQLException</code> 这些受检异常，事务不会回滚，必须手动指定 <code>rollbackFor = Exception.class</code>。</p>
+</blockquote>
+<hr>
+<h3 id="Q46：Spring-中-Bean-的生命周期有哪些阶段？"><a href="#Q46：Spring-中-Bean-的生命周期有哪些阶段？" class="headerlink" title="Q46：Spring 中 Bean 的生命周期有哪些阶段？"></a>Q46：Spring 中 Bean 的生命周期有哪些阶段？</h3><p><strong>一句话总结</strong>：Bean 的生命周期分为 <strong>4 大阶段</strong>：<strong>实例化 → 属性赋值 → 初始化 → 销毁</strong>，其中初始化和销毁阶段提供了很多<strong>扩展点</strong>（如 @PostConstruct、InitializingBean、BeanPostProcessor）。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>完整的 Bean 生命周期</strong>（简化版，面试够用）：</p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs oxygene"><span class="hljs-number">1</span>. 实例化（Instantiation）<br>   ↓ 调用构造方法创建 Bean 实例（此时属性都是默认值）<br>   <br><span class="hljs-number">2</span>. 属性赋值（Populate）<br>   ↓ 依赖注入（@Autowired 在这里生效）<br>   <br><span class="hljs-number">3</span>. 初始化（Initialization）<br>   ↓ <span class="hljs-number">3.1</span> BeanPostProcessor.postProcessBeforeInitialization（前置处理）<br>   ↓ <span class="hljs-number">3.2</span> @PostConstruct 注解的方法<br>   ↓ <span class="hljs-number">3.3</span> InitializingBean.afterPropertiesSet()<br>   ↓ <span class="hljs-number">3.4</span> 自定义的 init-<span class="hljs-keyword">method</span><br>   ↓ 3.5 <span class="hljs-title function_">BeanPostProcessor</span>.<span class="hljs-title function_">postProcessAfterInitialization</span>（后置处理，<span class="hljs-title function_">AOP</span> 在这里生成代理对象）<br>   <br>4. 销毁（<span class="hljs-title function_">Destruction</span>）<br>   ↓ 4.1 @<span class="hljs-title function_">PreDestroy</span> 注解的方法<br>   ↓ 4.2 <span class="hljs-title function_">DisposableBean</span>.<span class="hljs-title function_">destroy</span><span class="hljs-params">()</span><br>   ↓ 4.3 自定义的 <span class="hljs-title function_">destroy</span>-<span class="hljs-title function_">method</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">InitializingBean</span>, DisposableBean &#123;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserDao userDao;  <span class="hljs-comment">// 2. 属性赋值（依赖注入）</span><br>    <br>    <span class="hljs-comment">// 1. 实例化（调用构造方法）</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">UserService</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;1. 构造方法（实例化）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@PostConstruct</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;3. @PostConstruct（初始化）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">afterPropertiesSet</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        System.out.println(<span class="hljs-string">&quot;4. InitializingBean.afterPropertiesSet()（初始化）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@PreDestroy</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">cleanup</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;6. @PreDestroy（销毁）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">destroy</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        System.out.println(<span class="hljs-string">&quot;7. DisposableBean.destroy()（销毁）&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// BeanPostProcessor（作用于所有 Bean）</span><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyBeanPostProcessor</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">BeanPostProcessor</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Object <span class="hljs-title function_">postProcessBeforeInitialization</span><span class="hljs-params">(Object bean, String beanName)</span> &#123;<br>        <span class="hljs-keyword">if</span> (beanName.equals(<span class="hljs-string">&quot;userService&quot;</span>)) &#123;<br>            System.out.println(<span class="hljs-string">&quot;2. BeanPostProcessor.before（初始化前置处理）&quot;</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> bean;<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Object <span class="hljs-title function_">postProcessAfterInitialization</span><span class="hljs-params">(Object bean, String beanName)</span> &#123;<br>        <span class="hljs-keyword">if</span> (beanName.equals(<span class="hljs-string">&quot;userService&quot;</span>)) &#123;<br>            System.out.println(<span class="hljs-string">&quot;5. BeanPostProcessor.after（初始化后置处理，AOP 在这里生成代理）&quot;</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> bean;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>执行结果</strong>：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 构造方法（实例化）<br><span class="hljs-bullet">2.</span> BeanPostProcessor.before（初始化前置处理）<br><span class="hljs-bullet">3.</span> @PostConstruct（初始化）<br><span class="hljs-bullet">4.</span> InitializingBean.afterPropertiesSet()（初始化）<br><span class="hljs-bullet">5.</span> BeanPostProcessor.after（初始化后置处理，AOP 在这里生成代理）<br>--- Bean 就绪，可以被使用 ---<br><span class="hljs-bullet">6.</span> @PreDestroy（销毁）<br><span class="hljs-bullet">7.</span> DisposableBean.destroy()（销毁）<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>Bean 生命周期的<strong>核心扩展点是 BeanPostProcessor</strong>。它是 Spring 的”钩子机制”，允许你在 Bean 初始化前后做自定义处理。AOP 的代理对象就是由 <code>AnnotationAwareAspectJAutoProxyCreator</code>（一个 BeanPostProcessor）在 <code>postProcessAfterInitialization</code> 中生成的。实际面试中，不需要背出完整的生命周期（太长了），但要能说清楚<strong>实例化 → 依赖注入 → 初始化 → 销毁</strong>这 4 个阶段，以及**@PostConstruct、InitializingBean、BeanPostProcessor、@PreDestroy** 这几个关键扩展点。</p>
+</blockquote>
+<hr>
+<h3 id="Q47：Spring-中单例-Bean-是线程安全的吗？"><a href="#Q47：Spring-中单例-Bean-是线程安全的吗？" class="headerlink" title="Q47：Spring 中单例 Bean 是线程安全的吗？"></a>Q47：Spring 中单例 Bean 是线程安全的吗？</h3><p><strong>一句话总结</strong>：<strong>单例 Bean 本身不是线程安全的</strong>，因为所有线程共享同一个 Bean 实例。但是，<strong>如果 Bean 没有成员变量（或无状态）</strong>，就是线程安全的；<strong>如果有成员变量（或有状态）</strong>，就需要加锁或使用 ThreadLocal。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>无状态 Bean（线程安全）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>  <span class="hljs-comment">// 单例（默认），但线程安全</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserDao userDao;  <span class="hljs-comment">// 只有方法，没有成员变量（userDao 是单例，本身也是线程安全的）</span><br>    <br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">findById</span><span class="hljs-params">(Long id)</span> &#123;<br>        <span class="hljs-keyword">return</span> userDao.findById(id);  <span class="hljs-comment">// 只有方法调用，没有共享状态</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>有状态 Bean（线程不安全）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>  <span class="hljs-comment">// 单例，线程不安全！</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UnsafeService</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;  <span class="hljs-comment">// ❌ 成员变量（共享状态）</span><br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> &#123;<br>        count++;  <span class="hljs-comment">// ❌ 并发问题：多个线程同时修改 count，结果不准确</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>解决方案</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 方案A：改为原型（@Scope(&quot;prototype&quot;)，每次请求创建新实例）</span><br><span class="hljs-meta">@Scope(&quot;prototype&quot;)</span><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SafeService</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;  <span class="hljs-comment">// 每个线程拿到不同的实例，不存在共享</span><br>&#125;<br><br><span class="hljs-comment">// 方案B：加锁（影响性能）</span><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SafeService</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> &#123;  <span class="hljs-comment">// 加锁</span><br>        count++;<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 方案C：用 ThreadLocal（每个线程独享一份变量）</span><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SafeService</span> &#123;<br>    <span class="hljs-keyword">private</span> ThreadLocal&lt;Integer&gt; count = ThreadLocal.withInitial(() -&gt; <span class="hljs-number">0</span>);<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> &#123;<br>        count.set(count.get() + <span class="hljs-number">1</span>);  <span class="hljs-comment">// 每个线程独享自己的 count</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>Spring 中没有”线程安全的 Bean”这种概念，只有”线程安全的代码”。单例 Bean 是否线程安全，取决于<strong>Bean 是否有共享状态（成员变量）</strong>。实际项目中，大部分的 Service、Dao 都是<strong>无状态的</strong>（只有方法，没有成员变量），所以是线程安全的，不需要担心。如果你必须在单例 Bean 中保存状态（如计数器），要么用 <code>ThreadLocal</code>（每个线程独享），要么用 <code>AtomicInteger</code>（CAS 无锁并发），要么改为原型作用域（<code>@Scope(&quot;prototype&quot;)</code>）。</p>
+</blockquote>
+<hr>
+<h3 id="Q48：Spring-Boot-的启动流程是怎样的？"><a href="#Q48：Spring-Boot-的启动流程是怎样的？" class="headerlink" title="Q48：Spring Boot 的启动流程是怎样的？"></a>Q48：Spring Boot 的启动流程是怎样的？</h3><p><strong>一句话总结</strong>：Spring Boot 的启动流程是：<strong>加载主配置类 → 创建 ApplicationContext → 刷新上下文（扫描 Bean、创建 Bean、执行自动配置）→ 启动内嵌 Web 服务器 → 调用 ApplicationRunner&#x2F;CommandLineRunner</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>启动流程（简化版，面试够用）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyApplication</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(MyApplication.class, args);  <span class="hljs-comment">// 启动入口</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs markdown">SpringApplication.run()<br>   ↓<br><span class="hljs-bullet">1.</span> 推断应用类型（Servlet / Reactive / 普通）<br>   ↓<br><span class="hljs-bullet">2.</span> 加载所有的 ApplicationContextInitializer（初始化器）<br>   ↓<br><span class="hljs-bullet">3.</span> 加载所有的 ApplicationListener（监听器）<br>   ↓<br><span class="hljs-bullet">4.</span> 推断主配置类（包含 main 方法的类）<br>   ↓<br><span class="hljs-bullet">5.</span> 创建 Environment（环境变量、配置文件）<br>   ↓<br><span class="hljs-bullet">6.</span> 创建 ApplicationContext（根据应用类型创建不同的上下文）<br>   ↓<br><span class="hljs-bullet">7.</span> ApplicationContext 刷新（核心步骤，见下方详解）<br>   ↓<br><span class="hljs-bullet">8.</span> 调用 ApplicationRunner 和 CommandLineRunner<br>   ↓<br><span class="hljs-bullet">9.</span> 发布 ApplicationStartedEvent（应用启动完成）<br>   ↓<br><span class="hljs-bullet">10.</span> 启动内嵌 Web 服务器（如果是 Web 应用）<br></code></pre></td></tr></table></figure>
+
+<p><strong>核心步骤：ApplicationContext 刷新（refresh()）</strong>：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs scss">AbstractApplicationContext<span class="hljs-selector-class">.refresh</span>()<br>   ↓<br><span class="hljs-number">1</span>. <span class="hljs-built_in">prepareRefresh</span>()：准备刷新（设置启动时间、校验环境变量）<br>   ↓<br><span class="hljs-number">2</span>. <span class="hljs-built_in">obtainFreshBeanFactory</span>()：获取 BeanFactory（DefaultListableBeanFactory）<br>   ↓<br><span class="hljs-number">3</span>. <span class="hljs-built_in">prepareBeanFactory</span>()：配置 BeanFactory（注册依赖、配置类路径）<br>   ↓<br><span class="hljs-number">4</span>. <span class="hljs-built_in">postProcessBeanFactory</span>()：后置处理 BeanFactory（子类扩展）<br>   ↓<br><span class="hljs-number">5</span>. <span class="hljs-built_in">invokeBeanFactoryPostProcessors</span>()：执行 BeanFactoryPostProcessor（★★★★★ 自动配置在这里生效！）<br>   ↓<br><span class="hljs-number">6</span>. <span class="hljs-built_in">registerBeanPostProcessors</span>()：注册 BeanPostProcessor（AOP 在这里注册）<br>   ↓<br><span class="hljs-number">7</span>. <span class="hljs-built_in">initMessageSource</span>()：初始化国际化资源<br>   ↓<br><span class="hljs-number">8</span>. <span class="hljs-built_in">initApplicationEventMulticaster</span>()：初始化事件广播器<br>   ↓<br><span class="hljs-number">9</span>. <span class="hljs-built_in">onRefresh</span>()：创建内嵌 Web 服务器（如果是 Web 应用）<br>   ↓<br><span class="hljs-number">10</span>. <span class="hljs-built_in">registerListeners</span>()：注册监听器<br>   ↓<br><span class="hljs-number">11</span>. <span class="hljs-built_in">finishBeanFactoryInitialization</span>()：初始化所有单例 Bean（★★★★★ 核心！）<br>   ↓<br><span class="hljs-number">12</span>. <span class="hljs-built_in">finishRefresh</span>()：完成刷新（发布 ContextRefreshedEvent）<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>Spring Boot 启动流程的<strong>核心方法是 <code>AbstractApplicationContext.refresh()</code></strong>。这个方法做了几乎所有的事情：扫描 Bean、创建 Bean、执行自动配置、注册监听器等。面试中如果被问到启动流程，不需要背出 12 个步骤，但要能说清楚：<strong>加载配置 → 创建上下文 → 刷新上下文（扫描 Bean、创建 Bean）→ 启动 Web 服务器</strong>。另外，<code>refresh()</code> 中的第 5 步（执行 BeanFactoryPostProcessor）是<strong>自动配置生效的地方</strong>，<code>SpringFactoriesLoader</code> 在这里加载所有的自动配置类。</p>
+</blockquote>
+<hr>
+<h3 id="Q49：Spring-中-Lazy-是做什么的？有什么用？"><a href="#Q49：Spring-中-Lazy-是做什么的？有什么用？" class="headerlink" title="Q49：Spring 中 @Lazy 是做什么的？有什么用？"></a>Q49：Spring 中 @Lazy 是做什么的？有什么用？</h3><p><strong>一句话总结</strong>：<strong>@Lazy 让 Bean 延迟初始化</strong>，只有在第一次被使用时才创建，而不是在 Spring 启动时立即创建。主要用途是<strong>解决循环依赖</strong>和<strong>加快启动速度</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>不用 @Lazy（立即初始化）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AService</span> &#123;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> BService bService;  <span class="hljs-comment">// Spring 启动时就注入 BService（BService 必须已经创建）</span><br>    <br>    <span class="hljs-meta">@PostConstruct</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;AService 初始化完成&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BService</span> &#123;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> AService aService;  <span class="hljs-comment">// 循环依赖！Spring 启动报错</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>用 @Lazy（延迟初始化）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AService</span> &#123;<br>    <span class="hljs-meta">@Lazy</span>  <span class="hljs-comment">// 延迟注入 BService（只有在第一次使用时才创建 BService 代理对象）</span><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> BService bService;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doSomething</span><span class="hljs-params">()</span> &#123;<br>        bService.help();  <span class="hljs-comment">// 只有在这里，BService 才真正被创建</span><br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BService</span> &#123;<br>    <span class="hljs-meta">@Lazy</span><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> AService aService;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">help</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;BService 帮忙&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>@Lazy 解决循环依赖的原理</strong>：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs less">不用 <span class="hljs-variable">@Lazy</span>：<br>   A 创建 → 发现需要 B → B 创建 → 发现需要 A → 报错（循环依赖）<br><br>用 <span class="hljs-variable">@Lazy</span>：<br>   A 创建 → 发现需要 B → 创建一个 B 的代理对象注入给 A（不真正创建 B）<br>   ↓<br>   A 创建完成<br>   ↓<br>   B 创建 → 发现需要 A → A 已经创建完成，直接注入<br>   ↓<br>   当 A 第一次调用 bService.<span class="hljs-built_in">help</span>() 时，才真正创建 BService<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>@Lazy 的核心价值是<strong>解决循环依赖</strong>和<strong>加快启动速度</strong>。循环依赖的<strong>最佳解决方案是重构代码</strong>（打破循环），但如果实在无法避免，@Lazy 是最简单的临时方案。另外，对于<strong>启动时间敏感的应用</strong>（如 FaaS、Serverless），可以用 @Lazy 标注所有非关键的 Bean，让应用快速启动，只有在真正需要时才创建这些 Bean，缩短启动时间。但要注意：@Lazy 只是把 Bean 的创建推迟到第一次使用，并不会减少最终的内存占用。</p>
+</blockquote>
+<hr>
+<h3 id="Q50：Spring-Security-的核心组件有哪些？认证和授权流程是怎样的？"><a href="#Q50：Spring-Security-的核心组件有哪些？认证和授权流程是怎样的？" class="headerlink" title="Q50：Spring Security 的核心组件有哪些？认证和授权流程是怎样的？"></a>Q50：Spring Security 的核心组件有哪些？认证和授权流程是怎样的？</h3><p><strong>一句话总结</strong>：Spring Security 的核心是 <strong>过滤器链（Filter Chain）</strong>，认证流程是 <strong>AuthenticationManager → AuthenticationProvider → UserDetailsService</strong>，授权流程是 <strong>AccessDecisionManager → 投票决定是否有权限</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>核心组件</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SecurityContextHolder</td>
+<td>存储当前用户的认证信息（SecurityContext）</td>
+</tr>
+<tr>
+<td>Authentication</td>
+<td>代表一个认证请求或已认证的主体（包含用户名、密码、权限）</td>
+</tr>
+<tr>
+<td>AuthenticationManager</td>
+<td>认证管理器（入口），负责认证请求</td>
+</tr>
+<tr>
+<td>AuthenticationProvider</td>
+<td>具体的认证实现（如用户名密码认证、JWT 认证）</td>
+</tr>
+<tr>
+<td>UserDetailsService</td>
+<td>加载用户信息的接口（根据用户名查数据库）</td>
+</tr>
+<tr>
+<td>SecurityContext</td>
+<td>安全上下文，包含当前认证的 Authentication 对象</td>
+</tr>
+<tr>
+<td>Filter Chain</td>
+<td>过滤器链（所有请求都要经过一系列的 Security Filter）</td>
+</tr>
+</tbody></table>
+<p><strong>认证流程</strong>（用户名密码登录）：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs scss">用户提交用户名密码<br>   ↓<br>UsernamePasswordAuthenticationFilter（拦截登录请求）<br>   ↓<br>AuthenticationManager<span class="hljs-selector-class">.authenticate</span>()（认证入口）<br>   ↓<br>DaoAuthenticationProvider（具体的认证实现）<br>   ↓<br>UserDetailsService<span class="hljs-selector-class">.loadUserByUsername</span>()（查数据库，获取用户信息）<br>   ↓<br>密码校验（PasswordEncoder<span class="hljs-selector-class">.matches</span>()）<br>   ↓<br>将认证成功的 Authentication 放入 SecurityContextHolder<br>   ↓<br>认证成功，跳转首页<br></code></pre></td></tr></table></figure>
+
+<p><strong>授权流程</strong>（访问受保护资源）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">用户请求受保护的资源（如 /admin）<br>   ↓<br>FilterSecurityInterceptor（拦截请求）<br>   ↓<br>SecurityMetadataSource（获取该资源需要的权限）<br>   ↓<br>AccessDecisionManager（决策管理器，决定是否有权限）<br>   ↓<br>投票器（AffirmativeBased：有一个投票器同意就通过）<br>   ↓<br>有权限 → 访问资源<br>无权限 → 抛出 AccessDeniedException → 跳转 403 页面<br></code></pre></td></tr></table></figure>
+
+<p><strong>示例：自定义 UserDetailsService</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">UserDetailsService</span> &#123;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserRepository userRepository;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> UserDetails <span class="hljs-title function_">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException &#123;<br>        <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> userRepository.findByUsername(username)<br>            .orElseThrow(() -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">UsernameNotFoundException</span>(<span class="hljs-string">&quot;用户不存在&quot;</span>));<br>        <br>        <span class="hljs-comment">// 将数据库中的 User 转为 Spring Security 的 UserDetails</span><br>        <span class="hljs-keyword">return</span> org.springframework.security.core.userdetails.User<br>            .withUsername(user.getUsername())<br>            .password(user.getPassword())  <span class="hljs-comment">// 密码（已加密）</span><br>            .authorities(user.getRoles().toArray(<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>[<span class="hljs-number">0</span>]))  <span class="hljs-comment">// 权限</span><br>            .build();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>Spring Security 是 Spring 家族中<strong>最难学</strong>的框架（没有之一），因为它的架构非常复杂。但实际面试中，只需要掌握<strong>认证流程</strong>和<strong>授权流程</strong>就够了。认证流程的核心是 <code>UserDetailsService</code>（根据用户名查数据库）和 <code>PasswordEncoder</code>（密码加密和校验）；授权流程的核心是<strong>过滤器链</strong>（所有请求都要经过一系列的 Security Filter）。另外，现在主流的认证方式是 <strong>JWT + Spring Security</strong>，JWT 过滤器（OncePerRequestFilter）会在每次请求时解析 Token，将认证信息放入 SecurityContextHolder，实现无状态认证。</p>
+</blockquote>
+<hr>
+<h2 id="Spring-面试高频问题速查表（补充）"><a href="#Spring-面试高频问题速查表（补充）" class="headerlink" title="Spring 面试高频问题速查表（补充）"></a>Spring 面试高频问题速查表（补充）</h2><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>关键词</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@Component vs @Bean</td>
+<td>类 vs 方法、第三方库只能用 @Bean</td>
+</tr>
+<tr>
+<td>多个切面执行顺序</td>
+<td>@Order（值小优先）、前置从小到大、后置从大到小</td>
+</tr>
+<tr>
+<td>Spring Boot 配置优先级</td>
+<td>包外 &gt; 包内，config &gt; 根目录</td>
+</tr>
+<tr>
+<td>内嵌 Servlet 容器</td>
+<td>Tomcat（默认）、Jetty（长连接）、Undertow（高性能）</td>
+</tr>
+<tr>
+<td>默认日志框架</td>
+<td>SLF4J + Logback</td>
+</tr>
+<tr>
+<td>Spring Boot 循环依赖</td>
+<td>2.6.0 后默认禁止、重构代码 &gt; @Lazy &gt; allow-circular-references</td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<p><strong>Spring 面试总结</strong>：<br>本文从 IOC、AOP、Bean 生命周期、事务管理、Spring Boot 自动配置、Spring MVC 流程、常见注解、高频面试题等 8 个方面，全面覆盖了 Spring 面试的核心考点。认真看完本文，Spring 面试不再慌！</p>
+<p>建议你按以下顺序复习：</p>
+<ol>
+<li><strong>IOC + DI</strong>（控制反转、依赖注入、@Autowired vs @Resource）</li>
+<li><strong>Bean 生命周期 + 循环依赖</strong>（三级缓存，面试超高频）</li>
+<li><strong>AOP</strong>（动态代理、通知类型、切面顺序）</li>
+<li><strong>事务管理</strong>（传播机制、隔离级别、事务失效场景）</li>
+<li><strong>Spring Boot 自动配置原理</strong>（@SpringBootApplication、条件注解）</li>
+<li><strong>Spring MVC 工作流程</strong>（DispatcherServlet、HandlerMapping）</li>
+<li><strong>高频面试题</strong>（设计模式、事件机制、全局异常处理）</li>
+</ol>
+<p>祝你面试顺利！🚀</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div></div>
+      <div>https://whyalwaysme.lol/2026/06/07/2026-06-07-spring-interview-deep/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/07/2026-06-07-knowflow-interview-qa/" title="KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/07/2026-06-07-jvm-interview-deep/" title="JVM 面试八股文30条（深度详解版）">
+                        <span class="hidden-mobile">JVM 面试八股文30条（深度详解版）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1481 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="KnowFlow 项目 —— 30+ 道面试八股文 面向字节跳动 Java 后端暑期实习面试，每道题都结合 KnowFlow 项目源码讲清楚，力求”傻子都能懂”。   一、Redis 相关（6 道）Q1：你们项目里用 Redis 存了什么？Bitmap 是什么，为什么用它来做分片上传？答： 我们项目里 Redis 主要有两个用途：  存文件分片上传状态 —— 用 Bitmap 存用户有效组织标签缓">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-knowflow-interview-qa/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="KnowFlow 项目 —— 30+ 道面试八股文 面向字节跳动 Java 后端暑期实习面试，每道题都结合 KnowFlow 项目源码讲清楚，力求”傻子都能懂”。   一、Redis 相关（6 道）Q1：你们项目里用 Redis 存了什么？Bitmap 是什么，为什么用它来做分片上传？答： 我们项目里 Redis 主要有两个用途：  存文件分片上传状态 —— 用 Bitmap 存用户有效组织标签缓">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T13:40:00.000Z">
+<meta property="article:modified_time" content="2026-06-07T13:23:28.756Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Elasticsearch">
+<meta property="article:tag" content="JWT">
+<meta property="article:tag" content="K8s">
+<meta property="article:tag" content="Kafka">
+<meta property="article:tag" content="KnowFlow">
+<meta property="article:tag" content="MinIO">
+<meta property="article:tag" content="RBAC">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="Spring Security">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="字节跳动">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>KnowFlow 项目 —— 30+ 道面试八股文（字节实习向） - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-07 21:40" pubdate>
+          2026年6月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          80 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="KnowFlow-项目-——-30-道面试八股文"><a href="#KnowFlow-项目-——-30-道面试八股文" class="headerlink" title="KnowFlow 项目 —— 30+ 道面试八股文"></a>KnowFlow 项目 —— 30+ 道面试八股文</h1><blockquote>
+<p>面向字节跳动 Java 后端暑期实习面试，每道题都结合 KnowFlow 项目源码讲清楚，力求”傻子都能懂”。</p>
+</blockquote>
+<hr>
+<h2 id="一、Redis-相关（6-道）"><a href="#一、Redis-相关（6-道）" class="headerlink" title="一、Redis 相关（6 道）"></a>一、Redis 相关（6 道）</h2><h3 id="Q1：你们项目里用-Redis-存了什么？Bitmap-是什么，为什么用它来做分片上传？"><a href="#Q1：你们项目里用-Redis-存了什么？Bitmap-是什么，为什么用它来做分片上传？" class="headerlink" title="Q1：你们项目里用 Redis 存了什么？Bitmap 是什么，为什么用它来做分片上传？"></a>Q1：你们项目里用 Redis 存了什么？Bitmap 是什么，为什么用它来做分片上传？</h3><p><strong>答：</strong></p>
+<p>我们项目里 Redis 主要有两个用途：</p>
+<ol>
+<li><strong>存文件分片上传状态</strong> —— 用 <strong>Bitmap</strong></li>
+<li><strong>存用户有效组织标签缓存</strong> —— 用 <strong>Set 或 List</strong></li>
+</ol>
+<p><strong>Bitmap 是什么？</strong></p>
+<p>Bitmap 就是<strong>用每一个 bit 位来表示一个状态</strong>，极其省内存。</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs markdown">比如一个 500MB 的文件，分成 100 个分片（每个 5MB）<br>如果用普通方式记录哪些分片已上传：<br><span class="hljs-bullet">  -</span> 用 Set 存已上传的分片索引：&#123;0, 1, 2, ..., 99&#125;  <br><span class="hljs-bullet">  -</span> 每个数字按字符串存，大约 3~5 字节，100 个就是 300~500 字节<br><br>用 Bitmap：<br><span class="hljs-bullet">  -</span> 100 个 bit = 100/8 = 12.5 字节！<br><span class="hljs-bullet">  -</span> 即使文件分成 1000 个分片，也只要 125 字节<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么用 Bitmap 记录分片上传状态？</strong></p>
+<ol>
+<li><strong>极其省内存</strong>：10 万个分片只要 12.5KB，如果用数据库存，10 万行记录可能要 10MB+</li>
+<li><strong>O(1) 查询某个分片是否已上传</strong>：<code>GETBIT key offset</code></li>
+<li><strong>支持批量操作</strong>：可以一次性把 Bitmap 的字节数组取出来，在本地解析出所有已上传的分片</li>
+</ol>
+<p><strong>源码依据</strong>：<code>UploadService.java</code> 第 344-361 行，<code>isChunkUploaded()</code> 方法用 <code>redisTemplate.opsForValue().getBit()</code> 检查分片状态；第 370-385 行，<code>markChunkUploaded()</code> 用 <code>setBit()</code> 标记分片已上传。</p>
+<hr>
+<h3 id="Q2：Redis-Bitmap-的底层实现原理是什么？"><a href="#Q2：Redis-Bitmap-的底层实现原理是什么？" class="headerlink" title="Q2：Redis Bitmap 的底层实现原理是什么？"></a>Q2：Redis Bitmap 的底层实现原理是什么？</h3><p><strong>答：</strong></p>
+<p>Redis 的 Bitmap <strong>不是</strong>一种独立的数据结构，它其实是<strong>对 String 类型做位操作</strong>。</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">Redis Key: <span class="hljs-string">&quot;upload:123:abc&quot;</span><br>对应的 Value 是一个字节数组（String 的底层就是字节数组）：<br>  字节0        字节1        字节2<br>[bit0|<span class="hljs-string">bit1</span>|<span class="hljs-string">...</span>|<span class="hljs-string">bit7][bit8</span>|<span class="hljs-string">...]...</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>底层原理</strong>：</p>
+<ul>
+<li><code>SETBIT key offset value</code>：把 offset 那个 bit 设为 0 或 1<ul>
+<li>如果 offset 超出了当前 String 的长度，Redis 会自动<strong>扩容</strong>（补 <code>x00</code>）</li>
+</ul>
+</li>
+<li><code>GETBIT key offset</code>：读取 offset 那个 bit 的值</li>
+<li><code>BITCOUNT key</code>：统计有多少個 bit 是 1（Redis 用了<strong>查表法</strong>优化，很快）</li>
+<li><code>GET key</code>：把整个 Bitmap 作为普通 String 取出来（可以用来批量解析）</li>
+</ul>
+<p><strong>扩容的代价</strong>：如果文件有 1000 个分片，Bitmap 需要 125 字节，Redis 会自动扩容，这个过程很快，不影响性能。</p>
+<p><strong>应用场景</strong>：</p>
+<ul>
+<li>用户签到（365 天只用 46 字节）</li>
+<li>布隆过滤器（我们项目没用，但这是一个经典场景）</li>
+<li>分片上传状态（我们项目用的就是这个）</li>
+</ul>
+<hr>
+<h3 id="Q3：如果-Redis-宕机了，你们项目的分片上传状态会怎么样？"><a href="#Q3：如果-Redis-宕机了，你们项目的分片上传状态会怎么样？" class="headerlink" title="Q3：如果 Redis 宕机了，你们项目的分片上传状态会怎么样？"></a>Q3：如果 Redis 宕机了，你们项目的分片上传状态会怎么样？</h3><p><strong>答：</strong></p>
+<p>分片上传状态存在 Redis 里，如果 Redis 宕机且数据没持久化，会丢失。</p>
+<p><strong>我们的处理方案</strong>：</p>
+<ol>
+<li><strong>分片元数据同时存数据库</strong>：<code>ChunkInfo</code> 表记录了每个分片的信息（分片索引、MD5、存储路径），即使 Redis 里的 Bitmap 丢了，也可以从数据库重新构建 Bitmap</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 恢复 Bitmap 的逻辑（伪代码）</span><br>List&lt;ChunkInfo&gt; chunks = chunkInfoRepository.findByFileMd5OrderByChunkIndexAsc(fileMd5);<br><span class="hljs-keyword">for</span> (ChunkInfo chunk : chunks) &#123;<br>    redisTemplate.opsForValue().setBit(redisKey, chunk.getChunkIndex(), <span class="hljs-literal">true</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p><strong>MinIO 里的分片文件本身不会丢</strong>：Redis 只是记录”哪些分片已上传”，真正的分片文件存在 MinIO 里，Redis 宕机不影响 MinIO 里的文件</p>
+</li>
+<li><p><strong>用户重新上传时会有提示</strong>：前端调用 <code>getUploadedChunks()</code> 接口，发现 Redis 里没有记录，会返回”请重新上传”或自动从数据库恢复状态</p>
+</li>
+</ol>
+<p><strong>面试加分</strong>：如果要做到 Redis 宕机不丢数据，可以开启 <strong>AOF 持久化</strong>（<code>appendonly yes</code>），或者做 <strong>Redis 主从复制</strong>。</p>
+<hr>
+<h3 id="Q4：Redis-和-MinIO-在你们项目里的分工是什么？为什么不用-Redis-存文件？"><a href="#Q4：Redis-和-MinIO-在你们项目里的分工是什么？为什么不用-Redis-存文件？" class="headerlink" title="Q4：Redis 和 MinIO 在你们项目里的分工是什么？为什么不用 Redis 存文件？"></a>Q4：Redis 和 MinIO 在你们项目里的分工是什么？为什么不用 Redis 存文件？</h3><p><strong>答：</strong></p>
+<p>这个问题考察你对不同存储系统的理解。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Redis</th>
+<th>MinIO（对象存储）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>定位</strong></td>
+<td>内存数据库，存临时状态、缓存</td>
+<td>对象存储，存大文件</td>
+</tr>
+<tr>
+<td><strong>容量</strong></td>
+<td>受内存限制（一般几十 GB）</td>
+<td>可以扩展到 PB 级</td>
+</tr>
+<tr>
+<td><strong>适用数据</strong></td>
+<td>小数据（KB 级）</td>
+<td>大数据（MB&#x2F;GB 级）</td>
+</tr>
+<tr>
+<td><strong>访问速度</strong></td>
+<td>微秒级</td>
+<td>毫秒级（走网络 IO）</td>
+</tr>
+<tr>
+<td><strong>成本</strong></td>
+<td>贵（内存比磁盘贵得多）</td>
+<td>便宜（用磁盘&#x2F;SSD）</td>
+</tr>
+</tbody></table>
+<p><strong>为什么不用 Redis 存文件？</strong></p>
+<ol>
+<li><strong>太贵</strong>：500MB 的文件存 Redis，要占 500MB 内存，1000 个用户上传文件，就要 500GB 内存，成本无法接受</li>
+<li><strong>Redis 的设计目的不是存大文件</strong>：Redis 是内存数据库，适合存频繁读写的<strong>小数据</strong>（缓存、计数、状态）</li>
+<li><strong>MinIO 就是为存大文件设计的</strong>：分布式、高可用、支持分片上传（它自己也有分片上传功能，我们项目是在应用层自己实现的）</li>
+</ol>
+<p><strong>我们项目的分工</strong>：</p>
+<ul>
+<li>Redis：存<strong>分片上传状态</strong>（Bitmap，很小）+ <strong>用户组织标签缓存</strong>（Set，很小）</li>
+<li>MinIO：存<strong>真正的文件分片</strong> + <strong>合并后的完整文件</strong></li>
+</ul>
+<hr>
+<h3 id="Q5：你们项目里-Redis-的-Key-是怎么设计的？有没有规范？"><a href="#Q5：你们项目里-Redis-的-Key-是怎么设计的？有没有规范？" class="headerlink" title="Q5：你们项目里 Redis 的 Key 是怎么设计的？有没有规范？"></a>Q5：你们项目里 Redis 的 Key 是怎么设计的？有没有规范？</h3><p><strong>答：</strong></p>
+<p>我们项目里 Redis Key 的设计规范是：<code>业务:用户ID:文件MD5</code>（用冒号分隔，这是 Redis Key 设计的经典规范）。</p>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey"><span class="hljs-title">分片上传状态：upload:&#123;userId&#125;:</span>&#123;fileMd5&#125;<br><span class="hljs-title">  例如：upload:123:</span>abcde12345...<br>  <br>为什么这样设计？<br><span class="hljs-number">1</span>. 可读性好：一看就知道这个 Key 是干嘛的<br><span class="hljs-number">2</span>. 方便批量操作：可以用 `KEYS upload:<span class="hljs-number">123</span>:*` 或 `SCAN` 找出某个用户的所有上传记录<br><span class="hljs-number">3</span>. 方便设置统一过期时间：`EXPIRE upload:<span class="hljs-number">123</span>:abc <span class="hljs-number">86400</span>`（<span class="hljs-number">24</span> 小时后自动清理，防止 Redis 内存泄漏）<br></code></pre></td></tr></table></figure>
+
+<p><strong>Redis Key 设计的几个原则</strong>（面试加分）：</p>
+<ol>
+<li><strong>用冒号分隔</strong>：<code>业务:子业务:ID</code>，可读性好</li>
+<li><strong>不要过长</strong>：Redis Key 也是要占内存的，但也不要过于简短（可读性更重要）</li>
+<li><strong>避免冲突</strong>：加业务前缀（我们项目用了 <code>upload:</code> 前缀）</li>
+<li><strong>设置过期时间</strong>：防止内存泄漏（我们项目里分片上传的 Bitmap 应该在文件合并后删除，看代码第 393-403 行 <code>deleteFileMark()</code> 方法确实删除了）</li>
+</ol>
+<hr>
+<h3 id="Q6：Redis-的过期键删除策略有哪几种？你们项目用到了吗？"><a href="#Q6：Redis-的过期键删除策略有哪几种？你们项目用到了吗？" class="headerlink" title="Q6：Redis 的过期键删除策略有哪几种？你们项目用到了吗？"></a>Q6：Redis 的过期键删除策略有哪几种？你们项目用到了吗？</h3><p><strong>答：</strong></p>
+<p>Redis 的过期键删除有两种策略，<strong>同时配合使用</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>原理</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>惰性删除</strong></td>
+<td>访问 Key 时才检查是否过期，过期就删除</td>
+<td>对 CPU 友好（不主动扫描）</td>
+<td>过期 Key 如果不被访问，会一直占内存</td>
+</tr>
+<tr>
+<td><strong>定期删除</strong></td>
+<td>每隔一段时间，随机抽查一批 Key，删除过期的</td>
+<td>防止过期 Key 堆积</td>
+<td>抽查可能漏掉一些过期 Key</td>
+</tr>
+</tbody></table>
+<p><strong>你们项目用到了吗？</strong></p>
+<p>用到了。分片上传的 Bitmap Key，应该在文件合并后<strong>主动删除</strong>（我们项目代码第 632-635 行确实调用了 <code>deleteFileMark()</code>）。</p>
+<p>但如果删除逻辑失败了（比如删除时网络抖了一下），这个 Key 就会一直留在 Redis 里。所以<strong>最好给 Key 设置一个过期时间作为兜底</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 在标记分片已上传时，同时设置过期时间（24 小时）</span><br>redisTemplate.opsForValue().setBit(redisKey, chunkIndex, <span class="hljs-literal">true</span>);<br>redisTemplate.expire(redisKey, <span class="hljs-number">24</span>, TimeUnit.HOURS);  <span class="hljs-comment">// ⚠️ 代码里没写这行！可以提优化点</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：如果你发现项目里没有设置过期时间，这就是一个<strong>可以提的优化点</strong>（说明你不仅会做，还会思考边界情况）。</p>
+<hr>
+<h2 id="二、Elasticsearch-相关（5-道）"><a href="#二、Elasticsearch-相关（5-道）" class="headerlink" title="二、Elasticsearch 相关（5 道）"></a>二、Elasticsearch 相关（5 道）</h2><h3 id="Q7：你们项目里的混合检索是怎么做的？为什么既要向量检索又要-BM25？"><a href="#Q7：你们项目里的混合检索是怎么做的？为什么既要向量检索又要-BM25？" class="headerlink" title="Q7：你们项目里的混合检索是怎么做的？为什么既要向量检索又要 BM25？"></a>Q7：你们项目里的混合检索是怎么做的？为什么既要向量检索又要 BM25？</h3><p><strong>答：</strong></p>
+<p>这是 RAG（检索增强生成）系统的核心问题。</p>
+<p><strong>单纯向量检索的问题</strong>：</p>
+<ul>
+<li>向量检索靠的是”语义相似度”，比如用户搜”MySQL 同步慢怎么查？”，向量检索能找到”MySQL 主从延迟排查思路”（语义相近）</li>
+<li>但向量检索<strong>不精确</strong>：如果用户搜”Spring Boot 3.2 新特性”，向量检索可能把”Spring Boot 2.7 新特性”也召回了，因为语义相近，但用户要的是<strong>精确匹配版本号</strong></li>
+</ul>
+<p><strong>单纯 BM25 的问题</strong>：</p>
+<ul>
+<li>BM25 是关键词检索，精确匹配能力强</li>
+<li>但 BM25 <strong>不理解语义</strong>：用户搜”MySQL 同步慢怎么查？”，如果文档里写的是”主从延迟过高排查”，BM25 召回不了（因为没有一个词是匹配的）</li>
+</ul>
+<p><strong>所以两个都要</strong>：</p>
+<ol>
+<li><strong>先用向量检索粗召回</strong>（语义相似，召回面广）</li>
+<li><strong>再用 BM25 重排序</strong>（精确匹配高的排前面）</li>
+<li><strong>用 RRF（倒数秩融合）把两个结果合并</strong></li>
+</ol>
+<p><strong>源码依据</strong>：<code>HybridSearchService.java</code> 第 91-140 行，先用 KNN 向量检索召回 <code>topK*30</code> 个候选，再用 <code>rescore</code> 做 BM25 重排序，最后返回 <code>topK</code> 个结果。</p>
+<hr>
+<h3 id="Q8：Elasticsearch-的-KNN-检索原理是什么？倒排索引和向量索引的区别？"><a href="#Q8：Elasticsearch-的-KNN-检索原理是什么？倒排索引和向量索引的区别？" class="headerlink" title="Q8：Elasticsearch 的 KNN 检索原理是什么？倒排索引和向量索引的区别？"></a>Q8：Elasticsearch 的 KNN 检索原理是什么？倒排索引和向量索引的区别？</h3><p><strong>答：</strong></p>
+<p><strong>倒排索引</strong>（用于 BM25 关键词检索）：</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs prolog">文档<span class="hljs-number">1</span>：<span class="hljs-string">&quot;MySQL 主从复制很慢&quot;</span><br>文档<span class="hljs-number">2</span>：<span class="hljs-string">&quot;Redis 主从同步很快&quot;</span><br><br>倒排索引：<br>  <span class="hljs-string">&quot;MySQL&quot;</span>  → [文档<span class="hljs-number">1</span>]<br>  <span class="hljs-string">&quot;主从&quot;</span>   → [文档<span class="hljs-number">1</span>, 文档<span class="hljs-number">2</span>]<br>  <span class="hljs-string">&quot;复制&quot;</span>   → [文档<span class="hljs-number">1</span>]<br>  <span class="hljs-string">&quot;Redis&quot;</span>  → [文档<span class="hljs-number">2</span>]<br>  ...<br></code></pre></td></tr></table></figure>
+<p>查询时，把查询文本也分词，然后去倒排索引里找哪些文档包含这些词，再用 TF-IDF 或 BM25 算法算分。</p>
+<p><strong>向量索引</strong>（用于 KNN 语义检索）：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">每个文档切块后，用一个 2048 维的向量表示：<br>  文档1 块1：<span class="hljs-string">&quot;MySQL 主从复制...&quot;</span> → [0.12, -0.34, <span class="hljs-string">...</span>, 0.78]（2048 维）<br>  文档2 块3：<span class="hljs-string">&quot;Redis 主从同步...&quot;</span>  → [0.08, -0.29, <span class="hljs-string">...</span>, 0.81]（2048 维）<br></code></pre></td></tr></table></figure>
+<p>查询时，把查询文本也转成 2048 维向量，然后计算<strong>余弦相似度</strong>（或欧氏距离），找出最相似的 K 个向量。</p>
+<p><strong>ES 里向量索引的底层</strong>：用的是 <strong>HNSW（Hierarchical Navigable Small World）</strong> 图算法，类似跳表的思想，查询复杂度大约是 O(log N)，比暴力扫描快得多。</p>
+<p><strong>为什么不用暴力扫描？</strong> 如果有 100 万个球块，每个 2048 维，暴力扫描要算 100 万次余弦相似度，太慢了。HNSW 可以快 100~1000 倍。</p>
+<hr>
+<h3 id="Q9：RRF（倒数秩融合）是什么？为什么用它来合并结果？"><a href="#Q9：RRF（倒数秩融合）是什么？为什么用它来合并结果？" class="headerlink" title="Q9：RRF（倒数秩融合）是什么？为什么用它来合并结果？"></a>Q9：RRF（倒数秩融合）是什么？为什么用它来合并结果？</h3><p><strong>答：</strong></p>
+<p>RRF 是一种<strong>把多个排序结果合并成一个</strong>的算法，公式很简单：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">RRF</span><span class="hljs-params">(d)</span></span> = Σ (<span class="hljs-number">1</span> / (k + <span class="hljs-built_in">rank_i</span>(d)))<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>d</code> 是某个文档块</li>
+<li><code>rank_i(d)</code> 是第 i 种检索方法里，文档 d 的排名（从 1 开始）</li>
+<li><code>k</code> 是一个常数，通常取 60（防止排名第一的文档主导整个结果）</li>
+</ul>
+<p><strong>举个例子</strong>：</p>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">向量检索结果： <span class="hljs-punctuation">[</span>块<span class="hljs-variable">A</span><span class="hljs-punctuation">(</span>第<span class="hljs-number">1</span>名<span class="hljs-punctuation">)</span><span class="hljs-operator">,</span> 块<span class="hljs-variable">B</span><span class="hljs-punctuation">(</span>第<span class="hljs-number">2</span>名<span class="hljs-punctuation">)</span><span class="hljs-operator">,</span> 块<span class="hljs-built_in">C</span><span class="hljs-punctuation">(</span>第<span class="hljs-number">3</span>名<span class="hljs-punctuation">)</span><span class="hljs-punctuation">]</span><br><span class="hljs-variable">BM25</span> 检索结果：  <span class="hljs-punctuation">[</span>块<span class="hljs-variable">B</span><span class="hljs-punctuation">(</span>第<span class="hljs-number">1</span>名<span class="hljs-punctuation">)</span><span class="hljs-operator">,</span> 块<span class="hljs-built_in">C</span><span class="hljs-punctuation">(</span>第<span class="hljs-number">2</span>名<span class="hljs-punctuation">)</span><span class="hljs-operator">,</span> 块<span class="hljs-built_in">D</span><span class="hljs-punctuation">(</span>第<span class="hljs-number">3</span>名<span class="hljs-punctuation">)</span><span class="hljs-punctuation">]</span><br><br><span class="hljs-variable">RRF</span> 计算：<br>  块<span class="hljs-variable">A</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span><span class="hljs-operator">/</span><span class="hljs-punctuation">(</span><span class="hljs-number">60</span><span class="hljs-operator">+</span><span class="hljs-number">1</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">+</span> <span class="hljs-number">0</span> <span class="hljs-operator">=</span> <span class="hljs-number">0.0164</span><br>  块<span class="hljs-variable">B</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span><span class="hljs-operator">/</span><span class="hljs-punctuation">(</span><span class="hljs-number">60</span><span class="hljs-operator">+</span><span class="hljs-number">2</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">+</span> <span class="hljs-number">1</span><span class="hljs-operator">/</span><span class="hljs-punctuation">(</span><span class="hljs-number">60</span><span class="hljs-operator">+</span><span class="hljs-number">1</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">=</span> <span class="hljs-number">0.0162</span> <span class="hljs-operator">+</span> <span class="hljs-number">0.0164</span> <span class="hljs-operator">=</span> <span class="hljs-number">0.0326</span>  ← 最高分<br>  块<span class="hljs-built_in">C</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span><span class="hljs-operator">/</span><span class="hljs-punctuation">(</span><span class="hljs-number">60</span><span class="hljs-operator">+</span><span class="hljs-number">3</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">+</span> <span class="hljs-number">1</span><span class="hljs-operator">/</span><span class="hljs-punctuation">(</span><span class="hljs-number">60</span><span class="hljs-operator">+</span><span class="hljs-number">2</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">=</span> <span class="hljs-number">0.0160</span> <span class="hljs-operator">+</span> <span class="hljs-number">0.0162</span> <span class="hljs-operator">=</span> <span class="hljs-number">0.0322</span><br>  块<span class="hljs-built_in">D</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span> <span class="hljs-operator">+</span> <span class="hljs-number">1</span><span class="hljs-operator">/</span><span class="hljs-punctuation">(</span><span class="hljs-number">60</span><span class="hljs-operator">+</span><span class="hljs-number">3</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">=</span> <span class="hljs-number">0.0160</span><br><br>最终排序：<span class="hljs-punctuation">[</span>块<span class="hljs-variable">B</span><span class="hljs-operator">,</span> 块<span class="hljs-built_in">C</span><span class="hljs-operator">,</span> 块<span class="hljs-variable">A</span><span class="hljs-operator">,</span> 块<span class="hljs-built_in">D</span><span class="hljs-punctuation">]</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么用 RRF 而不是其他融合方法？</strong></p>
+<ol>
+<li><strong>不依赖分数绝对值</strong>：向量检索的分数范围和 BM25 的分数范围不一样，不能直接相加，RRF 只用排名，不受分数范围影响</li>
+<li><strong>简单有效</strong>：业界标准方法，ES 内置支持（<code>rescore</code> 阶段就可以配置 RRF）</li>
+</ol>
+<hr>
+<h3 id="Q10：你们项目里-ES-的索引-Mapping-是怎么设计的？有没有用嵌套类型？"><a href="#Q10：你们项目里-ES-的索引-Mapping-是怎么设计的？有没有用嵌套类型？" class="headerlink" title="Q10：你们项目里 ES 的索引 Mapping 是怎么设计的？有没有用嵌套类型？"></a>Q10：你们项目里 ES 的索引 Mapping 是怎么设计的？有没有用嵌套类型？</h3><p><strong>答：</strong></p>
+<p>我们项目里 ES 的索引叫 <code>knowledge_base</code>，存储的是<strong>文档切块后的文本块</strong>。</p>
+<p><strong>Mapping 设计</strong>（根据 <code>EsDocument.java</code> 实体类推断）：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;mappings&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;properties&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;fileMd5&quot;</span><span class="hljs-punctuation">:</span>        <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>     <span class="hljs-comment">// 文件 MD5（精确匹配）</span><br>      <span class="hljs-attr">&quot;chunkId&quot;</span><span class="hljs-punctuation">:</span>       <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>     <span class="hljs-comment">// 块 ID（精确匹配）</span><br>      <span class="hljs-attr">&quot;textContent&quot;</span><span class="hljs-punctuation">:</span>   <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ik_max_word&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>  <span class="hljs-comment">// 文本内容（分词，用于 BM25）</span><br>      <span class="hljs-attr">&quot;vector&quot;</span><span class="hljs-punctuation">:</span>        <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;dense_vector&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;dims&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2048</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>  <span class="hljs-comment">// 向量（2048 维）</span><br>      <span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span>        <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;long&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>          <span class="hljs-comment">// 上传用户 ID（用于权限过滤）</span><br>      <span class="hljs-attr">&quot;orgTag&quot;</span><span class="hljs-punctuation">:</span>       <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>       <span class="hljs-comment">// 组织标签（用于权限过滤）</span><br>      <span class="hljs-attr">&quot;public&quot;</span><span class="hljs-punctuation">:</span>       <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;boolean&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>       <span class="hljs-comment">// 是否公开（用于权限过滤）</span><br>      <span class="hljs-attr">&quot;fileName&quot;</span><span class="hljs-punctuation">:</span>     <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span> <span class="hljs-punctuation">&#125;</span>       <span class="hljs-comment">// 文件名（用于展示）</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么 <code>textContent</code> 用 <code>ik_max_word</code> 分词器？</strong></p>
+<ul>
+<li>默认的标准分词器对中文不友好（会分成单个字）</li>
+<li>IK 分词器是专门为中文设计的，能把”MySQL 主从复制”分成”MySQL”、”主从”、”复制”</li>
+</ul>
+<p><strong>为什么 <code>orgTag</code> 用 <code>keyword</code> 而不是 <code>text</code>？</strong></p>
+<ul>
+<li><code>keyword</code> 类型用于<strong>精确匹配</strong>（比如 <code>term</code> 查询）</li>
+<li><code>text</code> 类型用于<strong>全文检索</strong>（会分词）</li>
+<li>组织标签是用来<strong>精确过滤</strong>的（查询时必须完全匹配 “org_a”，不能匹配 “org_a_b” 的部分），所以用 <code>keyword</code></li>
+</ul>
+<hr>
+<h3 id="Q11：ES-的权限过滤是怎么实现的？你们项目里怎么保证用户只能搜到自己有权限的文档？"><a href="#Q11：ES-的权限过滤是怎么实现的？你们项目里怎么保证用户只能搜到自己有权限的文档？" class="headerlink" title="Q11：ES 的权限过滤是怎么实现的？你们项目里怎么保证用户只能搜到自己有权限的文档？"></a>Q11：ES 的权限过滤是怎么实现的？你们项目里怎么保证用户只能搜到自己有权限的文档？</h3><p><strong>答：</strong></p>
+<p>这是我们项目的一个重要设计。ES 的权限过滤是在<strong>查询阶段</strong>做的，不是在建索引阶段。</p>
+<p><strong>权限规则</strong>（根据 <code>HybridSearchService.java</code> 第 102-123 行）：</p>
+<ol>
+<li><strong>用户自己的文档</strong> → 有权限</li>
+<li><strong>公开文档</strong>（<code>public=true</code>）→ 有权限</li>
+<li><strong>用户所属组织的文档</strong> → 有权限（通过 <code>orgTag</code> 判断，还支持<strong>组织层级关系</strong>）</li>
+</ol>
+<p><strong>ES 查询里的实现</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 构建 Bool 查询</span><br>.bool(b -&gt; b<br>    .must(m -&gt; m.match(m2 -&gt; m2.field(<span class="hljs-string">&quot;textContent&quot;</span>).query(query)))  <span class="hljs-comment">// 关键词必须匹配</span><br>    .filter(f -&gt; f.bool(b2 -&gt; b2<br>        .should(s1 -&gt; s1.term(t -&gt; t.field(<span class="hljs-string">&quot;userId&quot;</span>).value(userDbId)))     <span class="hljs-comment">// 条件1：自己的</span><br>        .should(s2 -&gt; s2.term(t -&gt; t.field(<span class="hljs-string">&quot;public&quot;</span>).value(<span class="hljs-literal">true</span>)))     <span class="hljs-comment">// 条件2：公开的</span><br>        .should(s3 -&gt; &#123;<br>            <span class="hljs-comment">// 条件3：所属组织的（支持多个组织标签）</span><br>            <span class="hljs-keyword">if</span> (userEffectiveTags.size() == <span class="hljs-number">1</span>) &#123;<br>                <span class="hljs-keyword">return</span> s3.term(t -&gt; t.field(<span class="hljs-string">&quot;orgTag&quot;</span>).value(userEffectiveTags.get(<span class="hljs-number">0</span>)));<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// 多个标签，用 should 组合</span><br>                userEffectiveTags.forEach(tag -&gt; <br>                    innerBool.should(sh -&gt; sh.term(t -&gt; t.field(<span class="hljs-string">&quot;orgTag&quot;</span>).value(tag))));<br>                <span class="hljs-keyword">return</span> innerBool;<br>            &#125;<br>        &#125;)<br>    ))<br>)<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么用 <code>filter</code> 而不是 <code>must</code>？</strong></p>
+<ul>
+<li><code>filter</code> 不计算相关性分数，只做<strong>是&#x2F;否过滤</strong>，性能更好</li>
+<li><code>filter</code> 的结果可以被 ES <strong>缓存</strong>（下次同样的 filter 直接命中缓存）</li>
+</ul>
+<hr>
+<h2 id="三、消息队列-Kafka-相关（4-道）"><a href="#三、消息队列-Kafka-相关（4-道）" class="headerlink" title="三、消息队列 Kafka 相关（4 道）"></a>三、消息队列 Kafka 相关（4 道）</h2><h3 id="Q12：你们项目里-Kafka-是怎么用的？为什么用-Kafka-而不是-RabbitMQ？"><a href="#Q12：你们项目里-Kafka-是怎么用的？为什么用-Kafka-而不是-RabbitMQ？" class="headerlink" title="Q12：你们项目里 Kafka 是怎么用的？为什么用 Kafka 而不是 RabbitMQ？"></a>Q12：你们项目里 Kafka 是怎么用的？为什么用 Kafka 而不是 RabbitMQ？</h3><p><strong>答：</strong></p>
+<p>根据项目描述，我们用了 <strong>MinIO + Kafka 构建异步文档处理流水线</strong>。</p>
+<p><strong>流程</strong>：</p>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">文件分片上传完成 → 合并分片 → 写入 <span class="hljs-variable">DB</span> 记录<br>  ↓<br>  发消息到 <span class="hljs-variable">Kafka</span>（<span class="hljs-string">&quot;文件已上传，请处理&quot;</span>）<br>  ↓<br>  消费者（异步）：<br>    ① 解析文档（<span class="hljs-built_in">PDF</span><span class="hljs-operator">/</span><span class="hljs-built_in">Word</span><span class="hljs-operator">/</span><span class="hljs-variable">Excel</span> → 文本）<br>    ② 文本切块（分成 <span class="hljs-number">500</span> 字左右的块）<br>    ③ 调用 <span class="hljs-variable">Embedding</span> <span class="hljs-variable">API</span> 把每块转成 <span class="hljs-number">2048</span> 维向量<br>    ④ 把向量 <span class="hljs-operator">+</span> 文本块写入 <span class="hljs-variable">Elasticsearch</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么用 Kafka 而不是 RabbitMQ？</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Kafka</th>
+<th>RabbitMQ</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>定位</strong></td>
+<td>分布式流平台，高吞吐量</td>
+<td>传统消息队列，功能丰富</td>
+</tr>
+<tr>
+<td><strong>吞吐量</strong></td>
+<td>百万级 QPS</td>
+<td>万级 ~ 十万级 QPS</td>
+</tr>
+<tr>
+<td><strong>消息持久化</strong></td>
+<td>默认持久化（存磁盘日志）</td>
+<td>需要手动开启持久化</td>
+</tr>
+<tr>
+<td><strong>消费模式</strong></td>
+<td>消费者主动拉取（pull）</td>
+<td>队列主动推送（push）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>日志收集、流处理、大数据管道</td>
+<td>业务消息、延迟队列、优先级队列</td>
+</tr>
+</tbody></table>
+<p><strong>我们项目选 Kafka 的原因</strong>：</p>
+<ol>
+<li><strong>文档解析 + 向量化是 CPU 密集型任务</strong>，处理时间长（一个大文件可能要几分钟），Kafka 的<strong>高吞吐量</strong>适合这种场景</li>
+<li><strong>Kafka 的消息可以重复消费</strong>（只要 offset 不提交），如果某次向量化失败了，可以重新消费处理</li>
+<li><strong>文档处理顺序是重要的</strong>（同一个文件的分片要按照顺序合并），Kafka 的<strong>分区有序性</strong>可以保证同一个文件的处理顺序</li>
+</ol>
+<hr>
+<h3 id="Q13：Kafka-的消息丢失和重复消费怎么处理？"><a href="#Q13：Kafka-的消息丢失和重复消费怎么处理？" class="headerlink" title="Q13：Kafka 的消息丢失和重复消费怎么处理？"></a>Q13：Kafka 的消息丢失和重复消费怎么处理？</h3><p><strong>答：</strong></p>
+<p><strong>消息丢失的三个阶段</strong>：</p>
+<p><strong>阶段一：生产者 → Kafka</strong>（消息没到 Kafka）</p>
+<ul>
+<li>解决方案：开启 <strong>ACK&#x3D;all</strong>（所有副本都收到才算成功）</li>
+<li>开启 <strong>重试机制</strong>（<code>retries=Integer.MAX_VALUE</code>）</li>
+</ul>
+<p><strong>阶段二：Kafka 自身</strong>（Kafka 宕机丢消息）</p>
+<ul>
+<li>解决方案：设置 <strong>副本数 &gt;&#x3D; 3</strong>（<code>replication.factor=3</code>）</li>
+<li>设置 <strong>min.insync.replicas&#x3D;2</strong>（至少 2 个副本收到才算成功）</li>
+</ul>
+<p><strong>阶段三：Kafka → 消费者</strong>（消费者处理失败）</p>
+<ul>
+<li>解决方案：<strong>手动提交 offset</strong>（处理成功才提交）</li>
+<li>如果处理失败，<strong>不提交 offset</strong>，Kafka 会重新推送这条消息</li>
+</ul>
+<p><strong>重复消费的问题</strong>（Kafka 的 at-least-once 语义）：</p>
+<ul>
+<li>消费者处理了消息，但<strong>提交 offset 之前宕机了</strong> → Kafka 会重新推送这条消息 → 消费者又处理一次</li>
+<li>解决方案：<strong>幂等性设计</strong><ul>
+<li>每条消息带一个<strong>唯一业务 ID</strong>（比如 <code>fileMd5</code>）</li>
+<li>消费者处理前，先查数据库”这个文件是否已经处理过了”</li>
+<li>如果处理过了，直接跳过（不重复处理）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="Q14：Kafka-的分区（Partition）是什么？你们项目里怎么用的？"><a href="#Q14：Kafka-的分区（Partition）是什么？你们项目里怎么用的？" class="headerlink" title="Q14：Kafka 的分区（Partition）是什么？你们项目里怎么用的？"></a>Q14：Kafka 的分区（Partition）是什么？你们项目里怎么用的？</h3><p><strong>答：</strong></p>
+<p><strong>分区是什么？</strong></p>
+<ul>
+<li>一个 Kafka Topic 可以分成多个 Partition（分区）</li>
+<li>每个 Partition 是一个<strong>有序的、不可变的消息序列</strong></li>
+<li>不同 Partition 之间<strong>无顺序保证</strong>（Partition A 的消息和 Partition B 的消息顺序无关）</li>
+</ul>
+<p><strong>为什么要分区？</strong></p>
+<ol>
+<li><strong>并行处理</strong>：不同 Partition 可以由不同消费者并行消费（提高吞吐量）</li>
+<li><strong>水平扩展</strong>：Partition 可以分布在不同 Broker 上（突破单机限制）</li>
+</ol>
+<p><strong>你们项目里怎么用分区的？</strong></p>
+<ul>
+<li>以 <code>fileMd5</code> 作为<strong>分区键（Partition Key）</strong></li>
+<li>这样<strong>同一个文件的所有消息都会分到同一个 Partition</strong>（保证顺序处理）</li>
+<li>不同文件的消息可以并行处理（提高吞吐量）</li>
+</ul>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">fileMd5</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;abc...&quot;</span>  → Partition <span class="hljs-number">0</span><br><span class="hljs-attribute">fileMd5</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;def...&quot;</span>  → Partition <span class="hljs-number">1</span><br><span class="hljs-attribute">fileMd5</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;abc...&quot;</span>  → Partition <span class="hljs-number">0</span>  （同一个文件，还是 Partition <span class="hljs-number">0</span>，保证顺序）<br></code></pre></td></tr></table></figure>
+
+<p><strong>分区数量怎么设置？</strong></p>
+<ul>
+<li>分区数 &lt; 消费者数：有些消费者会空闲（浪费资源）</li>
+<li>分区数 &gt; 消费者数：有些消费者要处理多个分区（可能瓶颈）</li>
+<li><strong>最佳实践</strong>：分区数 &#x3D; 消费者数 × (1~2)（充分利用并行性）</li>
+</ul>
+<hr>
+<h3 id="Q15：Kafka-的消费者组（Consumer-Group）是什么？"><a href="#Q15：Kafka-的消费者组（Consumer-Group）是什么？" class="headerlink" title="Q15：Kafka 的消费者组（Consumer Group）是什么？"></a>Q15：Kafka 的消费者组（Consumer Group）是什么？</h3><p><strong>答：</strong></p>
+<p><strong>消费者组</strong>是 Kafka 的<strong>广播&#x2F;单播机制</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>配置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>单播</strong>（一条消息只被一个消费者处理）</td>
+<td>所有消费者在<strong>同一个组</strong>里</td>
+</tr>
+<tr>
+<td><strong>广播</strong>（一条消息被所有消费者处理）</td>
+<td>每个消费者在<strong>不同的组</strong>里</td>
+</tr>
+</tbody></table>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-symbol">Topic:</span> <span class="hljs-string">&quot;file.uploaded&quot;</span> 有 <span class="hljs-number">3</span> 个 Partition<br><br>消费者组 A（业务处理组）：<br>  - 消费者 <span class="hljs-built_in">A1</span> 处理 Partition <span class="hljs-number">0</span>, <span class="hljs-number">1</span><br>  - 消费者 <span class="hljs-built_in">A2</span> 处理 Partition <span class="hljs-number">2</span><br>  → 一条消息只会被 <span class="hljs-built_in">A1</span> 或 <span class="hljs-built_in">A2</span> 其中一个处理（单播）<br><br>消费者组 <span class="hljs-keyword">B（通知组）：</span><br><span class="hljs-keyword"></span>  - 消费者 <span class="hljs-keyword">B1 </span>处理所有 Partition<br>  → 同一条消息会被 A 组和 <span class="hljs-keyword">B </span>组都处理（广播）<br>     A 组负责<span class="hljs-string">&quot;解析文档、向量化&quot;</span><br>     <span class="hljs-keyword">B </span>组负责<span class="hljs-string">&quot;发通知给用户：您的文件已处理完成&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>你们项目里的用法</strong>：</p>
+<ul>
+<li>文档处理消费者 → 组名：<code>file-processor-group</code>（单播，保证每条消息只被处理一次）</li>
+<li>通知消费者 → 组名：<code>notification-group</code>（广播，和文档处理并行）</li>
+</ul>
+<hr>
+<h2 id="四、Spring-Security-JWT-相关（5-道）"><a href="#四、Spring-Security-JWT-相关（5-道）" class="headerlink" title="四、Spring Security + JWT 相关（5 道）"></a>四、Spring Security + JWT 相关（5 道）</h2><h3 id="Q16：你们项目里-JWT-双令牌机制是怎么实现的？为什么需要双令牌？"><a href="#Q16：你们项目里-JWT-双令牌机制是怎么实现的？为什么需要双令牌？" class="headerlink" title="Q16：你们项目里 JWT 双令牌机制是怎么实现的？为什么需要双令牌？"></a>Q16：你们项目里 JWT 双令牌机制是怎么实现的？为什么需要双令牌？</h3><p><strong>答：</strong></p>
+<p><strong>双令牌机制</strong>：<strong>Access Token</strong> + <strong>Refresh Token</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Access Token</th>
+<th>Refresh Token</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>用途</strong></td>
+<td>访问业务接口</td>
+<td>换取新的 Access Token</td>
+</tr>
+<tr>
+<td><strong>有效期</strong></td>
+<td>短（15 分钟 ~ 1 小时）</td>
+<td>长（7 天 ~ 30 天）</td>
+</tr>
+<tr>
+<td><strong>存储位置</strong></td>
+<td>内存（前端）或 HttpOnly Cookie</td>
+<td>HttpOnly Cookie（防 XSS）</td>
+</tr>
+<tr>
+<td><strong>如果泄露</strong></td>
+<td>危害较小（很快就过期了）</td>
+<td>危害较大（需要支持吊销）</td>
+</tr>
+</tbody></table>
+<p><strong>流程</strong>：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">用户登录<br>  ↓<br>  后端生成 <span class="hljs-keyword">Access</span> Token（<span class="hljs-number">15</span> 分钟有效）+ <span class="hljs-keyword">Refresh</span> Token（<span class="hljs-number">7</span> 天有效）<br>  ↓<br>  返回给前端：<span class="hljs-keyword">Access</span> Token 放内存，<span class="hljs-keyword">Refresh</span> Token 放 HttpOnly Cookie<br>  ↓<br>  前端每次请求业务接口，在 <span class="hljs-keyword">Header</span> 里带 <span class="hljs-keyword">Access</span> Token<br>  ↓<br>  如果 <span class="hljs-keyword">Access</span> Token 过期了（返回 <span class="hljs-number">401</span>）<br>  ↓<br>  前端调用 &quot;刷新令牌&quot; 接口，带上 <span class="hljs-keyword">Refresh</span> Token（Cookie 自动带上）<br>  ↓<br>  后端验证 <span class="hljs-keyword">Refresh</span> Token 有效 → 返回新的 <span class="hljs-keyword">Access</span> Token<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么需要双令牌？</strong>（面试高频）</p>
+<ol>
+<li><strong>安全性</strong>：如果只有一个长期有效的 Token，一旦泄露，攻击者可以一直用。双令牌机制下，即使 Access Token 泄露了，也只在 15 分钟内有效。</li>
+<li><strong>用户体验</strong>：用户不用每次 15 分钟就重新登录，Refresh Token 有效期内自动刷新 Access Token，用户无感知。</li>
+<li><strong>可吊销性</strong>：Refresh Token 可以存在数据库里，如果发现账号异常，可以把 Refresh Token 删掉，强制用户重新登录。</li>
+</ol>
+<p><strong>源码依据</strong>：<code>SecurityConfig.java</code> 第 75 行设置了 <code>sessionCreationPolicy(STATELESS)</code>（无状态，不用 Session），说明用的是 Token 机制。</p>
+<hr>
+<h3 id="Q17：JWT-的结构是什么？你们项目里-JWT-存了什么信息？"><a href="#Q17：JWT-的结构是什么？你们项目里-JWT-存了什么信息？" class="headerlink" title="Q17：JWT 的结构是什么？你们项目里 JWT 存了什么信息？"></a>Q17：JWT 的结构是什么？你们项目里 JWT 存了什么信息？</h3><p><strong>答：</strong></p>
+<p><strong>JWT（JSON Web Token）的结构</strong>：<code>Header.Payload.Signature</code></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs stylus">Header（头部）：&#123;<br>  <span class="hljs-string">&quot;alg&quot;</span>: <span class="hljs-string">&quot;HS256&quot;</span>,     <span class="hljs-comment">// 签名算法</span><br>  <span class="hljs-string">&quot;typ&quot;</span>: <span class="hljs-string">&quot;JWT&quot;</span><br>&#125;<br><br>Payload（载荷）：&#123;<br>  <span class="hljs-string">&quot;sub&quot;</span>: <span class="hljs-string">&quot;123&quot;</span>,           <span class="hljs-comment">// 用户 ID</span><br>  <span class="hljs-string">&quot;username&quot;</span>: <span class="hljs-string">&quot;zhangsan&quot;</span>,  <span class="hljs-comment">// 用户名</span><br>  <span class="hljs-string">&quot;roles&quot;</span>: <span class="hljs-selector-attr">[<span class="hljs-string">&quot;USER&quot;</span>]</span>,       <span class="hljs-comment">// 角色（用于权限判断）</span><br>  <span class="hljs-string">&quot;exp&quot;</span>: <span class="hljs-number">1717777777</span>,     <span class="hljs-comment">// 过期时间</span><br>  <span class="hljs-string">&quot;iat&quot;</span>: <span class="hljs-number">1717774177</span>       <span class="hljs-comment">// 签发时间</span><br>&#125;<br>  → 注意：Payload 是 Base64 编码，不是加密！谁都可以解码看到内容<br><br>Signature（签名）：<span class="hljs-built_in">HMAC-SHA256</span>(<br>  <span class="hljs-built_in">base64UrlEncode</span>(Header) + <span class="hljs-string">&quot;.&quot;</span> + <span class="hljs-built_in">base64UrlEncode</span>(Payload),<br>  secretKey               <span class="hljs-comment">// 这个才是保密的！</span><br>)<br>  → 签名用来验证 Token 有没有被篡改<br></code></pre></td></tr></table></figure>
+
+<p><strong>你们项目里 JWT 存了什么？</strong>（根据 <code>JwtAuthenticationFilter.java</code> 推断）</p>
+<ul>
+<li>用户 ID（<code>sub</code>）</li>
+<li>用户名（<code>username</code>）</li>
+<li>角色（<code>roles</code>：<code>USER</code> 或 <code>ADMIN</code>）</li>
+<li>过期时间（<code>exp</code>）</li>
+</ul>
+<p><strong>安全风险</strong>：</p>
+<ul>
+<li><strong>Payload 可以被解码</strong>：不要存敏感信息（比如密码、身份证号）</li>
+<li><strong>签名密钥泄露</strong>：攻击者可以伪造任意 Token（所以要保管好 <code>secretKey</code>）</li>
+<li><strong>JWT 无法主动吊销</strong>（因为是无状态的）：解决方案是<strong>把有效期设短</strong>，或者用<strong>黑名单机制</strong>（Redis 存已吊销的 Token ID）</li>
+</ul>
+<hr>
+<h3 id="Q18：Spring-Security-的过滤器链是什么？你们项目里加了哪些过滤器？"><a href="#Q18：Spring-Security-的过滤器链是什么？你们项目里加了哪些过滤器？" class="headerlink" title="Q18：Spring Security 的过滤器链是什么？你们项目里加了哪些过滤器？"></a>Q18：Spring Security 的过滤器链是什么？你们项目里加了哪些过滤器？</h3><p><strong>答：</strong></p>
+<p>Spring Security 是一个<strong>过滤器链</strong>（类似流水线，每个过滤器做一件事）。</p>
+<p><strong>你们项目里的过滤器链</strong>（根据 <code>SecurityConfig.java</code> 第 40-91 行）：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">请求 → <br>  ① <span class="hljs-keyword">JwtAuthenticationFilter（自定义） </span>   → 解析 <span class="hljs-keyword">JWT，设置登录状态</span><br><span class="hljs-keyword"></span>  ② <span class="hljs-keyword">OrgTagAuthorizationFilter（自定义） </span>→ 检查用户有没有权限访问这个组织的资源<br>  ③ UsernamePasswordAuthenticationFilter（内置）→ 处理表单登录（我们项目没用，因为用的是 <span class="hljs-keyword">JWT）</span><br><span class="hljs-keyword"></span>  ④ AuthorizationFilter（内置）       → 判断有没有权限访问这个 URL<br>  ⑤ 控制器<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>JwtAuthenticationFilter</code> 做了什么？</strong>（根据文件名推断）</p>
+<ol>
+<li>从请求 Header 里取 <code>Authorization: Bearer &lt;token&gt;</code></li>
+<li>解析 JWT，验证签名是否有效、有没有过期</li>
+<li>从 JWT 里取出用户 ID、用户名、角色</li>
+<li>创建一个 <code>Authentication</code> 对象，放进 <code>SecurityContextHolder</code>（这样后续控制器里可以通过 <code>SecurityContextHolder.getContext().getAuthentication()</code> 获取当前登录用户）</li>
+</ol>
+<p><strong><code>OrgTagAuthorizationFilter</code> 做了什么？</strong>（根据文件名推断）</p>
+<ol>
+<li>获取当前登录用户的组织标签（<code>orgTag</code>）</li>
+<li>检查用户要访问的资源（比如某个文档）的组织标签</li>
+<li>如果用户有权限（自己的、公开的、或同组织的），放行；否则返回 403</li>
+</ol>
+<hr>
+<h3 id="Q19：你们项目里的-RBAC（角色权限控制）是怎么设计的？"><a href="#Q19：你们项目里的-RBAC（角色权限控制）是怎么设计的？" class="headerlink" title="Q19：你们项目里的 RBAC（角色权限控制）是怎么设计的？"></a>Q19：你们项目里的 RBAC（角色权限控制）是怎么设计的？</h3><p><strong>答：</strong></p>
+<p>RBAC（Role-Based Access Control）的核心是：<strong>用户 → 角色 → 权限</strong>，而不是”用户 → 权限”（这样权限管理会非常混乱）。</p>
+<p><strong>我们项目里的 RBAC</strong>（根据 <code>SecurityConfig.java</code> 第 59-69 行）：</p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs nsis">角色有两种：<span class="hljs-literal">USER</span>（普通用户）、<span class="hljs-literal">ADMIN</span>（管理员）<br><br>权限规则：<br>  - 普通用户能访问：<br>    · 文件上传/下载（自己的文件）<br>    · 搜索（自己有权限的文档）<br>    · 对话（自己的对话历史）<br>    <br>  - 管理员能访问：<br>    · 所有普通用户能访问的<br>    · 管理员专属接口（/api/v1/<span class="hljs-literal">admin</span><span class="hljs-comment">/**）</span><br><span class="hljs-comment">    · 知识库管理</span><br><span class="hljs-comment">    · 系统状态监控</span><br><span class="hljs-comment">    · 用户活动监控</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>多租户隔离</strong>（防止用户 A 看到用户 B 的私有文档）：</p>
+<ul>
+<li>每个文件有一个 <code>orgTag</code>（组织标签）</li>
+<li>搜索时，ES 查询会自动加上权限过滤条件（只能搜到自己有权限的文档）</li>
+<li>详见 Q11 的回答</li>
+</ul>
+<p><strong>源码依据</strong>：<code>SecurityConfig.java</code> 第 59 行 <code>.requestMatchers(&quot;/api/v1/upload/**&quot;, ...).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;)</code>，说明普通用户和管理员都能访问上传接口。</p>
+<hr>
+<h3 id="Q20：如果-JWT-泄露了，你们项目里有什么应对措施？"><a href="#Q20：如果-JWT-泄露了，你们项目里有什么应对措施？" class="headerlink" title="Q20：如果 JWT 泄露了，你们项目里有什么应对措施？"></a>Q20：如果 JWT 泄露了，你们项目里有什么应对措施？</h3><p><strong>答：</strong></p>
+<p>JWT 泄露是<strong>非常严重的安全事故</strong>，我们项目里有这几层防护：</p>
+<p><strong>第一层：缩短 Access Token 有效期</strong></p>
+<ul>
+<li>Access Token 只有 15 分钟有效期，即使泄露了，最多也被利用 15 分钟</li>
+</ul>
+<p><strong>第二层：Refresh Token 吊销机制</strong></p>
+<ul>
+<li>Refresh Token 存在数据库里（或者 Redis 里）</li>
+<li>如果发现账号异常（比如用户举报、IP 异常），可以把 Refresh Token 删掉</li>
+<li>这样即使 Access Token 还没过期，等它过期后，攻击者也无法换取新的 Access Token</li>
+</ul>
+<p><strong>第三层：用户主动登出</strong></p>
+<ul>
+<li>登出时，后端把 Refresh Token 从数据库&#x2F;Redis 里删掉</li>
+<li>这样攻击者手里的 Refresh Token 就失效了</li>
+</ul>
+<p><strong>第四层：HttpOnly Cookie 防 XSS</strong></p>
+<ul>
+<li>Refresh Token 存在 HttpOnly Cookie 里，JavaScript 无法读取（防止 XSS 攻击偷走 Token）</li>
+</ul>
+<p><strong>如果 JWT 还是泄露了怎么办？</strong></p>
+<ul>
+<li><strong>立即吊销</strong>：在数据库里把这个用户的 <code>refresh_token</code> 字段置空，强制用户重新登录</li>
+<li><strong>通知用户</strong>：发送邮件&#x2F;短信，告知账号可能异常，建议修改密码</li>
+</ul>
+<hr>
+<h2 id="五、MinIO-相关（3-道）"><a href="#五、MinIO-相关（3-道）" class="headerlink" title="五、MinIO 相关（3 道）"></a>五、MinIO 相关（3 道）</h2><h3 id="Q21：MinIO-是什么？和阿里云-OSS、AWS-S3-有什么区别？"><a href="#Q21：MinIO-是什么？和阿里云-OSS、AWS-S3-有什么区别？" class="headerlink" title="Q21：MinIO 是什么？和阿里云 OSS、AWS S3 有什么区别？"></a>Q21：MinIO 是什么？和阿里云 OSS、AWS S3 有什么区别？</h3><p><strong>答：</strong></p>
+<p><strong>MinIO</strong> 是一个<strong>开源的、兼容 S3 协议的对象存储系统</strong>，可以自己搭建（私有云），也可以用在公有云。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>MinIO（自建）</th>
+<th>阿里云 OSS &#x2F; AWS S3（公有云）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>部署方式</strong></td>
+<td>自己部署（物理机&#x2F;虚拟机&#x2F;K8s）</td>
+<td>直接用云服务商的</td>
+</tr>
+<tr>
+<td><strong>成本</strong></td>
+<td>只有服务器成本（便宜）</td>
+<td>按存储量 + 流量收费（贵）</td>
+</tr>
+<tr>
+<td><strong>数据控制权</strong></td>
+<td>数据在自己服务器上（安全）</td>
+<td>数据在云服务商那里</td>
+</tr>
+<tr>
+<td><strong>维护成本</strong></td>
+<td>需要自己维护（运维成本）</td>
+<td>云服务商维护（省心）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>企业内部系统（数据不能出内网）</td>
+<td>面向公网的应用</td>
+</tr>
+</tbody></table>
+<p><strong>我们项目为什么用 MinIO？</strong></p>
+<ul>
+<li>企业知识库系统，文档可能包含<strong>敏感信息</strong>（不能传到公有云）</li>
+<li>用 MinIO 可以把文件存在<strong>企业自己的服务器</strong>上（数据不出内网）</li>
+<li>兼容 S3 SDK（<code>minio-java</code> SDK），以后如果要迁移到阿里云 OSS，代码不用改太多</li>
+</ul>
+<p><strong>MinIO 的核心概念</strong>：</p>
+<ul>
+<li><strong>Bucket</strong>（桶）：类似文件夹，用来组织对象</li>
+<li><strong>Object</strong>（对象）：存储的文件，每个对象有一个唯一的键（Key）</li>
+<li>我们项目里：Bucket &#x3D; <code>uploads</code>，对象键 &#x3D; <code>chunks/{fileMd5}/{chunkIndex}</code>（分片）或 <code>merged/{fileName}</code>（合并后的文件）</li>
+</ul>
+<hr>
+<h3 id="Q22：你们项目里-MinIO-的分片合并是怎么做的？合并后分片会删除吗？"><a href="#Q22：你们项目里-MinIO-的分片合并是怎么做的？合并后分片会删除吗？" class="headerlink" title="Q22：你们项目里 MinIO 的分片合并是怎么做的？合并后分片会删除吗？"></a>Q22：你们项目里 MinIO 的分片合并是怎么做的？合并后分片会删除吗？</h3><p><strong>答：</strong></p>
+<p><strong>分片合并</strong>（根据 <code>UploadService.java</code> 第 541-676 行）：</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs n1ql">所有分片上传完成后，前端调用 /<span class="hljs-keyword">merge</span> 接口<br>  ↓<br>  后端从 MinIO 里读取所有分片：<br>    minioClient.getObject(<span class="hljs-keyword">bucket</span>, <span class="hljs-string">&quot;chunks/abc/0&quot;</span>)<br>    minioClient.getObject(<span class="hljs-keyword">bucket</span>, <span class="hljs-string">&quot;chunks/abc/1&quot;</span>)<br>    ...<br>  ↓<br>  把分片按顺序合并成一个完整文件：<br>    minioClient.composeObject(<span class="hljs-keyword">bucket</span>, <span class="hljs-string">&quot;merged/file.pdf&quot;</span>, sources)<br>    → 注意：MinIO 支持**服务端合并**（不用把文件下载到应用服务器再合并，省网络 IO）<br>  ↓<br>  合并成功后，删除 MinIO 里的分片文件（第 <span class="hljs-number">614</span><span class="hljs-number">-629</span> 行）<br>  ↓<br>  更新数据库 file_upload 表的状态为<span class="hljs-string">&quot;已完成&quot;</span>（status=<span class="hljs-number">1</span>）<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么合并后要删除分片？</strong></p>
+<ol>
+<li><strong>节省存储空间</strong>：分片占了 <code>5MB * N</code>，合并后的文件也是这么大，不删的话占双倍空间</li>
+<li><strong>避免脏数据</strong>：如果分片不删，下次上传同一个文件（相同 MD5）时会误以为分片还在</li>
+</ol>
+<p><strong>合并失败怎么办？</strong></p>
+<ul>
+<li>如果合并过程中失败了（比如某个分片读不出来），会抛异常，前端可以重试合并操作</li>
+<li>MinIO 的分片文件<strong>不会被自动删除</strong>（因为只有合并成功才执行删除），所以重试时可以重新合并</li>
+</ul>
+<hr>
+<h3 id="Q23：MinIO-怎么保证文件不丢？你们项目里做了什么配置？"><a href="#Q23：MinIO-怎么保证文件不丢？你们项目里做了什么配置？" class="headerlink" title="Q23：MinIO 怎么保证文件不丢？你们项目里做了什么配置？"></a>Q23：MinIO 怎么保证文件不丢？你们项目里做了什么配置？</h3><p><strong>答：</strong></p>
+<p>MinIO 本身支持<strong>纠删码（Erasure Code）</strong>，可以在丢失 N&#x2F;2 个磁盘的情况下仍然恢复数据。</p>
+<p><strong>纠删码原理</strong>（类似 RAID 5&#x2F;6）：</p>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">把文件切成 <span class="hljs-built_in">K</span> 个数据块，算出 <span class="hljs-variable">M</span> 个校验块（共 <span class="hljs-built_in">K</span><span class="hljs-operator">+</span><span class="hljs-variable">M</span> 个块）<br>  只要剩下 <span class="hljs-built_in">K</span> 个块，就能恢复原始文件<br><br>例如：<span class="hljs-built_in">K</span><span class="hljs-operator">=</span><span class="hljs-number">4</span><span class="hljs-operator">,</span> <span class="hljs-variable">M</span><span class="hljs-operator">=</span><span class="hljs-number">2</span>（共 <span class="hljs-number">6</span> 个块）<br>  <span class="hljs-operator">-</span> 可以容忍最多 <span class="hljs-number">2</span> 个块丢失<br>  <span class="hljs-operator">-</span> 存储空间开销：<span class="hljs-punctuation">(</span><span class="hljs-built_in">K</span><span class="hljs-operator">+</span><span class="hljs-variable">M</span><span class="hljs-punctuation">)</span><span class="hljs-operator">/</span><span class="hljs-built_in">K</span> <span class="hljs-operator">=</span> <span class="hljs-number">6</span><span class="hljs-operator">/</span><span class="hljs-number">4</span> <span class="hljs-operator">=</span> <span class="hljs-number">1.5</span> 倍（比多副本的 <span class="hljs-number">2</span><span class="hljs-operator">~</span><span class="hljs-number">3</span> 倍省空间）<br></code></pre></td></tr></table></figure>
+
+<p><strong>我们项目里的配置</strong>（根据 <code>application.yml</code> 或 <code>application.properties</code> 推断）：</p>
+<ul>
+<li>MinIO 部署时启用了<strong>纠删码模式</strong>（<code>minio server /data{1...6}</code> 启动 6 个磁盘的纠删码模式）</li>
+<li>或者用了<strong>多副本模式</strong>（最少 2 个副本，数据同时在两个磁盘上）</li>
+</ul>
+<p><strong>应用层的保障</strong>：</p>
+<ul>
+<li>文件合并后，可以选择<strong>保留原始分片一段时间</strong>（比如 7 天），防止合并后的文件损坏后可以恢复</li>
+<li>定期<strong>备份 MinIO 数据</strong>到冷存储（比如每小时同步一次到远程 MinIO 或公有云 OSS）</li>
+</ul>
+<hr>
+<h2 id="六、可观测性（Prometheus）相关（3-道）"><a href="#六、可观测性（Prometheus）相关（3-道）" class="headerlink" title="六、可观测性（Prometheus）相关（3 道）"></a>六、可观测性（Prometheus）相关（3 道）</h2><h3 id="Q24：你们项目里-Prometheus-是怎么配置的？采集了哪些指标？"><a href="#Q24：你们项目里-Prometheus-是怎么配置的？采集了哪些指标？" class="headerlink" title="Q24：你们项目里 Prometheus 是怎么配置的？采集了哪些指标？"></a>Q24：你们项目里 Prometheus 是怎么配置的？采集了哪些指标？</h3><p><strong>答：</strong></p>
+<p><strong>Prometheus</strong> 是一个<strong>监控系统</strong>，负责：采集指标 → 存储 → 查询 → 告警。</p>
+<p><strong>我们项目里采集的指标</strong>（根据 <code>MetricsConfig.java</code> 和项目描述）：</p>
+<ol>
+<li><p><strong>JVM 指标</strong>（自动采集，通过 <code>micrometer-registry-prometheus</code>）：</p>
+<ul>
+<li>堆内存使用量</li>
+<li>GC 次数&#x2F;时间</li>
+<li>线程数</li>
+</ul>
+</li>
+<li><p><strong>业务指标</strong>（自定义）：</p>
+<ul>
+<li>文件上传计数器（<code>fileUploadCounter</code>，代码第 53 行）</li>
+<li>搜索耗时定时器（<code>searchTimer</code>，<code>HybridSearchService.java</code> 第 68 行）</li>
+<li>文档处理成功率</li>
+</ul>
+</li>
+<li><p><strong>HTTP 请求指标</strong>（通过 <code>micrometer-spring-web</code> 自动采集）：</p>
+<ul>
+<li>每个接口的请求次数、耗时、成功率</li>
+</ul>
+</li>
+</ol>
+<p><strong>配置方式</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// MetricsConfig.java（推断）</span><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MetricsConfig</span> &#123;<br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> MeterRegistryCustomizer&lt;MeterRegistry&gt; <span class="hljs-title function_">configureRegistry</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> registry -&gt; &#123;<br>            registry.config().meterFilter(MeterFilter.maximumAllowableTags(<span class="hljs-string">&quot;http.server.requests&quot;</span>, <span class="hljs-number">100</span>));<br>        &#125;;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 自定义计数器：文件上传</span><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> Counter <span class="hljs-title function_">fileUploadCounter</span><span class="hljs-params">(MeterRegistry registry)</span> &#123;<br>        <span class="hljs-keyword">return</span> Counter.builder(<span class="hljs-string">&quot;file.upload.total&quot;</span>)<br>            .description(<span class="hljs-string">&quot;Total number of file uploads&quot;</span>)<br>            .register(registry);<br>    &#125;<br>    <br>    <span class="hljs-comment">// 自定义定时器：搜索耗时</span><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> Timer <span class="hljs-title function_">searchTimer</span><span class="hljs-params">(MeterRegistry registry)</span> &#123;<br>        <span class="hljs-keyword">return</span> Timer.builder(<span class="hljs-string">&quot;search.duration&quot;</span>)<br>            .description(<span class="hljs-string">&quot;Search execution time&quot;</span>)<br>            .register(registry);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Prometheus 怎么采集？</strong></p>
+<ul>
+<li>Spring Boot 应用暴露 <code>/actuator/prometheus</code> 端点（我们项目里放行了这个端点，见 <code>SecurityConfig.java</code> 第 51 行）</li>
+<li>Prometheus 服务端定期（比如每 15 秒）来拉取这个端点的指标数据</li>
+</ul>
+<hr>
+<h3 id="Q25：有了-Prometheus，为什么还要用-Grafana？"><a href="#Q25：有了-Prometheus，为什么还要用-Grafana？" class="headerlink" title="Q25：有了 Prometheus，为什么还要用 Grafana？"></a>Q25：有了 Prometheus，为什么还要用 Grafana？</h3><p><strong>答：</strong></p>
+<p><strong>Prometheus 负责”存数据”</strong>，<strong>Grafana 负责”展示数据”</strong>，它们是配合使用的。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Prometheus</th>
+<th>Grafana</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>功能</strong></td>
+<td>时间序列数据库（TSDB）</td>
+<td>可视化面板（Dashboard）</td>
+</tr>
+<tr>
+<td><strong>查询</strong></td>
+<td>自带 PromQL 查询语言</td>
+<td>支持多种数据源（Prometheus、ES、MySQL…）</td>
+</tr>
+<tr>
+<td><strong>告警</strong></td>
+<td>自带告警规则引擎</td>
+<td>告警通知可以接钉钉&#x2F;企微&#x2F;邮件</td>
+</tr>
+<tr>
+<td><strong>界面</strong></td>
+<td>很丑（自带一个简单的图表）</td>
+<td>很漂亮（各种图表、面板）</td>
+</tr>
+</tbody></table>
+<p><strong>典型的监控架构</strong>：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs awk">应用（Spring Boot）<br>  ↓ <span class="hljs-regexp">/actuator/</span>prometheus（暴露指标）<br>Prometheus（采集 + 存储）<br>  ↓ PromQL 查询<br>Grafana（展示图表）<br>  ↓ 告警规则触发<br>  钉钉<span class="hljs-regexp">/企微/</span>邮件（通知运维）<br></code></pre></td></tr></table></figure>
+
+<p><strong>我们项目里的 Grafana 面板</strong>（推断）：</p>
+<ul>
+<li><strong>系统监控</strong>：CPU、内存、磁盘、网络</li>
+<li><strong>JVM 监控</strong>：堆内存、GC、线程数</li>
+<li><strong>业务监控</strong>：文件上传量（QPS）、搜索耗时（P99）、文档处理成功率</li>
+</ul>
+<hr>
+<h3 id="Q26：如果你们项目线上出问题了，你怎么排查？"><a href="#Q26：如果你们项目线上出问题了，你怎么排查？" class="headerlink" title="Q26：如果你们项目线上出问题了，你怎么排查？"></a>Q26：如果你们项目线上出问题了，你怎么排查？</h3><p><strong>答：</strong></p>
+<p>这是我们项目里<strong>可观测性</strong>的价值所在。排查流程：</p>
+<p><strong>第一步：看监控面板（Grafana）</strong></p>
+<ul>
+<li>是不是 Full GC 太频繁了？（看 JVM 面板）</li>
+<li>是不是某个接口耗时突然变长了？（看 HTTP 请求面板）</li>
+<li>是不是文件上传量突然暴涨了？（看业务指标面板）</li>
+</ul>
+<p><strong>第二步：看日志</strong></p>
+<ul>
+<li>我们项目里用了 <code>SLF4J + Logback</code>，关键操作都打了日志（<code>UploadService.java</code> 里几乎每行都有 <code>logger.info()</code>）</li>
+<li>用 <strong>ELK（Elasticsearch + Logstash + Kibana）</strong> 或 <strong>Grafana Loki</strong> 聚合所有实例的日志，按关键字搜索</li>
+</ul>
+<p><strong>第三步：看链路追踪（如果有接入）</strong></p>
+<ul>
+<li>用 <strong>SkyWalking</strong> 或 <strong>Zipkin</strong>，可以看到一个请求经过了哪些服务、每个服务耗时多少</li>
+<li>比如”用户上传文件 → 合并 → 解析 → 向量化”这个流程，哪一步最慢</li>
+</ul>
+<p><strong>第四步：上机器排查</strong></p>
+<ul>
+<li><code>top</code>：看哪个进程占 CPU 高</li>
+<li><code>jstack &lt;pid&gt;</code>：看线程栈（有没有死锁、大量线程阻塞）</li>
+<li><code>jmap -histo:live &lt;pid&gt;</code>：看堆里对象分布（哪个类的对象最多，可能有内存泄漏）</li>
+</ul>
+<hr>
+<h2 id="七、云原生化-K8s-相关（4-道）"><a href="#七、云原生化-K8s-相关（4-道）" class="headerlink" title="七、云原生化 &#x2F; K8s 相关（4 道）"></a>七、云原生化 &#x2F; K8s 相关（4 道）</h2><h3 id="Q27：你们项目里-K8s-的-Deployment-和-HPA-是怎么配置的？"><a href="#Q27：你们项目里-K8s-的-Deployment-和-HPA-是怎么配置的？" class="headerlink" title="Q27：你们项目里 K8s 的 Deployment 和 HPA 是怎么配置的？"></a>Q27：你们项目里 K8s 的 Deployment 和 HPA 是怎么配置的？</h3><p><strong>答：</strong></p>
+<p><strong>Deployment</strong> 是 K8s 里用来<strong>部署无状态应用</strong>的资源对象。</p>
+<p><strong>我们项目里的 Deployment 配置</strong>（推断）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-backend</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span>                  <span class="hljs-comment"># 3 个副本（高可用）</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">knowflow-backend</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">knowflow-backend</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">app</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">registry.example.com/knowflow:latest</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span><br>        <span class="hljs-attr">resources:</span><br>          <span class="hljs-attr">requests:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;500m&quot;</span>           <span class="hljs-comment"># 启动时需要 0.5 核</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;512Mi&quot;</span>        <span class="hljs-comment"># 启动时需要 512MB 内存</span><br>          <span class="hljs-attr">limits:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;2000m&quot;</span>          <span class="hljs-comment"># 最多用 2 核</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;2Gi&quot;</span>           <span class="hljs-comment"># 最多用 2GB 内存</span><br>        <span class="hljs-attr">livenessProbe:</span>              <span class="hljs-comment"># 存活探针（健康检查）</span><br>          <span class="hljs-attr">httpGet:</span><br>            <span class="hljs-attr">path:</span> <span class="hljs-string">/actuator/health</span><br>            <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span><br>          <span class="hljs-attr">initialDelaySeconds:</span> <span class="hljs-number">60</span>     <span class="hljs-comment"># 启动后 60 秒才开始检查</span><br>          <span class="hljs-attr">periodSeconds:</span> <span class="hljs-number">10</span>           <span class="hljs-comment"># 每 10 秒检查一次</span><br>        <span class="hljs-attr">readinessProbe:</span>             <span class="hljs-comment"># 就绪探针（能不能接流量）</span><br>          <span class="hljs-attr">httpGet:</span><br>            <span class="hljs-attr">path:</span> <span class="hljs-string">/actuator/health</span><br>            <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span><br>          <span class="hljs-attr">initialSeconds:</span> <span class="hljs-number">30</span>        <span class="hljs-comment"># 启动后 30 秒就可以接流量</span><br>          <span class="hljs-attr">periodSeconds:</span> <span class="hljs-number">5</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>HPA（Horizontal Pod Autoscaler）</strong> 是 K8s 里用来<strong>自动扩缩容</strong>的。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">autoscaling/v2</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">HorizontalPodAutoscaler</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-hpa</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">scaleTargetRef:</span><br>    <span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br>    <span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-backend</span><br>  <span class="hljs-attr">minReplicas:</span> <span class="hljs-number">2</span>              <span class="hljs-comment"># 最少 2 个副本</span><br>  <span class="hljs-attr">maxReplicas:</span> <span class="hljs-number">10</span>             <span class="hljs-comment"># 最多 10 个副本</span><br>  <span class="hljs-attr">metrics:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">type:</span> <span class="hljs-string">Resource</span><br>    <span class="hljs-attr">resource:</span><br>      <span class="hljs-attr">name:</span> <span class="hljs-string">cpu</span><br>      <span class="hljs-attr">target:</span><br>        <span class="hljs-attr">type:</span> <span class="hljs-string">Utilization</span><br>        <span class="hljs-attr">averageUtilization:</span> <span class="hljs-number">70</span>    <span class="hljs-comment"># CPU 超过 70% 就扩容</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">type:</span> <span class="hljs-string">Resource</span><br>    <span class="hljs-attr">resource:</span><br>      <span class="hljs-attr">name:</span> <span class="hljs-string">memory</span><br>      <span class="hljs-attr">target:</span><br>        <span class="hljs-attr">type:</span> <span class="hljs-string">Utilization</span><br>        <span class="hljs-attr">averageUtilization:</span> <span class="hljs-number">80</span>    <span class="hljs-comment"># 内存超过 80% 就扩容</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>扩容流程</strong>：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs tap">CPU 使用率 &gt; 70%<br>  ↓<br>  HPA 把 Deployment 的 replicas 从<span class="hljs-number"> 3 </span>改成 5<br>  ↓<br>  K8s 创建<span class="hljs-number"> 2 </span>个新 Pod<br>  ↓<br>  新 Pod 通过 Readiness Probe 后，开始接流量<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q28：你们项目里的多阶段-Dockerfile-是怎么写的？有什么好处？"><a href="#Q28：你们项目里的多阶段-Dockerfile-是怎么写的？有什么好处？" class="headerlink" title="Q28：你们项目里的多阶段 Dockerfile 是怎么写的？有什么好处？"></a>Q28：你们项目里的多阶段 Dockerfile 是怎么写的？有什么好处？</h3><p><strong>答：</strong></p>
+<p><strong>多阶段构建（Multi-stage Build）</strong> 是 Docker 17.05+ 的功能，可以把<strong>构建环境</strong>和<strong>运行环境</strong>分开，最终镜像只包含运行时需要的文件（体积小、安全）。</p>
+<p><strong>我们项目里的 Dockerfile</strong>（根据项目描述推断）：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile"><span class="hljs-comment"># 阶段一：构建（用完整的 JDK 镜像）</span><br><span class="hljs-keyword">FROM</span> maven:<span class="hljs-number">3.8</span>-openjdk-<span class="hljs-number">17</span> AS builder<br><span class="hljs-keyword">WORKDIR</span><span class="language-bash"> /app</span><br><span class="hljs-keyword">COPY</span><span class="language-bash"> pom.xml .</span><br><span class="hljs-keyword">COPY</span><span class="language-bash"> src ./src</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> mvn clean package -DskipTests    <span class="hljs-comment"># 构建 JAR 包</span></span><br><br><span class="hljs-comment"># 阶段二：运行（用轻量级的 JRE 镜像）</span><br><span class="hljs-keyword">FROM</span> openjdk:<span class="hljs-number">17</span>-jre-slim<br><span class="hljs-keyword">WORKDIR</span><span class="language-bash"> /app</span><br><span class="hljs-comment"># 从构建阶段把 JAR 包复制过来</span><br><span class="hljs-keyword">COPY</span><span class="language-bash"> --from=builder /app/target/knowflow-*.jar app.jar</span><br><span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">8080</span><br><span class="hljs-keyword">ENTRYPOINT</span><span class="language-bash"> [<span class="hljs-string">&quot;java&quot;</span>, <span class="hljs-string">&quot;-jar&quot;</span>, <span class="hljs-string">&quot;app.jar&quot;</span>]</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>好处</strong>：</p>
+<ol>
+<li><strong>镜像体积小</strong>：最终镜像只有 JRE + JAR 包（大约 200~300MB），如果用 JDK 镜像要 500MB+</li>
+<li><strong>安全</strong>：构建工具（Maven、源码）不会出现在最终镜像里（减少攻击面）</li>
+<li><strong>分层构建快</strong>：Maven 依赖（基本不变）和源代码（经常变）分开 COPY，利用 Docker 的层缓存，重新构建时不用重新下载依赖</li>
+</ol>
+<hr>
+<h3 id="Q29：K8s-里-Service-和-Ingress-的区别是什么？你们项目里怎么用的？"><a href="#Q29：K8s-里-Service-和-Ingress-的区别是什么？你们项目里怎么用的？" class="headerlink" title="Q29：K8s 里 Service 和 Ingress 的区别是什么？你们项目里怎么用的？"></a>Q29：K8s 里 Service 和 Ingress 的区别是什么？你们项目里怎么用的？</h3><p><strong>答：</strong></p>
+<p><strong>Service</strong> 是 K8s 里用来<strong>暴露服务</strong>的（给集群内的其他 Pod 访问）。</p>
+<p><strong>Ingress</strong> 是 K8s 里用来<strong>暴露服务给集群外</strong>的（外部用户通过域名访问）。</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs maxima">外部用户<br>  ↓ HTTPS（域名：knowflow.<span class="hljs-built_in">example</span>.com）<br>Ingress Controller（比如 Nginx Ingress）<br>  ↓ 转发<br>Service（ClusterIP 类型，集群内访问）<br>  ↓<br>Pod（Spring Boot 应用，<span class="hljs-number">3</span> 个副本）<br></code></pre></td></tr></table></figure>
+
+<p><strong>我们项目里的配置</strong>（推断）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># Service：暴露给集群内</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-service</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">knowflow-backend</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">port:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">8080</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">ClusterIP</span>            <span class="hljs-comment"># 只能集群内访问</span><br><br><span class="hljs-meta">---</span><br><span class="hljs-comment"># Ingress：暴露给集群外</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">networking.k8s.io/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Ingress</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-ingress</span><br>  <span class="hljs-attr">annotations:</span><br>    <span class="hljs-attr">nginx.ingress.kubernetes.io/ssl-redirect:</span> <span class="hljs-string">&quot;true&quot;</span>  <span class="hljs-comment"># HTTP 自动跳转到 HTTPS</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">tls:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">knowflow.example.com</span><br>    <span class="hljs-attr">secretName:</span> <span class="hljs-string">knowflow-tls</span>                               <span class="hljs-comment"># TLS 证书</span><br>  <span class="hljs-attr">rules:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">host:</span> <span class="hljs-string">knowflow.example.com</span><br>    <span class="hljs-attr">http:</span><br>      <span class="hljs-attr">paths:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">path:</span> <span class="hljs-string">/</span><br>        <span class="hljs-attr">pathType:</span> <span class="hljs-string">Prefix</span><br>        <span class="hljs-attr">backend:</span><br>          <span class="hljs-attr">service:</span><br>            <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-service</span><br>            <span class="hljs-attr">port:</span><br>              <span class="hljs-attr">number:</span> <span class="hljs-number">80</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q30：你们项目里怎么做滚动更新的？更新时用户会不会感觉到服务中断？"><a href="#Q30：你们项目里怎么做滚动更新的？更新时用户会不会感觉到服务中断？" class="headerlink" title="Q30：你们项目里怎么做滚动更新的？更新时用户会不会感觉到服务中断？"></a>Q30：你们项目里怎么做滚动更新的？更新时用户会不会感觉到服务中断？</h3><p><strong>答：</strong></p>
+<p><strong>滚动更新（Rolling Update）</strong> 是 K8s Deployment 的默认更新策略，<strong>保证更新过程中服务不中断</strong>。</p>
+<p><strong>流程</strong>：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs arduino">旧版本：<span class="hljs-number">3</span> 个 Pod（v<span class="hljs-number">1.0</span>）<br>  ↓ 执行 `kubectl set image deployment/knowflow-backend app=<span class="hljs-keyword">new</span>-image:v<span class="hljs-number">1.1</span>`<br>  ① 创建 <span class="hljs-number">1</span> 个新 Pod（v<span class="hljs-number">1.1</span>）<br>  ② 等新 Pod 就绪（Readiness Probe 通过）<br>  ③ 删除 <span class="hljs-number">1</span> 个旧 Pod（v<span class="hljs-number">1.0</span>）<br>  ④ 重复 ①~③，直到所有旧 Pod 都被替换<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键参数</strong>（Deployment 的 <code>spec.strategy</code>）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">strategy:</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">RollingUpdate</span><br>  <span class="hljs-attr">rollingUpdate:</span><br>    <span class="hljs-attr">maxSurge:</span> <span class="hljs-number">1</span>          <span class="hljs-comment"># 最多比 replicas 多几个 Pod（更新时可以超出副本数）</span><br>    <span class="hljs-attr">maxUnavailable:</span> <span class="hljs-number">0</span>    <span class="hljs-comment"># 更新时最少要保持几个 Pod 可用（设为 0 保证服务完全不中断）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>maxSurge=1, maxUnavailable=0</code> 的效果</strong>：</p>
+<ul>
+<li>更新时，先启动 1 个新 Pod，新 Pod 就绪后，再删 1 个旧 Pod</li>
+<li>全程<strong>可用 Pod 数 &gt;&#x3D; replicas</strong>（用户完全感觉不到中断）</li>
+</ul>
+<p><strong>我们项目里</strong>：<code>maxUnavailable</code> 应该设为 0（因为是企业内部系统，用户体验很重要）。</p>
+<hr>
+<h2 id="八、开放性问题（3-道）"><a href="#八、开放性问题（3-道）" class="headerlink" title="八、开放性问题（3 道）"></a>八、开放性问题（3 道）</h2><h3 id="Q31：如果你们项目的文档量涨到-1000-万块，ES-还能撑住吗？怎么优化？"><a href="#Q31：如果你们项目的文档量涨到-1000-万块，ES-还能撑住吗？怎么优化？" class="headerlink" title="Q31：如果你们项目的文档量涨到 1000 万块，ES 还能撑住吗？怎么优化？"></a>Q31：如果你们项目的文档量涨到 1000 万块，ES 还能撑住吗？怎么优化？</h3><p><strong>答：</strong></p>
+<p>1000 万块（文本块）对 ES 来说<strong>完全没问题</strong>（ES 设计就是处理亿级文档的）。</p>
+<p><strong>但如果文档量继续涨（1 亿+），可以这样优化</strong>：</p>
+<ol>
+<li><strong>ES 集群扩容</strong>：加数据节点（Data Node），把 1 亿文档分散到多个节点上</li>
+<li><strong>按组织分索引</strong>：不同组织的文档存在不同 ES 索引里（<code>knowledge_base_org_a</code>, <code>knowledge_base_org_b</code>…），缩小单个索引的大小</li>
+<li><strong>热温架构</strong>：最近 30 天的文档放”热节点”（SSD），更早的放”温节点”（HDD），降低存储成本</li>
+<li><strong>向量索引优化</strong>：2048 维向量太高了，可以用 <strong>PCA 降维</strong>到 512 维或 768 维（牺牲一点精度，换来查询速度快几倍）</li>
+</ol>
+<hr>
+<h3 id="Q32：如果让你重新设计这个项目，你会改什么？"><a href="#Q32：如果让你重新设计这个项目，你会改什么？" class="headerlink" title="Q32：如果让你重新设计这个项目，你会改什么？"></a>Q32：如果让你重新设计这个项目，你会改什么？</h3><p><strong>答：</strong></p>
+<p>（这是开放性问题，没有标准答案，以下是可以说的点）</p>
+<ol>
+<li><p><strong>分片上传的并发控制</strong>：目前代码里没有对”同一文件同时被多个用户上传”做并发控制，可以加一个<strong>分布式锁</strong>（Redis <code>SETNX</code>）</p>
+</li>
+<li><p><strong>向量化失败的重试机制</strong>：目前如果某块向量化失败了，没有看到明确的重试逻辑，可以加一个<strong>死信队列</strong>（失败 3 次后人工介入）</p>
+</li>
+<li><p><strong>ES 权限过滤的性能优化</strong>：目前每次搜索都要带上 <code>orgTag</code> 过滤条件，如果用户属于 100 个组织，查询条件会很长，可以改为<strong>在应用层做权限过滤</strong>（先搜，再过滤）</p>
+</li>
+<li><p><strong>MinIO 分片合并的原子性</strong>：目前合并和删除分片不是原子操作（合并成功、但删除分片失败了，会留垃圾数据），可以用 <strong>MinIO 的 WORM（Write Once Read Many）</strong> 特性</p>
+</li>
+</ol>
+<hr>
+<h3 id="Q33：你在做这个项目时遇到的最大挑战是什么？怎么解决的？"><a href="#Q33：你在做这个项目时遇到的最大挑战是什么？怎么解决的？" class="headerlink" title="Q33：你在做这个项目时遇到的最大挑战是什么？怎么解决的？"></a>Q33：你在做这个项目时遇到的最大挑战是什么？怎么解决的？</h3><p><strong>答：</strong></p>
+<p>（结合你自己的实际经历说，以下是一个参考模板）</p>
+<p><strong>我遇到的最大技术挑战是”如何实现混合检索的高准确率”。</strong></p>
+<p><strong>背景</strong>：企业专有词汇（比如”XX 系统”、”YY 平台”）在 Embedding 模型的训练数据里没有，向量检索召回率很低。</p>
+<p><strong>我做的优化</strong>：</p>
+<ol>
+<li><strong>调整 ES 的搜索策略</strong>：不仅限于 KNN + BM25，还加了<strong>按组织标签加权</strong>（用户所属组织的文档排名靠前）</li>
+<li><strong>优化文本切块策略</strong>：不是固定 500 字一切，而是按<strong>段落&#x2F;章节</strong>切（保留语义完整性）</li>
+<li><strong>调整 Embedding 模型</strong>：从通用的 <code>text-embedding-ada-002</code> 换成支持<strong>微调</strong>的模型，用企业自己的文档微调了一下</li>
+</ol>
+<p><strong>效果</strong>：检索准确率从 65% 提升到了 87%。</p>
+<hr>
+<h2 id="总结：面试前必看"><a href="#总结：面试前必看" class="headerlink" title="总结：面试前必看"></a>总结：面试前必看</h2><ol>
+<li><strong>Redis</strong>：Bitmap、持久化、过期策略、Key 设计 —— 必问</li>
+<li><strong>ES</strong>：KNN 原理、BM25、RRF、权限过滤、Mapping 设计 —— 必问</li>
+<li><strong>Kafka</strong>：消息可靠性、重复消费、分区、消费者组 —— 高频</li>
+<li><strong>Spring Security</strong>：JWT 双令牌、过滤器链、RBAC —— 必问</li>
+<li><strong>MinIO</strong>：分片合并、纠删码、为什么不用公有云 —— 中频</li>
+<li><strong>K8s</strong>：Deployment、HPA、滚动更新、Service vs Ingress —— 中频</li>
+</ol>
+<p><strong>最后提醒</strong>：面试官可能会让你<strong>现场看一段代码，指出问题</strong>。一定要把项目里的核心代码（<code>UploadService.java</code>、<code>HybridSearchService.java</code>、<code>SecurityConfig.java</code>）过一遍，确保能讲清楚每一行在干什么。</p>
+<p><strong>加油！祝你面试顺利！🎉</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
+        <a href="/tags/Elasticsearch/" class="print-no-link">#Elasticsearch</a>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/JWT/" class="print-no-link">#JWT</a>
+      
+        <a href="/tags/RBAC/" class="print-no-link">#RBAC</a>
+      
+        <a href="/tags/K8s/" class="print-no-link">#K8s</a>
+      
+        <a href="/tags/Redis/" class="print-no-link">#Redis</a>
+      
+        <a href="/tags/Kafka/" class="print-no-link">#Kafka</a>
+      
+        <a href="/tags/MinIO/" class="print-no-link">#MinIO</a>
+      
+        <a href="/tags/Spring-Security/" class="print-no-link">#Spring Security</a>
+      
+        <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/" class="print-no-link">#字节跳动</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）</div>
+      <div>https://whyalwaysme.lol/2026/06/07/2026-06-07-knowflow-interview-qa/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/07/2026-06-07-knowflow-upload-pipeline/" title="KnowFlow ①：Redis Bitmap 分片状态 + MinIO 异步处理流水线（面试深挖）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">KnowFlow ①：Redis Bitmap 分片状态 + MinIO 异步处理流水线（面试深挖）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/07/2026-06-07-spring-interview-deep/" title="">
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

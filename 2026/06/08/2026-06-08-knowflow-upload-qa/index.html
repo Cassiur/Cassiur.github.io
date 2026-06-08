@@ -1,0 +1,1213 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Redis Bitmap 相关（6 道）Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？答： 分片上传需要记录”哪些分片已经上传了”，本质上是一个超大的布尔数组。    方案 存储 10">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-upload-qa/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Redis Bitmap 相关（6 道）Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？答： 分片上传需要记录”哪些分片已经上传了”，本质上是一个超大的布尔数组。    方案 存储 10">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T12:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T12:29:58.233Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Kafka">
+<meta property="article:tag" content="KnowFlow">
+<meta property="article:tag" content="MinIO">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="傻子都能懂">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="字节跳动">
+<meta property="article:tag" content="文件上传">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 20:30" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          47 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka"><a href="#KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka" class="headerlink" title="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka"></a>KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka</h1><blockquote>
+<p>面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。</p>
+</blockquote>
+<hr>
+<h2 id="一、Redis-Bitmap-相关（6-道）"><a href="#一、Redis-Bitmap-相关（6-道）" class="headerlink" title="一、Redis Bitmap 相关（6 道）"></a>一、Redis Bitmap 相关（6 道）</h2><h3 id="Q1：为什么用-Redis-Bitmap-维护分片状态？对比其他方案好在哪里？"><a href="#Q1：为什么用-Redis-Bitmap-维护分片状态？对比其他方案好在哪里？" class="headerlink" title="Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？"></a>Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？</h3><p><strong>答：</strong></p>
+<p>分片上传需要记录”哪些分片已经上传了”，本质上是一个<strong>超大的布尔数组</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>存储 100 个分片</th>
+<th>存储 10000 个分片</th>
+<th>访问速度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Redis Set（存已上传分片序号）</td>
+<td>~400 字节</td>
+<td>~40 KB</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Redis Hash（每个分片一个 field）</td>
+<td>~1 KB</td>
+<td>~100 KB</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td><strong>Redis Bitmap</strong></td>
+<td><strong>~13 字节</strong></td>
+<td><strong>~1.3 KB</strong></td>
+<td><strong>O(1)</strong></td>
+</tr>
+</tbody></table>
+<p>Bitmap 每个分片只占 <strong>1 个 bit</strong>，100 个分片 &#x3D; 100 bit &#x3D; 13 字节（100&#x2F;8 向上取整）。</p>
+<p><strong>项目中的实际使用</strong>（<code>UploadService.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Redis Key 设计：upload:&#123;userId&#125;:&#123;fileMd5&#125;</span><br><span class="hljs-comment">// 这样不同用户上传同一个文件（MD5相同）也不会互相干扰</span><br><span class="hljs-type">String</span> <span class="hljs-variable">redisKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;upload:&quot;</span> + userId + <span class="hljs-string">&quot;:&quot;</span> + fileMd5;<br><br><span class="hljs-comment">// 标记分片 i 为已上传</span><br>redisTemplate.opsForValue().setBit(redisKey, chunkIndex, <span class="hljs-literal">true</span>);<br><br><span class="hljs-comment">// 检查分片 i 是否已上传（秒传核心！）</span><br><span class="hljs-type">Boolean</span> <span class="hljs-variable">uploaded</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue().getBit(redisKey, chunkIndex);<br><span class="hljs-keyword">if</span> (uploaded) &#123;<br>    <span class="hljs-keyword">return</span>; <span class="hljs-comment">// 这个分片传过了，直接跳过！</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：Redis Bitmap 底层就是 String 类型，本质是字节数组。<code>SETBIT key 100 1</code> 会把第 100 个 bit 设为 1，Redis 会自动扩展字节数组。访问是 O(1) 的，非常快。</p>
+<hr>
+<h3 id="Q2：项目里获取已上传分片列表，为什么不用循环调用-GETBIT？"><a href="#Q2：项目里获取已上传分片列表，为什么不用循环调用-GETBIT？" class="headerlink" title="Q2：项目里获取已上传分片列表，为什么不用循环调用 GETBIT？"></a>Q2：项目里获取已上传分片列表，为什么不用循环调用 GETBIT？</h3><p><strong>答：</strong></p>
+<p>最笨的写法是这样（<strong>不要这样写！</strong>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 低效写法：对每个分片调用一次 GETBIT</span><br><span class="hljs-comment">// 100 个分片 = 100 次 Redis 网络调用</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; totalChunks; i++) &#123;<br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">uploaded</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue().getBit(redisKey, i);<br>    <span class="hljs-keyword">if</span> (uploaded) uploadedChunks.add(i);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的优化</strong>（<code>UploadService.java</code> 第 413~451 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ✅ 一次性拿到整个 Bitmap 的字节数组，在本地解析</span><br><span class="hljs-type">byte</span>[] bitmapData = redisTemplate.execute((RedisCallback&lt;<span class="hljs-type">byte</span>[]&gt;) <br>    connection -&gt; connection.get(redisKey.getBytes()));<br><br><span class="hljs-comment">// 然后本地解析每个 bit，0 次额外 Redis 调用</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; totalChunks; i++) &#123;<br>    <span class="hljs-keyword">if</span> (isBitSet(bitmapData, i)) &#123;<br>        uploadedChunks.add(i);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么这样快？</strong></p>
+<ul>
+<li>优化前：100 个分片 &#x3D; 100 次网络 RTT</li>
+<li>优化后：1 次 Redis 调用，剩下 100 次 bit 判断在本地 JVM 完成，微秒级</li>
+</ul>
+<p><strong>面试加分</strong>：<code>isBitSet</code> 方法的实现要注意 Redis Bitmap 的 bit 顺序是从<strong>高位到低位</strong>的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isBitSet</span><span class="hljs-params">(<span class="hljs-type">byte</span>[] bitmapData, <span class="hljs-type">int</span> bitIndex)</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">byteIndex</span> <span class="hljs-operator">=</span> bitIndex / <span class="hljs-number">8</span>;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">bitPosition</span> <span class="hljs-operator">=</span> <span class="hljs-number">7</span> - (bitIndex % <span class="hljs-number">8</span>); <span class="hljs-comment">// 注意这里是 7 减！</span><br>    <span class="hljs-keyword">return</span> (bitmapData[byteIndex] &amp; (<span class="hljs-number">1</span> &lt;&lt; bitPosition)) != <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q3：Redis-Bitmap-的-bit-顺序是什么？面试写代码时要注意什么？"><a href="#Q3：Redis-Bitmap-的-bit-顺序是什么？面试写代码时要注意什么？" class="headerlink" title="Q3：Redis Bitmap 的 bit 顺序是什么？面试写代码时要注意什么？"></a>Q3：Redis Bitmap 的 bit 顺序是什么？面试写代码时要注意什么？</h3><p><strong>答：</strong></p>
+<p>Redis Bitmap 的 bit 顺序可能和你想的不一样：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs tap">SETBIT mykey<span class="hljs-number"> 0 </span>1<br>SETBIT mykey<span class="hljs-number"> 1 </span>1<br>SETBIT mykey<span class="hljs-number"> 2 </span>1<br><br>字节 0: [bit7][bit6][bit5][bit4][bit3][bit2][bit1][bit0]<br>         <span class="hljs-number"> 0 </span>   <span class="hljs-number"> 0 </span>   <span class="hljs-number"> 0 </span>   <span class="hljs-number"> 0 </span>   <span class="hljs-number"> 0 </span>   <span class="hljs-number"> 1 </span>   <span class="hljs-number"> 1 </span>    1<br>          ↑ GETBIT mykey 2<br>          (高位)                           (低位)<br></code></pre></td></tr></table></figure>
+
+<p><strong>重点</strong>：<code>SETBIT key 0 1</code> 设置的是**最左边（最高位）**的 bit。所以解析字节数组时，要用 <code>7 - (bitIndex % 8)</code> 来计算位置。</p>
+<p><strong>项目中 <code>isBitSet</code> 方法</strong>（第 459~473 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isBitSet</span><span class="hljs-params">(<span class="hljs-type">byte</span>[] bitmapData, <span class="hljs-type">int</span> bitIndex)</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">byteIndex</span> <span class="hljs-operator">=</span> bitIndex / <span class="hljs-number">8</span>;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">bitPosition</span> <span class="hljs-operator">=</span> <span class="hljs-number">7</span> - (bitIndex % <span class="hljs-number">8</span>); <span class="hljs-comment">// Redis bitmap 的位顺序</span><br>    <span class="hljs-keyword">if</span> (byteIndex &gt;= bitmapData.length) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">return</span> (bitmapData[byteIndex] &amp; (<span class="hljs-number">1</span> &lt;&lt; bitPosition)) != <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>如果写错了会怎样？</strong> 分片状态判断全部反了，本来已上传的变成未上传，导致重复上传，浪费流量。</p>
+<hr>
+<h3 id="Q4：如果-Redis-挂了，分片状态丢失怎么办？"><a href="#Q4：如果-Redis-挂了，分片状态丢失怎么办？" class="headerlink" title="Q4：如果 Redis 挂了，分片状态丢失怎么办？"></a>Q4：如果 Redis 挂了，分片状态丢失怎么办？</h3><p><strong>答：</strong></p>
+<p>分片状态丢失<strong>不会导致数据丢失</strong>，因为：</p>
+<ol>
+<li><strong>分片文件本身存在 MinIO</strong>，不依赖 Redis</li>
+<li>丢失的只是”哪些分片已上传”这个记录</li>
+<li>用户重新上传时，系统会<strong>重新检查 MinIO 中是否存在对应分片文件</strong></li>
+</ol>
+<p><strong>项目中的容错逻辑</strong>（<code>UploadService.java</code> 第 126~159 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (chunkUploaded) &#123;<br>    <span class="hljs-comment">// Redis 说这个分片已上传，但还要验证 MinIO 中是否真的存在</span><br>    <span class="hljs-keyword">try</span> &#123;<br>        minioClient.statObject(StatObjectArgs.builder()<br>            .bucket(<span class="hljs-string">&quot;uploads&quot;</span>)<br>            .object(storagePath)<br>            .build());<br>        <span class="hljs-comment">// MinIO 中存在，确认已上传</span><br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        <span class="hljs-comment">// MinIO 中不存在，说明 Redis 状态有误，重置为未上传</span><br>        chunkUploaded = <span class="hljs-literal">false</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：这叫**”信任但验证”（Trust but Verify）**策略。Redis 是快速路径，MinIO 是真相来源（Source of Truth）。</p>
+<hr>
+<h3 id="Q5：为什么-Redis-Key-要带-userId？不同用户上传同一个文件怎么办？"><a href="#Q5：为什么-Redis-Key-要带-userId？不同用户上传同一个文件怎么办？" class="headerlink" title="Q5：为什么 Redis Key 要带 userId？不同用户上传同一个文件怎么办？"></a>Q5：为什么 Redis Key 要带 userId？不同用户上传同一个文件怎么办？</h3><p><strong>答：</strong></p>
+<p>Redis Key 的设计是 <code>upload:{userId}:{fileMd5}</code>，包含了 userId，原因是：</p>
+<ol>
+<li><p><strong>不同用户上传同一个文件（MD5 相同）</strong>，他们的上传进度是独立的</p>
+<ul>
+<li>用户 A 上传了 60 个分片</li>
+<li>用户 B 上传同一个文件，才传了 10 个分片</li>
+<li>如果共用同一个 Key，B 会误以为 60 个分片都已上传</li>
+</ul>
+</li>
+<li><p><strong>但 MinIO 中的分片是共享的</strong>（同一份物理存储）</p>
+<ul>
+<li>用户 B 发现分片 0~9 已在 MinIO 中，直接跳过上传</li>
+<li>节省存储空间</li>
+</ul>
+</li>
+</ol>
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“Redis Bitmap 是按用户隔离的，保证每个用户的上传进度独立。但 MinIO 中的分片文件是共享的，同一份文件只存一份，通过 fileMd5 去重。这样既保证了上传进度的正确性，又节省了存储空间。”</p>
+</blockquote>
+<hr>
+<h3 id="Q6：Bitmap-适合所有”是-否”状态的场景吗？有什么局限？"><a href="#Q6：Bitmap-适合所有”是-否”状态的场景吗？有什么局限？" class="headerlink" title="Q6：Bitmap 适合所有”是&#x2F;否”状态的场景吗？有什么局限？"></a>Q6：Bitmap 适合所有”是&#x2F;否”状态的场景吗？有什么局限？</h3><p><strong>答：</strong></p>
+<p>Bitmap 非常适合<strong>固定数量的状态标记</strong>，比如：</p>
+<ul>
+<li>分片上传状态（分片数量固定）</li>
+<li>用户签到记录（365 天，每天 1 bit）</li>
+<li>布隆过滤器的底层实现</li>
+</ul>
+<p><strong>但有以下局限</strong>：</p>
+<ol>
+<li><strong>只能存是&#x2F;否两种状态</strong>（1 bit 只能表示 0 或 1）<ul>
+<li>如果需要存”未上传&#x2F;上传中&#x2F;已上传&#x2F;合并完成”四种状态，要用 2 个 bit，或者用 Hash</li>
+</ul>
+</li>
+<li><strong>稀疏场景浪费空间</strong><ul>
+<li>如果只有第 1 和第 1000000 个 bit 被设置，Redis 会分配 125 KB 内存，中间的全是 0</li>
+</ul>
+</li>
+<li><strong>不能遍历所有已设置的 bit</strong>（只能全量读取字节数组再解析）</li>
+</ol>
+<p><strong>面试加分</strong>：如果分片数量非常大（比如 100 万个分片），Bitmap 占用 125 KB，仍然比 Hash 或 Set 小两个数量级。Bitmap 在稀疏场景下也能接受，因为 Redis 会自动管理内存。</p>
+<hr>
+<h2 id="二、MinIO-相关（5-道）"><a href="#二、MinIO-相关（5-道）" class="headerlink" title="二、MinIO 相关（5 道）"></a>二、MinIO 相关（5 道）</h2><h3 id="Q7：为什么用-MinIO-而不是存在本地磁盘？"><a href="#Q7：为什么用-MinIO-而不是存在本地磁盘？" class="headerlink" title="Q7：为什么用 MinIO 而不是存在本地磁盘？"></a>Q7：为什么用 MinIO 而不是存在本地磁盘？</h3><p><strong>答：</strong></p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>本地磁盘</th>
+<th>MinIO（兼容 S3 协议）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多实例部署</td>
+<td>❌ 文件只在某一台机器上</td>
+<td>✅ 所有实例都能访问</td>
+</tr>
+<tr>
+<td>扩展性</td>
+<td>❌ 磁盘满了要手动迁移</td>
+<td>✅ 加磁盘，自动分布式存储</td>
+</tr>
+<tr>
+<td>分片合并</td>
+<td>❌ 要自己写文件流合并</td>
+<td>✅ 原生支持 <code>composeObject</code>（服务端合并）</td>
+</tr>
+<tr>
+<td>预签名 URL</td>
+<td>❌ 要自己实现鉴权下载</td>
+<td>✅ 一行代码生成带过期的下载链接</td>
+</tr>
+<tr>
+<td>纠删码</td>
+<td>❌ 要自己实现</td>
+<td>✅ 原生支持，允许 N&#x2F;2 块盘坏掉不丢数据</td>
+</tr>
+</tbody></table>
+<p><strong>项目中的 MinIO 使用</strong>（<code>UploadService.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 上传分片到 MinIO</span><br>minioClient.putObject(PutObjectArgs.builder()<br>    .bucket(<span class="hljs-string">&quot;uploads&quot;</span>)<br>    .object(<span class="hljs-string">&quot;chunks/&quot;</span> + fileMd5 + <span class="hljs-string">&quot;/&quot;</span> + chunkIndex)<br>    .stream(file.getInputStream(), file.getSize(), -<span class="hljs-number">1</span>)<br>    .contentType(file.getContentType())<br>    .build());<br><br><span class="hljs-comment">// 服务端合并（不需要下载到本地！）</span><br>List&lt;ComposeSource&gt; sources = partPaths.stream()<br>    .map(path -&gt; ComposeSource.builder()<br>        .bucket(<span class="hljs-string">&quot;uploads&quot;</span>)<br>        .object(path)<br>        .build())<br>    .collect(toList());<br><br>minioClient.composeObject(ComposeObjectArgs.builder()<br>    .bucket(<span class="hljs-string">&quot;uploads&quot;</span>)<br>    .object(<span class="hljs-string">&quot;merged/&quot;</span> + fileName)<br>    .sources(sources)<br>    .build());<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q8：MinIO-的-composeObject-是怎么工作的？为什么不需要下载到本地再合并？"><a href="#Q8：MinIO-的-composeObject-是怎么工作的？为什么不需要下载到本地再合并？" class="headerlink" title="Q8：MinIO 的 composeObject 是怎么工作的？为什么不需要下载到本地再合并？"></a>Q8：MinIO 的 <code>composeObject</code> 是怎么工作的？为什么不需要下载到本地再合并？</h3><p><strong>答：</strong></p>
+<p><code>composeObject</code> 是 MinIO 服务端的操作，<strong>直接在 MinIO 内部完成文件合并</strong>，不需要把分片下载到应用服务器。</p>
+<p><strong>原理</strong>：</p>
+<ol>
+<li>MinIO 收到 <code>composeObject</code> 请求</li>
+<li>在服务器端把多个对象（分片）<strong>按指定顺序拼接成一个新对象</strong></li>
+<li>这个新对象存放在 <code>merged/</code> 路径下</li>
+<li>整个过程<strong>不占用应用服务器的内存和磁盘</strong></li>
+</ol>
+<p><strong>对比传统方式</strong>：</p>
+<figure class="highlight node-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs node-repl">传统方式（需要下载到本地）：<br>分片1 → 下载到本地 → 写入临时文件<br>分片2 → 下载到本地 → 追加到临时文件<br><span class="hljs-meta prompt_">...</span><br>合并完成 → 上传合并后的文件到存储<br><br>问题：500MB 文件需要 500MB 本地磁盘 + 500MB 内存（如果不在磁盘缓存）<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">MinIO composeObject（服务端合并）：<br>分片1, 分片2, <span class="hljs-string">...</span> → MinIO 服务端直接拼接 → 合并文件<br><br>优势：应用服务器内存几乎不增长，合并 500MB 文件也很快<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“<code>composeObject</code> 是 MinIO 原生的服务端合并操作，利用了对象存储的**零拷贝（Zero-Copy）**特性，在 MinIO 内部直接完成数据块的拼接，不经过应用服务器的内存。这对大文件合并非常友好，应用侧的内存占用几乎为零。”</p>
+</blockquote>
+<hr>
+<h3 id="Q9：MinIO-和阿里云-OSS-AWS-S3-是什么关系？为什么要自己搭-MinIO？"><a href="#Q9：MinIO-和阿里云-OSS-AWS-S3-是什么关系？为什么要自己搭-MinIO？" class="headerlink" title="Q9：MinIO 和阿里云 OSS &#x2F; AWS S3 是什么关系？为什么要自己搭 MinIO？"></a>Q9：MinIO 和阿里云 OSS &#x2F; AWS S3 是什么关系？为什么要自己搭 MinIO？</h3><p><strong>答：</strong></p>
+<p>MinIO 是<strong>兼容 S3 协议的开源对象存储</strong>，可以私有化部署。</p>
+<p><strong>和阿里云 OSS &#x2F; AWS S3 的关系</strong>：</p>
+<ul>
+<li>API 完全兼容：写 MinIO 的代码，将来迁移到阿里云 OSS 几乎不用改</li>
+<li>行为一致：S3 SDK 可以直接操作 MinIO</li>
+</ul>
+<p><strong>为什么不用公有云 OSS，要自己搭 MinIO？</strong></p>
+<ol>
+<li><strong>成本</strong>：企业内网传输不需要出公网流量费</li>
+<li><strong>数据主权</strong>：企业知识库文档不能放到公有云</li>
+<li><strong>延迟</strong>：内网访问 MinIO 延迟 &lt;1ms，访问公有云 OSS 可能 50~100ms</li>
+<li><strong>可控性</strong>：MinIO 可以配置纠删码、WORM（一次写入多次读取）等高级特性</li>
+</ol>
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“我们选 MinIO 是因为知识库系统对数据隐私要求高，不能放到公有云。MinIO 兼容 S3 协议，将来如果要迁移到阿里云 OSS，代码改动很小。而且 MinIO 的性能很好，内网延迟极低，适合高并发上传场景。”</p>
+</blockquote>
+<hr>
+<h3 id="Q10：MinIO-的纠删码（Erasure-Code）是什么？能容忍多少盘坏掉？"><a href="#Q10：MinIO-的纠删码（Erasure-Code）是什么？能容忍多少盘坏掉？" class="headerlink" title="Q10：MinIO 的纠删码（Erasure Code）是什么？能容忍多少盘坏掉？"></a>Q10：MinIO 的纠删码（Erasure Code）是什么？能容忍多少盘坏掉？</h3><p><strong>答：</strong></p>
+<p>纠删码是 MinIO 的<strong>数据冗余机制</strong>，类似 RAID 但更灵活。</p>
+<p><strong>原理</strong>：把数据分成 N 份数据块 + M 份校验块，总共 N+M 份，只要剩 N 份就能还原所有数据。</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs armasm">例子：N<span class="hljs-number">=4</span>, M<span class="hljs-number">=2</span>（最少配置）<br>数据分成 <span class="hljs-number">4</span> 块：<span class="hljs-built_in">D1</span>, <span class="hljs-built_in">D2</span>, <span class="hljs-built_in">D3</span>, <span class="hljs-built_in">D4</span><br>校验块有 <span class="hljs-number">2</span> 块：<span class="hljs-built_in">P1</span>, <span class="hljs-built_in">P2</span><br><br>总共 <span class="hljs-number">6</span> 块，存在 <span class="hljs-number">6</span> 个不同的磁盘上<br>允许同时坏掉 <span class="hljs-number">2</span> 块盘，数据不丢失<br></code></pre></td></tr></table></figure>
+
+<p><strong>MinIO 的默认配置</strong>：通常是 N&#x3D;4, M&#x3D;2，允许一半盘坏掉不丢数据。</p>
+<p><strong>面试加分</strong>：纠删码比多副本（Replication）更省空间：</p>
+<ul>
+<li>3 副本：存 1GB 数据要花 3GB 空间</li>
+<li>纠删码 N&#x3D;4, M&#x3D;2：存 1GB 数据只花 1.5GB 空间</li>
+</ul>
+<hr>
+<h3 id="Q11：项目中-MinIO-的分片存储路径是怎么设计的？合并后路径呢？"><a href="#Q11：项目中-MinIO-的分片存储路径是怎么设计的？合并后路径呢？" class="headerlink" title="Q11：项目中 MinIO 的分片存储路径是怎么设计的？合并后路径呢？"></a>Q11：项目中 MinIO 的分片存储路径是怎么设计的？合并后路径呢？</h3><p><strong>答：</strong></p>
+<p><strong>分片存储路径</strong>：<code>chunks/{fileMd5}/{chunkIndex}</code></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs awk">chunks<span class="hljs-regexp">/abc123def456/</span><span class="hljs-number">0</span>   ← 第 <span class="hljs-number">0</span> 个分片<br>chunks<span class="hljs-regexp">/abc123def456/</span><span class="hljs-number">1</span>   ← 第 <span class="hljs-number">1</span> 个分片<br>...<br>chunks<span class="hljs-regexp">/abc123def456/</span><span class="hljs-number">99</span>  ← 第 <span class="hljs-number">99</span> 个分片<br></code></pre></td></tr></table></figure>
+
+<p><strong>合并后路径</strong>：<code>merged/{fileName}</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">merged/technical-manual.pdf<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么分片路径要带 fileMd5？</strong></p>
+<ul>
+<li>同一文件的不同分片放在同一个目录下，方便管理</li>
+<li>fileMd5 相同说明是同一个文件，不同文件不会互相干扰</li>
+</ul>
+<p><strong>合并且后为什么要换个路径？</strong></p>
+<ul>
+<li><code>chunks/</code> 目录只存分片，合并完可以删除（项目中确实有删除逻辑）</li>
+<li><code>merged/</code> 目录存最终文件，供后续解析使用</li>
+</ul>
+<p><strong>面试加分</strong>：这种路径设计叫**”两阶段存储”**：先存分片，合并后再存完整文件。好处是上传和合并可以完全解耦，MinIO 的 <code>composeObject</code> 操作也不会影响正在上传的分片。</p>
+<hr>
+<h2 id="三、Kafka-相关（6-道）"><a href="#三、Kafka-相关（6-道）" class="headerlink" title="三、Kafka 相关（6 道）"></a>三、Kafka 相关（6 道）</h2><h3 id="Q12：为什么用-Kafka-做异步处理流水线？RabbitMQ-不行吗？"><a href="#Q12：为什么用-Kafka-做异步处理流水线？RabbitMQ-不行吗？" class="headerlink" title="Q12：为什么用 Kafka 做异步处理流水线？RabbitMQ 不行吗？"></a>Q12：为什么用 Kafka 做异步处理流水线？RabbitMQ 不行吗？</h3><p><strong>答：</strong></p>
+<p><strong>Kafka 和 RabbitMQ 的定位不同</strong>：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Kafka</th>
+<th>RabbitMQ</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>定位</strong></td>
+<td>分布式流平台（日志管道）</td>
+<td>传统消息队列（业务消息）</td>
+</tr>
+<tr>
+<td><strong>吞吐量</strong></td>
+<td>百万级 QPS</td>
+<td>万级 ~ 十万级 QPS</td>
+</tr>
+<tr>
+<td><strong>消息持久化</strong></td>
+<td>原生支持（存磁盘）</td>
+<td>可配置，但默认内存</td>
+</tr>
+<tr>
+<td><strong>消费模型</strong></td>
+<td>Pull 模型（消费者主动拉）</td>
+<td>Push 模型（队列主动推）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>日志收集、流式处理、大数据管道</td>
+<td>业务消息、延迟队列、优先级队列</td>
+</tr>
+</tbody></table>
+<p><strong>项目中为什么用 Kafka？</strong></p>
+<ul>
+<li>文档解析、切块、向量化是<strong>计算密集型任务</strong>，生成速度慢，Kafka 的 Pull 模型让消费者按自己的处理能力拉取消息，不会被压垮</li>
+<li>吞吐量要求高（可能同时有很多文件在上传）</li>
+<li>消息不需要严格的顺序保证（每个文件的处理是独立的）</li>
+</ul>
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“我们选 Kafka 是因为文档解析是计算密集型任务，处理耗时较长。Kafka 的 Pull 消费模型让消费者按自己的节奏处理消息，不会被压垮。而且 Kafka 的吞吐量远高于 RabbitMQ，适合这种异步处理流水线的场景。”</p>
+</blockquote>
+<hr>
+<h3 id="Q13：Kafka-怎么保证消息不丢失？"><a href="#Q13：Kafka-怎么保证消息不丢失？" class="headerlink" title="Q13：Kafka 怎么保证消息不丢失？"></a>Q13：Kafka 怎么保证消息不丢失？</h3><p><strong>答：</strong></p>
+<p>消息从生产到消费，有<strong>三个阶段</strong>可能丢消息，每个阶段都要处理：</p>
+<p><strong>阶段一：生产者 → Kafka（消息丢失）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 开启 acks=all（所有副本确认才算成功）</span><br>props.put(<span class="hljs-string">&quot;acks&quot;</span>, <span class="hljs-string">&quot;all&quot;</span>);<br><span class="hljs-comment">// 设置重试次数</span><br>props.put(<span class="hljs-string">&quot;retries&quot;</span>, <span class="hljs-number">3</span>);<br><span class="hljs-comment">// 设置重试退避时间</span><br>props.put(<span class="hljs-string">&quot;retry.backoff.ms&quot;</span>, <span class="hljs-number">100</span>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>阶段二：Kafka 自身（宕机丢消息）</strong></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-comment"># server.properties</span><br><span class="hljs-comment"># 至少 2 个副本确认才算写入成功</span><br><span class="hljs-attr">min.insync.replicas</span>=<span class="hljs-number">2</span><br><span class="hljs-comment"># 开启日志持久化（默认开启）</span><br><span class="hljs-attr">log.flush.interval.messages</span>=<span class="hljs-number">10000</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>阶段三：Kafka → 消费者（消费过程中丢失）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 错误写法：先提交 offset，再处理消息</span><br><span class="hljs-comment">// 如果提交后、处理前宕机，消息就丢了</span><br>consumer.commitSync();<br>processMessage(message);<br><br><span class="hljs-comment">// ✅ 正确写法：处理完再手动提交 offset</span><br>processMessage(message);<br>consumer.commitSync();<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的保障</strong>（<code>FileProcessingConsumer.java</code>）：</p>
+<ul>
+<li>消费者处理失败时抛出异常，Kafka 会<strong>自动重试</strong>（默认最多重试 2147483647 次，实际要配置 <code>max.poll.interval.ms</code>）</li>
+<li>重试耗尽后，消息进入<strong>死信队列（Dead Letter Queue）</strong>，不会丢</li>
+</ul>
+<hr>
+<h3 id="Q14：Kafka-消费者怎么保证消息不被重复消费（幂等性）？"><a href="#Q14：Kafka-消费者怎么保证消息不被重复消费（幂等性）？" class="headerlink" title="Q14：Kafka 消费者怎么保证消息不被重复消费（幂等性）？"></a>Q14：Kafka 消费者怎么保证消息不被重复消费（幂等性）？</h3><p><strong>答：</strong></p>
+<p>Kafka 的 <code>at-least-once</code> 语义（默认）保证消息<strong>至少被消费一次</strong>，但可能重复。</p>
+<p><strong>重复消费的原因</strong>：</p>
+<ul>
+<li>消费者处理完了，但<strong>提交 offset 之前宕机了</strong></li>
+<li>Kafka 认为这条消息没被消费，重新分发给其他消费者</li>
+</ul>
+<p><strong>解决方案：幂等性设计</strong></p>
+<p>项目中用<strong>数据库唯一约束</strong>保证幂等：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// FileProcessingConsumer.java</span><br><span class="hljs-comment">// 处理文件前，先检查这个 fileMd5 是否已经被处理过</span><br>Optional&lt;FileUpload&gt; existing = fileUploadRepository.findByFileMd5AndStatus(fileMd5, <span class="hljs-number">1</span>);<br><span class="hljs-keyword">if</span> (existing.isPresent()) &#123;<br>    logger.warn(<span class="hljs-string">&quot;文件已经被处理过，跳过：&#123;&#125;&quot;</span>, fileMd5);<br>    <span class="hljs-keyword">return</span>; <span class="hljs-comment">// 幂等：同样消息，处理多次和处理一次效果一样</span><br>&#125;<br><br><span class="hljs-comment">// 标记文件为&quot;处理中&quot;</span><br>fileUploadRepository.updateStatus(fileMd5, <span class="hljs-number">2</span>); <span class="hljs-comment">// 2=处理中</span><br><br><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-comment">// 解析文件 → 切块 → 向量化</span><br>    parseService.parseAndSave(fileMd5, ...);<br>    vectorizationService.vectorize(fileMd5, ...);<br>    <br>    <span class="hljs-comment">// 标记文件为&quot;处理完成&quot;</span><br>    fileUploadRepository.updateStatus(fileMd5, <span class="hljs-number">3</span>); <span class="hljs-comment">// 3=完成</span><br>&#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>    <span class="hljs-comment">// 标记文件为&quot;处理失败&quot;</span><br>    fileUploadRepository.updateStatus(fileMd5, <span class="hljs-number">4</span>); <span class="hljs-comment">// 4=失败</span><br>    <span class="hljs-keyword">throw</span> e; <span class="hljs-comment">// 抛出异常，触发重试</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：更严格的幂等性可以用<strong>分布式锁</strong>或<strong>Redis 原子操作</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 用 Redis SetNX 保证同一 fileMd5 只被处理一次</span><br><span class="hljs-type">Boolean</span> <span class="hljs-variable">firstTime</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue()<br>    .setIfAbsent(<span class="hljs-string">&quot;processing:&quot;</span> + fileMd5, <span class="hljs-string">&quot;1&quot;</span>, Duration.ofMinutes(<span class="hljs-number">30</span>));<br><span class="hljs-keyword">if</span> (Boolean.FALSE.equals(firstTime)) &#123;<br>    <span class="hljs-keyword">return</span>; <span class="hljs-comment">// 正在被其他消费者处理，跳过</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q15：Kafka-的-Partition-有什么用？项目中怎么用的？"><a href="#Q15：Kafka-的-Partition-有什么用？项目中怎么用的？" class="headerlink" title="Q15：Kafka 的 Partition 有什么用？项目中怎么用的？"></a>Q15：Kafka 的 Partition 有什么用？项目中怎么用的？</h3><p><strong>答：</strong></p>
+<p><strong>Partition 是 Kafka 的并行度单位</strong>：</p>
+<ul>
+<li>一个 Topic 可以分成多个 Partition</li>
+<li><strong>每个 Partition 只能被一个消费者线程消费</strong></li>
+<li><strong>同一个 Partition 内的消息是有序的</strong></li>
+</ul>
+<p><strong>项目中的使用</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// KafkaConfig.java</span><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> NewTopic <span class="hljs-title function_">fileProcessingTopic</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">return</span> TopicBuilder.name(<span class="hljs-string">&quot;file-processing&quot;</span>)<br>        .partitions(<span class="hljs-number">3</span>)   <span class="hljs-comment">// 3 个分区，允许 3 个消费者并行处理</span><br>        .replicas(<span class="hljs-number">2</span>)    <span class="hljs-comment">// 每个分区有 2 个副本</span><br>        .build();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Partition Key 的设计</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 用 fileMd5 作为 Partition Key</span><br><span class="hljs-comment">// 保证同一个文件的所有消息（上传、处理、完成通知）都发到同一个 Partition</span><br><span class="hljs-comment">// 保证同一个文件的处理顺序正确</span><br>kafkaTemplate.send(<span class="hljs-string">&quot;file-processing&quot;</span>, fileMd5, task);<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么不用 Round-Robin（轮询分发）？</strong></p>
+<ul>
+<li>如果同一个文件的不同分片被不同消费者处理，可能导致<strong>重复解析</strong></li>
+<li>用 fileMd5 做 Key，保证同一个文件只被一个消费者处理</li>
+</ul>
+<hr>
+<h3 id="Q16：Kafka-消费失败怎么办？重试次数用完怎么办？"><a href="#Q16：Kafka-消费失败怎么办？重试次数用完怎么办？" class="headerlink" title="Q16：Kafka 消费失败怎么办？重试次数用完怎么办？"></a>Q16：Kafka 消费失败怎么办？重试次数用完怎么办？</h3><p><strong>答：</strong></p>
+<p><strong>Kafka 的消费失败处理链路</strong>：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs stylus">消息处理抛出异常<br>↓<br>Kafka 自动重试（默认间隔 <span class="hljs-number">100ms</span>，最多重试 Integer<span class="hljs-selector-class">.MAX_VALUE</span> 次）<br>↓<br>如果重试次数达到上限（由 max<span class="hljs-selector-class">.poll</span><span class="hljs-selector-class">.interval</span><span class="hljs-selector-class">.ms</span> 间接控制）<br>↓<br>消息被发送到死信队列（Dead Letter Queue）<br>↓<br>专门有个死信消费者，把失败记录写进数据库，触发告警<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的死信处理</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// KafkaConfig.java</span><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> DefaultErrorHandler <span class="hljs-title function_">errorHandler</span><span class="hljs-params">(DeadLetterPublishingRecoverer deadLetterRecoverer)</span> &#123;<br>    <span class="hljs-type">DefaultErrorHandler</span> <span class="hljs-variable">handler</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultErrorHandler</span>(<br>        deadLetterRecoverer,<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">FixedBackOff</span>(<span class="hljs-number">1000L</span>, <span class="hljs-number">3L</span>) <span class="hljs-comment">// 重试 3 次，间隔 1 秒</span><br>    );<br>    <span class="hljs-keyword">return</span> handler;<br>&#125;<br><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> DeadLetterPublishingRecoverer <span class="hljs-title function_">deadLetterRecoverer</span><span class="hljs-params">(KafkaTemplate&lt;String, Object&gt; template)</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DeadLetterPublishingRecoverer</span>(template,<br>        (record, ex) -&gt; &#123;<br>            <span class="hljs-comment">// 失败消息发送到死信 Topic：file-processing.DLT</span><br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TopicPartition</span>(<span class="hljs-string">&quot;file-processing.DLT&quot;</span>, record.partition());<br>        &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>死信队列的后续处理</strong>：</p>
+<ul>
+<li>专门有个定时任务，每隔 10 分钟扫描死信队列</li>
+<li>把死信写入 <code>file_processing_failures</code> 数据库表</li>
+<li>发告警通知运维人工介入</li>
+</ul>
+<hr>
+<h3 id="Q17：Kafka-和-RabbitMQ-的消息确认机制有什么不同？"><a href="#Q17：Kafka-和-RabbitMQ-的消息确认机制有什么不同？" class="headerlink" title="Q17：Kafka 和 RabbitMQ 的消息确认机制有什么不同？"></a>Q17：Kafka 和 RabbitMQ 的消息确认机制有什么不同？</h3><p><strong>答：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Kafka</th>
+<th>RabbitMQ</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>生产者确认</strong></td>
+<td>acks&#x3D;0（不等待）、acks&#x3D;1（Leader 确认）、acks&#x3D;all（所有副本确认）</td>
+<td>Confirm 机制（异步回调）、Return 机制（无法路由时返回）</td>
+</tr>
+<tr>
+<td><strong>消费者确认</strong></td>
+<td>手动提交 offset（commitSync&#x2F;commitAsync）</td>
+<td>手动 Ack（basicAck）、手动 Nack（basicNack）</td>
+</tr>
+<tr>
+<td><strong>消息持久化</strong></td>
+<td>Topic 配置 <code>cleanup.policy=compact</code> 或 <code>delete</code></td>
+<td>Queue 设置 <code>durable=true</code>，消息设置 <code>deliveryMode=2</code></td>
+</tr>
+</tbody></table>
+<p><strong>项目中 Kafka 的生产者确认配置</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// KafkaConfig.java</span><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> ProducerFactory&lt;String, Object&gt; <span class="hljs-title function_">producerFactory</span><span class="hljs-params">()</span> &#123;<br>    Map&lt;String, Object&gt; props = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);<br>    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);<br>    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);<br>    props.put(ProducerConfig.ACKS_CONFIG, <span class="hljs-string">&quot;all&quot;</span>); <span class="hljs-comment">// 所有副本确认</span><br>    props.put(ProducerConfig.RETRIES_CONFIG, <span class="hljs-number">3</span>);    <span class="hljs-comment">// 重试 3 次</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultKafkaProducerFactory</span>&lt;&gt;(props);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、综合设计题（6-道）"><a href="#四、综合设计题（6-道）" class="headerlink" title="四、综合设计题（6 道）"></a>四、综合设计题（6 道）</h2><h3 id="Q18：如果让你设计支持-1-亿用户的文件上传系统，你会怎么做？"><a href="#Q18：如果让你设计支持-1-亿用户的文件上传系统，你会怎么做？" class="headerlink" title="Q18：如果让你设计支持 1 亿用户的文件上传系统，你会怎么做？"></a>Q18：如果让你设计支持 1 亿用户的文件上传系统，你会怎么做？</h3><p><strong>答：</strong></p>
+<p><strong>V1（当前项目）</strong>：单 MinIO 实例 + 单 Kafka Topic</p>
+<ul>
+<li>支持：日活 1 万，同时上传 100 个文件</li>
+</ul>
+<p><strong>V2（水平扩展）</strong>：</p>
+<ul>
+<li>MinIO 集群：多个 MinIO 节点，用<strong>纠删码</strong>保证高可用</li>
+<li>Kafka 集群：多个 Broker，Topic 分成 12 个 Partition（支持 12 个消费者并行）</li>
+<li>应用无状态化：多个实例，用 Nginx 做负载均衡</li>
+</ul>
+<p><strong>V3（极致优化）</strong>：</p>
+<ul>
+<li><strong>分片秒传</strong>：客户端先计算文件 MD5，询问服务端是否已存在，存在就直接返回成功（不用再传）</li>
+<li><strong>CDN 加速上传</strong>：分片上传走 CDN，就近接入，减少延迟</li>
+<li><strong>预热机制</strong>：热门文件提前预热到 CDN，下载时不用回源 MinIO</li>
+</ul>
+<hr>
+<h3 id="Q19：秒传功能具体怎么实现？MD5-碰撞怎么办？"><a href="#Q19：秒传功能具体怎么实现？MD5-碰撞怎么办？" class="headerlink" title="Q19：秒传功能具体怎么实现？MD5 碰撞怎么办？"></a>Q19：秒传功能具体怎么实现？MD5 碰撞怎么办？</h3><p><strong>答：</strong></p>
+<p><strong>秒传流程</strong>：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs routeros">客户端计算文件 MD5<br>↓<br>询问服务端：<span class="hljs-attribute">MD5</span>=abc123 的文件是否已存在？<br>↓<br>服务端查 MinIO：如果已存在，直接返回<span class="hljs-string">&quot;上传成功&quot;</span><br>↓<br>客户端不用再传，体验极好<br></code></pre></td></tr></table></figure>
+
+<p><strong>MD5 碰撞问题</strong>：</p>
+<ul>
+<li>MD5 是 128 位，理论上可能碰撞（两个不同文件 MD5 相同）</li>
+<li>但实际概率极低（需要刻意构造才能碰撞）</li>
+</ul>
+<p><strong>更严格的做法</strong>：</p>
+<ul>
+<li>用 <strong>SHA-256</strong>（256 位，碰撞概率可以忽略）</li>
+<li>或者<strong>MD5 + 文件大小</strong> 共同作为唯一标识</li>
+<li>项目中只用 MD5 是因为：企业内网环境，文件是用户主动上传的，没有人会刻意构造 MD5 碰撞攻击</li>
+</ul>
+<hr>
+<h3 id="Q20：如果-Kafka-积压了-10-万条消息，怎么处理？"><a href="#Q20：如果-Kafka-积压了-10-万条消息，怎么处理？" class="headerlink" title="Q20：如果 Kafka 积压了 10 万条消息，怎么处理？"></a>Q20：如果 Kafka 积压了 10 万条消息，怎么处理？</h3><p><strong>答：</strong></p>
+<p><strong>第一步：紧急扩容</strong></p>
+<ul>
+<li>增加 Partition 数量（比如从 3 个加到 12 个）</li>
+<li>增加消费者实例数量（和 Partition 数量一致，最大化并行度）</li>
+</ul>
+<p><strong>第二步：优化消费者处理逻辑</strong></p>
+<ul>
+<li>检查消费者是不是有<strong>慢操作</strong>（比如同步调用外部 API）</li>
+<li>把慢操作异步化（再扔进另一个 Kafka Topic）</li>
+</ul>
+<p><strong>第三步：跳过非关键消息</strong></p>
+<ul>
+<li>如果某些消息不重要（比如”通知用户文件已处理完成”），可以暂时跳过</li>
+<li>等积压消化完，再补发这些通知</li>
+</ul>
+<p><strong>项目中的监控</strong>（MetricsConfig.java）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 监控 Kafka 消费延迟（Lag）</span><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> MeterRegistryCustomizer&lt;MeterRegistry&gt; <span class="hljs-title function_">configureRegistry</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">return</span> registry -&gt; &#123;<br>        <span class="hljs-comment">// 暴露 Kafka Lag 指标给 Prometheus</span><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaClientMetrics</span>(<span class="hljs-string">&quot;kafka.consumer&quot;</span>).bindTo(registry);<br>    &#125;;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>Lag 超过 1000 条就触发告警，人工介入。</p>
+<hr>
+<h3 id="Q21：分片上传和断点续传，和-HTTP-的-Range-请求有什么区别？"><a href="#Q21：分片上传和断点续传，和-HTTP-的-Range-请求有什么区别？" class="headerlink" title="Q21：分片上传和断点续传，和 HTTP 的 Range 请求有什么区别？"></a>Q21：分片上传和断点续传，和 HTTP 的 Range 请求有什么区别？</h3><p><strong>答：</strong></p>
+<p><strong>HTTP Range 请求</strong>（断点下载）：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs routeros">客户端：<span class="hljs-built_in">GET</span> /file.pdf<br>服务器：返回 200 OK，整个文件<br><br>客户端（支持断点续传）：<span class="hljs-built_in">GET</span> /file.pdf<br>Range: <span class="hljs-attribute">bytes</span>=1000000-1999999<br>服务器：返回 206 Partial Content，只返回第 1000000~1999999 字节<br></code></pre></td></tr></table></figure>
+<ul>
+<li>这是<strong>下载</strong>时的断点续传</li>
+<li>依赖服务器支持 HTTP Range 请求</li>
+</ul>
+<p><strong>分片上传</strong>（我们项目做的）：</p>
+<ul>
+<li>这是<strong>上传</strong>时的断点续传</li>
+<li>客户端把文件切成小块，每个小块独立上传</li>
+<li>中断后，客户端询问服务端”哪些分片已上传”，只传剩下的</li>
+</ul>
+<p><strong>区别</strong>：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>HTTP Range（断点下载）</th>
+<th>分片上传（断点上传）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>方向</td>
+<td>服务器 → 客户端（下载）</td>
+<td>客户端 → 服务器（上传）</td>
+</tr>
+<tr>
+<td>协议支持</td>
+<td>HTTP&#x2F;1.1 原生支持</td>
+<td>需要自己实现（项目用自定义分片协议）</td>
+</tr>
+<tr>
+<td>典型应用</td>
+<td>视频网站拖拽进度条</td>
+<td>大文件上传（网盘、对象存储）</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="Q22：项目中-Redis-Bitmap-的过期时间是怎么设置的？为什么？"><a href="#Q22：项目中-Redis-Bitmap-的过期时间是怎么设置的？为什么？" class="headerlink" title="Q22：项目中 Redis Bitmap 的过期时间是怎么设置的？为什么？"></a>Q22：项目中 Redis Bitmap 的过期时间是怎么设置的？为什么？</h3><p><strong>答：</strong></p>
+<p><strong>项目中的设置</strong>（<code>UploadService.java</code> 中没有显式设置过期时间，这是一个可以优化的点）：</p>
+<p>实际上，分片上传的 Redis Key <strong>应该在文件合并完成后删除</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// mergeChunks 方法中，合并完成后删除 Redis Bitmap</span><br>deleteFileMark(fileMd5, userId);<br></code></pre></td></tr></table></figure>
+
+<p><strong>但如果文件上传到一半，用户走了（再也不回来了）怎么办？</strong></p>
+<ul>
+<li>Redis Key 会一直占用内存</li>
+<li>需要设置<strong>过期时间</strong></li>
+</ul>
+<p><strong>优化方案</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 每次上传分片时，刷新过期时间</span><br>redisTemplate.expire(redisKey, Duration.ofHours(<span class="hljs-number">24</span>));<br><br><span class="hljs-comment">// 或者创建文件记录时设置过期时间</span><br>redisTemplate.opsForValue().setBit(redisKey, chunkIndex, <span class="hljs-literal">true</span>);<br>redisTemplate.expire(redisKey, Duration.ofHours(<span class="hljs-number">24</span>));<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：为什么选 24 小时？</p>
+<ul>
+<li>大文件上传通常不会超过 24 小时</li>
+<li>如果 24 小时后用户还想继续传，重新从头开始传也可以接受（大不了重新传）</li>
+</ul>
+<hr>
+<h2 id="五、简历话术准备"><a href="#五、简历话术准备" class="headerlink" title="五、简历话术准备"></a>五、简历话术准备</h2><p><strong>面试官问</strong>：”你在简历里写了 Redis Bitmap 维护分片状态，能详细讲一下吗？”</p>
+<p><strong>回答模板</strong>（背下来！）：</p>
+<blockquote>
+<p>“这个问题我从四个方面来讲。</p>
+<p><strong>第一，为什么用 Bitmap</strong>。我们项目支持大文件上传，一个 500MB 的文件切成 100 个分片，需要记录哪些分片已上传。如果用 Redis Set，100 个分片要花 400 字节；用 Hash，要花 1KB；用 Bitmap，只要 13 字节，省了两个数量级的内存。</p>
+<p><strong>第二，具体怎么用的</strong>。Redis Key 设计成 <code>upload:{userId}:{fileMd5}</code>，保证每个用户的上传进度独立。上传分片时，用 <code>SETBIT</code> 标记对应 bit 为 1；断点续传时，用 <code>GETBIT</code> 检查每个分片是否已上传。</p>
+<p><strong>第三，性能优化点</strong>。最开始我们是对每个分片调用一次 <code>GETBIT</code>，100 个分片就是 100 次 Redis 调用。后来优化成一次性拿到整个 Bitmap 的字节数组，在本地解析，只需要 1 次 Redis 调用。</p>
+<p><strong>第四，容错处理</strong>。如果 Redis 挂了，分片状态丢失，但 MinIO 中的分片文件还在。用户重新上传时，我们会检查 MinIO 中是否存在对应分片，如果存在就跳过上传，所以数据不会丢。”</p>
+</blockquote>
+<hr>
+<p><em>© 2026 KnowFlow 面试手册 · 转载请注明出处</em></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/Redis/" class="print-no-link">#Redis</a>
+      
+        <a href="/tags/Kafka/" class="print-no-link">#Kafka</a>
+      
+        <a href="/tags/MinIO/" class="print-no-link">#MinIO</a>
+      
+        <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/" class="print-no-link">#字节跳动</a>
+      
+        <a href="/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" class="print-no-link">#文件上传</a>
+      
+        <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/" class="print-no-link">#傻子都能懂</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-upload-qa/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-knowflow-search-qa/" title="KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-fastexcel-qa/" title="技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出">
+                        <span class="hidden-mobile">技术派面试拷打③：FastExcel + 线程池 + CountDownLatch 并发导出</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

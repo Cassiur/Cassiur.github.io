@@ -1,0 +1,949 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解混合检索的实现细节（向量检索 + 文本匹配、KNN 召回、BM25 Rescore、权限过滤）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是混合检索？傻子都能懂的解释： 想象你要在知识库里搜索”如何学习 Java”：  传统搜索（只用文本匹配）：搜索”如何">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KnowFlow 项目学习笔记（二）：混合检索深度解析">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-hybrid-search-learn/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解混合检索的实现细节（向量检索 + 文本匹配、KNN 召回、BM25 Rescore、权限过滤）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是混合检索？傻子都能懂的解释： 想象你要在知识库里搜索”如何学习 Java”：  传统搜索（只用文本匹配）：搜索”如何">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T14:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T13:41:29.868Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="BM25">
+<meta property="article:tag" content="Elasticsearch">
+<meta property="article:tag" content="KNN">
+<meta property="article:tag" content="KnowFlow">
+<meta property="article:tag" content="向量检索">
+<meta property="article:tag" content="权限过滤">
+<meta property="article:tag" content="混合检索">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>KnowFlow 项目学习笔记（二）：混合检索深度解析 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="KnowFlow 项目学习笔记（二）：混合检索深度解析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 22:00" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">KnowFlow 项目学习笔记（二）：混合检索深度解析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p><strong>写在前面</strong>：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解混合检索的实现细节（向量检索 + 文本匹配、KNN 召回、BM25 Rescore、权限过滤）。并指出源码里的 <strong>3 处严重问题</strong>（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。</p>
+</blockquote>
+<hr>
+<h2 id="一、什么是混合检索？"><a href="#一、什么是混合检索？" class="headerlink" title="一、什么是混合检索？"></a>一、什么是混合检索？</h2><p><strong>傻子都能懂的解释</strong>：</p>
+<p>想象你要在知识库里搜索”如何学习 Java”：</p>
+<ul>
+<li><strong>传统搜索</strong>（只用文本匹配）：搜索”如何学习 Java”，只能找到包含这 6 个字的结果（比如”如何学习 Java 编程”）</li>
+<li><strong>向量搜索</strong>（只用语义相似）：搜索”如何学习 Java”，可以找到”Java 入门指南”（虽然字不一样，但意思相似）</li>
+<li><strong>混合检索</strong>：结合两者优点，先用向量搜索找到”意思相似”的结果，再用文本匹配过滤掉不相关的结果</li>
+</ul>
+<p><strong>KnowFlow 的混合检索</strong>：</p>
+<ol>
+<li><strong>向量检索</strong>：把用户的查询转换成向量（一串数字），在 Elasticsearch 里找”向量相似度最高”的结果</li>
+<li><strong>文本匹配</strong>：用 BM25 算法（Elasticsearch 的默认评分算法），计算查询和文档的”文本相似度”</li>
+<li><strong>混合排序</strong>：把向量相似度和文本相似度结合起来，重新排序（Rescore）</li>
+</ol>
+<hr>
+<h2 id="二、源码解析：HybridSearchService-java"><a href="#二、源码解析：HybridSearchService-java" class="headerlink" title="二、源码解析：HybridSearchService.java"></a>二、源码解析：<code>HybridSearchService.java</code></h2><p><strong>文件位置</strong>：<code>PaiSmart-zuzhi/src/main/java/com/yizhaoqi/smartpai/service/HybridSearchService.java</code></p>
+<h3 id="2-1-混合检索主流程：searchWithPermission-方法"><a href="#2-1-混合检索主流程：searchWithPermission-方法" class="headerlink" title="2.1 混合检索主流程：searchWithPermission() 方法"></a>2.1 混合检索主流程：<code>searchWithPermission()</code> 方法</h3><p><strong>源码（第 67-178 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> List&lt;SearchResult&gt; <span class="hljs-title function_">searchWithPermission</span><span class="hljs-params">(String query, String userId, <span class="hljs-type">int</span> topK)</span> &#123;<br>    <span class="hljs-keyword">return</span> searchTimer.record(() -&gt; &#123;<br>        logger.debug(<span class="hljs-string">&quot;开始带权限搜索，查询: &#123;&#125;, 用户ID: &#123;&#125;&quot;</span>, query, userId);<br>        <br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// 获取用户有效的组织标签（包含层级关系）</span><br>            List&lt;String&gt; userEffectiveTags = getUserEffectiveOrgTags(userId);<br>            logger.debug(<span class="hljs-string">&quot;用户 &#123;&#125; 的有效组织标签: &#123;&#125;&quot;</span>, userId, userEffectiveTags);<br><br>            <span class="hljs-comment">// 获取用户的数据库ID用于权限过滤</span><br>            <span class="hljs-type">String</span> <span class="hljs-variable">userDbId</span> <span class="hljs-operator">=</span> getUserDbId(userId);<br>            logger.debug(<span class="hljs-string">&quot;用户 &#123;&#125; 的数据库ID: &#123;&#125;&quot;</span>, userId, userDbId);<br><br>            <span class="hljs-comment">// 生成查询向量</span><br>            <span class="hljs-keyword">final</span> List&lt;Float&gt; queryVector = embedToVectorList(query);<br><br>            <span class="hljs-comment">// 如果向量生成失败，仅使用文本匹配</span><br>            <span class="hljs-keyword">if</span> (queryVector == <span class="hljs-literal">null</span>) &#123;<br>                logger.warn(<span class="hljs-string">&quot;向量生成失败，仅使用文本匹配进行搜索&quot;</span>);<br>                <span class="hljs-keyword">return</span> textOnlySearchWithPermission(query, userDbId, userEffectiveTags, topK);<br>            &#125;<br><br>            logger.debug(<span class="hljs-string">&quot;向量生成成功，开始执行混合搜索 KNN&quot;</span>);<br><br>            SearchResponse&lt;EsDocument&gt; response = esClient.search(s -&gt; &#123;<br>                        s.index(<span class="hljs-string">&quot;knowledge_base&quot;</span>);<br>                        <span class="hljs-comment">// KNN 召回</span><br>                        <span class="hljs-type">int</span> <span class="hljs-variable">recallK</span> <span class="hljs-operator">=</span> topK * <span class="hljs-number">30</span>; <span class="hljs-comment">// KNN 召回窗口</span><br>                        s.knn(kn -&gt; kn<br>                                .field(<span class="hljs-string">&quot;vector&quot;</span>)<br>                                .queryVector(queryVector)<br>                                .k(recallK)<br>                                .numCandidates(recallK)<br>                        );<br>                        <span class="hljs-comment">// 必须命中关键词 + 权限过滤</span><br>                        s.query(q -&gt; q.bool(b -&gt; b<br>                                .must(mst -&gt; mst.match(m -&gt; m.field(<span class="hljs-string">&quot;textContent&quot;</span>).query(query)))<br>                                .filter(f -&gt; f.bool(bf -&gt; bf<br>                                        <span class="hljs-comment">// 条件1: 用户可访问自己的文档</span><br>                                        .should(s1 -&gt; s1.term(t -&gt; t.field(<span class="hljs-string">&quot;userId&quot;</span>).value(userDbId)))<br>                                        <span class="hljs-comment">// 条件2: 公开文档</span><br>                                        .should(s2 -&gt; s2.term(t -&gt; t.field(<span class="hljs-string">&quot;public&quot;</span>).value(<span class="hljs-literal">true</span>)))<br>                                        <span class="hljs-comment">// 条件3: 组织标签</span><br>                                        .should(s3 -&gt; &#123;<br>                                            <span class="hljs-keyword">if</span> (userEffectiveTags.isEmpty()) &#123;<br>                                                <span class="hljs-keyword">return</span> s3.matchNone(mn -&gt; mn);<br>                                            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (userEffectiveTags.size() == <span class="hljs-number">1</span>) &#123;<br>                                                <span class="hljs-keyword">return</span> s3.term(t -&gt; t.field(<span class="hljs-string">&quot;orgTag&quot;</span>).value(userEffectiveTags.get(<span class="hljs-number">0</span>)));<br>                                            &#125; <span class="hljs-keyword">else</span> &#123;<br>                                                <span class="hljs-keyword">return</span> s3.bool(inner -&gt; &#123;<br>                                                    userEffectiveTags.forEach(tag -&gt; inner.should(sh2 -&gt; sh2.term(t -&gt; t.field(<span class="hljs-string">&quot;orgTag&quot;</span>).value(tag))));<br>                                                    <span class="hljs-keyword">return</span> inner;<br>                                                &#125;);<br>                                            &#125;<br>                                        &#125;)<br>                                ))<br>                        ));<br><br>                        <span class="hljs-comment">// 第二阶段 BM25 rescore</span><br>                        s.rescore(r -&gt; r<br>                                .windowSize(recallK)<br>                                .query(rq -&gt; rq<br>                                        .queryWeight(<span class="hljs-number">0.2d</span>)               <span class="hljs-comment">// 保留部分 KNN 分</span><br>                                        .rescoreQueryWeight(<span class="hljs-number">1.0d</span>)        <span class="hljs-comment">// BM25 主导</span><br>                                        .query(rqq -&gt; rqq.match(m -&gt; m<br>                                                .field(<span class="hljs-string">&quot;textContent&quot;</span>)<br>                                                .query(query)<br>                                                .operator(Operator.And)<br>                                        ))<br>                                )<br>                        );<br>                        s.size(topK);<br>                        <span class="hljs-keyword">return</span> s;<br>                    &#125;, EsDocument.class);<br><br>            logger.debug(<span class="hljs-string">&quot;Elasticsearch查询执行完成，命中数量: &#123;&#125;, 最大分数: &#123;&#125;&quot;</span>, <br>                response.hits().total().value(), response.hits().maxScore());<br><br>            List&lt;SearchResult&gt; results = response.hits().hits().stream()<br>                    .map(hit -&gt; &#123;<br>                        <span class="hljs-keyword">assert</span> hit.source() != <span class="hljs-literal">null</span>;<br>                        logger.debug(<span class="hljs-string">&quot;搜索结果 - 文件: &#123;&#125;, 块: &#123;&#125;, 分数: &#123;&#125;, 内容: &#123;&#125;&quot;</span>, <br>                            hit.source().getFileMd5(), hit.source().getChunkId(), hit.score(), <br>                            hit.source().getTextContent().substring(<span class="hljs-number">0</span>, Math.min(<span class="hljs-number">50</span>, hit.source().getTextContent().length())));<br>                        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchResult</span>(<br>                                hit.source().getFileMd5(),<br>                                hit.source().getChunkId(),<br>                                hit.source().getTextContent(),<br>                                hit.score(),<br>                                hit.source().getUserId(),<br>                                hit.source().getOrgTag(),<br>                                hit.source().isPublic()<br>                        );<br>                    &#125;)<br>                    .toList();<br><br>            logger.debug(<span class="hljs-string">&quot;返回搜索结果数量: &#123;&#125;&quot;</span>, results.size());<br>            attachFileNames(results);<br>            <span class="hljs-keyword">return</span> results;<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            logger.error(<span class="hljs-string">&quot;带权限的搜索失败&quot;</span>, e);<br>            <span class="hljs-comment">// 发生异常时尝试使用纯文本搜索作为后备方案</span><br>            <span class="hljs-keyword">try</span> &#123;<br>                logger.info(<span class="hljs-string">&quot;尝试使用纯文本搜索作为后备方案&quot;</span>);<br>                <span class="hljs-keyword">return</span> textOnlySearchWithPermission(query, getUserDbId(userId), getUserEffectiveOrgTags(userId), topK);<br>            &#125; <span class="hljs-keyword">catch</span> (Exception fallbackError) &#123;<br>                logger.error(<span class="hljs-string">&quot;后备搜索也失败&quot;</span>, fallbackError);<br>                <span class="hljs-keyword">return</span> Collections.emptyList();<br>            &#125;<br>        &#125;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>逐行解析（傻子都能懂版）</strong>：</p>
+<ol>
+<li><p><strong>第 73 行</strong>：<code>List&lt;String&gt; userEffectiveTags = getUserEffectiveOrgTags(userId);</code></p>
+<ul>
+<li>获取用户的有效组织标签（用来做权限过滤）</li>
+<li>比如用户属于”技术部”，他能看到”技术部”的文档 + 自己的文档 + 公开文档</li>
+</ul>
+</li>
+<li><p><strong>第 77 行</strong>：<code>String userDbId = getUserDbId(userId);</code></p>
+<ul>
+<li>获取用户的数据库 ID（用来做权限过滤）</li>
+<li>比如用户 ID 是 <code>1001</code>，他能看到 <code>userId = 1001</code> 的文档（自己的文档）</li>
+</ul>
+</li>
+<li><p><strong>第 81 行</strong>：<code>final List&lt;Float&gt; queryVector = embedToVectorList(query);</code></p>
+<ul>
+<li>把用户的查询转换成向量（调用 embedding 服务）</li>
+<li>比如查询是”如何学习 Java”，转换成向量：<code>[0.1, 0.2, 0.3, ...]</code>（768 维）</li>
+</ul>
+</li>
+<li><p><strong>第 91-140 行</strong>：Elasticsearch 查询</p>
+<ul>
+<li><strong>KNN 召回</strong>（第 95-100 行）：在向量空间里找”距离最近”的文档（类似”找邻居”）</li>
+<li><strong>文本匹配过滤</strong>（第 102-103 行）：必须包含查询关键词（比如搜索”Java”，结果里必须包含”Java”这个词）</li>
+<li><strong>权限过滤</strong>（第 104-123 行）：只能看到自己有权限的文档</li>
+</ul>
+</li>
+<li><p><strong>第 125-137 行</strong>：BM25 Rescore</p>
+<ul>
+<li><strong>Rescore</strong>：重新评分（第二阶段）</li>
+<li><strong>windowSize</strong>：只对前 <code>recallK</code> 个结果重新评分（提高性能）</li>
+<li><strong>queryWeight</strong>：KNN 分数的权重（0.2 &#x3D; 保留 20% 的 KNN 分数）</li>
+<li><strong>rescoreQueryWeight</strong>：BM25 分数的权重（1.0 &#x3D; BM25 分数占 100%）</li>
+</ul>
+</li>
+<li><p><strong>第 145-161 行</strong>：处理结果</p>
+<ul>
+<li>把 Elasticsearch 的返回结果转换成 <code>SearchResult</code> 对象</li>
+<li><code>hit.score()</code>：文档的评分（分数越高，排名越靠前）</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="2-2-向量生成：embedToVectorList-方法"><a href="#2-2-向量生成：embedToVectorList-方法" class="headerlink" title="2.2 向量生成：embedToVectorList() 方法"></a>2.2 向量生成：<code>embedToVectorList()</code> 方法</h3><p><strong>源码（第 380-397 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> List&lt;Float&gt; <span class="hljs-title function_">embedToVectorList</span><span class="hljs-params">(String text)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        List&lt;<span class="hljs-type">float</span>[]&gt; vecs = embeddingClient.embed(List.of(text));<br>        <span class="hljs-keyword">if</span> (vecs == <span class="hljs-literal">null</span> || vecs.isEmpty()) &#123;<br>            logger.warn(<span class="hljs-string">&quot;生成的向量为空&quot;</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>        &#125;<br>        <span class="hljs-type">float</span>[] raw = vecs.get(<span class="hljs-number">0</span>);<br>        List&lt;Float&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(raw.length);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">float</span> v : raw) &#123;<br>            list.add(v);<br>        &#125;<br>        <span class="hljs-keyword">return</span> list;<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        logger.error(<span class="hljs-string">&quot;生成向量失败&quot;</span>, e);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>傻子都能懂的解释</strong>：</p>
+<p><strong>什么是向量？</strong></p>
+<ul>
+<li>向量就是”一串数字”（比如 <code>[0.1, 0.2, 0.3, ...]</code>）</li>
+<li>每个数字代表一个”特征”（类似”纬度”）</li>
+<li>比如”苹果”这个词，转换成向量可能是 <code>[0.1, 0.2, 0.3]</code>（表示”水果”特征）</li>
+<li>“香蕉”这个词，转换成向量可能是 <code>[0.1, 0.2, 0.4]</code>（也表示”水果”特征）</li>
+<li>因为”苹果”和”香蕉”的向量很接近，所以它们是”语义相似”的</li>
+</ul>
+<p><strong>什么是 Embedding？</strong></p>
+<ul>
+<li>Embedding 就是把”文字”转换成”向量”的过程</li>
+<li>比如用 OpenAI 的 <code>text-embedding-ada-002</code> 模型，把”如何学习 Java”转换成 1536 维的向量</li>
+</ul>
+<p><strong>代码解析</strong>：</p>
+<ol>
+<li><p><strong>第 382 行</strong>：<code>List&lt;float[]&gt; vecs = embeddingClient.embed(List.of(text));</code></p>
+<ul>
+<li>调用 embedding 服务（可能是 OpenAI API，也可能是本地模型）</li>
+<li>返回值是 <code>List&lt;float[]&gt;</code>（可能包含多个向量的列表）</li>
+</ul>
+</li>
+<li><p><strong>第 387-392 行</strong>：把 <code>float[]</code> 转换成 <code>List&lt;Float&gt;</code></p>
+<ul>
+<li>Elasticsearch Java SDK 需要 <code>List&lt;Float&gt;</code> 格式（不是 <code>float[]</code>）</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="2-3-权限过滤：getUserEffectiveOrgTags-方法"><a href="#2-3-权限过滤：getUserEffectiveOrgTags-方法" class="headerlink" title="2.3 权限过滤：getUserEffectiveOrgTags() 方法"></a>2.3 权限过滤：<code>getUserEffectiveOrgTags()</code> 方法</h3><p><strong>源码（第 402-429 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> List&lt;String&gt; <span class="hljs-title function_">getUserEffectiveOrgTags</span><span class="hljs-params">(String userId)</span> &#123;<br>    logger.debug(<span class="hljs-string">&quot;获取用户有效组织标签，用户ID: &#123;&#125;&quot;</span>, userId);<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 获取用户名</span><br>        User user;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">Long</span> <span class="hljs-variable">userIdLong</span> <span class="hljs-operator">=</span> Long.parseLong(userId);<br>            logger.debug(<span class="hljs-string">&quot;解析用户ID为Long: &#123;&#125;&quot;</span>, userIdLong);<br>            user = userRepository.findById(userIdLong)<br>                .orElseThrow(() -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">CustomException</span>(<span class="hljs-string">&quot;User not found with ID: &quot;</span> + userId, HttpStatus.NOT_FOUND));<br>            logger.debug(<span class="hljs-string">&quot;通过ID找到用户: &#123;&#125;&quot;</span>, user.getUsername());<br>        &#125; <span class="hljs-keyword">catch</span> (NumberFormatException e) &#123;<br>            <span class="hljs-comment">// 如果userId不是数字格式，则假设它就是username</span><br>            logger.debug(<span class="hljs-string">&quot;用户ID不是数字格式，作为用户名查找: &#123;&#125;&quot;</span>, userId);<br>            user = userRepository.findByUsername(userId)<br>                .orElseThrow(() -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">CustomException</span>(<span class="hljs-string">&quot;User not found: &quot;</span> + userId, HttpStatus.NOT_FOUND));<br>            logger.debug(<span class="hljs-string">&quot;通过用户名找到用户: &#123;&#125;&quot;</span>, user.getUsername());<br>        &#125;<br>        <br>        <span class="hljs-comment">// 通过orgTagCacheService获取用户的有效标签集合</span><br>        List&lt;String&gt; effectiveTags = orgTagCacheService.getUserEffectiveOrgTags(user.getUsername());<br>        logger.debug(<span class="hljs-string">&quot;用户 &#123;&#125; 的有效组织标签: &#123;&#125;&quot;</span>, user.getUsername(), effectiveTags);<br>        <span class="hljs-keyword">return</span> effectiveTags;<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        logger.error(<span class="hljs-string">&quot;获取用户有效组织标签失败: &#123;&#125;&quot;</span>, e.getMessage(), e);<br>        <span class="hljs-keyword">return</span> Collections.emptyList(); <span class="hljs-comment">// 返回空列表作为默认值</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>傻子都能懂的解释</strong>：</p>
+<p><strong>什么是组织标签？</strong></p>
+<ul>
+<li>组织标签就是”部门”（比如”技术部”、”产品部”、”运营部”）</li>
+<li>每个文档都有一个组织标签（比如”技术部”的文档，只有”技术部”的人能看）</li>
+</ul>
+<p><strong>什么是层级关系？</strong></p>
+<ul>
+<li>比如”技术部”下面有”前端组”、”后端组”</li>
+<li>如果用户属于”技术部”，他能看到”技术部”、”前端组”、”后端组”的所有文档</li>
+</ul>
+<p><strong>代码解析</strong>：</p>
+<ol>
+<li><p><strong>第 408-419 行</strong>：获取用户</p>
+<ul>
+<li>先尝试把 <code>userId</code> 转换成 <code>Long</code>（数据库 ID）</li>
+<li>如果转换失败，假设 <code>userId</code> 是用户名（字符串）</li>
+</ul>
+</li>
+<li><p><strong>第 422 行</strong>：<code>orgTagCacheService.getUserEffectiveOrgTags(user.getUsername())</code></p>
+<ul>
+<li>获取用户的有效组织标签（包含层级关系）</li>
+<li>比如用户属于”技术部”，返回 <code>[&quot;技术部&quot;, &quot;前端组&quot;, &quot;后端组&quot;]</code></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="三、❗❗-源码里的问题"><a href="#三、❗❗-源码里的问题" class="headerlink" title="三、❗❗ 源码里的问题"></a>三、❗❗ 源码里的问题</h2><h3 id="问题-1：KNN-召回窗口太大，影响性能！"><a href="#问题-1：KNN-召回窗口太大，影响性能！" class="headerlink" title="问题 1：KNN 召回窗口太大，影响性能！"></a>问题 1：KNN 召回窗口太大，影响性能！</h3><p><strong>看代码（第 94-99 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span> <span class="hljs-variable">recallK</span> <span class="hljs-operator">=</span> topK * <span class="hljs-number">30</span>; <span class="hljs-comment">// KNN 召回窗口</span><br>s.knn(kn -&gt; kn<br>        .field(<span class="hljs-string">&quot;vector&quot;</span>)<br>        .queryVector(queryVector)<br>        .k(recallK)<br>        .numCandidates(recallK)<br>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：</p>
+<ul>
+<li><code>recallK = topK * 30</code>（比如 <code>topK = 10</code>，<code>recallK = 300</code>）</li>
+<li>如果 <code>topK = 100</code>，<code>recallK = 3000</code>（召回 3000 个结果）</li>
+<li>Elasticsearch 需要对 3000 个结果重新评分（Rescore），性能很差</li>
+</ul>
+<p><strong>为什么要用 30 倍？</strong></p>
+<ul>
+<li>作者想提高召回率（担心漏掉相关结果）</li>
+<li>但这样会严重影响性能（QPS 下降）</li>
+</ul>
+<p><strong>修复方案：动态调整召回窗口</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span> <span class="hljs-variable">recallK</span> <span class="hljs-operator">=</span> Math.min(topK * <span class="hljs-number">10</span>, <span class="hljs-number">500</span>);  <span class="hljs-comment">// 最多召回 500 个</span><br>s.knn(kn -&gt; kn<br>        .field(<span class="hljs-string">&quot;vector&quot;</span>)<br>        .queryVector(queryVector)<br>        .k(recallK)<br>        .numCandidates(recallK)<br>);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="问题-2：权限过滤放在-KNN-查询里，影响性能！"><a href="#问题-2：权限过滤放在-KNN-查询里，影响性能！" class="headerlink" title="问题 2：权限过滤放在 KNN 查询里，影响性能！"></a>问题 2：权限过滤放在 KNN 查询里，影响性能！</h3><p><strong>看代码（第 102-123 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java">s.query(q -&gt; q.bool(b -&gt; b<br>        .must(mst -&gt; mst.match(m -&gt; m.field(<span class="hljs-string">&quot;textContent&quot;</span>).query(query)))<br>        .filter(f -&gt; f.bool(bf -&gt; bf<br>                <span class="hljs-comment">// 条件1: 用户可访问自己的文档</span><br>                .should(s1 -&gt; s1.term(t -&gt; t.field(<span class="hljs-string">&quot;userId&quot;</span>).value(userDbId)))<br>                <span class="hljs-comment">// 条件2: 公开文档</span><br>                .should(s2 -&gt; s2.term(t -&gt; t.field(<span class="hljs-string">&quot;public&quot;</span>).value(<span class="hljs-literal">true</span>)))<br>                <span class="hljs-comment">// 条件3: 组织标签</span><br>                .should(s3 -&gt; ...)<br>        ))<br>));<br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：</p>
+<ul>
+<li>权限过滤（filter）会过滤掉很多结果</li>
+<li>如果 KNN 召回了 300 个结果，但权限过滤后只剩 10 个，浪费了很多计算资源</li>
+</ul>
+<p><strong>修复方案：先权限过滤，再 KNN 召回</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 先查询用户有权限的文档 ID 列表</span><br>List&lt;String&gt; allowedDocIds = getAllowedDocIds(userId);<br><br><span class="hljs-comment">// 再 KNN 召回（只在允许的文档里召回）</span><br>s.knn(kn -&gt; kn<br>        .field(<span class="hljs-string">&quot;vector&quot;</span>)<br>        .queryVector(queryVector)<br>        .k(topK)<br>        .numCandidates(topK * <span class="hljs-number">10</span>)<br>        .filter(f -&gt; f.terms(t -&gt; t.field(<span class="hljs-string">&quot;fileMd5&quot;</span>).terms(allowedDocIds)))<br>);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="问题-3：没有分页，返回结果太多！"><a href="#问题-3：没有分页，返回结果太多！" class="headerlink" title="问题 3：没有分页，返回结果太多！"></a>问题 3：没有分页，返回结果太多！</h3><p><strong>看代码（第 138 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">s.size(topK);<br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：</p>
+<ul>
+<li>只有 <code>size</code>（返回结果数量），没有 <code>from</code>（偏移量）</li>
+<li>如果用户输入 <code>topK = 10000</code>，Elasticsearch 会返回 10000 个结果（占用大量内存）</li>
+</ul>
+<p><strong>修复方案：限制最大返回数量</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (topK &gt; <span class="hljs-number">100</span>) &#123;<br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">&quot;topK 不能超过 100&quot;</span>);<br>&#125;<br><br>s.size(topK);<br></code></pre></td></tr></table></figure>
+
+<p><strong>更好的方案</strong>：支持分页</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> List&lt;SearchResult&gt; <span class="hljs-title function_">searchWithPermission</span><span class="hljs-params">(String query, String userId, <span class="hljs-type">int</span> topK, <span class="hljs-type">int</span> page)</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">from</span> <span class="hljs-operator">=</span> page * topK;  <span class="hljs-comment">// 偏移量</span><br>    s.from(from).size(topK);<br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、面试八股文"><a href="#四、面试八股文" class="headerlink" title="四、面试八股文"></a>四、面试八股文</h2><h3 id="4-1-什么是混合检索？为什么要用混合检索？"><a href="#4-1-什么是混合检索？为什么要用混合检索？" class="headerlink" title="4.1 什么是混合检索？为什么要用混合检索？"></a>4.1 什么是混合检索？为什么要用混合检索？</h3><p><strong>答</strong>：</p>
+<ul>
+<li>混合检索是结合”向量检索”和”文本匹配”的搜索方式</li>
+<li>好处：<ol>
+<li><strong>语义理解</strong>：向量检索能理解”意思相似”的查询（比如”如何学习 Java”和”Java 入门指南”）</li>
+<li><strong>精确匹配</strong>：文本匹配能过滤掉不相关的结果（比如搜索”Java”，结果里必须包含”Java”这个词）</li>
+<li><strong>提高准确率</strong>：两者结合，比单独用一种方法更准确</li>
+</ol>
+</li>
+</ul>
+<h3 id="4-2-什么是-KNN-召回？什么是-BM25-Rescore？"><a href="#4-2-什么是-KNN-召回？什么是-BM25-Rescore？" class="headerlink" title="4.2 什么是 KNN 召回？什么是 BM25 Rescore？"></a>4.2 什么是 KNN 召回？什么是 BM25 Rescore？</h3><p><strong>答</strong>：</p>
+<ul>
+<li><strong>KNN 召回</strong>：在向量空间里找”距离最近”的文档（类似”找邻居”）</li>
+<li><strong>BM25 Rescore</strong>：对 KNN 召回的结果重新评分（用 BM25 算法），提高准确率</li>
+</ul>
+<h3 id="4-3-什么是-Embedding？为什么要用-Embedding？"><a href="#4-3-什么是-Embedding？为什么要用-Embedding？" class="headerlink" title="4.3 什么是 Embedding？为什么要用 Embedding？"></a>4.3 什么是 Embedding？为什么要用 Embedding？</h3><p><strong>答</strong>：</p>
+<ul>
+<li>Embedding 是把”文字”转换成”向量”的过程</li>
+<li>好处：<ol>
+<li><strong>语义理解</strong>：向量相似的文本，意思也相似</li>
+<li><strong>跨语言</strong>：不同语言的文本，可以转换成同一个向量空间（比如中文”苹果”和英文”apple”的向量很接近）</li>
+</ol>
+</li>
+</ul>
+<h3 id="4-4-什么是权限过滤？为什么要用权限过滤？"><a href="#4-4-什么是权限过滤？为什么要用权限过滤？" class="headerlink" title="4.4 什么是权限过滤？为什么要用权限过滤？"></a>4.4 什么是权限过滤？为什么要用权限过滤？</h3><p><strong>答</strong>：</p>
+<ul>
+<li>权限过滤是确保用户只能看到自己有权限的文档</li>
+<li>好处：<ol>
+<li><strong>安全性</strong>：防止用户看到敏感文档（比如”技术部”的文档，不能让”产品部”的人看到）</li>
+<li><strong>合规性</strong>：符合数据保护法规（比如 GDPR）</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p><strong>KnowFlow 的混合检索</strong>：</p>
+<ol>
+<li><strong>向量检索</strong>：用 KNN 算法召回”语义相似”的结果</li>
+<li><strong>文本匹配</strong>：用 BM25 算法过滤不相关的结果</li>
+<li><strong>权限过滤</strong>：确保用户只能看到自己有权限的文档</li>
+<li><strong>Rescore</strong>：结合向量相似度和文本相似度，重新排序</li>
+</ol>
+<p><strong>源码里的问题（❗❗）</strong>：</p>
+<ol>
+<li>KNN 召回窗口太大，影响性能</li>
+<li>权限过滤放在 KNN 查询里，影响性能</li>
+<li>没有分页，返回结果太多</li>
+</ol>
+<p><strong>修复方案</strong>：</p>
+<ol>
+<li>动态调整召回窗口（<code>topK * 10</code>，最多 500 个）</li>
+<li>先权限过滤，再 KNN 召回</li>
+<li>支持分页（<code>from</code> + <code>size</code>）</li>
+</ol>
+<hr>
+<p><strong>下一篇预告</strong>：《KnowFlow 项目学习笔记（三）：安全 + 部署深度解析》</p>
+<hr>
+<p><strong>参考资料</strong>：</p>
+<ul>
+<li>Elasticsearch 官方文档：<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html</a></li>
+<li>OpenAI Embedding API：<a target="_blank" rel="noopener" href="https://platform.openai.com/docs/guides/embeddings">https://platform.openai.com/docs/guides/embeddings</a></li>
+</ul>
+<hr>
+<p><strong>最后更新</strong>：2026-06-08 22:00:00</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DevLink%E9%9D%A2%E8%AF%95%E6%89%8B%E5%86%8C/" class="category-chain-item">DevLink面试手册</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
+        <a href="/tags/Elasticsearch/" class="print-no-link">#Elasticsearch</a>
+      
+        <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/" class="print-no-link">#向量检索</a>
+      
+        <a href="/tags/%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2/" class="print-no-link">#混合检索</a>
+      
+        <a href="/tags/BM25/" class="print-no-link">#BM25</a>
+      
+        <a href="/tags/KNN/" class="print-no-link">#KNN</a>
+      
+        <a href="/tags/%E6%9D%83%E9%99%90%E8%BF%87%E6%BB%A4/" class="print-no-link">#权限过滤</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>KnowFlow 项目学习笔记（二）：混合检索深度解析</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-hybrid-search-learn/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-knowflow-security-deployment-learn/" title="KnowFlow 项目学习笔记（三）：安全 + 部署深度解析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">KnowFlow 项目学习笔记（三）：安全 + 部署深度解析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-knowflow-upload-pipeline-learn/" title="KnowFlow 项目学习笔记（一）：上传流水线深度解析">
+                        <span class="hidden-mobile">KnowFlow 项目学习笔记（一）：上传流水线深度解析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

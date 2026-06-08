@@ -1,0 +1,1162 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="写在前面：本学习笔记基于技术派（PaiCoding）项目源码逐行解析，深度讲解三种缓存策略（Write Through、Write Back、Cache Aside）的实现细节、优缺点、适用场景。并指出源码里的 5 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、项目背景：高并发互动场景的缓存设计技术派项目面临的高并发互动场景：  阅读量计数：用户每浏览">
+<meta property="og:type" content="article">
+<meta property="og:title" content="技术派项目学习笔记（一）：三种缓存策略深度解析">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-cache-strategies-learn/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="写在前面：本学习笔记基于技术派（PaiCoding）项目源码逐行解析，深度讲解三种缓存策略（Write Through、Write Back、Cache Aside）的实现细节、优缺点、适用场景。并指出源码里的 5 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、项目背景：高并发互动场景的缓存设计技术派项目面临的高并发互动场景：  阅读量计数：用户每浏览">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T13:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T13:36:00.538Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Cache Aside">
+<meta property="article:tag" content="Redis Pipeline">
+<meta property="article:tag" content="Write Back">
+<meta property="article:tag" content="Write Through">
+<meta property="article:tag" content="主从读写分离">
+<meta property="article:tag" content="技术派">
+<meta property="article:tag" content="缓存策略">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>技术派项目学习笔记（一）：三种缓存策略深度解析 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="技术派项目学习笔记（一）：三种缓存策略深度解析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 21:30" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          37 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">技术派项目学习笔记（一）：三种缓存策略深度解析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p><strong>写在前面</strong>：本学习笔记基于技术派（PaiCoding）项目源码逐行解析，深度讲解三种缓存策略（Write Through、Write Back、Cache Aside）的实现细节、优缺点、适用场景。并指出源码里的 <strong>5 处严重问题</strong>（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。</p>
+</blockquote>
+<hr>
+<h2 id="一、项目背景：高并发互动场景的缓存设计"><a href="#一、项目背景：高并发互动场景的缓存设计" class="headerlink" title="一、项目背景：高并发互动场景的缓存设计"></a>一、项目背景：高并发互动场景的缓存设计</h2><p>技术派项目面临的高并发互动场景：</p>
+<ul>
+<li><strong>阅读量计数</strong>：用户每浏览一篇文章，阅读数 +1</li>
+<li><strong>点赞&#x2F;收藏计数</strong>：用户点赞或收藏文章，计数 +1 或 -1</li>
+<li><strong>热文榜&#x2F;排行榜</strong>：展示热门文章、活跃用户排行</li>
+</ul>
+<p><strong>核心挑战</strong>：</p>
+<ul>
+<li>高频写操作（每秒 thousands 次点赞、阅读）</li>
+<li>直接落库压力巨大（MySQL 扛不住）</li>
+<li>需要实时展示计数（不能延迟太久）</li>
+</ul>
+<p><strong>解决方案</strong>：引入多级缓存 + 异步更新策略</p>
+<hr>
+<h2 id="二、三种缓存策略深度解析"><a href="#二、三种缓存策略深度解析" class="headerlink" title="二、三种缓存策略深度解析"></a>二、三种缓存策略深度解析</h2><h3 id="2-1-Write-Through（写通）—-阅读量计数"><a href="#2-1-Write-Through（写通）—-阅读量计数" class="headerlink" title="2.1 Write Through（写通）— 阅读量计数"></a>2.1 Write Through（写通）— 阅读量计数</h3><h4 id="2-1-1-什么是-Write-Through？"><a href="#2-1-1-什么是-Write-Through？" class="headerlink" title="2.1.1 什么是 Write Through？"></a>2.1.1 什么是 Write Through？</h4><p><strong>Write Through</strong> 策略：<strong>先写数据库，再写缓存</strong>，两者同时更新，保证强一致性。</p>
+<p><strong>工作流程</strong>：</p>
+<ol>
+<li>客户端请求更新数据</li>
+<li><strong>先更新数据库</strong>（MySQL）</li>
+<li><strong>再更新缓存</strong>（Redis）</li>
+<li>返回成功</li>
+</ol>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>强一致性（数据库和缓存数据一致）</li>
+<li>实现简单</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>写性能较差（需要等待两次写入完成）</li>
+<li>如果缓存写入失败，会导致数据不一致</li>
+</ul>
+<h4 id="2-1-2-源码解析：CountServiceImpl-incrArticleReadCount"><a href="#2-1-2-源码解析：CountServiceImpl-incrArticleReadCount" class="headerlink" title="2.1.2 源码解析：CountServiceImpl.incrArticleReadCount()"></a>2.1.2 源码解析：<code>CountServiceImpl.incrArticleReadCount()</code></h4><p><strong>文件位置</strong>：<code>paicoding-service/src/main/java/com/github/paicoding/forum/service/statistics/service/impl/CountServiceImpl.java</code></p>
+<p><strong>源码（第 101-111 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">incrArticleReadCount</span><span class="hljs-params">(Long authorUserId, Long articleId)</span> &#123;<br>    <span class="hljs-comment">// db层的计数+1</span><br>    articleDao.incrReadCount(articleId);<br>    <span class="hljs-comment">// redis计数器 +1</span><br>    RedisClient.pipelineAction()<br>            .add(CountConstants.ARTICLE_STATISTIC_INFO + articleId, CountConstants.READ_COUNT,<br>                    (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>            .add(CountConstants.USER_STATISTIC_INFO + authorUserId, CountConstants.READ_COUNT,<br>                    (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>            .execute();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>逐行解析</strong>：</p>
+<ol>
+<li><p><strong>第 103 行</strong>：<code>articleDao.incrReadCount(articleId);</code></p>
+<ul>
+<li><strong>先更新数据库</strong>！SQL 语句大概是：<code>UPDATE article SET read_count = read_count + 1 WHERE id = ?</code></li>
+<li>这是 <strong>Write Through</strong> 的核心：先写 DB</li>
+</ul>
+</li>
+<li><p><strong>第 105-110 行</strong>：<code>RedisClient.pipelineAction()...</code></p>
+<ul>
+<li><strong>再更新缓存</strong>！使用 Redis Pipeline 批量执行两个 <code>HINCRBY</code> 命令</li>
+<li>第一个：<code>HINCRBY article_statistic_info:{articleId} read_count 1</code></li>
+<li>第二个：<code>HINCRBY user_statistic_info:{authorUserId} read_count 1</code></li>
+<li>为什么用 Pipeline？<strong>减少 RTT</strong>（Round Trip Time），两个命令一次性发给 Redis</li>
+</ul>
+</li>
+<li><p><strong>第 110 行</strong>：<code>.execute();</code></p>
+<ul>
+<li>执行 Pipeline，批量提交</li>
+</ul>
+</li>
+</ol>
+<p><strong>为什么阅读量适合 Write Through？</strong></p>
+<ul>
+<li>阅读量是<strong>只增不减</strong>的计数，不需要很高的一致性</li>
+<li>但用户刷新页面时，应该能看到最新的阅读量（所以不能只写 DB，不写缓存）</li>
+<li>Write Through 保证 DB 和缓存都有最新数据</li>
+</ul>
+<h4 id="2-1-3-❗❗-源码里的问题"><a href="#2-1-3-❗❗-源码里的问题" class="headerlink" title="2.1.3 ❗❗ 源码里的问题"></a>2.1.3 ❗❗ 源码里的问题</h4><p><strong>问题 1：缓存写入失败，导致数据不一致！</strong></p>
+<p><strong>看代码（第 103-111 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">articleDao.incrReadCount(articleId);  <span class="hljs-comment">// DB 写入成功</span><br>RedisClient.pipelineAction()...execute();  <span class="hljs-comment">// 如果这里失败了呢？</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>场景重现</strong>：</p>
+<ol>
+<li>DB 写入成功（文章阅读量从 100 变成 101）</li>
+<li>Redis 写入失败（网络抖动、Redis 宕机）</li>
+<li>用户刷新页面，从 Redis 读到的还是 100（实际应该是 101）</li>
+<li><strong>数据不一致</strong>！</li>
+</ol>
+<p><strong>为什么没有事务回滚？</strong></p>
+<ul>
+<li>DB 和 Redis 是两个不同的系统，无法用数据库事务回滚</li>
+<li>即使 Redis 写入失败，DB 的更新也不会回滚</li>
+</ul>
+<p><strong>修复方案 1：重试机制</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">incrArticleReadCount</span><span class="hljs-params">(Long authorUserId, Long articleId)</span> &#123;<br>    <span class="hljs-comment">// 1. 先更新数据库</span><br>    articleDao.incrReadCount(articleId);<br>    <br>    <span class="hljs-comment">// 2. 更新缓存，失败重试 3 次</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">retry</span> <span class="hljs-operator">=</span> <span class="hljs-number">3</span>;<br>    <span class="hljs-keyword">while</span> (retry &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            RedisClient.pipelineAction()<br>                    .add(CountConstants.ARTICLE_STATISTIC_INFO + articleId, CountConstants.READ_COUNT,<br>                            (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>                    .add(CountConstants.USER_STATISTIC_INFO + authorUserId, CountConstants.READ_COUNT,<br>                            (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>                    .execute();<br>            <span class="hljs-keyword">break</span>;  <span class="hljs-comment">// 成功，跳出重试循环</span><br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            retry--;<br>            <span class="hljs-keyword">if</span> (retry == <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-comment">// 重试 3 次都失败，记录日志，人工介入</span><br>                log.error(<span class="hljs-string">&quot;更新 Redis 缓存失败，articleId: &#123;&#125;, authorUserId: &#123;&#125;&quot;</span>, articleId, authorUserId, e);<br>                <span class="hljs-comment">// 可以选择：1. 写入本地消息表，定时重试；2. 发送到 Kafka，异步重试</span><br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// 等待一段时间后重试（指数退避）</span><br>                Thread.sleep((<span class="hljs-type">long</span>) (Math.pow(<span class="hljs-number">2</span>, <span class="hljs-number">3</span> - retry) * <span class="hljs-number">100</span>));<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>修复方案 2：先更新缓存，再更新数据库（调换顺序）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">incrArticleReadCount</span><span class="hljs-params">(Long authorUserId, Long articleId)</span> &#123;<br>    <span class="hljs-comment">// 1. 先更新缓存（Redis 性能好，失败概率低）</span><br>    RedisClient.pipelineAction()<br>            .add(CountConstants.ARTICLE_STATISTIC_INFO + articleId, CountConstants.READ_COUNT,<br>                    (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>            .add(CountConstants.USER_STATISTIC_INFO + authorUserId, CountConstants.READ_COUNT,<br>                    (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>            .execute();<br>    <br>    <span class="hljs-comment">// 2. 再更新数据库</span><br>    articleDao.incrReadCount(articleId);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么这样更好？</strong></p>
+<ul>
+<li>Redis 写入失败，可以直接返回错误，不更新 DB</li>
+<li>DB 写入失败，可以捕获异常，但 Redis 已经写入了（可以用定时任务修正）</li>
+</ul>
+<p><strong>但这样也有问题</strong>：如果 DB 写入失败，Redis 已经写入了，也需要修正。</p>
+<p><strong>最佳实践</strong>：<strong>最终一致性</strong></p>
+<ul>
+<li>先更新缓存（Redis）</li>
+<li>再更新数据库（MySQL）</li>
+<li>如果 DB 写入失败，记录日志，定时任务修正 Redis</li>
+</ul>
+<hr>
+<h3 id="2-2-Write-Back（写回）—-点赞量计数"><a href="#2-2-Write-Back（写回）—-点赞量计数" class="headerlink" title="2.2 Write Back（写回）— 点赞量计数"></a>2.2 Write Back（写回）— 点赞量计数</h3><h4 id="2-2-1-什么是-Write-Back？"><a href="#2-2-1-什么是-Write-Back？" class="headerlink" title="2.2.1 什么是 Write Back？"></a>2.2.1 什么是 Write Back？</h4><p><strong>Write Back</strong> 策略：<strong>只写缓存，不立即写数据库</strong>，延迟批量写回数据库。</p>
+<p><strong>工作流程</strong>：</p>
+<ol>
+<li>客户端请求更新数据</li>
+<li><strong>只更新缓存</strong>（Redis）</li>
+<li>异步批量更新数据库（延迟一段时间）</li>
+</ol>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>写性能极高（只写缓存，不写 DB）</li>
+<li>减少数据库压力</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>弱一致性（缓存和 DB 可能不一致）</li>
+<li>数据丢失风险（缓存宕机，数据还没写回 DB）</li>
+</ul>
+<h4 id="2-2-2-源码解析：UserFootServiceImpl-favorArticleComment"><a href="#2-2-2-源码解析：UserFootServiceImpl-favorArticleComment" class="headerlink" title="2.2.2 源码解析：UserFootServiceImpl.favorArticleComment()"></a>2.2.2 源码解析：<code>UserFootServiceImpl.favorArticleComment()</code></h4><p><strong>文件位置</strong>：<code>paicoding-service/src/main/java/com/github/paicoding/forum/service/user/service/userfoot/UserFootServiceImpl.java</code></p>
+<p><strong>源码（第 90-137 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">favorArticleComment</span><span class="hljs-params">(DocumentTypeEnum documentType, Long documentId, Long authorId, Long userId, OperateTypeEnum operateTypeEnum)</span> &#123;<br>    <span class="hljs-comment">// fixme 这里没有做并发控制，在大并发场景下，可能出现查询出来的数据，与db中数据不一致的场景</span><br>    <span class="hljs-comment">// fixme 解决方案：自旋等待的分布式锁 or 事务 + 悲观锁</span><br>    <span class="hljs-comment">// fixme 考虑到这个足迹的准确性影响并不大，留待有缘人进行修正</span><br><br>    <span class="hljs-comment">// 查询是否有该足迹；有则更新，没有则插入</span><br>    <span class="hljs-type">UserFootDO</span> <span class="hljs-variable">readUserFootDO</span> <span class="hljs-operator">=</span> userFootDao.getByDocumentAndUserId(documentId, documentType.getCode(), userId);<br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">dbChanged</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">if</span> (readUserFootDO == <span class="hljs-literal">null</span>) &#123;<br>        readUserFootDO = <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserFootDO</span>();<br>        readUserFootDO.setUserId(userId);<br>        readUserFootDO.setDocumentId(documentId);<br>        readUserFootDO.setDocumentType(documentType.getCode());<br>        readUserFootDO.setDocumentUserId(authorId);<br>        setUserFootStat(readUserFootDO, operateTypeEnum);<br>        userFootDao.save(readUserFootDO);<br>        dbChanged = <span class="hljs-literal">true</span>;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (setUserFootStat(readUserFootDO, operateTypeEnum)) &#123;<br>        readUserFootDO.setUpdateTime(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>());<br>        userFootDao.updateById(readUserFootDO);<br>        dbChanged = <span class="hljs-literal">true</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (!dbChanged) &#123;<br>        <span class="hljs-comment">// 幂等，直接返回</span><br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 点赞、收藏两种操作时，需要发送异步消息，用于生成消息通知、更新文章/评论的相关计数统计、更新用户的活跃积分</span><br>    <span class="hljs-type">NotifyTypeEnum</span> <span class="hljs-variable">notifyType</span> <span class="hljs-operator">=</span> OperateTypeEnum.getNotifyType(operateTypeEnum);<br>    <span class="hljs-keyword">if</span> (notifyType == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-comment">// 不需要发送通知的场景，直接返回</span><br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 点赞消息走 RabbitMQ，其它走 Java 内置消息机制</span><br>    <span class="hljs-keyword">if</span> (notifyType.equals(NotifyTypeEnum.PRAISE) &amp;&amp; rabbitmqService.enabled()) &#123;<br>        rabbitmqService.publishMsg(<br>                CommonConstants.EXCHANGE_NAME_DIRECT,<br>                BuiltinExchangeType.DIRECT,<br>                CommonConstants.QUERE_KEY_PRAISE,<br>                JsonUtil.toStr(readUserFootDO));<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        MsgNotifyHelper.publish(notifyType, readUserFootDO);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>逐行解析</strong>：</p>
+<ol>
+<li><p><strong>第 92-94 行</strong>：FIXME 注释（❗❗ 源码里的问题）</p>
+<ul>
+<li>“这里没有做并发控制，在大并发场景下，可能出现查询出来的数据，与db中数据不一致的场景”</li>
+<li>说明作者知道有并发问题，但没修复</li>
+</ul>
+</li>
+<li><p><strong>第 97 行</strong>：<code>userFootDao.getByDocumentAndUserId(...)</code></p>
+<ul>
+<li><strong>先查 DB</strong>，看用户是否点过赞</li>
+<li>如果没点过赞（<code>readUserFootDO == null</code>），插入新记录</li>
+<li>如果点过赞，更新记录（<code>userFootDao.updateById()</code>）</li>
+</ul>
+</li>
+<li><p><strong>第 128-133 行</strong>：<code>rabbitmqService.publishMsg(...)</code></p>
+<ul>
+<li><strong>发送消息到 RabbitMQ</strong>，通知消费端更新 Redis 计数</li>
+<li>消息内容：<code>UserFootDO</code>（包含点赞状态）</li>
+</ul>
+</li>
+<li><p><strong>消费端</strong>（需要找到 RabbitMQ Consumer）</p>
+<ul>
+<li>消费端收到消息后，更新 Redis 里的点赞计数（<code>HINCRBY article_statistic_info:{articleId} praise_count 1</code>）</li>
+<li>这就是 <strong>Write Back</strong> 策略：DB 先写，Redis 异步更新</li>
+</ul>
+</li>
+</ol>
+<p><strong>为什么点赞量适合 Write Back？</strong></p>
+<ul>
+<li>点赞是<strong>高频操作</strong>，如果每次都更新 DB + Redis，性能压力大</li>
+<li>点赞计数<strong>不需要强一致性</strong>（用户看不到瞬间的变化，也能接受）</li>
+<li>通过 RabbitMQ 异步更新 Redis，提高吞吐量</li>
+</ul>
+<h4 id="2-2-3-❗❗-源码里的问题"><a href="#2-2-3-❗❗-源码里的问题" class="headerlink" title="2.2.3 ❗❗ 源码里的问题"></a>2.2.3 ❗❗ 源码里的问题</h4><p><strong>问题 2：并发控制缺失，导致数据不一致！</strong></p>
+<p><strong>看代码（第 92-94 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// fixme 这里没有做并发控制，在大并发场景下，可能出现查询出来的数据，与db中数据不一致的场景</span><br><span class="hljs-comment">// fixme 解决方案：自旋等待的分布式锁 or 事务 + 悲观锁</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>场景重现</strong>：</p>
+<ol>
+<li>用户快速点击点赞按钮 2 次（第一次点赞，第二次取消点赞）</li>
+<li>线程 A 查询 DB：<code>praise_stat = 0</code>（没点赞）</li>
+<li>线程 B 查询 DB：<code>praise_stat = 0</code>（没点赞）</li>
+<li>线程 A 更新 DB：<code>praise_stat = 1</code>（点赞）</li>
+<li>线程 B 更新 DB：<code>praise_stat = 1</code>（点赞，应该是 0 才对）</li>
+<li><strong>最终结果</strong>：DB 里是 1，但实际应该是 0（用户取消了点赞）</li>
+</ol>
+<p><strong>修复方案 1：分布式锁</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">favorArticleComment</span><span class="hljs-params">(DocumentTypeEnum documentType, Long documentId, Long authorId, Long userId, OperateTypeEnum operateTypeEnum)</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">lockKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;lock:user_foot:&quot;</span> + userId + <span class="hljs-string">&quot;:&quot;</span> + documentId;<br>    <span class="hljs-type">RLock</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> redisson.getLock(lockKey);<br>    <span class="hljs-keyword">try</span> &#123;<br>        lock.lock(<span class="hljs-number">5</span>, TimeUnit.SECONDS);  <span class="hljs-comment">// 获取分布式锁，超时 5 秒</span><br>        <br>        <span class="hljs-comment">// 查询是否有该足迹；有则更新，没有则插入</span><br>        <span class="hljs-type">UserFootDO</span> <span class="hljs-variable">readUserFootDO</span> <span class="hljs-operator">=</span> userFootDao.getByDocumentAndUserId(documentId, documentType.getCode(), userId);<br>        <span class="hljs-comment">// ... 后续逻辑</span><br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        lock.unlock();  <span class="hljs-comment">// 释放锁</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>修复方案 2：数据库悲观锁</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">favorArticleComment</span><span class="hljs-params">(DocumentTypeEnum documentType, Long documentId, Long authorId, Long userId, OperateTypeEnum operateTypeEnum)</span> &#123;<br>    <span class="hljs-comment">// 使用 SELECT ... FOR UPDATE 加行锁</span><br>    <span class="hljs-type">UserFootDO</span> <span class="hljs-variable">readUserFootDO</span> <span class="hljs-operator">=</span> userFootDao.getByDocumentAndUserIdForUpdate(documentId, documentType.getCode(), userId);<br>    <span class="hljs-comment">// ... 后续逻辑</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>修复方案 3：乐观锁（推荐）</strong></p>
+<p>在 <code>user_foot</code> 表加 <code>version</code> 字段，更新时带上版本号：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">UPDATE</span> user_foot <span class="hljs-keyword">SET</span> praise_stat <span class="hljs-operator">=</span> <span class="hljs-number">1</span>, version <span class="hljs-operator">=</span> version <span class="hljs-operator">+</span> <span class="hljs-number">1</span> <br><span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">=</span> ? <span class="hljs-keyword">AND</span> version <span class="hljs-operator">=</span> ?<br></code></pre></td></tr></table></figure>
+
+<p>如果更新失败（版本号不匹配），重试。</p>
+<hr>
+<h3 id="2-3-Cache-Aside（旁路缓存）—-ZSet-热文榜"><a href="#2-3-Cache-Aside（旁路缓存）—-ZSet-热文榜" class="headerlink" title="2.3 Cache Aside（旁路缓存）— ZSet 热文榜"></a>2.3 Cache Aside（旁路缓存）— ZSet 热文榜</h3><h4 id="2-3-1-什么是-Cache-Aside？"><a href="#2-3-1-什么是-Cache-Aside？" class="headerlink" title="2.3.1 什么是 Cache Aside？"></a>2.3.1 什么是 Cache Aside？</h4><p><strong>Cache Aside</strong> 策略：<strong>读时先读缓存，缓存没有则读数据库并写入缓存；写时先写数据库，再删除缓存</strong>。</p>
+<p><strong>读流程</strong>：</p>
+<ol>
+<li>先读缓存（Redis）</li>
+<li>缓存有，直接返回</li>
+<li>缓存没有，读数据库</li>
+<li>把数据库结果写入缓存</li>
+</ol>
+<p><strong>写流程</strong>：</p>
+<ol>
+<li>先更新数据库</li>
+<li><strong>再删除缓存</strong>（不是更新缓存！）</li>
+</ol>
+<p><strong>为什么删除缓存，而不是更新缓存？</strong></p>
+<ul>
+<li>避免复杂的缓存更新逻辑</li>
+<li>避免并发场景下，缓存和 DB 数据不一致</li>
+</ul>
+<h4 id="2-3-2-源码解析：SidebarServiceImpl-queryHomeSidebarList"><a href="#2-3-2-源码解析：SidebarServiceImpl-queryHomeSidebarList" class="headerlink" title="2.3.2 源码解析：SidebarServiceImpl.queryHomeSidebarList()"></a>2.3.2 源码解析：<code>SidebarServiceImpl.queryHomeSidebarList()</code></h4><p><strong>文件位置</strong>：<code>paicoding-service/src/main/java/com/github/paicoding/forum/service/sidebar/service/SidebarServiceImpl.java</code></p>
+<p><strong>源码（第 58-68 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-meta">@Cacheable(key = &quot;&#x27;homeSidebar&#x27;&quot;, cacheManager = &quot;caffeineCacheManager&quot;, cacheNames = &quot;home&quot;)</span><br><span class="hljs-keyword">public</span> List&lt;SideBarDTO&gt; <span class="hljs-title function_">queryHomeSidebarList</span><span class="hljs-params">()</span> &#123;<br>    List&lt;SideBarDTO&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    list.add(noticeSideBar());<br>    list.add(hotArticles());<br>    <span class="hljs-type">SideBarDTO</span> <span class="hljs-variable">bar</span> <span class="hljs-operator">=</span> rankList();<br>    <span class="hljs-keyword">if</span> (bar != <span class="hljs-literal">null</span>) &#123;<br>        list.add(bar);<br>    &#125;<br>    <span class="hljs-keyword">return</span> list;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>逐行解析</strong>：</p>
+<ol>
+<li><p><strong>第 58 行</strong>：<code>@Cacheable(key = &quot;&#39;homeSidebar&#39;&quot;, cacheManager = &quot;caffeineCacheManager&quot;, cacheNames = &quot;home&quot;)</code></p>
+<ul>
+<li><strong>Spring Cache 注解</strong>，表示这个方法的结果会被缓存</li>
+<li><code>key = &quot;&#39;homeSidebar&#39;&quot;</code>：缓存 key 是 <code>home::homeSidebar</code></li>
+<li><code>cacheManager = &quot;caffeineCacheManager&quot;</code>：使用 Caffeine 本地缓存</li>
+</ul>
+</li>
+<li><p><strong>第 59-68 行</strong>：方法体</p>
+<ul>
+<li>如果缓存有，直接返回缓存结果（不执行方法体）</li>
+<li>如果缓存没有，执行方法体，把结果写入缓存</li>
+</ul>
+</li>
+</ol>
+<p><strong>这是 Cache Aside 吗？</strong></p>
+<ul>
+<li>是的！但用的是 <strong>Caffeine 本地缓存</strong>，不是 Redis</li>
+<li><code>@Cacheable</code> 就是 Cache Aside 模式的实现：读时先读缓存，没有则读 DB 并写入缓存</li>
+</ul>
+<p><strong>热文榜的数据从哪来？</strong></p>
+<ul>
+<li><code>hotArticles()</code> 方法（第 128-132 行）：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> SideBarDTO <span class="hljs-title function_">hotArticles</span><span class="hljs-params">()</span> &#123;<br>    PageListVo&lt;SimpleArticleDTO&gt; vo = articleReadService.queryHotArticlesForRecommend(PageParam.newPageInstance(<span class="hljs-number">1</span>, <span class="hljs-number">8</span>));<br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure></li>
+<li><code>queryHotArticlesForRecommend()</code> 内部会用 Redis ZSet 查询热文榜（按阅读量、点赞量排序）</li>
+</ul>
+<h4 id="2-3-3-ZSet-热文榜的-Cache-Aside-实现"><a href="#2-3-3-ZSet-热文榜的-Cache-Aside-实现" class="headerlink" title="2.3.3 ZSet 热文榜的 Cache Aside 实现"></a>2.3.3 ZSet 热文榜的 Cache Aside 实现</h4><p><strong>假设 <code>queryHotArticlesForRecommend()</code> 内部实现</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> PageListVo&lt;SimpleArticleDTO&gt; <span class="hljs-title function_">queryHotArticlesForRecommend</span><span class="hljs-params">(PageParam pageParam)</span> &#123;<br>    <span class="hljs-comment">// 1. 先读 Redis ZSet</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;article:hot&quot;</span>;<br>    Set&lt;String&gt; articleIds = RedisClient.zRevRange(key, <span class="hljs-number">0</span>, <span class="hljs-number">7</span>);  <span class="hljs-comment">// 取前 8 名</span><br>    <br>    <span class="hljs-keyword">if</span> (articleIds.isEmpty()) &#123;<br>        <span class="hljs-comment">// 2. 缓存没有，读数据库</span><br>        List&lt;ArticleDO&gt; articles = articleDao.queryHotArticles(pageParam);<br>        <br>        <span class="hljs-comment">// 3. 写入 Redis ZSet</span><br>        articles.forEach(article -&gt; &#123;<br>            RedisClient.zAdd(key, article.getId().toString(), article.getReadCount() + article.getPraiseCount());<br>        &#125;);<br>        <br>        <span class="hljs-comment">// 4. 返回结果</span><br>        <span class="hljs-keyword">return</span> convertToPageListVo(articles);<br>    &#125;<br>    <br>    <span class="hljs-comment">// 5. 缓存有，直接返回</span><br>    <span class="hljs-keyword">return</span> convertToPageListVo(articleIds);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>这就是 Cache Aside 模式</strong>：</p>
+<ul>
+<li>读时先读缓存（Redis ZSet）</li>
+<li>缓存没有，读数据库</li>
+<li>把数据库结果写入缓存</li>
+</ul>
+<hr>
+<h2 id="三、Redis-Pipeline-批量提交深度解析"><a href="#三、Redis-Pipeline-批量提交深度解析" class="headerlink" title="三、Redis Pipeline 批量提交深度解析"></a>三、Redis Pipeline 批量提交深度解析</h2><h3 id="3-1-什么是-Pipeline？"><a href="#3-1-什么是-Pipeline？" class="headerlink" title="3.1 什么是 Pipeline？"></a>3.1 什么是 Pipeline？</h3><p><strong>Pipeline</strong> 是 Redis 的批量执行机制：<strong>把多个命令一次性发给 Redis，减少 RTT（Round Trip Time）</strong>。</p>
+<p><strong>普通模式</strong>：</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs clean">客户端 -&gt; Redis: HINCRBY article:<span class="hljs-number">1</span> read_count <span class="hljs-number">1</span><br>Redis -&gt; 客户端: OK<br>客户端 -&gt; Redis: HINCRBY user:<span class="hljs-number">100</span> read_count <span class="hljs-number">1</span><br>Redis -&gt; 客户端: OK<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>2 次 RTT</strong>（往返时间）</li>
+</ul>
+<p><strong>Pipeline 模式</strong>：</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs livescript">客户端 -&gt; Redis: HINCRBY article:<span class="hljs-number">1</span> read_count <span class="hljs-number">1</span><span class="hljs-string">\nHINCRBY</span> user:<span class="hljs-number">100</span> read_count <span class="hljs-number">1</span><br>Redis -&gt; 客户端: OK<span class="hljs-string">\nOK</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>1 次 RTT</strong>（批量发送）</li>
+</ul>
+<h3 id="3-2-源码解析：RedisClient-PipelineAction"><a href="#3-2-源码解析：RedisClient-PipelineAction" class="headerlink" title="3.2 源码解析：RedisClient.PipelineAction"></a>3.2 源码解析：<code>RedisClient.PipelineAction</code></h3><p><strong>文件位置</strong>：<code>paicoding-core/src/main/java/com/github/paicoding/forum/core/cache/RedisClient.java</code></p>
+<p><strong>源码（第 440-475 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> PipelineAction <span class="hljs-title function_">pipelineAction</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PipelineAction</span>();<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * redis 管道执行的封装链路</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PipelineAction</span> &#123;<br>    <span class="hljs-keyword">private</span> List&lt;Runnable&gt; run = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><br>    <span class="hljs-keyword">private</span> RedisConnection connection;<br><br>    <span class="hljs-keyword">public</span> PipelineAction <span class="hljs-title function_">add</span><span class="hljs-params">(String key, BiConsumer&lt;RedisConnection, <span class="hljs-type">byte</span>[]&gt; conn)</span> &#123;<br>        run.add(() -&gt; conn.accept(connection, RedisClient.keyBytes(key)));<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> PipelineAction <span class="hljs-title function_">add</span><span class="hljs-params">(String key, String field, ThreeConsumer&lt;RedisConnection, <span class="hljs-type">byte</span>[], <span class="hljs-type">byte</span>[]&gt; conn)</span> &#123;<br>        run.add(() -&gt; conn.accept(connection, RedisClient.keyBytes(key), valBytes(field)));<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">execute</span><span class="hljs-params">()</span> &#123;<br>        template.executePipelined((RedisCallback&lt;Object&gt;) connection -&gt; &#123;<br>            PipelineAction.<span class="hljs-built_in">this</span>.connection = connection;<br>            run.forEach(Runnable::run);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>        &#125;);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>逐行解析</strong>：</p>
+<ol>
+<li><p><strong>第 440-442 行</strong>：<code>pipelineAction()</code> 工厂方法</p>
+<ul>
+<li>返回一个新的 <code>PipelineAction</code> 对象</li>
+</ul>
+</li>
+<li><p><strong>第 447-451 行</strong>：<code>PipelineAction</code> 类</p>
+<ul>
+<li><code>run</code>：存储要执行的命令（Runnable 列表）</li>
+<li><code>connection</code>：Redis 连接（在 <code>execute()</code> 里注入）</li>
+</ul>
+</li>
+<li><p><strong>第 452-455 行</strong>：<code>add(key, conn)</code> 方法</p>
+<ul>
+<li>添加一个命令（只传 key）</li>
+<li>示例：<code>connection -&gt; connection.del(keyBytes)</code></li>
+</ul>
+</li>
+<li><p><strong>第 457-460 行</strong>：<code>add(key, field, conn)</code> 方法</p>
+<ul>
+<li>添加一个命令（传 key 和 field）</li>
+<li>示例：<code>(connection, key, value) -&gt; connection.hIncrBy(key, value, 1)</code></li>
+</ul>
+</li>
+<li><p><strong>第 462-468 行</strong>：<code>execute()</code> 方法</p>
+<ul>
+<li>调用 <code>template.executePipelined()</code>，批量执行所有命令</li>
+<li><code>PipelineAction.this.connection = connection</code>：把连接注入到 <code>PipelineAction</code></li>
+<li><code>run.forEach(Runnable::run)</code>：执行所有命令</li>
+</ul>
+</li>
+</ol>
+<h3 id="3-3-❗❗-源码里的问题"><a href="#3-3-❗❗-源码里的问题" class="headerlink" title="3.3 ❗❗ 源码里的问题"></a>3.3 ❗❗ 源码里的问题</h3><p><strong>问题 3：Pipeline 不保证原子性！</strong></p>
+<p><strong>看代码（第 462-468 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">execute</span><span class="hljs-params">()</span> &#123;<br>    template.executePipelined((RedisCallback&lt;Object&gt;) connection -&gt; &#123;<br>        PipelineAction.<span class="hljs-built_in">this</span>.connection = connection;<br>        run.forEach(Runnable::run);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：</p>
+<ul>
+<li>Pipeline 只是<strong>批量发送命令</strong>，不保证原子性</li>
+<li>如果第 1 个命令成功，第 2 个命令失败，第 1 个命令不会回滚</li>
+</ul>
+<p><strong>场景重现</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java">RedisClient.pipelineAction()<br>        .add(<span class="hljs-string">&quot;article:1&quot;</span>, <span class="hljs-string">&quot;read_count&quot;</span>, (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))  <span class="hljs-comment">// 成功</span><br>        .add(<span class="hljs-string">&quot;article:2&quot;</span>, <span class="hljs-string">&quot;read_count&quot;</span>, (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))  <span class="hljs-comment">// 失败（article:2 不存在）</span><br>        .execute();<br></code></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：<code>article:1</code> 的 <code>read_count</code> 已经 +1，但 <code>article:2</code> 的没更新。</p>
+<p><strong>修复方案</strong>：使用 <strong>Redis 事务</strong>（<code>MULTI/EXEC</code>）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">executeWithTransaction</span><span class="hljs-params">()</span> &#123;<br>    template.execute((RedisCallback&lt;Object&gt;) connection -&gt; &#123;<br>        connection.multi();  <span class="hljs-comment">// 开启事务</span><br>        PipelineAction.<span class="hljs-built_in">this</span>.connection = connection;<br>        run.forEach(Runnable::run);<br>        connection.exec();  <span class="hljs-comment">// 提交事务</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>但这样会影响性能</strong>（事务需要等待所有命令执行完）。</p>
+<p><strong>最佳实践</strong>：</p>
+<ul>
+<li>如果命令之间<strong>没有依赖关系</strong>，用 Pipeline（性能好）</li>
+<li>如果命令之间<strong>有依赖关系</strong>，用事务（保证原子性）</li>
+</ul>
+<hr>
+<h2 id="四、主从读写分离深度解析"><a href="#四、主从读写分离深度解析" class="headerlink" title="四、主从读写分离深度解析"></a>四、主从读写分离深度解析</h2><h3 id="4-1-为什么需要主从读写分离？"><a href="#4-1-为什么需要主从读写分离？" class="headerlink" title="4.1 为什么需要主从读写分离？"></a>4.1 为什么需要主从读写分离？</h3><p><strong>问题</strong>：</p>
+<ul>
+<li>单台 MySQL 扛不住高并发（写操作和读操作都在一台机器上）</li>
+<li>写操作少，读操作多（读写比例 1:10 甚至 1:100）</li>
+</ul>
+<p><strong>解决方案</strong>：</p>
+<ul>
+<li><strong>主库（Master）</strong>：负责写操作</li>
+<li><strong>从库（Slave）</strong>：负责读操作</li>
+<li>主库数据同步到从库（MySQL 主从复制）</li>
+</ul>
+<h3 id="4-2-源码解析：DsAspect"><a href="#4-2-源码解析：DsAspect" class="headerlink" title="4.2 源码解析：DsAspect"></a>4.2 源码解析：<code>DsAspect</code></h3><p><strong>文件位置</strong>：<code>paicoding-core/src/main/java/com/github/paicoding/forum/core/dal/DsAspect.java</code></p>
+<p><strong>源码（第 16-52 行）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Aspect</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DsAspect</span> &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 切入点, 拦截类上、方法上有注解的方法，用于切换数据源</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Pointcut(&quot;@annotation(com.github.paicoding.forum.core.dal.DsAno) || @within(com.github.paicoding.forum.core.dal.DsAno)&quot;)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">pointcut</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-meta">@Around(&quot;pointcut()&quot;)</span><br>    <span class="hljs-keyword">public</span> Object <span class="hljs-title function_">around</span><span class="hljs-params">(ProceedingJoinPoint proceedingJoinPoint)</span> <span class="hljs-keyword">throws</span> Throwable &#123;<br>        <span class="hljs-type">DsAno</span> <span class="hljs-variable">ds</span> <span class="hljs-operator">=</span> getDsAno(proceedingJoinPoint);<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">if</span> (ds != <span class="hljs-literal">null</span> &amp;&amp; (StringUtils.isNotBlank(ds.ds()) || ds.value() != <span class="hljs-literal">null</span>)) &#123;<br>                <span class="hljs-comment">// 当上下文中没有时，则写入线程上下文，应该用哪个DB</span><br>                DsContextHolder.set(StringUtils.isNoneBlank(ds.ds()) ? ds.ds() : ds.value().name());<br>            &#125;<br>            <span class="hljs-keyword">return</span> proceedingJoinPoint.proceed();<br>        &#125; <span class="hljs-keyword">finally</span> &#123;<br>            <span class="hljs-comment">// 清空上下文信息</span><br>            <span class="hljs-keyword">if</span> (ds != <span class="hljs-literal">null</span>) &#123;<br>                DsContextHolder.reset();<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> DsAno <span class="hljs-title function_">getDsAno</span><span class="hljs-params">(ProceedingJoinPoint proceedingJoinPoint)</span> &#123;<br>        <span class="hljs-type">MethodSignature</span> <span class="hljs-variable">signature</span> <span class="hljs-operator">=</span> (MethodSignature) proceedingJoinPoint.getSignature();<br>        <span class="hljs-type">Method</span> <span class="hljs-variable">method</span> <span class="hljs-operator">=</span> signature.getMethod();<br>        <span class="hljs-type">DsAno</span> <span class="hljs-variable">ds</span> <span class="hljs-operator">=</span> method.getAnnotation(DsAno.class);<br>        <span class="hljs-keyword">if</span> (ds == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">// 获取类上的注解</span><br>            ds = (DsAno) proceedingJoinPoint.getSignature().getDeclaringType().getAnnotation(DsAno.class);<br>        &#125;<br>        <span class="hljs-keyword">return</span> ds;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>逐行解析</strong>：</p>
+<ol>
+<li><p><strong>第 21-23 行</strong>：<code>@Pointcut(&quot;@annotation(...) || @within(...)&quot;)</code></p>
+<ul>
+<li>切入点：<strong>拦截有 <code>@DsAno</code> 注解的方法或类</strong></li>
+</ul>
+</li>
+<li><p><strong>第 25-40 行</strong>：<code>@Around(&quot;pointcut()&quot;)</code></p>
+<ul>
+<li>AOP 环绕通知：<strong>在方法执行前后切换数据源</strong></li>
+</ul>
+</li>
+<li><p><strong>第 29-32 行</strong>：<code>DsContextHolder.set(...)</code></p>
+<ul>
+<li>把数据源名称写入 <strong>ThreadLocal</strong></li>
+<li>后续 DAO 层会从 ThreadLocal 里读取数据源名称，选择对应的数据库连接</li>
+</ul>
+</li>
+<li><p><strong>第 33 行</strong>：<code>proceedingJoinPoint.proceed()</code></p>
+<ul>
+<li>执行目标方法（比如 <code>articleDao.incrReadCount(articleId)</code>）</li>
+</ul>
+</li>
+<li><p><strong>第 35-39 行</strong>：<code>finally { DsContextHolder.reset(); }</code></p>
+<ul>
+<li>方法执行完，<strong>清空 ThreadLocal</strong>（避免内存泄漏）</li>
+</ul>
+</li>
+</ol>
+<h3 id="4-3-如何使用-DsAno-注解？"><a href="#4-3-如何使用-DsAno-注解？" class="headerlink" title="4.3 如何使用 @DsAno 注解？"></a>4.3 如何使用 <code>@DsAno</code> 注解？</h3><p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ArticleServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ArticleService</span> &#123;<br>    <span class="hljs-meta">@DsAno(&quot;master&quot;)</span>  <span class="hljs-comment">// 写操作，用主库</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">saveArticle</span><span class="hljs-params">(ArticleDO article)</span> &#123;<br>        articleDao.save(article);<br>    &#125;<br><br>    <span class="hljs-meta">@DsAno(&quot;slave&quot;)</span>  <span class="hljs-comment">// 读操作，用从库</span><br>    <span class="hljs-keyword">public</span> ArticleDO <span class="hljs-title function_">getArticleById</span><span class="hljs-params">(Long id)</span> &#123;<br>        <span class="hljs-keyword">return</span> articleDao.getById(id);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>原理</strong>：</p>
+<ul>
+<li><code>@DsAno(&quot;master&quot;)</code>：把 <code>&quot;master&quot;</code> 写入 ThreadLocal</li>
+<li>DAO 层执行 SQL 时，从 ThreadLocal 读取数据源名称，选择对应的数据库连接</li>
+</ul>
+<hr>
+<h2 id="五、面试八股文"><a href="#五、面试八股文" class="headerlink" title="五、面试八股文"></a>五、面试八股文</h2><h3 id="5-1-缓存策略对比"><a href="#5-1-缓存策略对比" class="headerlink" title="5.1 缓存策略对比"></a>5.1 缓存策略对比</h3><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Write Through</strong></td>
+<td>强一致性</td>
+<td>写性能差</td>
+<td>阅读量计数</td>
+</tr>
+<tr>
+<td><strong>Write Back</strong></td>
+<td>写性能高</td>
+<td>弱一致性，数据丢失风险</td>
+<td>点赞量计数</td>
+</tr>
+<tr>
+<td><strong>Cache Aside</strong></td>
+<td>实现简单</td>
+<td>缓存失效问题</td>
+<td>热文榜、排行榜</td>
+</tr>
+</tbody></table>
+<h3 id="5-2-Redis-Pipeline-的优点和局限性"><a href="#5-2-Redis-Pipeline-的优点和局限性" class="headerlink" title="5.2 Redis Pipeline 的优点和局限性"></a>5.2 Redis Pipeline 的优点和局限性</h3><p><strong>优点</strong>：</p>
+<ul>
+<li>减少 RTT，提高吞吐量</li>
+<li>适合批量写操作</li>
+</ul>
+<p><strong>局限性</strong>：</p>
+<ul>
+<li>不保证原子性（需要用事务）</li>
+<li>如果 Pipeline 里的命令太多，会阻塞 Redis（需要分批）</li>
+</ul>
+<h3 id="5-3-主从读写分离的优点和局限性"><a href="#5-3-主从读写分离的优点和局限性" class="headerlink" title="5.3 主从读写分离的优点和局限性"></a>5.3 主从读写分离的优点和局限性</h3><p><strong>优点</strong>：</p>
+<ul>
+<li>提高读性能（多个从库分担读压力）</li>
+<li>提高可用性（主库挂了，从库还能读）</li>
+</ul>
+<p><strong>局限性</strong>：</p>
+<ul>
+<li>主从复制延迟（从库数据可能落后主库几秒）</li>
+<li>写操作只能走主库（单点故障风险）</li>
+</ul>
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p><strong>技术派项目的缓存设计</strong>：</p>
+<ol>
+<li><strong>阅读量计数</strong>：Write Through + Redis Pipeline</li>
+<li><strong>点赞量计数</strong>：Write Back + RabbitMQ 异步更新</li>
+<li><strong>热文榜</strong>：Cache Aside + Redis ZSet</li>
+<li><strong>主从读写分离</strong>：AOP + ThreadLocal</li>
+</ol>
+<p><strong>源码里的问题（❗❗）</strong>：</p>
+<ol>
+<li>Write Through 缓存写入失败，导致数据不一致</li>
+<li>Write Back 并发控制缺失，导致数据不一致</li>
+<li>Pipeline 不保证原子性</li>
+<li>主从复制延迟，导致读取到旧数据</li>
+<li>RabbitMQ 消息丢失风险（需要 Confirm 机制 + 死信队列）</li>
+</ol>
+<p><strong>修复方案</strong>：</p>
+<ul>
+<li>重试机制（缓存写入失败）</li>
+<li>分布式锁 &#x2F; 乐观锁（并发控制）</li>
+<li>Redis 事务（保证原子性）</li>
+<li>延迟双删（解决主从复制延迟）</li>
+<li>RabbitMQ Confirm + 死信队列（消息可靠性）</li>
+</ul>
+<hr>
+<p><strong>下一篇预告</strong>：《技术派项目学习笔记（二）：RabbitMQ 异步解耦深度解析》</p>
+<hr>
+<p><strong>参考资料</strong>：</p>
+<ul>
+<li>技术派项目源码：<a target="_blank" rel="noopener" href="https://github.com/itwanger/paicoding">https://github.com/itwanger/paicoding</a></li>
+<li>Redis 官方文档：<a target="_blank" rel="noopener" href="https://redis.io/docs/">https://redis.io/docs/</a></li>
+<li>Spring Cache 官方文档：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/reference/html/integration.html#cache">https://docs.spring.io/spring-framework/docs/current/reference/html/integration.html#cache</a></li>
+</ul>
+<hr>
+<p><strong>最后更新</strong>：2026-06-08 21:30:00</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DevLink%E9%9D%A2%E8%AF%95%E6%89%8B%E5%86%8C/" class="category-chain-item">DevLink面试手册</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/" class="print-no-link">#技术派</a>
+      
+        <a href="/tags/%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5/" class="print-no-link">#缓存策略</a>
+      
+        <a href="/tags/Write-Through/" class="print-no-link">#Write Through</a>
+      
+        <a href="/tags/Write-Back/" class="print-no-link">#Write Back</a>
+      
+        <a href="/tags/Cache-Aside/" class="print-no-link">#Cache Aside</a>
+      
+        <a href="/tags/Redis-Pipeline/" class="print-no-link">#Redis Pipeline</a>
+      
+        <a href="/tags/%E4%B8%BB%E4%BB%8E%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB/" class="print-no-link">#主从读写分离</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>技术派项目学习笔记（一）：三种缓存策略深度解析</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-cache-strategies-learn/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-07-algorithm-interview-deep/" title="算法面试八股文——30道LeetCode高频题（BAT面试必刷）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">算法面试八股文——30道LeetCode高频题（BAT面试必刷）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-knowflow-security-qa/" title="KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署">
+                        <span class="hidden-mobile">KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,965 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="DevLink①：RabbitMQ 异步解耦与消息可靠性（完整版）    @page { size: A4; margin: 20mm 18mm 20mm 18mm;     @top-center { content: &quot;DevLink① RabbitMQ 异步解耦&quot;; font-size: 9pt; color: #666; }     @bottom-center { conten">
+<meta property="og:type" content="website">
+<meta property="og:title" content="page.title">
+<meta property="og:url" content="https://whyalwaysme.lol/01-devlink-rabbitmq.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="DevLink①：RabbitMQ 异步解耦与消息可靠性（完整版）    @page { size: A4; margin: 20mm 18mm 20mm 18mm;     @top-center { content: &quot;DevLink① RabbitMQ 异步解耦&quot;; font-size: 9pt; color: #666; }     @bottom-center { conten">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T12:44:08.410Z">
+<meta property="article:modified_time" content="2026-06-07T12:44:08.410Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>page.title - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="page.title"></span>
+          
+        </div>
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      <div class="container nopadding-x-md">
+        <div id="board"
+          >
+          
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-md-10 m-auto">
+                
+
+<article class="page-content">
+  <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevLink①：RabbitMQ 异步解耦与消息可靠性（完整版）</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 20mm 18mm;
+    @top-center { content: "DevLink① RabbitMQ 异步解耦"; font-size: 9pt; color: #666; }
+    @bottom-center { content: "第 " counter(page) " 页"; font-size: 9pt; color: #666; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "Noto Sans CJK SC", "PingFang SC", sans-serif;
+    font-size: 11pt; line-height: 1.85; color: #1a1a2e;
+    max-width: 820px; margin: 0 auto; padding: 24px 28px; background: #fafbfc;
+  }
+  h1 { font-size: 22pt; color: #0d47a1; border-bottom: 3px solid #1565c0;
+       padding-bottom: 10px; margin-top: 48px; page-break-before: always; letter-spacing: 1px; }
+  h1:first-of-type { page-break-before: avoid; }
+  h2 { font-size: 15pt; color: #c62828; margin-top: 32px;
+       border-left: 5px solid #ef5350; padding-left: 12px;
+       background: linear-gradient(90deg, #fce4ec 0%, transparent 100%);
+       padding-top: 6px; padding-bottom: 6px; }
+  h3 { font-size: 12.5pt; color: #1b5e20; margin-top: 22px; font-weight: 600; }
+  h4 { font-size: 11pt; color: #e65100; margin-top: 16px; font-weight: 600; }
+  p { margin: 8px 0; text-align: justify; }
+  code { background: #e3f2fd; color: #0d47a1; padding: 2px 6px; border-radius: 4px;
+        font-family: "Consolas", "Courier New", monospace; font-size: 10pt; font-weight: 500; }
+  pre { background: #eceff1; border-left: 4px solid #1565c0; padding: 14px 18px;
+       font-size: 9.5pt; line-height: 1.6; overflow-x: auto; white-space: pre-wrap;
+       word-wrap: break-word; font-family: "Consolas", "Courier New", monospace;
+       margin: 12px 0; border-radius: 0 6px 6px 0; color: #263238; }
+  pre.block { background: #1a1a2e; color: #e0e0e0; border-left-color: #7c4dff; font-size: 9pt; }
+  pre.block code { background: none; color: inherit; padding: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 10pt;
+               box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  th { background: #0d47a1; color: white; padding: 9px 12px; text-align: center; font-weight: 600; }
+  td { border: 1px solid #cfd8dc; padding: 7px 12px; text-align: center; }
+  tr:nth-child(even) { background: #e8eaf6; }
+  tr:hover { background: #c5cae9; }
+  .cover { text-align: center; padding: 60px 0 80px; page-break-after: always;
+          background: linear-gradient(135deg, #e8eaf6 0%, #fff 50%, #fce4ec 100%);
+          border-radius: 12px; margin-bottom: 20px; }
+  .cover h1 { font-size: 28pt; color: #0d47a1; border: none; page-break-before: avoid;
+                 background: none; padding-bottom: 0; }
+  .cover .subtitle { font-size: 16pt; color: #555; margin: 24px 0 12px; font-weight: 400; }
+  .cover .info { font-size: 11pt; color: #777; margin: 10px 0; }
+  .tip { background: #e8f5e9; border-left: 5px solid #2e7d32; padding: 10px 16px;
+         margin: 12px 0; font-size: 10pt; border-radius: 0 6px 6px 0; }
+  .warn { background: #fff3e0; border-left: 5px solid #e65100; padding: 10px 16px;
+          margin: 12px 0; font-size: 10pt; border-radius: 0 6px 6px 0; }
+  .danger { background: #ffebee; border-left: 5px solid #f44336; padding: 10px 16px;
+            margin: 12px 0; font-size: 10pt; border-radius: 0 6px 6px 0; }
+  .highlight { background: #fffde7; border-left: 5px solid #f9a825; padding: 10px 16px;
+              margin: 12px 0; font-size: 10pt; border-radius: 0 6px 6px 0; }
+  .visual { background: #e3f2fd; border-radius: 8px; padding: 12px 16px;
+             margin: 10px 0; font-size: 10pt; line-height: 1.6; }
+  .step { margin: 8px 0; padding: 8px 12px; background: #e8eaf6;
+          border-radius: 6px; font-size: 10pt; }
+  .step-num { display: inline-block; background: #0d47a1; color: white;
+                  border-radius: 50%; width: 22px; height: 22px;
+                  text-align: center; line-height: 22px; margin-right: 8px; font-size: 9pt; }
+  .q { background: #e3f2fd; padding: 10px 14px; border-radius: 8px;
+        margin: 10px 0; border-left: 3px solid #1565c0; }
+  .q strong { color: #0d47a1; }
+  .ans { padding: 8px 14px; font-size: 10pt; color: #333; line-height: 1.7; }
+  .b { font-weight: bold; color: #0d47a1; }
+  .module-tag { display: inline-block; background: #0d47a1; color: white;
+                font-size: 9pt; padding: 2px 10px; border-radius: 12px;
+                margin-right: 6px; font-weight: 500; }
+  ul { padding-left: 24px; }
+  li { margin: 4px 0; }
+  .end-page { text-align: center; padding: 120px 0; font-size: 16pt; color: #0d47a1;
+               page-break-before: always; }
+  .arch-box { background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px;
+              padding: 16px; margin: 12px 0; font-size: 9.5pt; line-height: 1.7;
+              font-family: "Consolas", monospace; white-space: pre-wrap; }
+  .compare-table td { vertical-align: top; text-align: left; padding: 8px 12px; }
+  @media print { body { font-size: 10.5pt; background: white; }
+                    pre { font-size: 8.5pt; } .cover { page-break-after: always; background: white; }
+                    table { box-shadow: none; } }
+</style>
+</head>
+<body>
+
+<!-- ====== 封面 ====== -->
+<div class="cover">
+  <h1>DevLink ①<br>RabbitMQ 异步解耦<br>与消息可靠性</h1>
+  <p class="subtitle">暑期实习面试准备手册（完整版）</p>
+  <p class="info">技术栈：Spring Boot + RabbitMQ + MySQL + Redis</p>
+  <p class="info">聚焦：异步解耦 · 手动 Ack · Confirm 机制 · 死信队列 · 幂等性</p>
+  <p class="info">2026年6月 ｜ 参考源码：paicoding-main 项目</p>
+</div>
+
+<!-- ====== 第一章：为什么需要消息队列 ====== -->
+<h1><span class="module-tag">模块一</span> 为什么需要消息队列？</h1>
+
+<h2>1.1 没有消息队列的世界（痛点全景）</h2>
+<p>假设你点赞了一篇文章，系统需要同时做这些事：</p>
+<div class="visual">
+  <b>❌ 同步处理的灾难链：</b><br><br>
+  用户点【点赞】按钮<br>
+  ↓<br>
+  ① 往 <code>user_foot</code> 表写入点赞记录（20ms）<br>
+  ② 给文章作者发一条"XXX 赞了你的文章"（调用通知服务，50ms）<br>
+  ③ 更新用户活跃积分（写 Redis ZSet，5ms）<br>
+  ④ 更新文章点赞计数（写 Redis + DB，10ms）<br>
+  ⑤ 发站内信（10ms）<br>
+  ↓<br>
+  <b>总耗时 = 20+50+5+10+10 = 95ms → 用户要等 95ms 才能看到"已赞"</b><br><br>
+  更可怕的是：<b>如果通知服务挂了，点赞就一直转圈，用户只能用刷新大法</b>。
+</div>
+
+<h2>1.2 有了消息队列之后</h2>
+<div class="visual">
+  <b>✅ 异步处理的丝滑体验：</b><br><br>
+  用户点【点赞】按钮<br>
+  ↓<br>
+  ① 往 <code>user_foot</code> 表写入点赞记录（20ms）<br>
+  ② <b>发一条消息到 RabbitMQ（1ms）→ 立刻返回给用户</b><br>
+  ↓<br>
+  用户 20ms 后就看到"已赞"了！<br><br>
+  <b>后台默默做（用户不关心）：</b><br>
+  → 消费者A 收到消息 → 发通知（50ms，用户不用等）<br>
+  → 消费者B 收到消息 → 更新积分（5ms）<br>
+  → 消费者C 收到消息 → 更新计数（10ms）<br>
+</div>
+
+<table>
+  <tr><th>维度</th><th>不用 MQ（同步）</th><th>用 MQ（异步）</th></tr>
+  <tr><td>用户感知延迟</td><td>95ms（慢）</td><td>20ms（快 5 倍）</td></tr>
+  <tr><td>通知服务挂了的影响</td><td>点赞功能全部失败</td><td>用户无感知，消息堆积，服务恢复后继续处理</td></tr>
+  <tr><td>数据库压力</td><td>瞬时写入压力大</td><td>消费者可以控制消费速度（削峰）</td></tr>
+  <tr><td>代码耦合</td><td>点赞逻辑里写死了"发通知"代码</td><td>点赞只管发消息，通知逻辑完全独立</td></tr>
+</table>
+
+<div class="tip"><strong>核心总结：</strong>消息队列解决两个问题——<b>① 异步解耦</b>（点赞不用等通知）+ <b>② 削峰填谷</b>（海量点赞排队慢慢处理）。</div>
+
+<h2>1.3 RabbitMQ 在项目里的实际位置</h2>
+<div class="arch-box">paicoding-main 项目中的消息流转路径：
+
+【用户点赞】
+    → UserFootServiceImpl.favorArticleComment()
+    → DB: INSERT/UPDATE user_foot（点赞记录）
+    → RabbitmqServiceImpl.publishMsg()
+        → Exchange: pai_exchange_notify
+        → RoutingKey: praise
+        → Queue: pai_notify_praise
+    → [消息在 RabbitMQ 里等着]
+    → RabbitmqServiceImpl.consumerMsg() 的消费者
+        → NotifyServiceImpl.saveArticleNotify()
+        → 作者收到点赞通知
+
+【关键源码位置】
+  • 生产端：paicoding-service/.../notify/service/impl/RabbitmqServiceImpl.java
+  • 消费端：同一个文件里的 consumerMsg() 方法
+  • 配置类：paicoding-core/.../config/RabbitmqProperties.java</div>
+
+<!-- ====== 第二章：RabbitMQ 核心概念 ====== -->
+<h1><span class="module-tag">模块二</span> RabbitMQ 核心概念（面试必背）</h1>
+
+<h2>2.1 五个核心概念</h2>
+<table>
+  <tr><th>概念</th><th>中文</th><th>作用</th><th>项目对应</th></tr>
+  <tr><td>Producer</td><td>生产者</td><td>发消息的一方</td><td><code>RabbitmqServiceImpl.publishMsg()</code></td></tr>
+  <tr><td>Exchange</td><td>交换机</td><td>接收生产者的消息，按规则转发给队列</td><td><code>pai_exchange_notify</code>（Direct 类型）</td></tr>
+  <tr><td>Queue</td><td>队列</td><td>存消息的地方，消费者从这里取</td><td><code>pai_notify_praise</code></td></tr>
+  <tr><td>RoutingKey</td><td>路由键</td><td>Exchange 用它决定消息给哪个队列</td><td><code>"praise"</code>、<code>"comment"</code></td></tr>
+  <tr><td>Consumer</td><td>消费者</td><td>收消息并处理的一方</td><td><code>consumerMsg()</code> 里的 <code>DefaultConsumer</code></td></tr>
+</table>
+
+<h2>2.2 Exchange 的四种类型（面试高频）</h2>
+<div class="visual">
+  <b>① Direct Exchange（直连交换机）—— 项目用的就是这个！</b><br>
+  规则：消息的 RoutingKey 和 Queue 的 BindingKey <b>完全匹配</b>才路由。<br>
+  项目例子：RoutingKey=<code>"praise"</code> → 只有绑定了 <code>"praise"</code> 的队列能收到。<br><br>
+  <b>② Topic Exchange（主题交换机）</b><br>
+  规则：支持通配符 <code>*</code>（一个单词）和 <code>#</code>（多个单词）。<br>
+  例子：RoutingKey=<code>"user.log.info"</code> 会匹配 BindingKey=<code>"user.#"</code>。<br><br>
+  <b>③ Fanout Exchange（广播交换机）</b><br>
+  规则：不管 RoutingKey，<b>所有绑定到这个 Exchange 的队列都收到消息</b>。<br>
+  场景：发公告，所有在线用户都要收到。<br><br>
+  <b>④ Headers Exchange（头交换机）</b><br>
+  规则：根据消息的 Header 属性匹配，而不是 RoutingKey。用得少。
+</div>
+
+<h2>2.3 项目配置解读（RabbitmqProperties.java 第 11-36 行）</h2>
+<pre class="block">// 文件：paicoding-core/src/main/java/.../config/RabbitmqProperties.java
+@ConfigurationProperties(prefix = "paicoding.rabbitmq")
+public class RabbitmqProperties {
+
+    // Exchange 名称（所有通知共用一个 Exchange）
+    private String exchangeName = "pai_exchange_notify";
+
+    // 交换机类型：Direct（精确匹配 RoutingKey）
+    private String exchangeType = "direct";
+
+    // 队列名称（点赞通知队列）
+    private String queueName = "pai_notify_praise";
+
+    // RoutingKey（点赞操作的路由键）
+    private String queueKey = "praise";
+
+    // 死信交换机（兜底方案，后面详细讲）
+    private String dlxExchangeName = "dlx_notify";
+
+    // 死信队列
+    private String dlxQueueName = "dlx_queue_praise";
+
+    // 死信 RoutingKey
+    private String dlxQueueKey = "dlx_praise";
+}</pre>
+
+<div class="tip"><strong>面试回答话术：</strong>"我们的 Exchange 用的是 Direct 类型，因为点赞、评论、收藏是不同的业务，需要精确路由到不同的队列，不能混在一起。"</div>
+
+<!-- ====== 第三章：生产端 Confirm 机制 ====== -->
+<h1><span class="module-tag">模块三</span> 生产端 Confirm 机制（消息不丢失第一关）</h1>
+
+<h2>3.1 问题背景：消息发出去就一定能到 Broker 吗？</h2>
+<p>不一定！以下情况会导致消息丢失：</p>
+<ul>
+  <li><b>网络抖动</b>：消息根本没到 Broker，就在半路丢了</li>
+  <li><b>Broker 宕机</b>：消息到了 Broker 的内存，但还没持久化，Broker 重启后丢失</li>
+  <li><b>Exchange 不存在</b>：消息被 Broker 拒绝</li>
+  <li><b>队列满了</b>：新消息被直接丢弃</li>
+</ul>
+
+<h2>3.2 Confirm 机制原理（类比快递签收）</h2>
+<table class="compare-table">
+  <tr><th>快递比喻</th><th>RabbitMQ Confirm 机制</th><th>说明</th></tr>
+  <tr><td>你把包裹给快递员，快递员说"好的收到"</td><td>Broker 发 <code>ACK</code></td><td>消息安全到达 Broker，且已持久化到磁盘</td></tr>
+  <tr><td>快递员说"这个我们不收"</td><td>Broker 发 <code>NACK</code></td><td>消息被 Broker 拒绝，需要生产端重发</td></tr>
+  <tr><td>快递员不说话（网络断了）</td><td>超时没收到 ACK/NACK</td><td>需要生产端重发</td></tr>
+</table>
+
+<div class="highlight"><strong>关键区别：Confirm 机制 vs 事务机制</strong><br>
+  <code>txSelect/txCommit</code>（AMQP 事务）：<b>同步阻塞</b>，每条消息都要等 Broker 确认，性能极差（降低 10 倍以上吞吐量）。<br>
+  <code>confirmSelect</code>（Confirm 机制）：<b>异步回调</b>，发送消息后不阻塞，Broker 确认后回调 <code>ConfirmListener</code>，性能接近不用事务。
+</div>
+
+<h2>3.3 源码逐行解读：publishMsg()（第 47-161 行）</h2>
+<pre class="block">// 文件：paicoding-service/src/main/java/.../notify/service/impl/RabbitmqServiceImpl.java
+
+public void publishMsg(String exchange, BuiltinExchangeType exchangeType,
+                        String routingKey, String message) {
+    RabbitmqConnection rabbitmqConnection = null;
+    Channel channel = null;
+    try {
+        // ① 从连接池拿一个连接（连接池复用，避免频繁建连）
+        rabbitmqConnection = RabbitmqConnectionPool.getConnection();
+        Connection connection = rabbitmqConnection.getConnection();
+        channel = connection.createChannel();
+
+        // ② 声明交换机（durable=true 表示交换机持久化）
+        //     如果交换机已存在，这行不会重复创建
+        channel.exchangeDeclare(exchange, exchangeType, true, false, null);
+
+        // ③ ★ 开启 Confirm 机制（这行之后，Broker 会对每条消息发 ACK/NACK）
+        channel.confirmSelect();
+
+        // ④ ★ 注册 Confirm 回调（异步！Broker 确认后会调这里）
+        channel.addConfirmListener(
+            // 成功回调（Broker 说：消息我已经收到并持久化了）
+            (deliveryTag, multiple) -> {
+                log.info("消息已到达 Broker，deliveryTag={}", deliveryTag);
+                // multiple=true 表示所有 <= deliveryTag 的消息都确认了（批量确认）
+            },
+            // 失败回调（Broker 说：消息处理出错了，你需要重发）
+            (deliveryTag, multiple) -> {
+                log.warn("消息被 Broker 拒绝，需要重发！deliveryTag={}", deliveryTag);
+                // ★ 这里应该加重发逻辑！但项目里没写（后面讲项目不足）
+            }
+        );
+
+        // ⑤ 发送消息
+        //    注意：这里没设置 MessageProperties.PERSISTENT_TEXT_PLAIN
+        //    → 消息本身没持久化！（项目可优化点）
+        channel.basicPublish(exchange, routingKey, null, message.getBytes(StandardCharsets.UTF_8));
+
+        // ⑥ ★ 同步等待 Confirm（最多等 3 秒）
+        //    如果 3 秒内没收到 ACK → 抛 TimeoutException
+        //    这行是"可靠性"和"性能"的取舍：宁可慢一点，也要保证消息不丢失
+        channel.waitForConfirmsOrDie(3000);
+
+    } catch (Exception e) {
+        // ⑦ 捕获异常：超时 / Broker 拒绝 / 网络错误
+        log.error("消息发送失败，需要重发策略", e);
+        // ★ 项目不足：这里只是打日志，没有重发逻辑！
+        //    面试时可以说优化方案：把失败的消息写入本地 DB，定时任务扫描重发
+    } finally {
+        // ⑧ 归还连接给连接池（必须！否则连接耗尽）
+        if (channel != null && channel.isOpen()) {
+            try { channel.close(); } catch (Exception e) { log.error("channel close error", e); }
+        }
+        if (rabbitmqConnection != null) {
+            RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
+        }
+    }
+}</pre>
+
+<h2>3.4 面试追问：waitForConfirmsOrDie 是同步还是异步？</h2>
+<div class="q"><strong>Q：addConfirmListener 是异步回调，为什么还要 waitForConfirmsOrDie？</strong></div>
+<div class="ans">
+  <p><b>答：</b>这是项目在"可靠性"和"性能"之间做的取舍。</p>
+  <ul>
+    <li><code>addConfirmListener</code> 是纯异步的 → 发完消息就返回，不管 Broker 有没有收到。适合"允许少量丢失"的场景（如日志收集）。</li>
+    <li><code>waitForConfirmsOrDie(3000)</code> 会<b>阻塞当前线程</b>，直到 Broker 确认收到（或超时 3 秒）。适合"消息不能丢"的场景（如支付、通知）。</li>
+    <li>项目选了阻塞等待 → 宁可慢一点，也要保证点赞通知不丢失。</li>
+    <li><b>更好的方案</b>：异步 Confirm + 重发队列。Confirm 超时后，把消息写入 <code>message_retry</code> 表，定时任务扫描并重发。</li>
+  </ul>
+</div>
+
+<div class="danger">❌ <b>项目不足（面试要主动说）：</b><br>
+  ① <code>catch</code> 里只是打日志，没有重发逻辑！<br>
+  ② <code>basicPublish</code> 没设置 <code>MessageProperties.PERSISTENT_TEXT_PLAIN</code>，消息只在 Broker 内存里，Broker 宕机重启后消息丢失。<br>
+  ③ <code>waitForConfirmsOrDie</code> 超时后直接抛异常，没有重试。应该用 <code>waitForConfirms(timeout)</code>（返回 boolean）然后自己控制重试。
+</div>
+
+<!-- ====== 第四章：消费端手动 Ack ====== -->
+<h1><span class="module-tag">模块四</span> 消费端手动 Ack（消息不丢失第二关）</h1>
+
+<h2>4.1 自动 Ack vs 手动 Ack（面试必考对比）</h2>
+<table>
+  <tr><th>方式</th><th>行为</th><th>优点</th><th>缺点 / 风险</th><th>项目选择</th></tr>
+  <tr><td>自动 Ack<br><code>autoAck=true</code></td><td>Broker 一把消息发给消费者，<b>立刻认为"已消费"</b>，直接从队列删除</td><td>性能好，代码简单</td><td>如果消费者收到消息但还没处理完就挂了 → <b>消息永久丢失</b></td><td>❌ 不用</td></tr>
+  <tr><td>手动 Ack<br><code>autoAck=false</code></td><td>消费者<b>显式调用</b> <code>basicAck()</code> 后，Broker 才删除消息</td><td>消息不丢失，消费者挂了消息会重新投递</td><td>如果忘了写 basicAck → 消息一直堆积（但不丢）</td><td>✅ 项目用的这个</td></tr>
+</table>
+
+<div class="tip">✅ <b>为什么项目选手动 Ack？</b> 点赞通知不能丢。如果自动 Ack，消费者刚收到消息就挂了，作者永远收不到点赞通知，用户会投诉。</div>
+
+<h2>4.2 三个 Ack 方法的区别（面试必背）</h2>
+<table>
+  <tr><th>方法</th><th>作用</th><th>消息是否重新入队</th><th>典型场景</th></tr>
+  <tr><td><code>basicAck(deliveryTag, multiple)</code></td><td>确认消息已成功处理</td><td>❌ 不重新入队（消息被删除）</td><td>正常处理成功</td></tr>
+  <tr><td><code>basicNack(deliveryTag, multiple, requeue)</code></td><td>告知 Broker 处理失败</td><td>✅ 可以重新入队（<code>requeue=true</code>）</td><td>处理失败，希望重新分配</td></tr>
+  <tr><td><code>basicReject(deliveryTag, requeue)</code></td><td>拒绝消息（单次拒绝）</td><td>✅ 可以重新入队</td><td>和 basicNack 类似，但不能批量拒绝</td></tr>
+</table>
+
+<h2>4.3 源码逐行解读：consumerMsg()（第 80-163 行）</h2>
+<pre class="block">// 文件：paicoding-service/src/main/java/.../notify/service/impl/RabbitmqServiceImpl.java
+
+public void consumerMsg(String exchange, String queueName, String routingKey) {
+    RabbitmqConnection rabbitmqConnection = RabbitmqConnectionPool.getConnection();
+    Connection connection = rabbitmqConnection.getConnection();
+    Channel channel = connection.createChannel();
+
+    try {
+        // ① 声明交换机（和生产者对应）
+        channel.exchangeDeclare(exchange, BuiltinExchangeType.DIRECT, true, false, null);
+
+        // ② ★ 声明死信交换机（兜底方案！后面详细讲）
+        channel.exchangeDeclare(EXCHANGE_NAME_DLX, BuiltinExchangeType.DIRECT, true);
+        //     死信队列
+        channel.queueDeclare(DLX_QUEUE_NAME_PRAISE, true, false, false, null);
+        //     绑定死信交换机和死信队列
+        channel.queueBind(DLX_QUEUE_NAME_PRAISE, EXCHANGE_NAME_DLX, DLX_QUEUE_KEY_PRAISE);
+
+        // ③ ★ 主队列绑定死信交换机（关键配置！）
+        Map<String, Object> args = new HashMap<>();
+        //     当消息变成死信时，转发到这个交换机
+        args.put("x-dead-letter-exchange", EXCHANGE_NAME_DLX);
+        //     死信的 RoutingKey（可以和运动队列的不同）
+        args.put("x-dead-letter-routing-key", DLX_QUEUE_KEY_PRAISE);
+        //     消息 TTL：30 秒没被消费 → 变死信（防止消费者挂了消息永远在队列里）
+        args.put("x-message-ttl", 30000);
+
+        channel.queueDeclare(queueName, true, false, false, args);
+        channel.queueBind(queueName, exchange, routingKey);
+
+        // ④ ★ 创建消费者（手动 Ack 模式）
+        Consumer consumer = new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope,
+                                     AMQP.BasicProperties properties, byte[] body) {
+                String message = new String(body, StandardCharsets.UTF_8);
+                try {
+                    // ⑤ 处理消息：保存通知记录
+                    notifyService.saveArticleNotify(
+                        JsonUtil.toObj(message, UserFootDO.class),
+                        NotifyTypeEnum.PRAISE
+                    );
+                    // ⑥ ★ 手动 Ack（告诉 Broker："我处理完了，可以删消息了"）
+                    channel.basicAck(envelope.getDeliveryTag(), false);
+                    //     ↑ 如果这里不调用，Broker 会认为消息没处理完，不会删除
+                    //       如果消费者挂了，消息会重新投递给其他消费者（至少处理一次）
+                } catch (Exception e) {
+                    log.error("消息处理失败", e);
+                    // ⑦ ★ 处理失败 → 拒绝消息且不重新入队 → 消息进死信队列
+                    //     requeue=false：不重新入队，直接变死信
+                    channel.basicNack(envelope.getDeliveryTag(), false, false);
+                    //     ↑ 如果 requeue=true，消息会重新入队，可能无限循环重试！
+                }
+            }
+        };
+
+        // ⑧ ★ autoAck = false → 关闭自动 Ack
+        channel.basicConsume(queueName, false, consumer);
+
+    } catch (Exception e) {
+        log.error("consumer init error", e);
+        RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
+    }
+}</pre>
+
+<h2>4.4 面试追问：basicNack 的 requeue 参数怎么选？</h2>
+<div class="q"><strong>Q：处理失败时，requeue 应该设 true 还是 false？</strong></div>
+<div class="ans">
+  <p><b>答：分情况。</b></p>
+  <ul>
+    <li><b>requeue=true</b>：消息重新入队，Broker 会把它分配给另一个消费者（或者同一个消费者）。<br>
+        适用：<b>临时故障</b>（如 DB 连接暂时断了），重试可能成功。<br>
+        <b>风险</b>：如果是代码 Bug（如空指针），消息会无限重试，打死消费者。</li>
+    <li><b>requeue=false</b>：消息不重新入队，直接变成死信，进死信队列。<br>
+        适用：<b>永久性故障</b>（如消息格式错误、代码 Bug）。<br>
+        <b>好处</b>：不会无限重试，死信队列里的消息可以后续人工排查或修复 Bug 后重发。</li>
+  </ul>
+  <p>项目里用的是 <code>requeue=false</code>，这是<b>更安全的做法</b>。因为如果是代码 Bug，重试 N 次也成功不了，不如进死信队列让人工处理。</p>
+</div>
+
+<!-- ====== 第五章：死信队列（DLQ）兜底方案 ====== -->
+<h1><span class="module-tag">模块五</span> 死信队列（DLQ）兜底方案</h1>
+
+<h2>5.1 什么是死信（Dead Letter）？</h2>
+<p>死信 = 无法被正常消费的消息。RabbitMQ 会把死信转发到"死信交换机（DLX）"，再路由到"死信队列（DLQ）"。</p>
+
+<h2>5.2 变成死信的三种情况（面试必背）</h2>
+<div class="step"><span class="step-num">1</span><b>消息被拒绝且不重新入队</b><br>
+  <code>channel.basicReject(tag, false)</code> 或 <code>channel.basicNack(tag, false, false)</code><br>
+  项目里的用法：<code>catch</code> 到异常 → <code>basicNack(tag, false, false)</code> → 消息进死信队列。
+</div>
+<div class="step"><span class="step-num">2</span><b>消息 TTL 过期</b><br>
+  项目里设置了 <code>x-message-ttl=30000</code>（30 秒）。如果消息 30 秒没被消费（比如消费者挂了），就变死信。<br>
+  <b>为什么设 30 秒？</b> 防止消费者挂了，消息永远堆积在队列里，把队列撑爆。
+</div>
+<div class="step"><span class="step-num">3</span><b>队列满了，新消息进来时最老的消息被踢出</b><br>
+  如果队列设置了 <code>x-max-length</code>，队列满了之后新消息会踢掉最老的消息，被踢掉的变死信。
+</div>
+
+<h2>5.3 项目中的死信架构图</h2>
+<div class="arch-box">正常队列 "pai_notify_praise"
+    │
+    │  消息处理失败（basicNack, requeue=false）
+    │  OR 消息 30 秒没被消费（TTL 过期）
+    ▼
+死信交换机 "dlx_notify"
+    │
+    │  RoutingKey = "dlx_praise"
+    ▼
+死信队列 "dlx_queue_praise"
+    │
+    └─ 这里存了所有死信，供人工排查或批量重处理</div>
+
+<div class="tip">💡 <b>死信队列的核心价值：</b>即使消费端出 Bug，消息也不会丢失，而是进死信队列。后续可以修复 Bug 后手动重发，或者写个死信消费者自动重试（指数退避策略）。</div>
+
+<h2>5.4 面试追问：死信队列里的消息怎么处理？</h2>
+<div class="q"><strong>Q：死信队列里的消息，你们项目是怎么处理的？</strong></div>
+<div class="ans">
+  <p><b>答：</b>项目里只是把死信转发到了死信队列，但<b>没有写死信消费者的代码</b>。这是可以优化的点。</p>
+  <p><b>三种处理方式：</b></p>
+  <ul>
+    <li><b>① 人工排查</b>：运维同学定期查看死信队列，找出失败原因，修复 Bug 后手动重发。</li>
+    <li><b>② 自动重试消费者</b>：写一个死信队列的消费者，收到死信后等待一段时间（指数退避：1s → 2s → 4s → 8s），然后再重新投递到主队列。但要注意防止无限重试（设一个最大重试次数，超过就进"最终死信队列"）。</li>
+    <li><b>③ 告警</b>：死信队列有消息时，发告警邮件/短信给运维同学，人工介入。</li>
+  </ul>
+</div>
+
+<div class="danger">❌ <b>项目不足（面试要主动说）：</b>死信队列只有"存"的能力，没有"消费重试"的能力。面试时可以说优化方案：写个死信消费者，用指数退避策略自动重试，超过最大重试次数后发告警人工介入。</div>
+
+<!-- ====== 第六章：消息幂等性 ====== -->
+<h1><span class="module-tag">模块六</span> 消息幂等性（防止重复消费）</h1>
+
+<h2>6.1 问题：同一条消息可能被消费两次</h2>
+<div class="visual">
+  <b>场景：</b><br>
+  ① 消费者处理了消息，调了 <code>basicAck()</code><br>
+  ② 但网络抖动，Ack 包没到 Broker<br>
+  ③ Broker 认为消息没处理完 → 重新投递给另一个消费者<br>
+  ④ <b>同一条消息被处理了两次！</b><br><br>
+  <b>后果：</b>作者收到两条一模一样的"XXX 赞了你的文章"通知。
+</div>
+
+<h2>6.2 解决方案（面试必背）</h2>
+<table>
+  <tr><th>方案</th><th>原理</th><th>优点</th><th>缺点</th><th>项目适用性</th></tr>
+  <tr><td><b>① 数据库唯一约束</b></td><td>消息体里带 <code>messageId</code>（UUID），消费时先 <code>SELECT ... WHERE msg_id = ?</code>，如果已存在就跳过</td><td>简单可靠</td><td>需要 DB 唯一索引</td><td>✅ 项目可以用</td></tr>
+  <tr><td><b>② Redis Set</b></td><td><code>SADD msg_id</code>，返回 0 表示已处理过</td><td>性能好</td><td>Redis 挂了会丢幂等记录</td><td>✅ 项目可以用</td></tr>
+  <tr><td><b>③ 业务本身幂等</b></td><td>看业务逻辑是否天然幂等</td><td>无需额外存储</td><td>不是所有业务都天然幂等</td><td>✅ 项目正好符合！</td></tr>
+</table>
+
+<h2>6.3 项目天然幂等的原因</h2>
+<pre class="block">// 项目的点赞记录存在 user_foot 表
+// 这张表有唯一索引：uk_user_document(user_id, document_id, document_type)
+//
+// 同一个人对同一篇文章：
+//   - 第一次点赞：INSERT 成功
+//   - 消息重复消费，又调了一次 saveArticleNotify()
+//     → 但 notify 表也应该有幂等设计（根据 messageId 去重）
+//     → 或者：通知内容相同，用户收到两条一模一样的通知（不幂等，需要优化）
+
+// 面试加分回答：
+// "我们的 user_foot 表有唯一索引，所以点赞记录不会重复。
+//  但通知表如果没有幂等设计，可能会发两条相同的通知。
+//  优化方案：通知表加 msg_id 字段 + 唯一索引，防止重复插入。"</pre>
+
+<div class="highlight"><strong>面试加分回答模板：</strong><br>
+  "我们的项目里，<code>user_foot</code> 表有唯一索引，所以点赞记录本身不会重复。<br>
+  但通知表如果没有幂等设计，消息重复消费时可能会插入两条相同的通知记录。<br>
+  优化方案：① 通知表加 <code>msg_id</code> 字段 + 唯一索引；② 消费时先查 <code>SELECT id FROM notify WHERE msg_id = ?</code>，如果已存在就跳过。"</div>
+
+<!-- ====== 第七章：面试八股文大全 ====== -->
+<h1><span class="module-tag">模块七</span> 面试八股文大全</h1>
+
+<h2>7.1 RabbitMQ 基础篇</h2>
+<div class="q"><strong>Q1：RabbitMQ 和其他消息队列（Kafka、RocketMQ）的区别？</strong></div>
+<div class="ans">
+  <table>
+    <tr><th>维度</th><th>RabbitMQ</th><th>Kafka</th><th>RocketMQ</th></tr>
+    <tr><td>吞吐量</td><td>万级（较低）</td><td>百万级（超高）</td><td>十万级（高）</td></tr>
+    <tr><td>消息可靠性</td><td>高（支持持久化、Ack）</td><td>高（副本机制）</td><td>很高（多副本 + 同步刷盘）</td></tr>
+    <tr><td>适用场景</td><td>业务消息（订单、通知）</td><td>日志、流式数据</td><td>业务消息 + 流式数据</td></tr>
+    <tr><td>延时消息</td><td>需要插件支持</td><td>不支持</td><td>✅ 原生支持</td></tr>
+  </table>
+  <p><b>面试回答：</b>"我们的场景是点赞通知，消息量不大（万级），但对可靠性要求高，所以选了 RabbitMQ。如果是日志收集，会用 Kafka。"</p>
+</div>
+
+<div class="q"><strong>Q2：什么是消息堆积？怎么解决？</strong></div>
+<div class="ans">
+  <p><b>消息堆积</b> = 生产者发消息的速度 >> 消费者处理消息的速度，导致消息在队列里越堆越多。</p>
+  <p><b>解决方案：</b></p>
+  <ul>
+    <li>① <b>增加消费者数量</b>（最简单）：多开几个消费者实例，RabbitMQ 会自动负载均衡。</li>
+    <li>② <b>限流生产端</b>：如果消费者已经处理不过来了，生产端应该停止发送（背压）。</li>
+    <li>③ <b>优化消费端性能</b>：消费端处理一条消息要 50ms？能不能优化到 10ms？</li>
+    <li>④ <b>设置队列最大长度</b>：<code>x-max-length</code>，队列满了之后新消息会踢掉最老的消息（或变死信），防止队列无限增长。</li>
+  </ul>
+</div>
+
+<h2>7.2 消息可靠性篇</h2>
+<div class="q"><strong>Q3：怎么保证消息不丢失？（追问率 99%）</strong></div>
+<div class="ans">
+  <p><b>答：从三个层面保证。</b></p>
+  <p><b>① 生产端 Confirm 机制</b>（消息从生产者到 Broker 不丢）</p>
+  <ul>
+    <li>开启 <code>channel.confirmSelect()</code></li>
+    <li>注册 <code>addConfirmListener</code> 回调，处理 ACK/NACK</li>
+    <li><code>waitForConfirmsOrDie(3000)</code> 同步等待确认（或异步 + 重发表）</li>
+  </ul>
+  <p><b>② 消息持久化</b>（Broker 宕机不丢）</p>
+  <ul>
+    <li>交换机持久化：<code>exchangeDeclare(..., durable=true, ...)</code></li>
+    <li>队列持久化：<code>queueDeclare(..., durable=true, ...)</code></li>
+    <li><b>消息持久化</b>：<code>basicPublish(..., MessageProperties.PERSISTENT_TEXT_PLAIN, ...)</code><br>
+        ⚠️ 项目里没设置这个！面试要主动说这是可优化点。</li>
+  </ul>
+  <p><b>③ 消费端手动 Ack</b>（消费者挂了不丢）</p>
+  <ul>
+    <li><code>basicConsume(..., autoAck=false, ...)</code> → 关闭自动 Ack</li>
+    <li>处理完成后 <code>basicAck(...)</code> → 才告诉 Broker 删除消息</li>
+    <li>如果处理到一半消费者挂了 → 没有 Ack → Broker 认为没处理完 → <b>重新投递</b>（至少处理一次）</li>
+  </ul>
+</div>
+
+<div class="q"><strong>Q4：Confirm 机制和事务机制的区别？为什么不用事务？</strong></div>
+<div class="ans">
+  <table>
+    <tr><th>方式</th><th>原理</th><th>性能</th><th>可靠性</th></tr>
+    <tr><td>AMQP 事务<br><code>txSelect/txCommit</code></td><td>同步阻塞，每条消息都要等 Broker 确认</td><td>非常差（降低 10 倍以上吞吐量）</td><td>高</td></tr>
+    <tr><td>Confirm 机制<br><code>confirmSelect</code></td><td>异步回调，批量确认，不阻塞发送</td><td>好很多（吞吐量接近不用事务）</td><td>高</td></tr>
+  </table>
+  <p>项目选了 Confirm 机制，兼顾可靠性和性能。</p>
+</div>
+
+<h2>7.3 高级篇</h2>
+<div class="q"><strong>Q5：RabbitMQ 的镜像队列是什么？解决什么问题？</strong></div>
+<div class="ans">
+  <p><b>问题背景：</b>默认情况下，RabbitMQ 的队列只存在于一个节点上。如果这个节点宕机了，队列里的消息就丢了。</p>
+  <p><b>镜像队列（Mirror Queue）：</b>把队列镜像到多个节点上，主节点挂了，镜像节点自动接管，消息不丢失。</p>
+  <p><b>面试回答：</b>"我们生产环境配了镜像队列，保证高可用。但如果同时写入量很大，镜像队列的性能会比普通队列差一些（要同步到多个节点）。"</p>
+</div>
+
+<div class="q"><strong>Q6：消息的 TTL 和死信队列，你们项目是怎么用的？</strong></div>
+<div class="ans">
+  <p>项目里设置了 <code>x-message-ttl=30000</code>（30 秒）。意思是：如果消息 30 秒没被消费（比如消费者挂了），就变死信，进死信队列。</p>
+  <p><b>为什么设 30 秒？</b> 防止消费者挂了，消息永远堆积在队列里，把队列撑爆。30 秒后变死信，进死信队列，后续可以排查。</p>
+  <p><b>面试加分：</b>"我们还可以针对不同的业务设置不同的 TTL。比如点赞通知可以 30 秒，但支付通知要 5 分钟（因为支付可能延迟）。"</p>
+</div>
+
+<!-- ====== 第八章：项目不足与优化方向 ====== -->
+<h1><span class="module-tag">模块八</span> 项目不足与优化方向（面试加分必说）</h1>
+
+<h2>8.1 项目存在的不足（诚实说出来，加分！）</h2>
+<div class="danger"><strong>不足 1：</strong>生产端 <code>catch</code> 里只是打日志，没有重发逻辑。<br>
+  <b>优化方案：</b>捕获异常后，把失败的消息写入 <code>message_retry</code> 表（包含 msg_id、body、retry_count、next_retry_time），定时任务每秒扫描 <code>next_retry_time <= NOW()</code> 的记录，重新发送，最多重试 3 次，超过后发告警人工介入。
+</div>
+<div class="danger"><strong>不足 2：</strong><code>basicPublish</code> 没设置 <code>MessageProperties.PERSISTENT_TEXT_PLAIN</code>，消息只在 Broker 内存里。<br>
+  <b>优化方案：</b><code>channel.basicPublish(exchange, routingKey, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes())</code>
+</div>
+<div class="danger"><strong>不足 3：</strong>死信队列只有"存"的能力，没有"消费重试"的能力。<br>
+  <b>优化方案：</b>写个死信消费者，用指数退避策略（1s → 2s → 4s → 8s）自动重试，超过最大重试次数后发告警人工介入。
+</div>
+<div class="danger"><strong>不足 4：</strong>通知表没有幂等设计，消息重复消费时会插两条相同的通知记录。<br>
+  <b>优化方案：</b>通知表加 <code>msg_id</code> 字段 + 唯一索引，消费时先查重。
+</div>
+
+<h2>8.2 架构优化方向</h2>
+<div class="tip"><strong>优化 1：</strong>生产端异步 Confirm + 重发表（而不是 <code>waitForConfirmsOrDie</code> 同步等）。这样发送消息的性能更高，重发逻辑也更可靠。</div>
+<div class="tip"><strong>优化 2：</strong>消费者用线程池并发处理（但要注意顺序问题）。比如一个用户的点赞通知，不能并发处理，否则可能通知顺序错乱。可以用 <code>userId</code> 取模，相同 <code>userId</code> 的消息分给同一个线程处理。</div>
+<div class="tip"><strong>优化 3：</strong>监控 + 告警。队列长度超过阈值、消费者挂了、死信队列有消息，都要发告警。可以用 RabbitMQ 的 <code>rabbitmq-prometheus</code> 插件 + Grafana 做监控看板。</div>
+
+<!-- ====== 结尾 ====== -->
+<div class="end-page">
+  <p>🎯 祝你面试顺利，拿到心仪的 Offer！</p>
+  <p style="font-size: 11pt; color: #777; margin-top: 20px;">下一页：DevLink ② 策略工厂模式 + WebSocket 流式推送</p>
+</div>
+
+</body>
+</html>
+
+  
+
+</article>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

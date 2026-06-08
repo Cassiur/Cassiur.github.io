@@ -1,0 +1,1119 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="KnowFlow ③ 八股文：Spring Security + JWT + K8s 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Spring Security 基础（5 道）Q1：Spring Security 是做什么的？你们项目怎么配置的？答： Spring Security 是 Spring 的安全框架，负责认证（你是谁？） 和 授权（你">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-security-qa/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="KnowFlow ③ 八股文：Spring Security + JWT + K8s 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Spring Security 基础（5 道）Q1：Spring Security 是做什么的？你们项目怎么配置的？答： Spring Security 是 Spring 的安全框架，负责认证（你是谁？） 和 授权（你">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T12:50:00.000Z">
+<meta property="article:modified_time" content="2026-06-08T12:33:16.314Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="JWT">
+<meta property="article:tag" content="K8s">
+<meta property="article:tag" content="KnowFlow">
+<meta property="article:tag" content="RBAC">
+<meta property="article:tag" content="Spring Security">
+<meta property="article:tag" content="云原生">
+<meta property="article:tag" content="傻子都能懂">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="字节跳动">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-08 20:50" pubdate>
+          2026年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="KnowFlow-③-八股文：Spring-Security-JWT-K8s"><a href="#KnowFlow-③-八股文：Spring-Security-JWT-K8s" class="headerlink" title="KnowFlow ③ 八股文：Spring Security + JWT + K8s"></a>KnowFlow ③ 八股文：Spring Security + JWT + K8s</h1><blockquote>
+<p>面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。</p>
+</blockquote>
+<hr>
+<h2 id="一、Spring-Security-基础（5-道）"><a href="#一、Spring-Security-基础（5-道）" class="headerlink" title="一、Spring Security 基础（5 道）"></a>一、Spring Security 基础（5 道）</h2><h3 id="Q1：Spring-Security-是做什么的？你们项目怎么配置的？"><a href="#Q1：Spring-Security-是做什么的？你们项目怎么配置的？" class="headerlink" title="Q1：Spring Security 是做什么的？你们项目怎么配置的？"></a>Q1：Spring Security 是做什么的？你们项目怎么配置的？</h3><p><strong>答：</strong></p>
+<p>Spring Security 是 Spring 的<strong>安全框架</strong>，负责<strong>认证（你是谁？）</strong> 和 <strong>授权（你能做什么？）</strong>。</p>
+<p><strong>项目中的配置</strong>（<code>SecurityConfig.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@EnableWebSecurity</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> SecurityFilterChain <span class="hljs-title function_">securityFilterChain</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        http<br>            .csrf(csrf -&gt; csrf.disable())  <span class="hljs-comment">// 禁用 CSRF（无状态 API 不需要）</span><br>            .authorizeHttpRequests(authorize -&gt; authorize<br>                .requestMatchers(<span class="hljs-string">&quot;/&quot;</span>, <span class="hljs-string">&quot;/static/**&quot;</span>).permitAll()  <span class="hljs-comment">// 静态资源放行</span><br>                .requestMatchers(<span class="hljs-string">&quot;/api/v1/users/login&quot;</span>, <span class="hljs-string">&quot;/api/v1/users/register&quot;</span>).permitAll()  <span class="hljs-comment">// 登录注册放行</span><br>                .requestMatchers(<span class="hljs-string">&quot;/api/v1/upload/**&quot;</span>).hasAnyRole(<span class="hljs-string">&quot;USER&quot;</span>, <span class="hljs-string">&quot;ADMIN&quot;</span>)  <span class="hljs-comment">// 需要认证</span><br>                .requestMatchers(<span class="hljs-string">&quot;/api/v1/admin/**&quot;</span>).hasRole(<span class="hljs-string">&quot;ADMIN&quot;</span>)  <span class="hljs-comment">// 管理员专属</span><br>                .anyRequest().authenticated()  <span class="hljs-comment">// 其他都要认证</span><br>            )<br>            .sessionManagement(session -&gt; session<br>                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  <span class="hljs-comment">// 无状态，不创建 Session</span><br>            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  <span class="hljs-comment">// 加入 JWT 过滤器</span><br>            .addFilterAfter(orgTagAuthorizationFilter, JwtAuthenticationFilter.class);  <span class="hljs-comment">// 加入权限过滤器</span><br><br>        <span class="hljs-keyword">return</span> http.build();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“我们项目是纯后端 API，不需要页面和 Session，所以用了 <code>STATELESS</code> 策略。认证通过 JWT Token 完成，每次请求在 <code>Authorization</code> 头里带上 Token，后端用过滤器解析和验证。”</p>
+</blockquote>
+<hr>
+<h3 id="Q2：为什么用-JWT-而不用-Session？两者的区别是什么？"><a href="#Q2：为什么用-JWT-而不用-Session？两者的区别是什么？" class="headerlink" title="Q2：为什么用 JWT 而不用 Session？两者的区别是什么？"></a>Q2：为什么用 JWT 而不用 Session？两者的区别是什么？</h3><p><strong>答：</strong></p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Session + Cookie</th>
+<th>JWT Token</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>状态</strong></td>
+<td>服务端保存 Session（有状态）</td>
+<td>服务端不保存（无状态）</td>
+</tr>
+<tr>
+<td><strong>扩展性</strong></td>
+<td>多实例要做 Session 共享（Redis）</td>
+<td>天然支持扩展，任意实例都能验证</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>每次请求要查 Session 存储</td>
+<td>只需要验签（CPU 计算），不用查存储</td>
+</tr>
+<tr>
+<td><strong>退出登录</strong></td>
+<td>删除服务端 Session 即可</td>
+<td>要用 Redis 黑名单，或等 Token 过期</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>传统 Web 应用（有页面）</td>
+<td>前后端分离、微服务、移动端</td>
+</tr>
+</tbody></table>
+<p><strong>为什么项目选 JWT？</strong></p>
+<ul>
+<li>前端是 Vue 3，纯 API 调用，不需要 Session</li>
+<li>将来要部署多个实例（K8s），JWT 不用做 Session 共享</li>
+<li>配合 Redis 黑名单，能做到”主动登出”</li>
+</ul>
+<hr>
+<h3 id="Q3：SessionCreationPolicy-STATELESS-是什么意思？"><a href="#Q3：SessionCreationPolicy-STATELESS-是什么意思？" class="headerlink" title="Q3：SessionCreationPolicy.STATELESS 是什么意思？"></a>Q3：<code>SessionCreationPolicy.STATELESS</code> 是什么意思？</h3><p><strong>答：</strong></p>
+<p><code>STATELESS</code> 告诉 Spring Security <strong>不要创建 HttpSession</strong>，每次请求都<strong>重新认证</strong>。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs css">有状态（STATEFUL）：<br>  第<span class="hljs-number">1</span>次请求 → 登录 → 创建 Session（服务端存用户信息）<br>  第<span class="hljs-number">2</span>次请求 → 带上 SessionID（Cookie）→ 服务端查出用户信息 → 认证通过<br>  ...<br>  问题：多实例部署时，实例 <span class="hljs-selector-tag">A</span> 创建的 Session，实例 <span class="hljs-selector-tag">B</span> 不认识<br><br>无状态（STATE_LESS）：<br>  每次请求 → 带上 JWT Token → 服务端验签 → 解析出用户信息 → 认证通过<br>  ...<br>  优势：任意实例都能验证，天然支持水平扩展<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的配置</strong>（<code>SecurityConfig.java</code> 第 74 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">.sessionManagement(session -&gt; session<br>    .sessionCreationPolicy(SessionCreationPolicy.STATELESS))<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：无状态不代表”不保存任何数据”，项目里用 Redis 存了 Token 的<strong>黑名单</strong>和<strong>刷新 Token 状态</strong>，这是为了支持”主动登出”和”刷新 Token”功能。</p>
+<hr>
+<h3 id="Q4：Spring-Security-的过滤器链是什么？你们加了哪几个过滤器？"><a href="#Q4：Spring-Security-的过滤器链是什么？你们加了哪几个过滤器？" class="headerlink" title="Q4：Spring Security 的过滤器链是什么？你们加了哪几个过滤器？"></a>Q4：Spring Security 的过滤器链是什么？你们加了哪几个过滤器？</h3><p><strong>答：</strong></p>
+<p>Spring Security 是一个<strong>过滤器链</strong>（Filter Chain），请求依次经过多个过滤器，每个负责不同的安全功能。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs css">请求 → <br>  <span class="hljs-selector-attr">[1]</span> CsrfFilter（防 CSRF 攻击，我们禁用了）<br>  → <span class="hljs-selector-attr">[2]</span> JwtAuthenticationFilter（解析 JWT Token，设置认证信息）  ← 我们加的<br>  → <span class="hljs-selector-attr">[3]</span> OrgTagAuthorizationFilter（检查组织标签权限）      ← 我们加的<br>  → <span class="hljs-selector-attr">[4]</span> UsernamePasswordAuthenticationFilter（表单登录，我们没用）<br>  → <span class="hljs-selector-attr">[5]</span> AuthorizationFilter（最终授权判断）<br>  → 控制器方法<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的过滤器顺序</strong>（<code>SecurityConfig.java</code> 第 77~79 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)<br>.addFilterAfter(orgTagAuthorizationFilter, JwtAuthenticationFilter.class);<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么这个顺序？</strong></p>
+<ol>
+<li>先解析 JWT（设置用户身份）</li>
+<li>再检查组织标签权限（用户身份已经有了）</li>
+</ol>
+<hr>
+<h3 id="Q5：OncePerRequestFilter-是什么？为什么自定义过滤器要继承它？"><a href="#Q5：OncePerRequestFilter-是什么？为什么自定义过滤器要继承它？" class="headerlink" title="Q5：OncePerRequestFilter 是什么？为什么自定义过滤器要继承它？"></a>Q5：<code>OncePerRequestFilter</code> 是什么？为什么自定义过滤器要继承它？</h3><p><strong>答：</strong></p>
+<p><code>OncePerRequestFilter</code> 保证<strong>每个请求只经过过滤器一次</strong>，防止重复执行。</p>
+<p><strong>为什么需要？</strong></p>
+<ul>
+<li>请求可能经过多次转发（Forward）或包含（Include）</li>
+<li>如果不用 <code>OncePerRequestFilter</code>，过滤器逻辑可能被执行多次</li>
+</ul>
+<p><strong>项目中的使用</strong>（<code>JwtAuthenticationFilter.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">JwtAuthenticationFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">OncePerRequestFilter</span> &#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doFilterInternal</span><span class="hljs-params">(HttpServletRequest request, </span><br><span class="hljs-params">                                    HttpServletResponse response, </span><br><span class="hljs-params">                                    FilterChain filterChain)</span> &#123;<br>        <span class="hljs-comment">// 1. 从请求头提取 JWT Token</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">token</span> <span class="hljs-operator">=</span> extractToken(request);<br>        <br>        <span class="hljs-comment">// 2. 验证 Token，设置用户认证信息</span><br>        <span class="hljs-keyword">if</span> (token != <span class="hljs-literal">null</span> &amp;&amp; jwtUtils.validateToken(token)) &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">username</span> <span class="hljs-operator">=</span> jwtUtils.extractUsernameFromToken(token);<br>            <span class="hljs-type">UserDetails</span> <span class="hljs-variable">userDetails</span> <span class="hljs-operator">=</span> userDetailsService.loadUserByUsername(username);<br>            <span class="hljs-type">UsernamePasswordAuthenticationToken</span> <span class="hljs-variable">authentication</span> <span class="hljs-operator">=</span> <br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">UsernamePasswordAuthenticationToken</span>(userDetails, <span class="hljs-literal">null</span>, userDetails.getAuthorities());<br>            SecurityContextHolder.getContext().setAuthentication(authentication);<br>        &#125;<br>        <br>        <span class="hljs-comment">// 3. 继续执行过滤器链</span><br>        filterChain.doFilter(request, response);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="二、JWT-双令牌机制（6-道）"><a href="#二、JWT-双令牌机制（6-道）" class="headerlink" title="二、JWT 双令牌机制（6 道）"></a>二、JWT 双令牌机制（6 道）</h2><h3 id="Q6：什么是”双令牌机制”？为什么不用单-Token？"><a href="#Q6：什么是”双令牌机制”？为什么不用单-Token？" class="headerlink" title="Q6：什么是”双令牌机制”？为什么不用单 Token？"></a>Q6：什么是”双令牌机制”？为什么不用单 Token？</h3><p><strong>答：</strong></p>
+<p><strong>单 Token 的问题</strong>：</p>
+<ul>
+<li>Token 有效期设长了（比如 7 天）→ 泄露后风险大</li>
+<li>Token 有效期设短了（比如 10 分钟）→ 用户要频繁登录</li>
+</ul>
+<p><strong>双令牌 &#x3D; Access Token + Refresh Token</strong>：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs markdown">Access Token（访问令牌）：<br><span class="hljs-bullet">  -</span> 有效期短（1 小时）<br><span class="hljs-bullet">  -</span> 每次 API 请求都带上<br><span class="hljs-bullet">  -</span> 泄露后影响范围小<br><br>Refresh Token（刷新令牌）：<br><span class="hljs-bullet">  -</span> 有效期长（7 天）<br><span class="hljs-bullet">  -</span> 只用来换新的 Access Token<br><span class="hljs-bullet">  -</span> 存在 Redis，可以主动失效<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的实现</strong>（<code>JwtUtils.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Access Token（1 小时）</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">EXPIRATION_TIME</span> <span class="hljs-operator">=</span> <span class="hljs-number">3600000</span>;  <span class="hljs-comment">// 1 hour</span><br><br><span class="hljs-comment">// Refresh Token（7 天）</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">REFRESH_TOKEN_EXPIRATION_TIME</span> <span class="hljs-operator">=</span> <span class="hljs-number">604800000</span>;  <span class="hljs-comment">// 7 days</span><br><br><span class="hljs-comment">// 生成 Access Token</span><br><span class="hljs-keyword">public</span> String <span class="hljs-title function_">generateToken</span><span class="hljs-params">(String username)</span> &#123;<br>    <span class="hljs-comment">// ... 设置 claims，有效期 1 小时</span><br>    <span class="hljs-keyword">return</span> Jwts.builder()<br>        .setClaims(claims)<br>        .setExpiration(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(System.currentTimeMillis() + EXPIRATION_TIME))<br>        .signWith(getSigningKey())<br>        .compact();<br>&#125;<br><br><span class="hljs-comment">// 生成 Refresh Token</span><br><span class="hljs-keyword">public</span> String <span class="hljs-title function_">generateRefreshToken</span><span class="hljs-params">(String username)</span> &#123;<br>    <span class="hljs-comment">// ... 设置 claims（type = &quot;refresh&quot;），有效期 7 天</span><br>    <span class="hljs-keyword">return</span> Jwts.builder()<br>        .setClaims(claims)<br>        .setExpiration(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))<br>        .signWith(getSigningKey())<br>        .compact();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q7：Token-刷新是怎么自动完成的？前端要做啥？"><a href="#Q7：Token-刷新是怎么自动完成的？前端要做啥？" class="headerlink" title="Q7：Token 刷新是怎么自动完成的？前端要做啥？"></a>Q7：Token 刷新是怎么自动完成的？前端要做啥？</h3><p><strong>答：</strong></p>
+<p><strong>后端自动刷新</strong>（<code>JwtAuthenticationFilter.java</code> 第 49~53 行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 每次请求，检查 Access Token 是否快过期</span><br><span class="hljs-keyword">if</span> (jwtUtils.validateToken(token)) &#123;<br>    <span class="hljs-keyword">if</span> (jwtUtils.shouldRefreshToken(token)) &#123;<br>        <span class="hljs-comment">// 剩余时间 &lt; 5 分钟，自动刷新</span><br>        newToken = jwtUtils.refreshToken(token);<br>        <span class="hljs-comment">// 把新 Token 放进响应头</span><br>        response.setHeader(<span class="hljs-string">&quot;New-Token&quot;</span>, newToken);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>前端要做的</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 每次请求后，检查响应头有没有 New-Token</span><br>axios.<span class="hljs-property">interceptors</span>.<span class="hljs-property">response</span>.<span class="hljs-title function_">use</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> &#123;<br>    <span class="hljs-keyword">const</span> newToken = response.<span class="hljs-property">headers</span>[<span class="hljs-string">&#x27;new-token&#x27;</span>];<br>    <span class="hljs-keyword">if</span> (newToken) &#123;<br>        <span class="hljs-variable language_">localStorage</span>.<span class="hljs-title function_">setItem</span>(<span class="hljs-string">&#x27;token&#x27;</span>, newToken);  <span class="hljs-comment">// 更新本地存储的 Token</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> response;<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：这叫**”无感知刷新”**，用户完全不知道 Token 被刷新了，体验极好。</p>
+<hr>
+<h3 id="Q8：Token-过期了但在宽限期内，怎么办？"><a href="#Q8：Token-过期了但在宽限期内，怎么办？" class="headerlink" title="Q8：Token 过期了但在宽限期内，怎么办？"></a>Q8：Token 过期了但在宽限期内，怎么办？</h3><p><strong>答：</strong></p>
+<p>项目设计了<strong>宽限期（Grace Period）</strong>：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs arcade">Token 有效期：<span class="hljs-number">1</span> 小时<br>宽限期：<span class="hljs-number">10</span> 分钟<br><br>时间线：<br>  <span class="hljs-number">0</span> <span class="hljs-built_in">min</span>  → Token 生成<br>  <span class="hljs-number">60</span> <span class="hljs-built_in">min</span> → Token 过期（正常）<br>  <span class="hljs-number">60</span>~<span class="hljs-number">70</span> <span class="hljs-built_in">min</span> → 宽限期内，仍然允许刷新<br>  &gt; <span class="hljs-number">70</span> <span class="hljs-built_in">min</span> → 彻底过期，只能重新登录<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码实现</strong>（<code>JwtUtils.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">REFRESH_WINDOW</span> <span class="hljs-operator">=</span> <span class="hljs-number">600000</span>;  <span class="hljs-comment">// 10 分钟宽限期</span><br><br><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">canRefreshExpiredToken</span><span class="hljs-params">(String token)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-type">Claims</span> <span class="hljs-variable">claims</span> <span class="hljs-operator">=</span> extractClaimsIgnoreExpiration(token);  <span class="hljs-comment">// 忽略过期异常</span><br>        <span class="hljs-type">long</span> <span class="hljs-variable">expirationTime</span> <span class="hljs-operator">=</span> claims.getExpiration().getTime();<br>        <span class="hljs-type">long</span> <span class="hljs-variable">currentTime</span> <span class="hljs-operator">=</span> System.currentTimeMillis();<br>        <span class="hljs-type">long</span> <span class="hljs-variable">expiredTime</span> <span class="hljs-operator">=</span> currentTime - expirationTime;<br>        <br>        <span class="hljs-comment">// 过期时间在 10 分钟内，允许刷新</span><br>        <span class="hljs-keyword">return</span> expiredTime &gt; <span class="hljs-number">0</span> &amp;&amp; expiredTime &lt; REFRESH_WINDOW;<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“我们设计了 10 分钟的宽限期。Token 过期后的 10 分钟内，用户仍然可以无感知刷新，不用重新登录。这大大提升了用户体验，特别是用户在填写长表单时 Token 过期的场景。”</p>
+</blockquote>
+<hr>
+<h3 id="Q9：JWT-的签名是怎么做的？密钥存在哪里？"><a href="#Q9：JWT-的签名是怎么做的？密钥存在哪里？" class="headerlink" title="Q9：JWT 的签名是怎么做的？密钥存在哪里？"></a>Q9：JWT 的签名是怎么做的？密钥存在哪里？</h3><p><strong>答：</strong></p>
+<p><strong>JWT 签名流程</strong>：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs lasso"><span class="hljs-keyword">Header</span>（算法：HS256）<br>↓<br>Payload（claims：username, role, userId<span class="hljs-params">...</span>）<br>↓<br>用密钥（SecretKey）对上述内容进行签名<br>↓<br>生成 Signature<br>↓<br>最终 Token = Base64(<span class="hljs-keyword">Header</span>) + <span class="hljs-string">&quot;.&quot;</span> + Base64(Payload) + <span class="hljs-string">&quot;.&quot;</span> + Base64(Signature)<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的密钥管理</strong>（<code>JwtUtils.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Value(&quot;$&#123;jwt.secret-key&#125;&quot;)</span>  <span class="hljs-comment">// 从配置文件读取（Base64 编码的密钥）</span><br><span class="hljs-keyword">private</span> String secretKeyBase64;<br><br><span class="hljs-keyword">private</span> SecretKey <span class="hljs-title function_">getSigningKey</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">byte</span>[] keyBytes = Base64.getDecoder().decode(secretKeyBase64);<br>    <span class="hljs-keyword">return</span> Keys.hmacShaKeyFor(keyBytes);  <span class="hljs-comment">// 生成 HMAC-SHA256 密钥</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>密钥存在哪里安全？</strong></p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>安全性</th>
+<th>项目用的是？</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>配置文件（明文）</td>
+<td>❌ 不安全</td>
+<td>❌ 不应该</td>
+</tr>
+<tr>
+<td>配置文件（Base64）</td>
+<td>⚠️ 可以接受（不是明文）</td>
+<td>✅ 项目用的</td>
+</tr>
+<tr>
+<td>环境变量</td>
+<td>✅ 较好</td>
+<td>推荐生产环境</td>
+</tr>
+<tr>
+<td>KMS（密钥管理服务）</td>
+<td>✅✅ 最好</td>
+<td>大厂推荐</td>
+</tr>
+</tbody></table>
+<p><strong>面试加分</strong>：Base64 <strong>不是加密</strong>！只是编码。如果配置文件泄露，攻击者可以解码出原始密钥。生产环境应该用<strong>环境变量</strong>或<strong>密钥管理服务（KMS）</strong>。</p>
+<hr>
+<h3 id="Q10：JWT-Token-泄露了怎么办？你们项目怎么防护？"><a href="#Q10：JWT-Token-泄露了怎么办？你们项目怎么防护？" class="headerlink" title="Q10：JWT Token 泄露了怎么办？你们项目怎么防护？"></a>Q10：JWT Token 泄露了怎么办？你们项目怎么防护？</h3><p><strong>答：</strong></p>
+<p><strong>JWT 泄露的风险</strong>：</p>
+<ul>
+<li>JWT 一旦签发，在过期前都有效（因为服务端不保存状态）</li>
+<li>攻击者拿到 Token 可以直接冒充用户</li>
+</ul>
+<p><strong>项目中的防护措施</strong>：</p>
+<p><strong>1. 双 Token 机制</strong>（减少泄露影响时间）</p>
+<ul>
+<li>Access Token 只有 1 小时有效期</li>
+</ul>
+<p><strong>2. Redis 黑名单</strong>（支持主动失效）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// JwtUtils.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">invalidateToken</span><span class="hljs-params">(String token)</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">tokenId</span> <span class="hljs-operator">=</span> extractTokenIdFromToken(token);<br>    <span class="hljs-type">long</span> <span class="hljs-variable">expireTime</span> <span class="hljs-operator">=</span> extractExpirationFromToken(token).getTime();<br>    <span class="hljs-comment">// 加入 Redis 黑名单</span><br>    tokenCacheService.blacklistToken(tokenId, expireTime);<br>&#125;<br><br><span class="hljs-comment">// JwtAuthenticationFilter.java</span><br><span class="hljs-comment">// 每次验证 Token 时，先检查黑名单</span><br><span class="hljs-keyword">if</span> (tokenCacheService.isTokenBlacklisted(tokenId)) &#123;<br>    <span class="hljs-comment">// Token 已失效，拒绝请求</span><br>    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);<br>    <span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 退出登录时清除 Refresh Token</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// AuthController.java</span><br><span class="hljs-meta">@PostMapping(&quot;/logout&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">logout</span><span class="hljs-params">(<span class="hljs-meta">@RequestHeader(&quot;Authorization&quot;)</span> String token)</span> &#123;<br>    jwtUtils.invalidateToken(token);  <span class="hljs-comment">// Access Token 进黑名单</span><br>    jwtUtils.invalidateRefreshToken(refreshToken);  <span class="hljs-comment">// Refresh Token 也进黑名单</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q11：为什么要把-tokenId-放进-JWT-里？"><a href="#Q11：为什么要把-tokenId-放进-JWT-里？" class="headerlink" title="Q11：为什么要把 tokenId 放进 JWT 里？"></a>Q11：为什么要把 tokenId 放进 JWT 里？</h3><p><strong>答：</strong></p>
+<p><code>tokenId</code> 是 JWT 的<strong>唯一标识</strong>，用来实现<strong>主动失效</strong>（黑名单）。</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs 1c">如果没有 tokenId：<br>  JWT 里只有 username、<span class="hljs-built_in">exp</span>（过期时间）等信息<br>  退出登录时，不知道要把哪条 JWT 加进黑名单<br>  只能等过期，或者让用户清除 Cookie/LocalStorage（不可靠）<br><br>有了 tokenId：<br>  JWT 里有唯一的 tokenId（比如 UUID）<br>  退出登录时，把 tokenId 加进 Redis 黑名单<br>  下次请求，先检查 tokenId 是否在黑名单里<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的实现</strong>（<code>JwtUtils.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 生成 Token 时，加入唯一 tokenId</span><br>Map&lt;String, Object&gt; claims = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>claims.put(<span class="hljs-string">&quot;tokenId&quot;</span>, UUID.randomUUID().toString().replace(<span class="hljs-string">&quot;-&quot;</span>, <span class="hljs-string">&quot;&quot;</span>));<br>claims.put(<span class="hljs-string">&quot;userId&quot;</span>, user.getId().toString());<br><br><span class="hljs-type">String</span> <span class="hljs-variable">token</span> <span class="hljs-operator">=</span> Jwts.builder()<br>    .setClaims(claims)<br>    ...<br>    .compact();<br><br><span class="hljs-comment">// 缓存 tokenId 到 Redis</span><br>tokenCacheService.cacheToken(tokenId, userId, expireTime);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、RBAC-多租户权限（5-道）"><a href="#三、RBAC-多租户权限（5-道）" class="headerlink" title="三、RBAC 多租户权限（5 道）"></a>三、RBAC 多租户权限（5 道）</h2><h3 id="Q12：什么是-RBAC？你们项目怎么实现的？"><a href="#Q12：什么是-RBAC？你们项目怎么实现的？" class="headerlink" title="Q12：什么是 RBAC？你们项目怎么实现的？"></a>Q12：什么是 RBAC？你们项目怎么实现的？</h3><p><strong>答：</strong></p>
+<p>RBAC（Role-Based Access Control）<strong>基于角色的访问控制</strong>。</p>
+<p><strong>核心概念</strong>：</p>
+<ul>
+<li><strong>用户（User）</strong>：系统的使用者</li>
+<li><strong>角色（Role）</strong>：权限的集合（比如 “ADMIN”、”USER”）</li>
+<li><strong>权限（Permission）</strong>：能做什么操作（比如 “doc:read”、”doc:write”）</li>
+</ul>
+<p><strong>项目中的简化 RBAC</strong>：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">用户 → 分配角色（<span class="hljs-keyword">USER</span> <span class="hljs-title">或 ADMIN</span>）<br>   ↓<br>角色 → 决定能访问哪些 API<br>   ↓<br>API → 用 @PreAuthorize 或 SecurityFilterChain 配置权限<br></code></pre></td></tr></table></figure>
+
+<p><strong>项目中的角色判断</strong>（<code>SecurityConfig.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// USER 和 ADMIN 都能访问</span><br>.requestMatchers(<span class="hljs-string">&quot;/api/v1/upload/**&quot;</span>, <span class="hljs-string">&quot;/api/v1/search/**&quot;</span>)<br>    .hasAnyRole(<span class="hljs-string">&quot;USER&quot;</span>, <span class="hljs-string">&quot;ADMIN&quot;</span>)<br><br><span class="hljs-comment">// 只有 ADMIN 能访问</span><br>.requestMatchers(<span class="hljs-string">&quot;/api/v1/admin/**&quot;</span>).hasRole(<span class="hljs-string">&quot;ADMIN&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p><strong>比 RBAC 更复杂的场景</strong>（项目中的 OrgTag）：</p>
+<ul>
+<li>同一个角色（USER），但属于不同组织（OrgTag）</li>
+<li>用户只能访问<strong>自己组织的文档</strong></li>
+<li>这是<strong>多租户（Multi-Tenancy）</strong> 的场景，RBAC 不够用，要用<strong>数据级权限</strong></li>
+</ul>
+<hr>
+<h3 id="Q13：你们项目的”组织标签（OrgTag）”是什么？怎么实现数据隔离的？"><a href="#Q13：你们项目的”组织标签（OrgTag）”是什么？怎么实现数据隔离的？" class="headerlink" title="Q13：你们项目的”组织标签（OrgTag）”是什么？怎么实现数据隔离的？"></a>Q13：你们项目的”组织标签（OrgTag）”是什么？怎么实现数据隔离的？</h3><p><strong>答：</strong></p>
+<p><strong>业务背景</strong>：</p>
+<ul>
+<li>企业内网知识库，不同部门（组织）的文档要<strong>互相隔离</strong></li>
+<li>比如”技术部”的文档，”市场部”的人不能看</li>
+</ul>
+<p><strong>实现方式</strong>：</p>
+<ol>
+<li>每个文档有一个 <code>orgTag</code> 字段（比如 “TECH”、”MARKETING”）</li>
+<li>每个用户有一个或多个 <code>orgTags</code>（比如 [“TECH”, “MARKETING”]）</li>
+<li>搜索&#x2F;访问文档时，<strong>强制过滤 orgTag</strong></li>
+</ol>
+<p><strong>项目中的实现</strong>（<code>OrgTagAuthorizationFilter.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 从 JWT Token 里提取用户的组织标签</span><br><span class="hljs-type">String</span> <span class="hljs-variable">userOrgTags</span> <span class="hljs-operator">=</span> jwtUtils.extractOrgTagsFromToken(token);<br><br><span class="hljs-comment">// 从请求里提取要访问的文档的 orgTag</span><br><span class="hljs-type">String</span> <span class="hljs-variable">resourceOrgTag</span> <span class="hljs-operator">=</span> extractResourceOrgTagFromRequest(request);<br><br><span class="hljs-comment">// 检查用户是否有权限访问这个 orgTag</span><br><span class="hljs-keyword">if</span> (!userOrgTags.contains(resourceOrgTag) &amp;&amp; !isAdmin) &#123;<br>    response.setStatus(HttpServletResponse.SC_FORBIDDEN);  <span class="hljs-comment">// 403 禁止访问</span><br>    <span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：这叫**”行级数据安全（Row-Level Security）”**，在数据库层面也能实现（比如 PostgreSQL 的 RLS），但在应用层实现更灵活。</p>
+<hr>
+<h3 id="Q14：如果一个用户属于多个组织，怎么处理？"><a href="#Q14：如果一个用户属于多个组织，怎么处理？" class="headerlink" title="Q14：如果一个用户属于多个组织，怎么处理？"></a>Q14：如果一个用户属于多个组织，怎么处理？</h3><p><strong>答：</strong></p>
+<p><strong>项目中的方案</strong>：JWT Token 里存一个 <code>orgTags</code> 数组（多个组织标签）。</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">用户 Alice：<br>  - <span class="hljs-keyword">JWT </span>里的 <span class="hljs-keyword">orgTags </span>= [<span class="hljs-string">&quot;TECH&quot;</span>, <span class="hljs-string">&quot;MARKETING&quot;</span>]<br>  - 能访问 TECH 的文档，也能访问 MARKETING 的文档<br>  - 不能访问 HR 的文档<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码实现</strong>（<code>HybridSearchService.java</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 从 JWT 里提取用户的所有组织标签</span><br>List&lt;String&gt; userOrgTags = jwtUtils.extractOrgTagsFromToken(token);<br><br><span class="hljs-comment">// Elasticsearch 查询时，过滤条件：文档的 orgTag 在用户的组织标签列表里</span><br>.bool(b -&gt; b<br>    .should(s1 -&gt; s1.term(t -&gt; t.field(<span class="hljs-string">&quot;orgTag&quot;</span>).value(userOrgTags.get(<span class="hljs-number">0</span>))))<br>    .should(s2 -&gt; s2.term(t -&gt; t.field(<span class="hljs-string">&quot;orgTag&quot;</span>).value(userOrgTags.get(<span class="hljs-number">1</span>))))<br>    ...<br>)<br></code></pre></td></tr></table></figure>
+
+<p><strong>更好的方案</strong>（如果组织很多）：</p>
+<ul>
+<li>用<strong>位图（Bitmap）</strong> 表示组织标签（每个组织一个 bit）</li>
+<li>用户属于哪几个组织，就把对应 bit 设为 1</li>
+<li>检查时用位运算，极快</li>
+</ul>
+<hr>
+<h3 id="Q15：管理员（ADMIN）能看所有文档吗？怎么实现的？"><a href="#Q15：管理员（ADMIN）能看所有文档吗？怎么实现的？" class="headerlink" title="Q15：管理员（ADMIN）能看所有文档吗？怎么实现的？"></a>Q15：管理员（ADMIN）能看所有文档吗？怎么实现的？</h3><p><strong>答：</strong></p>
+<p><strong>项目中的实现</strong>：管理员<strong>绕过组织标签检查</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// OrgTagAuthorizationFilter.java</span><br><span class="hljs-type">String</span> <span class="hljs-variable">role</span> <span class="hljs-operator">=</span> jwtUtils.extractRoleFromToken(token);<br><br><span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;ADMIN&quot;</span>.equals(role)) &#123;<br>    <span class="hljs-comment">// 管理员，直接放行</span><br>    filterChain.doFilter(request, response);<br>    <span class="hljs-keyword">return</span>;<br>&#125;<br><br><span class="hljs-comment">// 普通用户，检查组织标签权限</span><br><span class="hljs-keyword">if</span> (!userOrgTags.contains(resourceOrgTag)) &#123;<br>    response.setStatus(HttpServletResponse.SC_FORBIDDEN);<br>    <span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试追问</strong>：”这样做有什么安全隐患？”</p>
+<p><strong>回答</strong>：</p>
+<blockquote>
+<p>“管理员的权限太大了，如果管理员账号被盗，所有文档都会泄露。更好的做法是给管理员也加<strong>审计日志</strong>（每次访问文档都记录），并且<strong>敏感操作需要二次认证</strong>（比如短信验证码）。”</p>
+</blockquote>
+<hr>
+<h3 id="Q16：你们项目的权限控制是在哪里做的？过滤器还是注解？"><a href="#Q16：你们项目的权限控制是在哪里做的？过滤器还是注解？" class="headerlink" title="Q16：你们项目的权限控制是在哪里做的？过滤器还是注解？"></a>Q16：你们项目的权限控制是在哪里做的？过滤器还是注解？</h3><p><strong>答：</strong></p>
+<p><strong>两层权限控制</strong>：</p>
+<p><strong>第一层：URL 级别</strong>（在 <code>SecurityFilterChain</code> 里配置）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// SecurityConfig.java</span><br>.requestMatchers(<span class="hljs-string">&quot;/api/v1/admin/**&quot;</span>).hasRole(<span class="hljs-string">&quot;ADMIN&quot;</span>)  <span class="hljs-comment">// URL 级别拦截</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>第二层：数据级别</strong>（在 <code>OrgTagAuthorizationFilter</code> 里做）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// OrgTagAuthorizationFilter.java</span><br><span class="hljs-comment">// 检查用户是否有权限访问这个具体资源（文档、文件等）</span><br><span class="hljs-type">String</span> <span class="hljs-variable">resourceOrgTag</span> <span class="hljs-operator">=</span> extractResourceOrgTag(request);<br><span class="hljs-keyword">if</span> (!userOrgTags.contains(resourceOrgTag)) &#123;<br>    response.setStatus(<span class="hljs-number">403</span>);<br>    <span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么需要两层？</strong></p>
+<ul>
+<li>URL 级别：粗粒度（比如”&#x2F;admin&#x2F;**” 只有管理员能访问）</li>
+<li>数据级别：细粒度（比如”技术部的 Alice 只能访问技术部的文档”）</li>
+</ul>
+<hr>
+<h2 id="四、Kubernetes-部署（5-道）"><a href="#四、Kubernetes-部署（5-道）" class="headerlink" title="四、Kubernetes 部署（5 道）"></a>四、Kubernetes 部署（5 道）</h2><h3 id="Q17：你们项目怎么容器化的？Dockerfile-是怎么写的？"><a href="#Q17：你们项目怎么容器化的？Dockerfile-是怎么写的？" class="headerlink" title="Q17：你们项目怎么容器化的？Dockerfile 是怎么写的？"></a>Q17：你们项目怎么容器化的？Dockerfile 是怎么写的？</h3><p><strong>答：</strong></p>
+<p><strong>多阶段构建（Multi-stage Build）</strong>，减小镜像体积。</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile"><span class="hljs-comment"># 阶段 1：构建</span><br><span class="hljs-keyword">FROM</span> maven:<span class="hljs-number">3.9</span>-eclipse-temurin-<span class="hljs-number">17</span> AS build<br><span class="hljs-keyword">WORKDIR</span><span class="language-bash"> /app</span><br><span class="hljs-keyword">COPY</span><span class="language-bash"> pom.xml .</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> mvn dependency:go-offline  <span class="hljs-comment"># 下载依赖（利用 Docker 缓存）</span></span><br><span class="hljs-keyword">COPY</span><span class="language-bash"> src ./src</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> mvn package -DskipTests  <span class="hljs-comment"># 打包，生成 JAR</span></span><br><br><span class="hljs-comment"># 阶段 2：运行</span><br><span class="hljs-keyword">FROM</span> eclipse-temurin:<span class="hljs-number">17</span>-jre<br><span class="hljs-keyword">WORKDIR</span><span class="language-bash"> /app</span><br><span class="hljs-keyword">COPY</span><span class="language-bash"> --from=build /app/target/*.jar app.jar</span><br><span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">8080</span><br><span class="hljs-keyword">ENTRYPOINT</span><span class="language-bash"> [<span class="hljs-string">&quot;java&quot;</span>, <span class="hljs-string">&quot;-jar&quot;</span>, <span class="hljs-string">&quot;app.jar&quot;</span>]</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么多阶段构建？</strong></p>
+<ul>
+<li>阶段 1 有 Maven、JDK，镜像很大（&gt; 500 MB）</li>
+<li>阶段 2 只有 JRE，镜像很小（&lt; 200 MB）</li>
+<li>最终镜像只含阶段 2，推送和拉取都快</li>
+</ul>
+<p><strong>面试加分</strong>：<code>dependency:go-offline</code> 这一步很重要！如果写在 <code>COPY src</code> 之后，每次改代码都要重新下载依赖（很慢）。写在前面可以利用 Docker 的<strong>层缓存</strong>。</p>
+<hr>
+<h3 id="Q18：K8s-的-Deployment-和-Service-是什么？你们怎么配置的？"><a href="#Q18：K8s-的-Deployment-和-Service-是什么？你们怎么配置的？" class="headerlink" title="Q18：K8s 的 Deployment 和 Service 是什么？你们怎么配置的？"></a>Q18：K8s 的 Deployment 和 Service 是什么？你们怎么配置的？</h3><p><strong>答：</strong></p>
+<p><strong>Deployment</strong>：定义<strong>应用要跑几个实例</strong>、用哪个镜像、怎么更新。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># deployment.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-backend</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span>  <span class="hljs-comment"># 跑 3 个实例（Pod）</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">knowflow</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">knowflow</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">app</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">my-registry/knowflow:latest</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span><br>        <span class="hljs-attr">env:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">SPRING_PROFILES_ACTIVE</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;prod&quot;</span><br>        <span class="hljs-attr">resources:</span><br>          <span class="hljs-attr">requests:</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;512Mi&quot;</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;500m&quot;</span><br>          <span class="hljs-attr">limits:</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;1Gi&quot;</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;1000m&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Service</strong>：定义<strong>怎么访问</strong>这组 Pod（负载均衡）。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># service.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-service</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">knowflow</span>  <span class="hljs-comment"># 选中上面 Deployment 创建的 Pod</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">port:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">8080</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">LoadBalancer</span>  <span class="hljs-comment"># 暴露到外网（云厂商的负载均衡器）</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q19：HPA（Horizontal-Pod-Autoscaler）是什么？你们怎么配置的？"><a href="#Q19：HPA（Horizontal-Pod-Autoscaler）是什么？你们怎么配置的？" class="headerlink" title="Q19：HPA（Horizontal Pod Autoscaler）是什么？你们怎么配置的？"></a>Q19：HPA（Horizontal Pod Autoscaler）是什么？你们怎么配置的？</h3><p><strong>答：</strong></p>
+<p>HPA <strong>自动调整 Pod 数量</strong>，根据 CPU 使用率或自定义指标（比如 QPS）。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># hpa.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">autoscaling/v2</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">HorizontalPodAutoscaler</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-hpa</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">scaleTargetRef:</span><br>    <span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br>    <span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">knowflow-backend</span><br>  <span class="hljs-attr">minReplicas:</span> <span class="hljs-number">3</span>   <span class="hljs-comment"># 最少 3 个 Pod</span><br>  <span class="hljs-attr">maxReplicas:</span> <span class="hljs-number">10</span>   <span class="hljs-comment"># 最多 10 个 Pod</span><br>  <span class="hljs-attr">metrics:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">type:</span> <span class="hljs-string">Resource</span><br>    <span class="hljs-attr">resource:</span><br>      <span class="hljs-attr">name:</span> <span class="hljs-string">cpu</span><br>      <span class="hljs-attr">target:</span><br>        <span class="hljs-attr">type:</span> <span class="hljs-string">Utilization</span><br>        <span class="hljs-attr">averageUtilization:</span> <span class="hljs-number">70</span>  <span class="hljs-comment"># CPU 超过 70%，扩容</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>扩容流程</strong>：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">1</span>. 用户请求增多 → CPU 使用率涨到 <span class="hljs-number">85</span>%<br><span class="hljs-attribute">2</span>. HPA 检测到 → 把 Deployment 的 replicas 从 <span class="hljs-number">3</span> 改成 <span class="hljs-number">6</span><br><span class="hljs-attribute">3</span>. K8s 创建新的 Pod → 加入 Service 的负载均衡<br><span class="hljs-attribute">4</span>. 请求被分流 → CPU 使用率降到 <span class="hljs-number">60</span>%<br><span class="hljs-attribute">5</span>. HPA 检测到 → 把 replicas 从 <span class="hljs-number">6</span> 改回 <span class="hljs-number">3</span>（缩容）<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分</strong>：HPA 默认每 <strong>15 秒</strong>采集一次指标。如果要按 QPS 扩容，要安装 <strong>KEDA</strong>（Kubernetes Event-driven Autoscaling）。</p>
+<hr>
+<h3 id="Q20：K8s-的滚动更新（Rolling-Update）是什么？怎么保证不中断服务？"><a href="#Q20：K8s-的滚动更新（Rolling-Update）是什么？怎么保证不中断服务？" class="headerlink" title="Q20：K8s 的滚动更新（Rolling Update）是什么？怎么保证不中断服务？"></a>Q20：K8s 的滚动更新（Rolling Update）是什么？怎么保证不中断服务？</h3><p><strong>答：</strong></p>
+<p><strong>滚动更新</strong>：先启动新版本的 Pod，等它健康检查通过后，再杀掉旧版本的 Pod。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># deployment.yaml 里的策略</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">strategy:</span><br>    <span class="hljs-attr">type:</span> <span class="hljs-string">RollingUpdate</span><br>    <span class="hljs-attr">rollingUpdate:</span><br>      <span class="hljs-attr">maxSurge:</span> <span class="hljs-number">1</span>        <span class="hljs-comment"># 最多多出 1 个 Pod</span><br>      <span class="hljs-attr">maxUnavailable:</span> <span class="hljs-number">0</span>  <span class="hljs-comment"># 更新期间，不能少于 replicas 的数量</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>更新流程</strong>（假设 replicas&#x3D;3）：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs scss">初始状态：<span class="hljs-built_in">Pod1</span>(v1), <span class="hljs-built_in">Pod2</span>(v1), <span class="hljs-built_in">Pod3</span>(v1)<br><br>第 <span class="hljs-number">1</span> 步：创建一个新 Pod<br>  状态：<span class="hljs-built_in">Pod1</span>(v1), <span class="hljs-built_in">Pod2</span>(v1), <span class="hljs-built_in">Pod3</span>(v1), <span class="hljs-built_in">Pod4</span>(v2)【启动中...】<br><br>第 <span class="hljs-number">2</span> 步：Pod4 健康检查通过<br>  状态：<span class="hljs-built_in">Pod1</span>(v1), <span class="hljs-built_in">Pod2</span>(v1), <span class="hljs-built_in">Pod3</span>(v1), <span class="hljs-built_in">Pod4</span>(v2)【就绪】<br><br>第 <span class="hljs-number">3</span> 步：删掉一个旧 Pod<br>  状态：<span class="hljs-built_in">Pod2</span>(v1), <span class="hljs-built_in">Pod3</span>(v1), <span class="hljs-built_in">Pod4</span>(v2)<br><br>第 <span class="hljs-number">4</span> 步：再创建一个新 Pod<br>  状态：<span class="hljs-built_in">Pod2</span>(v1), <span class="hljs-built_in">Pod3</span>(v1), <span class="hljs-built_in">Pod4</span>(v2), <span class="hljs-built_in">Pod5</span>(v2)【启动中...】<br><br>...重复直到所有 Pod 都是 v2<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>maxSurge=1, maxUnavailable=0</code> 的效果</strong>：</p>
+<ul>
+<li>更新期间，<strong>服务容量不减少</strong>（maxUnavailable&#x3D;0）</li>
+<li>更新期间，<strong>可能会超出容量</strong>（maxSurge&#x3D;1，最多多出 1 个 Pod）</li>
+</ul>
+<hr>
+<h3 id="Q21：你们项目的-CI-CD-是怎么做的？"><a href="#Q21：你们项目的-CI-CD-是怎么做的？" class="headerlink" title="Q21：你们项目的 CI&#x2F;CD 是怎么做的？"></a>Q21：你们项目的 CI&#x2F;CD 是怎么做的？</h3><p><strong>答：</strong></p>
+<p><strong>GitHub Actions</strong> 自动构建、推送镜像、部署到 K8s。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># .github/workflows/deploy.yml</span><br><span class="hljs-attr">name:</span> <span class="hljs-string">Deploy</span> <span class="hljs-string">to</span> <span class="hljs-string">K8s</span><br><br><span class="hljs-attr">on:</span><br>  <span class="hljs-attr">push:</span><br>    <span class="hljs-attr">branches:</span> [<span class="hljs-string">main</span>]  <span class="hljs-comment"># 推送到 main 分支时触发</span><br><br><span class="hljs-attr">jobs:</span><br>  <span class="hljs-attr">build-and-deploy:</span><br>    <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span><br>    <span class="hljs-attr">steps:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Checkout</span> <span class="hljs-string">code</span><br>      <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/checkout@v3</span><br><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Build</span> <span class="hljs-string">Docker</span> <span class="hljs-string">image</span><br>      <span class="hljs-attr">run:</span> <span class="hljs-string">|</span><br><span class="hljs-string">        docker build -t my-registry/knowflow:$&#123;&#123; github.sha &#125;&#125; .</span><br><span class="hljs-string"></span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Push</span> <span class="hljs-string">to</span> <span class="hljs-string">Registry</span><br>      <span class="hljs-attr">run:</span> <span class="hljs-string">|</span><br><span class="hljs-string">        echo $&#123;&#123; secrets.DOCKER_PASSWORD &#125;&#125; | docker login -u $&#123;&#123; secrets.DOCKER_USERNAME &#125;&#125; --password-stdin</span><br><span class="hljs-string">        docker push my-registry/knowflow:$&#123;&#123; github.sha &#125;&#125;</span><br><span class="hljs-string"></span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Deploy</span> <span class="hljs-string">to</span> <span class="hljs-string">K8s</span><br>      <span class="hljs-attr">run:</span> <span class="hljs-string">|</span><br><span class="hljs-string">        kubectl set image deployment/knowflow-backend app=my-registry/knowflow:$&#123;&#123; github.sha &#125;&#125;</span><br><span class="hljs-string">        kubectl rollout status deployment/knowflow-backend  # 等待滚动更新完成</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试回答话术</strong>：</p>
+<blockquote>
+<p>“我们用 GitHub Actions 做 CI&#x2F;CD。每次推送到 main 分支，自动构建 Docker 镜像、推送到镜像仓库、然后更新 K8s 的 Deployment。整个流程全自动，不用手动操作服务器。”</p>
+</blockquote>
+<hr>
+<h2 id="五、综合设计题（4-道）"><a href="#五、综合设计题（4-道）" class="headerlink" title="五、综合设计题（4 道）"></a>五、综合设计题（4 道）</h2><h3 id="Q22：如果让你从零设计多租户权限系统，你会怎么做？"><a href="#Q22：如果让你从零设计多租户权限系统，你会怎么做？" class="headerlink" title="Q22：如果让你从零设计多租户权限系统，你会怎么做？"></a>Q22：如果让你从零设计多租户权限系统，你会怎么做？</h3><p><strong>答：</strong></p>
+<p><strong>V1（当前项目）</strong>：组织标签（OrgTag）+ 过滤器</p>
+<ul>
+<li>优点：简单，够用</li>
+<li>缺点：不能精细控制”用户 A 能访问文档 1，但不能访问文档 2”</li>
+</ul>
+<p><strong>V2（更精细）</strong>：在 V1 基础上加入<strong>资源级权限</strong></p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs coq">用户 → 角色 → 权限（能访问哪些资源）<br>         ↓<br>    资源权限表：<br>      user_id | <span class="hljs-type">resource_type</span> | <span class="hljs-type">resource_id</span> | <span class="hljs-type">permission</span><br>      <span class="hljs-number">123</span>      | <span class="hljs-type">&quot;document</span><span class="hljs-string">&quot;    | &quot;</span>abc123<span class="hljs-string">&quot;   | &quot;</span>read<span class="hljs-string">&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>V3（最灵活）</strong>：ABAC（Attribute-Based Access Control）</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs abnf">策略：<span class="hljs-string">&quot;技术部的员工，在工作时间内，可以访问技术部的文档&quot;</span><br>  → 用户属性（部门 <span class="hljs-operator">=</span> 技术部）<br>  → 环境属性（时间 <span class="hljs-operator">=</span> 工作时间）<br>  → 资源属性（文档的 orgTag <span class="hljs-operator">=</span> 技术部）<br>  → 动作（访问）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q23：如果-JWT-Secret-泄露了，你们系统会怎样？怎么应急？"><a href="#Q23：如果-JWT-Secret-泄露了，你们系统会怎样？怎么应急？" class="headerlink" title="Q23：如果 JWT Secret 泄露了，你们系统会怎样？怎么应急？"></a>Q23：如果 JWT Secret 泄露了，你们系统会怎样？怎么应急？</h3><p><strong>答：</strong></p>
+<p><strong>影响</strong>：</p>
+<ul>
+<li>攻击者可以用这个 Secret <strong>伪造任意用户的 JWT</strong>（包括管理员）</li>
+<li>现有所有 Token <strong>都有效</strong>（因为签名能验证通过）</li>
+</ul>
+<p><strong>应急步骤</strong>：</p>
+<ol>
+<li><strong>立即更换 Secret</strong>（在配置文件或环境变量里）</li>
+<li><strong>重启所有后端实例</strong>（让新 Secret 生效）</li>
+<li><strong>所有现有 Token 全部失效</strong>（因为新 Secret 验签旧 Token 会失败）</li>
+<li><strong>强制所有用户重新登录</strong></li>
+</ol>
+<p><strong>更好的方案</strong>（提前预防）：</p>
+<ul>
+<li>Secret 存在 <strong>K8s Secret</strong> 里，不进代码仓库</li>
+<li>定期<strong>轮换 Secret</strong>（比如每 30 天）</li>
+<li>用 <strong>KMS（密钥管理服务）</strong> 管理 Secret，支持自动轮换</li>
+</ul>
+<hr>
+<h3 id="Q24：如果-K8s-集群挂了，你们系统会怎样？怎么应对？"><a href="#Q24：如果-K8s-集群挂了，你们系统会怎样？怎么应对？" class="headerlink" title="Q24：如果 K8s 集群挂了，你们系统会怎样？怎么应对？"></a>Q24：如果 K8s 集群挂了，你们系统会怎样？怎么应对？</h3><p><strong>答：</strong></p>
+<p><strong>影响</strong>：</p>
+<ul>
+<li>所有 Pod 不可用 → API 全部 503</li>
+<li>如果 MinIO、Kafka、Elasticsearch 也跑在 K8s 里 → 整个系统瘫痪</li>
+</ul>
+<p><strong>应对方案</strong>：</p>
+<p><strong>1. 多可用区部署</strong>（Multi-AZ）</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">K8s</span> 集群分布在 <span class="hljs-number">3</span> 个可用区（AZ1, AZ2, AZ3）<br>一个 AZ 挂了，其他两个 AZ 继续服务<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 关键组件独立部署</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">MinIO、Kafka、Elasticsearch 不跑在 K8s 里<br>用云厂商的托管服务（比如阿里云 OSS、Kafka、Elasticsearch Service）<br>K8s 挂了，这些组件仍然可用（虽然 API 不可用，但数据不丢）<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 备份与恢复</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">定时备份 K8s 的 YAML 配置（Git）<br>定时备份关键数据（MinIO、Elasticsearch 的快照）<br>K8s 集群挂了，可以在另一个云厂商快速重建<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Q25：如果让你设计一个支持百万级用户的-K8s-集群，你会怎么做？"><a href="#Q25：如果让你设计一个支持百万级用户的-K8s-集群，你会怎么做？" class="headerlink" title="Q25：如果让你设计一个支持百万级用户的 K8s 集群，你会怎么做？"></a>Q25：如果让你设计一个支持百万级用户的 K8s 集群，你会怎么做？</h3><p><strong>答：</strong></p>
+<p><strong>控制平面（Control Plane）高可用</strong>：</p>
+<ul>
+<li>3 个或 5 个 Master 节点（奇数，方便选举）</li>
+<li>etcd 集群（K8s 的状态存储）3 节点或 5 节点</li>
+</ul>
+<p><strong>工作节点（Worker Node）规划</strong>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs">业务 Pod：50 个节点（每个节点跑 10~20 个 Pod）<br>MinIO：独立部署（不跑在 K8s 里）<br>Kafka：独立部署<br>Elasticsearch：独立部署（或 K8s StatefulSet + PVC）<br></code></pre></td></tr></table></figure>
+
+<p><strong>网络</strong>：</p>
+<ul>
+<li>CNI 插件选 <strong>Calico</strong>（性能好）或 <strong>Flannel</strong>（简单）</li>
+<li>Ingress Controller 用 <strong>NGINX Ingress</strong> 或 <strong>Traefik</strong></li>
+</ul>
+<p><strong>监控</strong>：</p>
+<ul>
+<li>Prometheus + Grafana（监控 K8s 集群状态）</li>
+<li>EFK（Elasticsearch + Fluentd + Kibana）收集日志</li>
+</ul>
+<hr>
+<h2 id="六、简历话术准备"><a href="#六、简历话术准备" class="headerlink" title="六、简历话术准备"></a>六、简历话术准备</h2><p><strong>面试官问</strong>：”你在简历里写了 Spring Security + JWT 双令牌机制，能详细讲一下吗？”</p>
+<p><strong>回答模板</strong>（背下来！）：</p>
+<blockquote>
+<p>“这个问题我从四个方面来讲。</p>
+<p><strong>第一，为什么用双令牌</strong>。单 Token 要么有效期太长（泄露后风险大），要么太短（用户要频繁登录）。双令牌把 Token 分成两种：Access Token（1 小时，每次请求都带）和 Refresh Token（7 天，只用来换新 Token）。这样即使 Access Token 泄露，影响也只限于 1 小时内。</p>
+<p><strong>第二，自动刷新是怎么做的</strong>。我们在 JWT 过滤器里加了逻辑：每次请求，检查 Access Token 的剩余时间，如果少于 5 分钟，就自动刷新，把新 Token 放进响应头。前端拦截响应，更新本地存储的 Token。用户完全无感知。</p>
+<p><strong>第三，Token 主动失效怎么做</strong>。JWT 天生不支持主动失效（因为服务端不保存状态）。我们在 Redis 里存了 Token 黑名单，退出登录时把 Token ID 加进黑名单。每次验证 Token 时，先查黑名单，如果在就拒绝请求。</p>
+<p><strong>第四，K8s 部署怎么做</strong>。我们用多阶段 Dockerfile 构建镜像（最终镜像 &lt; 200 MB）。K8s 用 Deployment 跑 3 个实例，用 HPA 根据 CPU 使用率自动扩容（最多 10 个）。GitHub Actions 做 CI&#x2F;CD，推送到 main 分支自动部署。”</p>
+</blockquote>
+<hr>
+<p><em>© 2026 KnowFlow 面试手册 · 转载请注明出处</em></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/JWT/" class="print-no-link">#JWT</a>
+      
+        <a href="/tags/RBAC/" class="print-no-link">#RBAC</a>
+      
+        <a href="/tags/K8s/" class="print-no-link">#K8s</a>
+      
+        <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="print-no-link">#云原生</a>
+      
+        <a href="/tags/Spring-Security/" class="print-no-link">#Spring Security</a>
+      
+        <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/" class="print-no-link">#字节跳动</a>
+      
+        <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/" class="print-no-link">#傻子都能懂</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署</div>
+      <div>https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-security-qa/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-cache-strategies-learn/" title="技术派项目学习笔记（一）：三种缓存策略深度解析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">技术派项目学习笔记（一）：三种缓存策略深度解析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-knowflow-search-qa/" title="KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF）">
+                        <span class="hidden-mobile">KnowFlow ② 八股文：Elasticsearch 混合检索（KNN + BM25 + RRF）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
