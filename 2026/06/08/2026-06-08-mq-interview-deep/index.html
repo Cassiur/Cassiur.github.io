@@ -27,7 +27,7 @@
 <meta property="og:description" content="写在前面：本文用最通俗的语言 + 生活化比喻，把消息队列的每个核心知识点讲透。读完后，你不仅能应对面试，还能真正理解 MQ 的设计思想。   一、为什么要用消息队列？（三板斧：解耦、异步、削峰）第1题：你们项目为什么要用消息队列？一句话总结：消息队列解决的是系统耦合、响应慢、扛不住峰值三大问题，核心能力是解耦、异步、削峰。 深度解析： 用生活场景来理解。假设你开了一家餐厅： 没有消息队列（灾难现">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T10:58:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T13:05:02.646Z">
+<meta property="article:modified_time" content="2026-06-08T18:32:03.748Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Kafka">
 <meta property="article:tag" content="RabbitMQ">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          13k 字
+          19k 字
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          106 分钟
+          156 分钟
         
       </span>
     
@@ -1024,6 +1024,512 @@
 <blockquote>
 <p><strong>消息队列 35 题完结！</strong> 建议把 31~35 题也过一遍，这些是大厂（字节&#x2F;阿里&#x2F;美团）高频题。</p>
 </blockquote>
+<hr>
+<h3 id="第-36-题：RocketMQ-的延迟消息（定时消息）原理？"><a href="#第-36-题：RocketMQ-的延迟消息（定时消息）原理？" class="headerlink" title="第 36 题：RocketMQ 的延迟消息（定时消息）原理？"></a>第 36 题：RocketMQ 的延迟消息（定时消息）原理？</h3><h4 id="一句话结论"><a href="#一句话结论" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>RocketMQ 延迟消息</strong>：消息发送后，<strong>不会立即被消费</strong>，而是等待指定的延迟时间后才投递给消费者。实现原理是<strong>定时线程扫描 + 延迟队列</strong>。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析"><a href="#深度解析" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>RocketMQ 延迟消息的使用</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 发送延迟消息（延迟 5 分钟）</span><br><span class="hljs-type">Message</span> <span class="hljs-variable">message</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Message</span>(<span class="hljs-string">&quot;TopicTest&quot;</span>, <span class="hljs-string">&quot;Hello&quot;</span>.getBytes());<br><span class="hljs-comment">// 设置延迟级别（1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h）</span><br>message.setDelayTimeLevel(<span class="hljs-number">8</span>);  <span class="hljs-comment">// 延迟 5 分钟</span><br>producer.send(message);<br></code></pre></td></tr></table></figure>
+
+<p><strong>RocketMQ 延迟消息的实现原理</strong>：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 生产者发送延迟消息（设置 delayTimeLevel）<br>   ↓<br><span class="hljs-bullet">2.</span> Broker 收到消息后，把消息放到<span class="hljs-strong">**延迟队列**</span>（Schedule<span class="hljs-emphasis">_Topic）</span><br><span class="hljs-emphasis">   → 延迟队列有多个（对应不同的延迟级别）</span><br><span class="hljs-emphasis">   → 如：Schedule_</span>Topic<span class="hljs-emphasis">_1（1s）、Schedule_</span>Topic<span class="hljs-emphasis">_2（5s）、Schedule_</span>Topic<span class="hljs-emphasis">_8（5m）</span><br><span class="hljs-emphasis">   ↓</span><br><span class="hljs-emphasis">3. 定时线程（Timer）扫描延迟队列</span><br><span class="hljs-emphasis">   → 到了投递时间，把消息从延迟队列取出来</span><br><span class="hljs-emphasis">   → 放到原始的 Topic（业务 Topic）</span><br><span class="hljs-emphasis">   ↓</span><br><span class="hljs-emphasis">4. 消费者从原始 Topic 拉取消息（此时延迟时间已到）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>延迟消息的应用场景</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>订单超时关闭</td>
+<td>订单创建后，发送延迟消息（30 分钟），时间到了关闭订单</td>
+</tr>
+<tr>
+<td>重试通知</td>
+<td>通知失败后，延迟 5 分钟重试</td>
+</tr>
+<tr>
+<td>定时任务</td>
+<td>替换定时任务（避免定时任务扫表）</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="面试加分回答"><a href="#面试加分回答" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>RocketMQ 的延迟消息是<strong>基于定时扫描</strong>实现的，不是基于时间戳（所以延迟级别是固定的，不能自定义任意时间）。如果需要<strong>任意时间延迟</strong>（如”2026 年 12 月 31 日 23:59 投递”），可以用<strong>时间轮（Timing Wheel）</strong> 自己实现，或者用 <strong>XXL-Job</strong> 等分布式任务调度框架。</p>
+</blockquote>
+<hr>
+<h3 id="第-37-题：Kafka-的分区副本（Replica）同步机制？"><a href="#第-37-题：Kafka-的分区副本（Replica）同步机制？" class="headerlink" title="第 37 题：Kafka 的分区副本（Replica）同步机制？"></a>第 37 题：Kafka 的分区副本（Replica）同步机制？</h3><h4 id="一句话结论-1"><a href="#一句话结论-1" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>Kafka 分区副本同步</strong>：Leader 副本负责读写，Follower 副本从 Leader 拉取数据同步；<strong>ISR（In-Sync Replicas）</strong> 列表维护”跟得上 Leader 的 Follower”，只有 ISR 中的 Follower 才能成为新的 Leader。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-1"><a href="#深度解析-1" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>分区副本的角色</strong>：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">一个分区（<span class="hljs-keyword">Partition</span>）有多个副本（<span class="hljs-keyword">Replica</span>）：<br>  → <span class="hljs-number">1</span> 个 Leader（负责读写）<br>  → N<span class="hljs-number">-1</span> 个 Follower（只同步数据，不对外服务）<br><br>生产者 → Leader 副本（写入）<br>           ↓<br>         Follower 副本（主动拉取数据同步）<br></code></pre></td></tr></table></figure>
+
+<p><strong>ISR（In-Sync Replicas）机制</strong>：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">ISR：跟得上 Leader 的 Follower 列表<br>  → Follower 的 LEO（<span class="hljs-keyword">Log</span> <span class="hljs-keyword">End</span> <span class="hljs-keyword">Offset</span>）和 Leader 的 LEO 相差不超过 `<span class="hljs-keyword">replica</span>.lag.time.max.ms`（默认 <span class="hljs-number">30</span> 秒）<br>  → 如果 Follower 同步太慢，会被踢出 ISR（等它追上来了再加回来）<br><br>ACK 级别：<br>  acks=<span class="hljs-number">0</span>：不等待副本确认（最快，但可能丢数据）<br>  acks=<span class="hljs-number">1</span>：只等 Leader 确认（默认，Leader 挂了可能丢数据）<br>  acks=<span class="hljs-keyword">all</span>：等所有 ISR 副本确认（最慢，但不丢数据）<br></code></pre></td></tr></table></figure>
+
+<p><strong>Leader 挂了，怎么选举新 Leader？</strong></p>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey"><span class="hljs-number">1</span>. Controller 检测到 Leader 挂了<br>   ↓<br><span class="hljs-number">2</span>. 从 ISR 列表中选择第一个 Follower 作为新 Leader<br>   → 如果 ISR 为空（所有 Follower 都同步太慢），看 `unclean.leader.election.enable`：<br>      → <span class="hljs-literal">false</span>（默认）：等待 ISR 恢复（可用性降低，但不丢数据）<br>      → <span class="hljs-literal">true</span>：从非 ISR 的 Follower 中选一个（可能丢数据，但可用性高）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-1"><a href="#面试加分回答-1" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>Kafka 的 ISR 机制是<strong>可用性和一致性的平衡</strong>。实际项目中，<code>acks=all</code> + <code>min.insync.replicas=2</code> 可以保证”写入成功后，至少 2 个副本有数据”（即使 Leader 挂了，数据也不会丢）。但要注意：<code>acks=all</code> 会显著增加延迟（要等所有 ISR 副本确认），所以如果对延迟敏感，可以用 <code>acks=1</code>（允许 Leader 挂了丢少量数据）。</p>
+</blockquote>
+<hr>
+<h3 id="第-38-题：RabbitMQ-的死信队列（Dead-Letter-Queue）原理？"><a href="#第-38-题：RabbitMQ-的死信队列（Dead-Letter-Queue）原理？" class="headerlink" title="第 38 题：RabbitMQ 的死信队列（Dead Letter Queue）原理？"></a>第 38 题：RabbitMQ 的死信队列（Dead Letter Queue）原理？</h3><h4 id="一句话结论-2"><a href="#一句话结论-2" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>死信队列（DLQ）</strong>：当消息<strong>变成死信</strong>（被拒绝、过期、队列满了）时，RabbitMQ 会把死信重新投递到<strong>死信交换机（DLX）</strong>，再由 DLX 路由到死信队列，供人工排查。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-2"><a href="#深度解析-2" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>什么情况下消息会变成死信？</strong></p>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>消息被拒绝（basic.reject&#x2F;basic.nack）且不重新入队</td>
+<td>消费者主动拒绝消息</td>
+</tr>
+<tr>
+<td>消息 TTL 过期</td>
+<td>消息在队列中停留超过 TTL</td>
+</tr>
+<tr>
+<td>队列达到最大长度</td>
+<td>队列满了，最早的消息变成死信</td>
+</tr>
+</tbody></table>
+<p><strong>如何配置死信队列？</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 声明死信交换机和死信队列</span><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> DirectExchange <span class="hljs-title function_">deadLetterExchange</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DirectExchange</span>(<span class="hljs-string">&quot;dead.letter.exchange&quot;</span>);<br>&#125;<br><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> Queue <span class="hljs-title function_">deadLetterQueue</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">return</span> QueueBuilder.durable(<span class="hljs-string">&quot;dead.letter.queue&quot;</span>).build();<br>&#125;<br><br><span class="hljs-comment">// 2. 业务队列绑定死信交换机</span><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> Queue <span class="hljs-title function_">businessQueue</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">return</span> QueueBuilder.durable(<span class="hljs-string">&quot;business.queue&quot;</span>)<br>        .withArgument(<span class="hljs-string">&quot;x-dead-letter-exchange&quot;</span>, <span class="hljs-string">&quot;dead.letter.exchange&quot;</span>)  <span class="hljs-comment">// 死信投递到这个交换机</span><br>        .withArgument(<span class="hljs-string">&quot;x-dead-letter-routing-key&quot;</span>, <span class="hljs-string">&quot;dead.letter.key&quot;</span>)  <span class="hljs-comment">// 死信的 Routing Key</span><br>        .withArgument(<span class="hljs-string">&quot;x-message-ttl&quot;</span>, <span class="hljs-number">60000</span>)  <span class="hljs-comment">// 消息 TTL（60 秒）</span><br>        .build();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>死信队列的应用场景</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>消息消费失败</td>
+<td>重试 N 次后，拒绝消息 → 进入死信队列（人工排查）</td>
+</tr>
+<tr>
+<td>消息 TTL 过期</td>
+<td>订单 30 分钟未支付 → 进入死信队列（关闭订单）</td>
+</tr>
+<tr>
+<td>队列满了</td>
+<td>新消息无法入队 → 变成死信（避免阻塞生产者）</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="面试加分回答-2"><a href="#面试加分回答-2" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>死信队列是<strong>消息补偿机制</strong>的核心。实际项目中，如果消息消费失败，不要直接丢弃（会丢数据），而是<strong>重试 3~5 次后进入死信队列</strong>，然后有专门的”死信消费者”处理死信（如记录日志、发告警、人工介入）。另外，RocketMQ 也有类似的机制（<strong>重试队列</strong> + <strong>死信队列</strong>），原理类似。</p>
+</blockquote>
+<hr>
+<h3 id="第-39-题：消息队列的-TPS-和-QPS-怎么计算？"><a href="#第-39-题：消息队列的-TPS-和-QPS-怎么计算？" class="headerlink" title="第 39 题：消息队列的 TPS 和 QPS 怎么计算？"></a>第 39 题：消息队列的 TPS 和 QPS 怎么计算？</h3><h4 id="一句话结论-3"><a href="#一句话结论-3" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>TPS（Transactions Per Second）</strong>：每秒事务数（生产者发送 + 消费者消费）；<strong>QPS（Queries Per Second）</strong>：每秒查询数（对消息队列来说 &#x3D; TPS）。计算方式：<strong>压测工具（如 JMeter）</strong> 或 <strong>消息队列自带指标</strong>（如 Kafka 的 <code>Records/s</code>）。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-3"><a href="#深度解析-3" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>TPS vs QPS</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TPS</td>
+<td>每秒事务数</td>
+<td>数据库、消息队列</td>
+</tr>
+<tr>
+<td>QPS</td>
+<td>每秒查询数</td>
+<td>HTTP 服务、读多写少的场景</td>
+</tr>
+<tr>
+<td>对消息队列</td>
+<td>QPS ≈ TPS</td>
+<td>发送消息 &#x3D; 1 个事务</td>
+</tr>
+</tbody></table>
+<p><strong>如何压测消息队列的 TPS？</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 生产者压测（测试发送 TPS）</span><br><span class="hljs-type">long</span> <span class="hljs-variable">start</span> <span class="hljs-operator">=</span> System.currentTimeMillis();<br><span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">1000000</span>;<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; count; i++) &#123;<br>    producer.send(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Message</span>(<span class="hljs-string">&quot;TopicTest&quot;</span>, (<span class="hljs-string">&quot;Message-&quot;</span> + i).getBytes()));<br>&#125;<br><span class="hljs-type">long</span> <span class="hljs-variable">end</span> <span class="hljs-operator">=</span> System.currentTimeMillis();<br><span class="hljs-type">double</span> <span class="hljs-variable">tps</span> <span class="hljs-operator">=</span> count * <span class="hljs-number">1000.0</span> / (end - start);<br>System.out.println(<span class="hljs-string">&quot;发送 TPS：&quot;</span> + tps);<br><br><span class="hljs-comment">// 2. 消费者压测（测试消费 TPS）</span><br><span class="hljs-comment">// 用线程池并发消费，统计每秒消费的消息数</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Kafka 的 TPS 指标（自带）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 Kafka 的 TPS（Bytes/s、Records/s）</span><br>kafka-run-class.sh kafka.tools.ConsumerOffsetChecker \<br>  --zookeeper localhost:2181 \<br>  --group test-group<br><br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># Topic          Pid Offset          logSize         Lag             Owner</span><br><span class="hljs-comment"># TopicTest     0   12345           12345           0               consumer-1</span><br><span class="hljs-comment"># → Records/s = (当前 Offset - 上次 Offset) / 时间间隔</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-3"><a href="#面试加分回答-3" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>消息队列的 TPS 是<strong>选型的重要指标</strong>。实际项目中，如果业务需要 10 万 TPS，但 Kafka 单机只能达到 5 万 TPS，就需要<strong>扩容 Broker</strong>（加机器）。另外，TPS 和<strong>分区数</strong>有很大关系：分区数越多，并行度越高，TPS 越高（但分区数太多会增加 Broker 的负载，要权衡）。</p>
+</blockquote>
+<hr>
+<h3 id="第-40-题：消息队列的消息堆积（Lag）怎么监控和告警？"><a href="#第-40-题：消息队列的消息堆积（Lag）怎么监控和告警？" class="headerlink" title="第 40 题：消息队列的消息堆积（Lag）怎么监控和告警？"></a>第 40 题：消息队列的消息堆积（Lag）怎么监控和告警？</h3><h4 id="一句话结论-4"><a href="#一句话结论-4" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>消息堆积（Lag）</strong>：消费者消费速度赶不上生产者发送速度，导致消息在 Broker 积压。监控方式：<strong>JMX 指标</strong>（Kafka）、<strong>控制台</strong>（RocketMQ）、<strong>自定义监控脚本</strong>；告警方式：<strong>企业微信&#x2F;钉钉&#x2F;短信</strong>。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-4"><a href="#深度解析-4" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Kafka 的消息堆积监控</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 用 kafka-consumer-groups.sh 查看 Lag</span><br>kafka-consumer-groups.sh \<br>  --bootstrap-server localhost:9092 \<br>  --group test-group \<br>  --describe<br><br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># GROUP     TOPIC     PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG</span><br><span class="hljs-comment"># test-group TopicTest 0         1000            5000            4000</span><br><span class="hljs-comment"># → Lag = LOG-END-OFFSET - CURRENT-OFFSET = 4000（堆积了 4000 条）</span><br><br><span class="hljs-comment"># 2. 用 JMX 指标监控（推荐）</span><br><span class="hljs-comment"># Kafka 暴露了 JMX 指标：</span><br><span class="hljs-comment">#  - kafka.consumer:type=consumer-fetch-manager-metrics,client-id=*</span><br><span class="hljs-comment">#     → records-lag-max（最大 Lag）</span><br><span class="hljs-comment">#     → records-consumed-rate（消费速率）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>RocketMQ 的消息堆积监控</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 用 mqadmin 查看 Lag</span><br>mqadmin consumerProgress -g test-group<br><br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># #Topic       #Broker Offset   #Consumer Offset   #Diff（堆积量）</span><br><span class="hljs-comment"># TopicTest   5000             1000              4000</span><br><br><span class="hljs-comment"># 2. 用 RocketMQ 控制台查看（Web UI）</span><br><span class="hljs-comment"># http://localhost:8080/consumer/list</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>告警规则</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>Lag 阈值</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>提示</td>
+<td>Lag &gt; 1000</td>
+<td>记录日志</td>
+</tr>
+<tr>
+<td>警告</td>
+<td>Lag &gt; 10000</td>
+<td>企业微信&#x2F;钉钉通知</td>
+</tr>
+<tr>
+<td>严重</td>
+<td>Lag &gt; 100000</td>
+<td>电话&#x2F;短信告警（立即介入）</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="面试加分回答-4"><a href="#面试加分回答-4" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>消息堆积是<strong>生产环境的高频问题</strong>。除了监控 Lag，还要监控<strong>消费速率</strong>（records-consumed-rate）和<strong>消费延迟</strong>（end-to-end latency）。如果 Lag 一直在增长，说明消费速率 &lt; 生产速率，需要<strong>扩容消费者</strong>（加机器）或<strong>优化消费逻辑</strong>（如批量消费、异步处理）。另外，告警阈值要根据业务设置（如”订单支付” Topic 的 Lag 不能超过 100，否则用户支付后很久才到账）。</p>
+</blockquote>
+<hr>
+<h3 id="第-41-题：RocketMQ-的-NameServer-和-Broker-的关系？"><a href="#第-41-题：RocketMQ-的-NameServer-和-Broker-的关系？" class="headerlink" title="第 41 题：RocketMQ 的 NameServer 和 Broker 的关系？"></a>第 41 题：RocketMQ 的 NameServer 和 Broker 的关系？</h3><h4 id="一句话结论-5"><a href="#一句话结论-5" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>NameServer</strong>：路由注册中心（类似 Kafka 的 ZooKeeper，但更轻量），管理 Broker 的路由信息；<strong>Broker</strong>：消息存储和传输的节点，负责消息的收发、存储、拉取。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-5"><a href="#深度解析-5" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>NameServer 的作用</strong>：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">NameServer</span> <span class="hljs-operator">=</span> 路由注册中心<br>  → Broker 启动时，向所有 NameServer 注册自己的路由信息（Topic → Broker 地址）<br>  → 生产者/消费者从 NameServer 拉取路由信息（知道了<span class="hljs-string">&quot;Topic 在哪些 Broker 上&quot;</span>）<br>  → NameServer 之间不通信（彼此独立，Broker 向所有 NameServer 注册）<br></code></pre></td></tr></table></figure>
+
+<p><strong>Broker 的作用</strong>：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">Broker = 消息存储和传输节点<br>  → 接收生产者发送的消息，写入 CommitLog<br>  → 接收消费者拉取消息的请求，从 CommitLog 读取消息<br>  → 主从同步（<span class="hljs-keyword">Master</span> <span class="hljs-title">Broker</span> 同步数据给 <span class="hljs-literal">Slave</span> Broker）<br></code></pre></td></tr></table></figure>
+
+<p><strong>NameServer vs ZooKeeper（Kafka 用 ZooKeeper）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>NameServer（RocketMQ）</th>
+<th>ZooKeeper（Kafka）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>部署复杂度</td>
+<td>简单（无状态，彼此不通信）</td>
+<td>复杂（需要集群部署，维护 ZAB 协议）</td>
+</tr>
+<tr>
+<td>可用性</td>
+<td>高（NameServer 挂了，Broker 仍然可以提供服务）</td>
+<td>依赖 ZooKeeper（ZooKeeper 挂了，Kafka 不可用）</td>
+</tr>
+<tr>
+<td>功能</td>
+<td>只做路由注册和发现</td>
+<td>路由注册 + 集群元数据管理 + Controller 选举</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="面试加分回答-5"><a href="#面试加分回答-5" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>NameServer 是 RockerMQ 的<strong>亮点之一</strong>（比 Kafka 的 ZooKeeper 轻量很多）。实际部署中，NameServer 通常部署 <strong>2 个节点</strong>（互不通信，Broker 向两个 NameServer 都注册），即使一个 NameServer 挂了，另一个仍然可以提供路由发现服务。另外，RocketMQ 5.0+ 正在去 NameServer 化（用 <strong>Proxy 模式</strong> 取代 NameServer），简化部署架构。</p>
+</blockquote>
+<hr>
+<h3 id="第-42-题：Kafka-的日志压缩（Log-Compaction）是什么？"><a href="#第-42-题：Kafka-的日志压缩（Log-Compaction）是什么？" class="headerlink" title="第 42 题：Kafka 的日志压缩（Log Compaction）是什么？"></a>第 42 题：Kafka 的日志压缩（Log Compaction）是什么？</h3><h4 id="一句话结论-6"><a href="#一句话结论-6" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>Log Compaction（日志压缩）</strong>：Kafka 会保留<strong>每个 Key 的最新 Value</strong>，删除旧 Value（类似 Java 的 HashMap.put(key, value) 覆盖旧值）。适用场景：<strong>变更日志、状态快照</strong>。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-6"><a href="#深度解析-6" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>为什么需要 Log Compaction？</strong></p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs routeros">场景：用 Kafka 存储<span class="hljs-string">&quot;用户状态变更日志&quot;</span><br>  → 用户 1001 的状态变更：<br>      <span class="hljs-attribute">Key</span>=1001, Value=&#123;<span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;CREATED&quot;</span>&#125;      （偏移量 0）<br>      <span class="hljs-attribute">Key</span>=1001, Value=&#123;<span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;PAID&quot;</span>&#125;         （偏移量 10）<br>      <span class="hljs-attribute">Key</span>=1001, Value=&#123;<span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;SHIPPED&quot;</span>&#125;    （偏移量 20）<br>  → 如果做了 Log Compaction：<br>      → 只保留 <span class="hljs-attribute">Key</span>=1001 的最新 Value（&#123;<span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;SHIPPED&quot;</span>&#125;）<br>      → 删除旧 Value（节省磁盘空间）<br></code></pre></td></tr></table></figure>
+
+<p><strong>Log Compaction vs Log Deletion</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Log Deletion（默认）</td>
+<td>按时间&#x2F;大小删除旧日志段</td>
+<td>日志、事件流（不关心 Key）</td>
+</tr>
+<tr>
+<td>Log Compaction</td>
+<td>保留每个 Key 的最新 Value</td>
+<td>变更日志、状态快照（关心 Key 的最新状态）</td>
+</tr>
+</tbody></table>
+<p><strong>如何开启 Log Compaction？</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Topic 时指定清理策略</span><br>kafka-topics.sh \<br>  --create \<br>  --topic user-status \<br>  --config cleanup.policy=compact \<br>  --bootstrap-server localhost:9092<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-6"><a href="#面试加分回答-6" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>Log Compaction 是 Kafka 的<strong>高级特性</strong>，它让 Kafka 不仅能做”消息队列”，还能做”KV 存储”（类似 RocksDB）。实际项目中，如果你需要<strong>存储每个用户的最新状态</strong>（如”用户是否已注销”），可以用 Log Compaction Topic（Kafka Streams 的 KTable 就是基于 Log Compaction 实现的）。另外，Log Compaction 不会删除”当前活跃的日志段”，所以<strong>磁盘空间的释放是滞后的</strong>（不是立即生效）。</p>
+</blockquote>
+<hr>
+<h3 id="第-43-题：消息队列常见坑（使用注意事项）？"><a href="#第-43-题：消息队列常见坑（使用注意事项）？" class="headerlink" title="第 43 题：消息队列常见坑（使用注意事项）？"></a>第 43 题：消息队列常见坑（使用注意事项）？</h3><h4 id="一句话结论-7"><a href="#一句话结论-7" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>消息队列的 8 个大坑</strong>：① 消息丢失；② 重复消费；③ 消息堆积；④ 顺序错乱；⑤ 消费超时；⑥ 消息过大；⑦ 消费者挂了；⑧ 生产者限流。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-7"><a href="#深度解析-7" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>坑 1：消息丢失</strong></p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs routeros">原因：<br>  ① 生产者：发送失败没重试<br>  ② Broker：刷盘前宕机（没配置同步刷盘）<br>  ③ 消费者：消费到消息，但业务处理失败（没做幂等）<br><br>解决：<br>  ① 生产者：开启 <span class="hljs-attribute">ACks</span>=all + 重试<br>  ② Broker：配置同步刷盘（<span class="hljs-attribute">flushDiskType</span>=SYNC_FLUSH）<br>  ③ 消费者：手动提交 Offset + 业务幂等<br></code></pre></td></tr></table></figure>
+
+<p><strong>坑 2：重复消费</strong></p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">原因：<br>  ① 生产者：网络超时，重试发送（Broker 其实收到了）<br>  ② 消费者：消费成功，但提交 <span class="hljs-keyword">Offset</span> 前挂了（重启后重新消费）<br><br>解决：<br>  ① 生产者：开启幂等（<span class="hljs-keyword">enable</span>.idempotence=<span class="hljs-keyword">true</span>）<br>  ② 消费者：业务幂等（数据库唯一索引 / Redis SETNX）<br></code></pre></td></tr></table></figure>
+
+<p><strong>坑 3：消息堆积</strong></p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs nix">原因：<br>  ① 消费者太少（消费能力 <span class="hljs-operator">&lt;</span> 生产能力）<br>  ② 消费逻辑太慢（如同步调用外部接口）<br><br>解决：<br>  ① 扩容消费者（加机器 <span class="hljs-symbol">/</span> 加线程）<br>  ② 优化消费逻辑（批量消费、异步处理）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-7"><a href="#面试加分回答-7" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>消息队列的<strong>坑非常多</strong>，实际项目中至少要保证：① <strong>消息不丢失</strong>（ACks + 刷盘策略 + 手动提交 Offset）；② <strong>消费幂等</strong>（数据库唯一索引）；③ <strong>监控 Lag</strong>（堆积了立即告警）。如果能说出这 3 点，面试已经及格了。另外，<strong>不要为了用消息队列而用消息队列</strong>——如果业务不需要”解耦、异步、削峰”，直接同步调用反而更简单。</p>
+</blockquote>
+<hr>
+<h3 id="第-44-题：消息队列的最佳实践？"><a href="#第-44-题：消息队列的最佳实践？" class="headerlink" title="第 44 题：消息队列的最佳实践？"></a>第 44 题：消息队列的最佳实践？</h3><h4 id="一句话结论-8"><a href="#一句话结论-8" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>消息队列最佳实践</strong>：① 生产者开启重试 + 幂等；② 消息设置 TTL（避免无限堆积）；③ 消费者手动提交 Offset + 幂等；④ 监控 Lag + 告警；⑤ 重要 Topic 配置多副本。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-8"><a href="#深度解析-8" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>最佳实践清单</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>实践</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>生产者开启重试</td>
+<td><code>retries=3</code>（网络抖动时自动重试）</td>
+</tr>
+<tr>
+<td>生产者开启幂等</td>
+<td><code>enable.idempotence=true</code>（避免网络超时重试导致重复写入）</td>
+</tr>
+<tr>
+<td>消息设置 TTL</td>
+<td><code>message.setDelayTimeLevel(8)</code>（避免消息无限堆积）</td>
+</tr>
+<tr>
+<td>消费者手动提交 Offset</td>
+<td><code>enable.auto.commit=false</code>（消费成功后再提交）</td>
+</tr>
+<tr>
+<td>消费者幂等</td>
+<td>数据库唯一索引 &#x2F; Redis SETNX（避免重复消费）</td>
+</tr>
+<tr>
+<td>监控 Lag</td>
+<td><code>kafka-consumer-groups.sh --describe</code>（堆积了立即告警）</td>
+</tr>
+<tr>
+<td>重要 Topic 配置多副本</td>
+<td><code>replication.factor=3</code>（即使一个 Broker 挂了，数据不丢）</td>
+</tr>
+</tbody></table>
+<p><strong>消息队列的线程模型（消费者）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Kafka 消费者（单线程拉取，多线程消费）</span><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> KafkaListenerContainerFactory <span class="hljs-title function_">kafkaListenerContainerFactory</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">ConcurrentKafkaListenerContainerFactory</span> <span class="hljs-variable">factory</span> <span class="hljs-operator">=</span> <br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConcurrentKafkaListenerContainerFactory</span>();<br>    <span class="hljs-comment">// 并发度 = 分区数（一个分区只能被一个消费者线程消费）</span><br>    factory.setConcurrency(<span class="hljs-number">3</span>);  <span class="hljs-comment">// 3 个消费者线程</span><br>    <span class="hljs-keyword">return</span> factory;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-8"><a href="#面试加分回答-8" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>消息队列的<strong>最佳实践</strong>是”生产环境不踩坑”的保证。实际项目中，我建议用<strong>Spring Kafka &#x2F; Spring RocketMQ</strong>（封装好的 Starter），而不是自己写原生客户端——Starter 已经帮你配置了重试、幂等、手动提交 Offset 等最佳实践，不容易出错。另外，<strong>消息队列不适合做”强一致性”场景</strong>（如金融转账），这种场景还是要用 <strong>2PC &#x2F; TCC 分布式事务</strong>。</p>
+</blockquote>
+<hr>
+<h3 id="第-45-题：消息队列的未来趋势（Pulsar、边缘-MQ）？"><a href="#第-45-题：消息队列的未来趋势（Pulsar、边缘-MQ）？" class="headerlink" title="第 45 题：消息队列的未来趋势（Pulsar、边缘 MQ）？"></a>第 45 题：消息队列的未来趋势（Pulsar、边缘 MQ）？</h3><h4 id="一句话结论-9"><a href="#一句话结论-9" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>消息队列的未来趋势</strong>：① <strong>Pulsar</strong>（下一代消息队列，存算分离）；② <strong>边缘 MQ</strong>（IoT 场景，消息队列跑到边缘节点）；③ <strong>Serverless MQ</strong>（按调用次数计费，不用预留资源）。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-9"><a href="#深度解析-9" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Pulsar vs Kafka</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Kafka</th>
+<th>Pulsar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>架构</td>
+<td>存储和计算耦合（Broker 同时负责存储和计算）</td>
+<td>存储和计算分离（Broker 负责计算，BookKeeper 负责存储）</td>
+</tr>
+<tr>
+<td>多租户</td>
+<td>不支持（需要手动隔离）</td>
+<td>原生支持（Namespace 级别隔离）</td>
+</tr>
+<tr>
+<td>跨地域复制</td>
+<td>需要 MirrorMaker</td>
+<td>原生支持（Geo-Replication）</td>
+</tr>
+<tr>
+<td>消费模型</td>
+<td>只有 Pull</td>
+<td>Pull + Push（支持 Queue 模型）</td>
+</tr>
+</tbody></table>
+<p><strong>边缘 MQ（IoT 场景）</strong>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">场景：10 万个 IoT 设备（如智能电表）上报数据<br>  → 问题：设备在网络边缘（如偏远山区），连不上中心 Kafka<br>  → 解决：边缘 MQ（如 EMQX）→ 在边缘节点缓存消息，网络恢复后再同步到中心<br></code></pre></td></tr></table></figure>
+
+<p><strong>Serverless MQ（按调用次数计费）</strong>：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">传统 MQ：按 <span class="hljs-keyword">Broker </span>节点数计费（不管你用不用，都要付钱）<br>Serverless MQ：按 API 调用次数计费（不用不付钱）<br>  → 代表：AWS SQS、Azure Service <span class="hljs-keyword">Bus</span><br><span class="hljs-keyword"></span>  → 适合：流量波动大的场景（如电商大促）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-9"><a href="#面试加分回答-9" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>Pulsar 是<strong>下一代消息队列</strong>的有力竞争者（Yahoo 开源，现在已经 Apache 顶级项目）。它的<strong>存算分离</strong>架构比 Kafka 更适合云原生场景（Broker 可以无缝扩容，存储层 BookKeeper 也支持无缝扩容）。但 Kafka 的生态更成熟（连接器多、文档多、社区大），所以目前（2026 年）还是 Kafka 的天下。如果是新项目，可以考虑 Pulsar（未来可能取代 Kafka）。</p>
+</blockquote>
+<hr>
+<h3 id="第-46-题：如何保证消息队列的高可用（深入）？"><a href="#第-46-题：如何保证消息队列的高可用（深入）？" class="headerlink" title="第 46 题：如何保证消息队列的高可用（深入）？"></a>第 46 题：如何保证消息队列的高可用（深入）？</h3><h4 id="一句话结论-10"><a href="#一句话结论-10" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>消息队列高可用</strong>：Broker 多副本（Leader + Follower）+ 消费者集群（多个消费者订阅同一个 Topic）+ 监控告警（Lag、TPS、节点健康状态）+ 降级预案（消息队列挂了，降级为同步调用）。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-10"><a href="#深度解析-10" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Broker 高可用</strong>：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs routeros">Kafka：<br>  → 多副本（replication.<span class="hljs-attribute">factor</span>=3）<br>  → <span class="hljs-attribute">acks</span>=all（所有 ISR 副本确认才返回成功）<br>  → min.insync.<span class="hljs-attribute">replicas</span>=2（至少 2 个 ISR 副本，否则拒绝写入）<br><br>RocketMQ：<br>  → 主从同步（Master Broker + Slave Broker）<br>  → 同步刷盘（<span class="hljs-attribute">flushDiskType</span>=SYNC_FLUSH）<br>  → Dledger 模式（RocketMQ 5.0+，基于 Raft 协议，自动选主）<br></code></pre></td></tr></table></figure>
+
+<p><strong>消费者高可用</strong>：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs abnf">消费者集群：<br>  → 多个消费者订阅同一个 Topic（同一个 Consumer Group）<br>  → 一个消费者挂了，其他消费者继续消费（不会停止消费）<br>  → Kafka：分区数 &gt;<span class="hljs-operator">=</span> 消费者数（一个分区只能被一个消费者线程消费）<br></code></pre></td></tr></table></figure>
+
+<p><strong>降级预案</strong>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs">场景：消息队列挂了（如 Kafka 集群宕机）<br>  → 降级方案：<br>     ① 生产者：降级为同步调用（直接调用消费者接口）<br>     ② 消费者：降级为轮询数据库（定时任务扫表，代替消息驱动）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-10"><a href="#面试加分回答-10" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>消息队列的高可用是<strong>生产环境的必答题</strong>。实际项目中，除了 Broker 多副本、消费者集群，还要做<strong>混沌工程</strong>（Chaos Engineering）——主动杀掉 Broker 节点、断网、杀消费者进程，看系统是否能自动恢复。另外，<strong>监控告警</strong>是高可用的”眼睛”——如果没有监控，Broker 挂了都不知道，高可用就是一句空话。</p>
+</blockquote>
+<hr>
+<h3 id="第-47-题：消息队列的事务消息（分布式事务）？"><a href="#第-47-题：消息队列的事务消息（分布式事务）？" class="headerlink" title="第 47 题：消息队列的事务消息（分布式事务）？"></a>第 47 题：消息队列的事务消息（分布式事务）？</h3><h4 id="一句话结论-11"><a href="#一句话结论-11" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>事务消息</strong>：保证”本地事务”和”消息发送”的原子性（要么都成功，要么都失败）。RocketMQ 事务消息的实现原理：<strong>两阶段提交（2PC）</strong> + <strong>事务状态回查</strong>。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-11"><a href="#深度解析-11" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>事务消息的使用场景</strong>：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs 1c">场景：订单服务创建订单后，发送<span class="hljs-string">&quot;订单创建&quot;</span>消息给库存服务<br>  → 问题：如果订单数据库事务提交成功，但消息发送失败 → 库存服务不知道有新订单（数据不一致）<br>  → 解决：事务消息（订单数据库事务和消息发送绑定在一起）<br></code></pre></td></tr></table></figure>
+
+<p><strong>RocketMQ 事务消息的流程</strong>：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-number">1</span>. 生产者发送<span class="hljs-string">&quot;半消息&quot;</span>（Half Message）给 <span class="hljs-keyword">Broker</span><br><span class="hljs-keyword"></span>   → 半消息：对消费者不可见（<span class="hljs-keyword">Broker </span>不会投递给消费者）<br>   ↓<br><span class="hljs-number">2</span>. 生产者执行本地事务（如<span class="hljs-string">&quot;创建订单&quot;</span>数据库事务）<br>   ↓<br><span class="hljs-number">3</span>. 生产者根据本地事务的结果，向 <span class="hljs-keyword">Broker </span>提交<span class="hljs-string">&quot;提交&quot;</span>或<span class="hljs-string">&quot;回滚&quot;</span><br>   → 提交：<span class="hljs-keyword">Broker </span>把半消息标记为<span class="hljs-string">&quot;可投递&quot;</span>（消费者可以消费了）<br>   → 回滚：<span class="hljs-keyword">Broker </span>删除半消息（消费者不会看到这条消息）<br>   ↓<br><span class="hljs-number">4</span>. 如果生产者挂了（没提交也没回滚）<br>   → <span class="hljs-keyword">Broker </span>会定时回查生产者的<span class="hljs-string">&quot;事务状态&quot;</span>（-checkLocalTransaction）<br>   → 生产者根据本地事务的结果，返回<span class="hljs-string">&quot;提交&quot;</span>或<span class="hljs-string">&quot;回滚&quot;</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-11"><a href="#面试加分回答-11" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>RocketMQ 事务消息是<strong>分布式事务</strong>的轻量级解决方案（不用的 2PC &#x2F; TCC 那么重）。但要注意：事务消息<strong>只保证”生产者本地事务和消息发送”的原子性</strong>，不保证”消费者消费成功”（消费者消费失败，需要业务幂等 + 重试）。另外，Kafka 没有原生的事务消息（需要用 Transactional API，但只保证”消息发送”的原子性，不保证本地事务）。</p>
+</blockquote>
+<hr>
+<h3 id="第-48-题：消息队列的消息轨迹（Message-Tracing）最佳实践？"><a href="#第-48-题：消息队列的消息轨迹（Message-Tracing）最佳实践？" class="headerlink" title="第 48 题：消息队列的消息轨迹（Message Tracing）最佳实践？"></a>第 48 题：消息队列的消息轨迹（Message Tracing）最佳实践？</h3><h4 id="一句话结论-12"><a href="#一句话结论-12" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>消息轨迹</strong>：追踪一条消息从”生产 → Broker → 消费”的全链路状态。实现方式：<strong>消息 ID + 分布式链路追踪（SkyWalking &#x2F; Pinpoint）</strong>。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-12"><a href="#深度解析-12" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>消息轨迹的实现方案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>方案 A：消息 ID + DB</td>
+<td>发送时写入 DB（状态&#x3D;SENT），消费后更新 DB（状态&#x3D;CONSUMED）</td>
+<td>简单场景（消息量不大）</td>
+</tr>
+<tr>
+<td>方案 B：分布式链路追踪</td>
+<td>消息里带入 traceId，和 HTTP 请求打通</td>
+<td>复杂场景（微服务链路长）</td>
+</tr>
+<tr>
+<td>方案 C：消息队列自带的轨迹功能</td>
+<td>RocketMQ 有消息轨迹功能（默认关闭）</td>
+<td>RocketMQ 用户</td>
+</tr>
+</tbody></table>
+<p><strong>RocketMQ 消息轨迹的配置</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. Broker 开启消息轨迹（broker.conf）</span><br>traceTopicEnable=<span class="hljs-literal">true</span><br><br><span class="hljs-comment">// 2. 生产者开启消息轨迹</span><br><span class="hljs-type">DefaultMQProducer</span> <span class="hljs-variable">producer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultMQProducer</span>(<span class="hljs-string">&quot;group&quot;</span>, <span class="hljs-literal">true</span>);  <span class="hljs-comment">// true = 开启消息轨迹</span><br><br><span class="hljs-comment">// 3. 消费者开启消息轨迹</span><br><span class="hljs-type">DefaultMQPushConsumer</span> <span class="hljs-variable">consumer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultMQPushConsumer</span>(<span class="hljs-string">&quot;group&quot;</span>, <span class="hljs-literal">true</span>);  <span class="hljs-comment">// true = 开启消息轨迹</span><br><br><span class="hljs-comment">// 4. 查看消息轨迹（RocketMQ 控制台）</span><br><span class="hljs-comment">// http://localhost:8080/message/trace</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-12"><a href="#面试加分回答-12" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>消息轨迹是<strong>生产环境排查问题的利器</strong>。实际项目中，我建议用<strong>分布式链路追踪（SkyWalking &#x2F; Pinpoint）</strong>——不仅可以看到消息的轨迹，还可以看到”HTTP 请求 → 发送消息 → 消费消息 → 写数据库”的完整链路，排查问题非常方便。另外，消息轨迹会产生额外的存储开销（RocketMQ 会创建 <code>RMQ_SYS_TRACE_TOPIC</code> 来存储轨迹数据），所以要定期清理。</p>
+</blockquote>
+<hr>
+<h3 id="第-49-题：消息队列的配额管理（Quota-Management）怎么做？"><a href="#第-49-题：消息队列的配额管理（Quota-Management）怎么做？" class="headerlink" title="第 49 题：消息队列的配额管理（Quota Management）怎么做？"></a>第 49 题：消息队列的配额管理（Quota Management）怎么做？</h3><h4 id="一句话结论-13"><a href="#一句话结论-13" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>配额管理</strong>：限制生产者&#x2F;消费者的 TPS、消息大小、Topic 数量，避免”一个租户用光所有资源”的问题。实现方式：<strong>Broker 端限流</strong>（Kafka 的 Quota）、<strong>客户端限流</strong>（Guava RateLimiter）。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-13"><a href="#深度解析-13" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Kafka 的 Quota 配置</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 限制生产者的 TPS（每秒最多写入 10 MB）</span><br>kafka-configs.sh \<br>  --alter \<br>  --add-config producer_byte_rate=10485760 \<br>  --entity-type clients \<br>  --entity-name producer-group \<br>  --bootstrap-server localhost:9092<br><br><span class="hljs-comment"># 2. 限制消费者的 TPS（每秒最多读取 20 MB）</span><br>kafka-configs.sh \<br>  --alter \<br>  --add-config consumer_byte_rate=20971520 \<br>  --entity-type clients \<br>  --entity-name consumer-group \<br>  --bootstrap-server localhost:9092<br></code></pre></td></tr></table></figure>
+
+<p><strong>RocketMQ 的流控配置</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Broker.conf</span><br># 限制生产者 TPS（每秒最多 <span class="hljs-number">1000</span> 条）<br>sendMessageThreadPoolNums=<span class="hljs-number">16</span><br># 限制消费者 TPS（每秒最多 <span class="hljs-number">2000</span> 条）<br>pullMessageThreadPoolNums=<span class="hljs-number">16</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>客户端限流（Guava RateLimiter）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 生产者限流（每秒最多发送 1000 条）</span><br><span class="hljs-type">RateLimiter</span> <span class="hljs-variable">rateLimiter</span> <span class="hljs-operator">=</span> RateLimiter.create(<span class="hljs-number">1000.0</span>);<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">send</span><span class="hljs-params">(Message message)</span> &#123;<br>    rateLimiter.acquire();  <span class="hljs-comment">// 限流（如果超过 1000 TPS，阻塞等待）</span><br>    producer.send(message);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-13"><a href="#面试加分回答-13" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>配额管理是<strong>多租户消息队列</strong>的必备功能。实际项目中，如果是<strong>私有部署</strong>（公司内部使用），可以不配置配额（大家都是同事，不会故意搞破坏）；但如果是<strong>公有云</strong>（如阿里云 RocketMQ、AWS MSK），必须配置配额（不同租户的 Topic 要隔离，避免相互影响）。另外，Kafka 的 Quota 是基于<strong>client.id</strong> 的（不是基于 Topic），所以如果要限制某个 Topic 的 TPS，需要在客户端配置 <code>client.id=TopicName-producer</code>。</p>
+</blockquote>
+<hr>
+<h3 id="第-50-题：消息队列的压测（Benchmark）怎么做？"><a href="#第-50-题：消息队列的压测（Benchmark）怎么做？" class="headerlink" title="第 50 题：消息队列的压测（Benchmark）怎么做？"></a>第 50 题：消息队列的压测（Benchmark）怎么做？</h3><h4 id="一句话结论-14"><a href="#一句话结论-14" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>消息队列压测</strong>：用压测工具（如 JMeter、Kafka 自带的 <code>kafka-producer-perf-test.sh</code>）模拟高并发，测试 TPS、延迟、吞吐量。核心指标：<strong>TPS（每秒消息数）</strong>、<strong>延迟（P99、P999）</strong>、<strong>磁盘 I&#x2F;O 使用率</strong>。</p>
+</blockquote>
+<hr>
+<h4 id="深度解析-14"><a href="#深度解析-14" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Kafka 自带的压测工具</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 生产者压测（测试发送 TPS）</span><br>kafka-producer-perf-test.sh \<br>  --topic TopicTest \<br>  --num-records 1000000 \<br>  --record-size 1024 \<br>  --throughput -1 \<br>  --producer-props bootstrap.servers=localhost:9092<br><br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># 1000000 records sent, 50000 records/sec (48.83 MB/sec), 200.0 ms avg latency, 500.0 ms max latency</span><br><br><span class="hljs-comment"># 2. 消费者压测（测试消费 TPS）</span><br>kafka-consumer-perf-test.sh \<br>  --topic TopicTest \<br>  --messages 1000000 \<br>  --bootstrap-server localhost:9092<br><br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># data.consumed: 1024 MB, MB.sec: 50.00, records.sec: 50000.0</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>压测的核心指标</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>说明</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TPS</td>
+<td>每秒消息数</td>
+<td>越高越好（如 10 万 TPS）</td>
+</tr>
+<tr>
+<td>延迟（P99）</td>
+<td>99% 的消息延迟小于多少</td>
+<td>越低越好（如 P99 &lt; 10ms）</td>
+</tr>
+<tr>
+<td>磁盘 I&#x2F;O 使用率</td>
+<td>Broker 的磁盘 I&#x2F;O 是否达到瓶颈</td>
+<td>&lt; 80%（避免影响其他进程）</td>
+</tr>
+<tr>
+<td>网络带宽使用率</td>
+<td>Broker 的网络带宽是否达到瓶颈</td>
+<td>&lt; 80%</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="面试加分回答-14"><a href="#面试加分回答-14" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>消息队列的压测是<strong>选型的重要依据</strong>。实际项目中，压测要在<strong>生产环境的硬件配置</strong>上做（不要用笔记本压测，结果不准）。另外，压测时要模拟<strong>真实场景</strong>（消息大小、分区数、副本数都要和生产环境一致），否则压测结果没有参考价值。我们之前选型时，用 3 台 8C 16G 的机器压测 Kafka 和 RocketMQ，Kafka 的 TPS 是 RocketMQ 的 2 倍，所以最终选了 Kafka（我们的场景是日志采集，需要高 TPS）。</p>
+</blockquote>
+<hr>
 
                 
               </div>
