@@ -1,0 +1,3490 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="Kubernetes 面试八股文（傻子都能懂系列） 本文目标：让你彻底理解 Kubernetes 的核心概念、架构、最佳实践，涵盖 BAT 大厂高频面试题，保证傻子都能看懂！   Q1: 请详细解释 Kubernetes 的核心概念（Pod、Node、Cluster）？一句话总结：Kubernetes 是一个容器编排平台，通过 Pod、Node、Cluster 等核心概念，实现容器的自动化部署、扩">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes 面试八股文（傻子都能懂系列）">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/09/2026-06-09-kubernetes-interview-deep/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="Kubernetes 面试八股文（傻子都能懂系列） 本文目标：让你彻底理解 Kubernetes 的核心概念、架构、最佳实践，涵盖 BAT 大厂高频面试题，保证傻子都能看懂！   Q1: 请详细解释 Kubernetes 的核心概念（Pod、Node、Cluster）？一句话总结：Kubernetes 是一个容器编排平台，通过 Pod、Node、Cluster 等核心概念，实现容器的自动化部署、扩">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-09T05:36:00.000Z">
+<meta property="article:modified_time" content="2026-06-09T05:39:58.129Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="傻子都能懂">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="面试">
+<meta property="article:tag" content="高标准">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Kubernetes 面试八股文（傻子都能懂系列） - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Kubernetes 面试八股文（傻子都能懂系列）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-09 13:36" pubdate>
+          2026年6月9日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          127 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Kubernetes 面试八股文（傻子都能懂系列）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Kubernetes-面试八股文（傻子都能懂系列）"><a href="#Kubernetes-面试八股文（傻子都能懂系列）" class="headerlink" title="Kubernetes 面试八股文（傻子都能懂系列）"></a>Kubernetes 面试八股文（傻子都能懂系列）</h1><blockquote>
+<p><strong>本文目标</strong>：让你彻底理解 Kubernetes 的核心概念、架构、最佳实践，涵盖 BAT 大厂高频面试题，保证傻子都能看懂！</p>
+</blockquote>
+<hr>
+<h3 id="Q1-请详细解释-Kubernetes-的核心概念（Pod、Node、Cluster）？"><a href="#Q1-请详细解释-Kubernetes-的核心概念（Pod、Node、Cluster）？" class="headerlink" title="Q1: 请详细解释 Kubernetes 的核心概念（Pod、Node、Cluster）？"></a>Q1: 请详细解释 Kubernetes 的核心概念（Pod、Node、Cluster）？</h3><p><strong>一句话总结</strong>：Kubernetes 是一个容器编排平台，通过 Pod、Node、Cluster 等核心概念，实现容器的自动化部署、扩展和管理。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes（K8s）是一个开源的容器编排平台，用于自动化部署、扩展和管理容器化应用。理解其核心概念是掌握 K8s 的基础。</p>
+<p><strong>1. Pod</strong>：</p>
+<ul>
+<li><strong>定义</strong>：Pod 是 K8s 中最小的可部署单元，包含一个或多个容器。</li>
+<li><strong>特点</strong>：<ul>
+<li>共享网络命名空间（同一个 IP 地址）</li>
+<li>共享存储卷</li>
+<li>生命周期短暂（ephemeral）</li>
+</ul>
+</li>
+<li><strong>类比</strong>：Pod 就像是”豌豆荚”，里面可以有一颗或多颗”豌豆”（容器）。</li>
+<li><strong>实际案例</strong>：<ul>
+<li>一个 Pod 运行一个主容器 + 一个 Sidecar 容器</li>
+<li>例如：主容器运行 Nginx，Sidecar 容器运行日志收集器</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. Node</strong>：</p>
+<ul>
+<li><strong>定义</strong>：Node 是 K8s 中的工作节点，可以是物理机或虚拟机。</li>
+<li><strong>特点</strong>：<ul>
+<li>运行 kubelet（节点代理）</li>
+<li>运行 kube-proxy（网络代理）</li>
+<li>运行容器运行时（Docker、Containerd、CRI-O）</li>
+</ul>
+</li>
+<li><strong>类比</strong>：Node 就像是”工人”，负责执行具体的任务（运行 Pod）。</li>
+<li><strong>实际案例</strong>：<ul>
+<li>一个 K8s 集群可以有多个 Node（例如：3 个 Node）</li>
+<li>每个 Node 可以运行多个 Pod</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. Cluster</strong>：</p>
+<ul>
+<li><strong>定义</strong>：Cluster 是 K8s 集群，包含多个 Node 和 Control Plane 组件。</li>
+<li><strong>特点</strong>：<ul>
+<li>Control Plane：管理集群（API Server、etcd、Scheduler、Controller Manager）</li>
+<li>Worker Node：运行应用（Node、kubelet、kube-proxy、容器运行时）</li>
+</ul>
+</li>
+<li><strong>类比</strong>：Cluster 就像是”工厂”，包含管理层（Control Plane）和工人（Node）。</li>
+<li><strong>实际案例</strong>：<ul>
+<li>一个 K8s 集群包含 1 个 Control Plane Node + 3 个 Worker Node</li>
+<li>Control Plane 负责管理集群，Worker Node 负责运行应用</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. Pod、Node、Cluster 的关系</strong>：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">Cluster（集群）<br>  ├── Control Plane（管理节点）<br>  │   ├── API Server<br>  │   ├── etcd<br>  │   ├── Scheduler<br>  │   └── Controller Manager<br>  └── Worker <span class="hljs-keyword">Node</span><span class="hljs-title">（工作节点）</span><br><span class="hljs-title">      ├── Node</span> <span class="hljs-number">1</span><br>      │   └── Pod <span class="hljs-number">1</span>、Pod <span class="hljs-number">2</span><br>      ├── <span class="hljs-keyword">Node</span> <span class="hljs-title">2</span><br>      │   └── Pod <span class="hljs-number">3</span>、Pod <span class="hljs-number">4</span><br>      └── <span class="hljs-keyword">Node</span> <span class="hljs-title">3</span><br>          └── Pod <span class="hljs-number">5</span>、Pod <span class="hljs-number">6</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Pod、Node、Cluster 的使用场景如下：</p>
+<ol>
+<li><p><strong>开发阶段</strong>：</p>
+<ul>
+<li>开发者创建 Pod 定义（YAML）</li>
+<li>使用 <code>kubectl apply -f pod.yaml</code> 创建 Pod</li>
+<li>在 Pod 中进行开发和测试</li>
+</ul>
+</li>
+<li><p><strong>测试阶段</strong>：</p>
+<ul>
+<li>测试人员创建 Deployment（管理 Pod）</li>
+<li>使用 <code>kubectl apply -f deployment.yaml</code> 创建 Deployment</li>
+<li>在 Pod 中进行测试</li>
+</ul>
+</li>
+<li><p><strong>生产阶段</strong>：</p>
+<ul>
+<li>运维人员管理 Cluster 和 Node</li>
+<li>使用 <code>kubectl get nodes</code> 查看 Node 状态</li>
+<li>使用 <code>kubectl get pods</code> 查看 Pod 状态</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的核心概念包括 Pod（最小可部署单元）、Node（工作节点）、Cluster（集群）。理解这些概念是掌握 K8s 的基础。</p>
+<hr>
+<h3 id="Q2-请详细解释-Kubernetes-的架构（Control-Plane-和-Worker-Node）？"><a href="#Q2-请详细解释-Kubernetes-的架构（Control-Plane-和-Worker-Node）？" class="headerlink" title="Q2: 请详细解释 Kubernetes 的架构（Control Plane 和 Worker Node）？"></a>Q2: 请详细解释 Kubernetes 的架构（Control Plane 和 Worker Node）？</h3><p><strong>一句话总结</strong>：Kubernetes 采用主从架构，Control Plane 负责管理集群，Worker Node 负责运行应用。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 采用主从架构，分为 Control Plane（管理节点）和 Worker Node（工作节点）。理解 K8s 架构是掌握 K8s 的关键。</p>
+<p><strong>1. Control Plane（管理节点）</strong>：</p>
+<ul>
+<li><p><strong>核心组件</strong>：</p>
+<ul>
+<li><strong>API Server（kube-apiserver）</strong>：<ul>
+<li>功能：暴露 K8s API，是集群的入口</li>
+<li>例如：处理 <code>kubectl</code> 命令</li>
+</ul>
+</li>
+<li><strong>etcd</strong>：<ul>
+<li>功能：分布式键值存储，存储集群状态</li>
+<li>例如：存储 Pod 定义、Node 状态</li>
+</ul>
+</li>
+<li><strong>Scheduler（kube-scheduler）</strong>：<ul>
+<li>功能：调度 Pod 到合适的 Node</li>
+<li>例如：根据资源需求、亲和性规则调度 Pod</li>
+</ul>
+</li>
+<li><strong>Controller Manager（kube-controller-manager）</strong>：<ul>
+<li>功能：运行控制器，管理集群状态</li>
+<li>例如：ReplicaSet Controller、Deployment Controller</li>
+</ul>
+</li>
+<li><strong>Cloud Controller Manager（cloud-controller-manager）</strong>：<ul>
+<li>功能：与云厂商 API 交互</li>
+<li>例如：创建负载均衡器、持久化卷</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>类比</strong>：Control Plane 就像是”工厂管理层”，负责决策和协调。</p>
+</li>
+</ul>
+<p><strong>2. Worker Node（工作节点）</strong>：</p>
+<ul>
+<li><p><strong>核心组件</strong>：</p>
+<ul>
+<li><strong>kubelet</strong>：<ul>
+<li>功能：节点代理，管理 Pod 和容器</li>
+<li>例如：确保容器在 Pod 中运行</li>
+</ul>
+</li>
+<li><strong>kube-proxy</strong>：<ul>
+<li>功能：网络代理，实现 Service</li>
+<li>例如：实现 Service 的负载均衡</li>
+</ul>
+</li>
+<li><strong>容器运行时（Container Runtime）</strong>：<ul>
+<li>功能：运行容器</li>
+<li>例如：Docker、Containerd、CRI-O</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>类比</strong>：Worker Node 就像是”工厂工人”，负责执行具体的任务。</p>
+</li>
+</ul>
+<p><strong>3. Control Plane 和 Worker Node 的关系</strong>：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">Control Plane（管理层）<br>  ├── API Server（入口）<br>  ├── etcd（存储）<br>  ├── Scheduler（调度）<br>  └── Controller Manager（控制）<br>  <br>   ↓ 通信（通过 API Server）<br><br>Worker <span class="hljs-keyword">Node</span><span class="hljs-title">（执行层）</span><br><span class="hljs-title">  ├── Node</span> <span class="hljs-number">1</span><br>  │   ├── kubelet（节点代理）<br>  │   ├── kube-proxy（网络代理）<br>  │   └── 容器运行时（Docker）<br>  ├── <span class="hljs-keyword">Node</span> <span class="hljs-title">2</span><br>  │   └── ...<br>  └── <span class="hljs-keyword">Node</span> <span class="hljs-title">3</span><br>      └── ...<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 实际案例</strong>：</p>
+<p><strong>案例：创建一个 Deployment</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 用户执行 <span class="hljs-code">`kubectl apply -f deployment.yaml`</span><br><span class="hljs-bullet">2.</span> kubectl 向 API Server 发送请求<br><span class="hljs-bullet">3.</span> API Server 将 Deployment 定义存储到 etcd<br><span class="hljs-bullet">4.</span> Deployment Controller（在 Controller Manager 中）检测到新的 Deployment<br><span class="hljs-bullet">5.</span> Deployment Controller 创建 ReplicaSet<br><span class="hljs-bullet">6.</span> ReplicaSet Controller 创建 Pod<br><span class="hljs-bullet">7.</span> Scheduler 检测到未调度的 Pod<br><span class="hljs-bullet">8.</span> Scheduler 选择合适的 Node<br><span class="hljs-bullet">9.</span> kubelet（在 Worker Node 上）接收到指令<br><span class="hljs-bullet">10.</span> kubelet 指示容器运行时创建容器<br><span class="hljs-bullet">11.</span> kube-proxy 配置网络规则<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，理解 K8s 架构可以帮助我们更好地管理和排查集群问题：</p>
+<ol>
+<li><p><strong>Control Plane 高可用</strong>：</p>
+<ul>
+<li>生产环境应该部署多个 Control Plane 实例</li>
+<li>例如：3 个 etcd 实例、3 个 API Server 实例</li>
+</ul>
+</li>
+<li><p><strong>Worker Node 扩展</strong>：</p>
+<ul>
+<li>根据负载自动扩展 Worker Node</li>
+<li>例如：使用 Cluster Autoscaler</li>
+</ul>
+</li>
+<li><p><strong>组件监控</strong>：</p>
+<ul>
+<li>监控 Control Plane 组件状态</li>
+<li>例如：监控 API Server、etcd、Scheduler、Controller Manager</li>
+<li>监控 Worker Node 组件状态</li>
+<li>例如：监控 kubelet、kube-proxy、容器运行时</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 采用主从架构，Control Plane 负责管理集群，Worker Node 负责运行应用。理解 K8s 架构是掌握 K8s 的关键。</p>
+<hr>
+<h3 id="Q3-请详细解释-Kubernetes-的对象（Object）？"><a href="#Q3-请详细解释-Kubernetes-的对象（Object）？" class="headerlink" title="Q3: 请详细解释 Kubernetes 的对象（Object）？"></a>Q3: 请详细解释 Kubernetes 的对象（Object）？</h3><p><strong>一句话总结</strong>：Kubernetes 的对象是持久化的实体，代表集群的状态，包括 Pod、Deployment、Service、ConfigMap、Secret 等。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的对象（Object）是持久化的实体，代表集群的状态。理解 K8s 对象是掌握 K8s 的核心。</p>
+<p><strong>1. 常见对象类型</strong>：</p>
+<ul>
+<li><p><strong>Pod</strong>：</p>
+<ul>
+<li>定义：最小的可部署单元</li>
+<li>例如：<code>pod.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>Deployment</strong>：</p>
+<ul>
+<li>定义：管理 Pod 的声明式更新</li>
+<li>例如：<code>deployment.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>Service</strong>：</p>
+<ul>
+<li>定义：暴露 Pod 为网络服务</li>
+<li>例如：<code>service.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>ConfigMap</strong>：</p>
+<ul>
+<li>定义：存储配置数据</li>
+<li>例如：<code>configmap.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>Secret</strong>：</p>
+<ul>
+<li>定义：存储敏感数据</li>
+<li>例如：<code>secret.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>Namespace</strong>：</p>
+<ul>
+<li>定义：逻辑隔离</li>
+<li>例如：<code>namespace.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>PersistentVolume（PV）</strong>：</p>
+<ul>
+<li>定义：持久化存储</li>
+<li>例如：<code>pv.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>PersistentVolumeClaim（PVC）</strong>：</p>
+<ul>
+<li>定义：请求持久化存储</li>
+<li>例如：<code>pvc.yaml</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 对象规范（Object Spec）</strong>：</p>
+<ul>
+<li><strong>定义</strong>：对象的期望状态（Desired State）</li>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-deployment</span><br><span class="hljs-attr">spec:</span>  <span class="hljs-comment"># 对象规范</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">nginx:1.14.2</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">80</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. 对象状态（Object Status）</strong>：</p>
+<ul>
+<li><strong>定义</strong>：对象的当前状态（Current State）</li>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">status:</span>  <span class="hljs-comment"># 对象状态</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">readyReplicas:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">updatedReplicas:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">conditions:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">type:</span> <span class="hljs-string">Available</span><br>    <span class="hljs-attr">status:</span> <span class="hljs-string">&quot;True&quot;</span><br>    <span class="hljs-attr">reason:</span> <span class="hljs-string">MinimumReplicasAvailable</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. 对象实际操作（Actual State）</strong>：</p>
+<ul>
+<li><strong>定义</strong>：对象的实际情况</li>
+<li><strong>查看方法</strong>：<ul>
+<li>使用 <code>kubectl get</code> 查看对象列表</li>
+<li>使用 <code>kubectl describe</code> 查看对象详情</li>
+<li>使用 <code>kubectl get -o yaml</code> 查看对象 YAML</li>
+</ul>
+</li>
+</ul>
+<p><strong>5. 实际案例</strong>：</p>
+<p><strong>案例：创建一个 Deployment</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># deployment.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-deployment</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">nginx:1.14.2</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">80</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>执行命令</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Deployment</span><br>kubectl apply -f deployment.yaml<br><br><span class="hljs-comment"># 查看 Deployment 列表</span><br>kubectl get deployments<br><br><span class="hljs-comment"># 查看 Deployment 详情</span><br>kubectl describe deployment nginx-deployment<br><br><span class="hljs-comment"># 查看 Deployment YAML</span><br>kubectl get deployment nginx-deployment -o yaml<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，理解 K8s 对象可以帮助我们更好地管理应用：</p>
+<ol>
+<li><p><strong>使用声明式配置（Declarative Configuration）</strong>：</p>
+<ul>
+<li>使用 YAML 文件定义对象</li>
+<li>例如：<code>kubectl apply -f deployment.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>使用命令式配置（Imperative Configuration）</strong>：</p>
+<ul>
+<li>使用 <code>kubectl</code> 命令直接创建对象</li>
+<li>例如：<code>kubectl create deployment nginx --image=nginx</code></li>
+</ul>
+</li>
+<li><p><strong>使用对象状态（Object Status）排查问题</strong>：</p>
+<ul>
+<li>使用 <code>kubectl describe</code> 查看对象状态和事件</li>
+<li>例如：<code>kubectl describe pod nginx-pod</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的对象是持久化的实体，代表集群的状态。理解 K8s 对象是掌握 K8s 的核心。</p>
+<hr>
+<h3 id="Q4-请详细解释-Kubernetes-的控制器（Controller）？"><a href="#Q4-请详细解释-Kubernetes-的控制器（Controller）？" class="headerlink" title="Q4: 请详细解释 Kubernetes 的控制器（Controller）？"></a>Q4: 请详细解释 Kubernetes 的控制器（Controller）？</h3><p><strong>一句话总结</strong>：Kubernetes 的控制器是控制循环，负责将对象的实际状态调整为期望状态。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的控制器（Controller）是控制循环，负责将对象的实际状态调整为期望状态。理解 K8s 控制器是掌握 K8s 的核心。</p>
+<p><strong>1. 控制器工作原理</strong>：</p>
+<ul>
+<li><p><strong>控制循环（Control Loop）</strong>：</p>
+<ul>
+<li>读取对象期望状态（Desired State）</li>
+<li>读取对象实际状态（Actual State）</li>
+<li>如果期望状态 ≠ 实际状态，执行操作使实际状态 &#x3D; 期望状态</li>
+</ul>
+</li>
+<li><p><strong>类比</strong>：控制器就像是”恒温器”，负责将室内温度调整为期望温度。</p>
+</li>
+</ul>
+<p><strong>2. 常见控制器类型</strong>：</p>
+<ul>
+<li><p><strong>ReplicaSet Controller</strong>：</p>
+<ul>
+<li>功能：确保 Pod 副本数符合期望</li>
+<li>例如：确保 3 个 Pod 副本正在运行</li>
+</ul>
+</li>
+<li><p><strong>Deployment Controller</strong>：</p>
+<ul>
+<li>功能：管理 ReplicaSet 和 Pod 的声明式更新</li>
+<li>例如：滚动更新、回滚</li>
+</ul>
+</li>
+<li><p><strong>StatefulSet Controller</strong>：</p>
+<ul>
+<li>功能：管理有状态应用</li>
+<li>例如：确保 Pod 有稳定的网络标识和持久化存储</li>
+</ul>
+</li>
+<li><p><strong>DaemonSet Controller</strong>：</p>
+<ul>
+<li>功能：确保每个 Node 都运行一个 Pod 副本</li>
+<li>例如：日志收集器、监控代理</li>
+</ul>
+</li>
+<li><p><strong>Job Controller</strong>：</p>
+<ul>
+<li>功能：管理批处理任务</li>
+<li>例如：数据库迁移、数据备份</li>
+</ul>
+</li>
+<li><p><strong>CronJob Controller</strong>：</p>
+<ul>
+<li>功能：管理定时任务</li>
+<li>例如：每天凌晨 2 点执行数据备份</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 控制器实际案例</strong>：</p>
+<p><strong>案例：Deployment 滚动更新</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 用户执行 <span class="hljs-code">`kubectl set image deployment/nginx-deployment nginx=nginx:1.16.1 --record`</span><br><span class="hljs-bullet">2.</span> Deployment Controller 检测到 Deployment 更新<br><span class="hljs-bullet">3.</span> Deployment Controller 创建新的 ReplicaSet<br><span class="hljs-bullet">4.</span> ReplicaSet Controller 创建新的 Pod<br><span class="hljs-bullet">5.</span> Scheduler 调度新的 Pod 到 Node<br><span class="hljs-bullet">6.</span> kubelet 创建新的容器<br><span class="hljs-bullet">7.</span> Deployment Controller 逐步增加新 ReplicaSet 的 Pod 副本数<br><span class="hljs-bullet">8.</span> Deployment Controller 逐步减少旧 ReplicaSet 的 Pod 副本数<br><span class="hljs-bullet">9.</span> 滚动更新完成<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 控制器最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 Deployment 管理无状态应用</strong>：</p>
+<ul>
+<li>例如：Web 应用、API 服务</li>
+</ul>
+</li>
+<li><p><strong>使用 StatefulSet 管理有状态应用</strong>：</p>
+<ul>
+<li>例如：数据库、消息队列</li>
+</ul>
+</li>
+<li><p><strong>使用 DaemonSet 管理 Node 守护进程</strong>：</p>
+<ul>
+<li>例如：日志收集器、监控代理</li>
+</ul>
+</li>
+<li><p><strong>使用 Job 管理批处理任务</strong>：</p>
+<ul>
+<li>例如：数据库迁移、数据备份</li>
+</ul>
+</li>
+<li><p><strong>使用 CronJob 管理定时任务</strong>：</p>
+<ul>
+<li>例如：每天凌晨 2 点执行数据备份</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，理解 K8s 控制器可以帮助我们更好地管理应用：</p>
+<ol>
+<li><p><strong>选择合适的控制器</strong>：</p>
+<ul>
+<li>无状态应用 → Deployment</li>
+<li>有状态应用 → StatefulSet</li>
+<li>Node 守护进程 → DaemonSet</li>
+<li>批处理任务 → Job</li>
+<li>定时任务 → CronJob</li>
+</ul>
+</li>
+<li><p><strong>监控控制器状态</strong>：</p>
+<ul>
+<li>使用 <code>kubectl get</code> 查看控制器状态</li>
+<li>例如：<code>kubectl get deployments</code></li>
+<li>使用 <code>kubectl describe</code> 查看控制器事件</li>
+<li>例如：<code>kubectl describe deployment nginx-deployment</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的控制器是控制循环，负责将对象的实际状态调整为期望状态。理解 K8s 控制器是掌握 K8s 的核心。</p>
+<hr>
+<h3 id="Q5-请详细解释-Kubernetes-的调度（Scheduling）？"><a href="#Q5-请详细解释-Kubernetes-的调度（Scheduling）？" class="headerlink" title="Q5: 请详细解释 Kubernetes 的调度（Scheduling）？"></a>Q5: 请详细解释 Kubernetes 的调度（Scheduling）？</h3><p><strong>一句话总结</strong>：Kubernetes 的调度是将 Pod 分配到合适的 Node，考虑资源需求、亲和性规则、污点和容忍等。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的调度（Scheduling）是将 Pod 分配到合适的 Node。理解 K8s 调度是掌握 K8s 的关键。</p>
+<p><strong>1. 调度流程</strong>：</p>
+<ul>
+<li><p><strong>步骤 1：过滤（Filtering）</strong>：</p>
+<ul>
+<li>Scheduler 过滤掉不符合条件的 Node</li>
+<li>例如：Node 资源不足、Node 有污点且 Pod 没有容忍</li>
+</ul>
+</li>
+<li><p><strong>步骤 2：打分（Scoring）</strong>：</p>
+<ul>
+<li>Scheduler 对符合条件的 Node 打分</li>
+<li>例如：资源使用率低的 Node 得分高</li>
+</ul>
+</li>
+<li><p><strong>步骤 3：绑定（Binding）</strong>：</p>
+<ul>
+<li>Scheduler 将 Pod 绑定到得分最高的 Node</li>
+<li>例如：更新 Pod 的 <code>nodeName</code> 字段</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 调度影响因素</strong>：</p>
+<ul>
+<li><p><strong>资源需求（Resource Requirements）</strong>：</p>
+<ul>
+<li>Pod 的 <code>requests</code> 和 <code>limits</code></li>
+<li>例如：<code>resources: { requests: { cpu: 100m, memory: 128Mi } }</code></li>
+</ul>
+</li>
+<li><p><strong>节点亲和性（Node Affinity）</strong>：</p>
+<ul>
+<li>硬亲和性（requiredDuringSchedulingIgnoredDuringExecution）</li>
+<li>软亲和性（preferredDuringSchedulingIgnoredDuringExecution）</li>
+<li>例如：Pod 必须运行在带有 <code>disktype=ssd</code> 标签的 Node 上</li>
+</ul>
+</li>
+<li><p><strong>Pod 亲和性（Pod Affinity）</strong>：</p>
+<ul>
+<li>硬亲和性（requiredDuringSchedulingIgnoredDuringExecution）</li>
+<li>软亲和性（preferredDuringSchedulingIgnoredDuringExecution）</li>
+<li>例如：Pod 必须运行在与其他特定 Pod 相同的 Node 或可用区</li>
+</ul>
+</li>
+<li><p><strong>Pod 反亲和性（Pod Anti-Affinity）</strong>：</p>
+<ul>
+<li>硬反亲和性（requiredDuringSchedulingIgnoredDuringExecution）</li>
+<li>软反亲和性（preferredDuringSchedulingIgnoredDuringExecution）</li>
+<li>例如：Pod 不能运行在与其他特定 Pod 相同的 Node 或可用区</li>
+</ul>
+</li>
+<li><p><strong>污点和容忍（Taints and Tolerations）</strong>：</p>
+<ul>
+<li>污点（Taint）：Node 拒绝 Pod 运行</li>
+<li>容忍（Toleration）：Pod 可以容忍 Node 的污点</li>
+<li>例如：Node 有 <code>disk=ssd:NoSchedule</code> 污点，只有容忍这个污点的 Pod 才能运行在这个 Node 上</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 调度实际案例</strong>：</p>
+<p><strong>案例：使用节点亲和性调度 Pod</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pod-with-node-affinity.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pod-with-node-affinity</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">affinity:</span><br>    <span class="hljs-attr">nodeAffinity:</span><br>      <span class="hljs-attr">requiredDuringSchedulingIgnoredDuringExecution:</span><br>        <span class="hljs-attr">nodeSelectorTerms:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">matchExpressions:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">key:</span> <span class="hljs-string">disktype</span><br>            <span class="hljs-attr">operator:</span> <span class="hljs-string">In</span><br>            <span class="hljs-attr">values:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">ssd</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">nginx</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>执行命令</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Pod</span><br>kubectl apply -f pod-with-node-affinity.yaml<br><br><span class="hljs-comment"># 查看 Pod 调度结果</span><br>kubectl get pod pod-with-node-affinity -o wide<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 调度最佳实践</strong>：</p>
+<ul>
+<li><p><strong>设置合理的资源请求和限制</strong>：</p>
+<ul>
+<li>例如：<code>resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }</code></li>
+</ul>
+</li>
+<li><p><strong>使用节点亲和性</strong>：</p>
+<ul>
+<li>例如：将 Pod 调度到带有 <code>disktype=ssd</code> 标签的 Node 上</li>
+</ul>
+</li>
+<li><p><strong>使用 Pod 亲和性和反亲和性</strong>：</p>
+<ul>
+<li>例如：将 Pod 调度到与其他特定 Pod 相同的 Node 或可用区</li>
+<li>例如：将 Pod 调度到与其他特定 Pod 不同的 Node 或可用区</li>
+</ul>
+</li>
+<li><p><strong>使用污点和容忍</strong>：</p>
+<ul>
+<li>例如：将 Master Node 标记为 <code>node-role.kubernetes.io/master:NoSchedule</code>，只有容忍这个污点的 Pod 才能运行在 Master Node 上</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，理解 K8s 调度可以帮助我们更好地管理集群资源：</p>
+<ol>
+<li><p><strong>合理设置资源请求和限制</strong>：</p>
+<ul>
+<li>避免资源浪费或资源不足</li>
+</ul>
+</li>
+<li><p><strong>使用亲和性和反亲和性</strong>：</p>
+<ul>
+<li>提高应用可用性和性能</li>
+</ul>
+</li>
+<li><p><strong>使用污点和容忍</strong>：</p>
+<ul>
+<li>保护关键 Node（例如：Master Node）</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的调度是将 Pod 分配到合适的 Node，考虑资源需求、亲和性规则、污点和容忍等。理解 K8s 调度是掌握 K8s 的关键。</p>
+<hr>
+<h3 id="Q6-请详细解释-Kubernetes-的服务发现和负载均衡（Service-Discovery-and-Load-Balancing）？"><a href="#Q6-请详细解释-Kubernetes-的服务发现和负载均衡（Service-Discovery-and-Load-Balancing）？" class="headerlink" title="Q6: 请详细解释 Kubernetes 的服务发现和负载均衡（Service Discovery and Load Balancing）？"></a>Q6: 请详细解释 Kubernetes 的服务发现和负载均衡（Service Discovery and Load Balancing）？</h3><p><strong>一句话总结</strong>：Kubernetes 的服务发现是通过 Service 实现的，负载均衡是通过 kube-proxy 和 Service 实现的。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的服务发现和负载均衡是确保应用可以相互发现和通信的关键。理解 K8s 服务发现和负载均衡是掌握 K8s 的核心。</p>
+<p><strong>1. 服务发现（Service Discovery）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li><strong>Service</strong>：暴露 Pod 为网络服务</li>
+<li><strong>DNS</strong>：解析 Service 名称为 IP 地址</li>
+</ul>
+</li>
+<li><p><strong>Service 类型</strong>：</p>
+<ul>
+<li><strong>ClusterIP（默认）</strong>：<ul>
+<li>功能：暴露 Service 为集群内部 IP 地址</li>
+<li>例如：<code>type: ClusterIP</code></li>
+</ul>
+</li>
+<li><strong>NodePort</strong>：<ul>
+<li>功能：暴露 Service 为每个 Node 的静态端口</li>
+<li>例如：<code>type: NodePort</code></li>
+</ul>
+</li>
+<li><strong>LoadBalancer</strong>：<ul>
+<li>功能：暴露 Service 为云厂商的负载均衡器</li>
+<li>例如：<code>type: LoadBalancer</code></li>
+</ul>
+</li>
+<li><strong>ExternalName</strong>：<ul>
+<li>功能：暴露 Service 为外部 DNS 名称</li>
+<li>例如：<code>type: ExternalName</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 负载均衡（Load Balancing）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li><strong>kube-proxy</strong>：实现 Service 的负载均衡</li>
+<li><strong>负载均衡算法</strong>：随机（Random）、轮询（Round Robin）</li>
+</ul>
+</li>
+<li><p><strong>kube-proxy 模式</strong>：</p>
+<ul>
+<li><strong>iptables 模式（默认）</strong>：<ul>
+<li>功能：使用 iptables 规则实现负载均衡</li>
+<li>优点：性能好</li>
+<li>缺点：规则多时性能下降</li>
+</ul>
+</li>
+<li><strong>IPVS 模式</strong>：<ul>
+<li>功能：使用 IPVS 实现负载均衡</li>
+<li>优点：性能好，支持多种负载均衡算法</li>
+<li>缺点：需要操作系统支持 IPVS</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 服务发现和负载均衡实际案例</strong>：</p>
+<p><strong>案例：创建一个 Service</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># service.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-service</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">80</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">ClusterIP</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>执行命令</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Service</span><br>kubectl apply -f service.yaml<br><br><span class="hljs-comment"># 查看 Service 列表</span><br>kubectl get services<br><br><span class="hljs-comment"># 查看 Service 详情</span><br>kubectl describe service nginx-service<br><br><span class="hljs-comment"># 在 Pod 中访问 Service</span><br>kubectl <span class="hljs-built_in">exec</span> -it pod-name -- curl http://nginx-service<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 服务发现和负载均衡最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 ClusterIP 类型的 Service</strong>：</p>
+<ul>
+<li>例如：集群内部通信</li>
+</ul>
+</li>
+<li><p><strong>使用 NodePort 类型的 Service</strong>：</p>
+<ul>
+<li>例如：外部访问（不推荐，推荐使用 LoadBalancer 或 Ingress）</li>
+</ul>
+</li>
+<li><p><strong>使用 LoadBalancer 类型的 Service</strong>：</p>
+<ul>
+<li>例如：外部访问（云环境）</li>
+</ul>
+</li>
+<li><p><strong>使用 Ingress</strong>：</p>
+<ul>
+<li>例如：HTTP&#x2F;HTTPS 路由</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，理解 K8s 服务发现和负载均衡可以帮助我们更好地设计应用架构：</p>
+<ol>
+<li><p><strong>集群内部通信</strong>：</p>
+<ul>
+<li>使用 ClusterIP 类型的 Service</li>
+</ul>
+</li>
+<li><p><strong>外部访问</strong>：</p>
+<ul>
+<li>使用 LoadBalancer 类型的 Service（云环境）</li>
+<li>使用 Ingress（HTTP&#x2F;HTTPS 路由）</li>
+</ul>
+</li>
+<li><p><strong>性能优化</strong>：</p>
+<ul>
+<li>使用 IPVS 模式的 kube-proxy</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的服务发现是通过 Service 实现的，负载均衡是通过 kube-proxy 和 Service 实现的。理解 K8s 服务发现和负载均衡是掌握 K8s 的核心。</p>
+<hr>
+<h3 id="Q7-请详细解释-Kubernetes-的存储（Storage）？"><a href="#Q7-请详细解释-Kubernetes-的存储（Storage）？" class="headerlink" title="Q7: 请详细解释 Kubernetes 的存储（Storage）？"></a>Q7: 请详细解释 Kubernetes 的存储（Storage）？</h3><p><strong>一句话总结</strong>：Kubernetes 的存储是通过 Volume、PersistentVolume（PV）、PersistentVolumeClaim（PVC）、StorageClass 等实现的，支持多种存储后端。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的存储是确保数据持久化的关键。理解 K8s 存储是掌握 K8s 的核心。</p>
+<p><strong>1. 存储核心概念</strong>：</p>
+<ul>
+<li><p><strong>Volume</strong>：</p>
+<ul>
+<li>定义：存储卷，可以挂载到 Pod</li>
+<li>例如：<code>volumes: [ { name: my-volume, emptyDir: {} } ]</code></li>
+</ul>
+</li>
+<li><p><strong>PersistentVolume（PV）</strong>：</p>
+<ul>
+<li>定义：持久化存储卷，独立于 Pod 生命周期</li>
+<li>例如：<code>kind: PersistentVolume</code></li>
+</ul>
+</li>
+<li><p><strong>PersistentVolumeClaim（PVC）</strong>：</p>
+<ul>
+<li>定义：请求持久化存储卷</li>
+<li>例如：<code>kind: PersistentVolumeClaim</code></li>
+</ul>
+</li>
+<li><p><strong>StorageClass</strong>：</p>
+<ul>
+<li>定义：动态创建 PV 的模板</li>
+<li>例如：<code>kind: StorageClass</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 存储类型</strong>：</p>
+<ul>
+<li><p><strong>emptyDir</strong>：</p>
+<ul>
+<li>功能：临时存储，Pod 删除后数据丢失</li>
+<li>例如：Pod 内多个容器共享数据</li>
+</ul>
+</li>
+<li><p><strong>hostPath</strong>：</p>
+<ul>
+<li>功能：挂载宿主机目录到 Pod</li>
+<li>例如：挂载宿主机 <code>/data</code> 目录到 Pod</li>
+</ul>
+</li>
+<li><p><strong>persistentVolumeClaim</strong>：</p>
+<ul>
+<li>功能：挂载 PVC 到 Pod</li>
+<li>例如：挂载 PVC 到 Pod 的 <code>/data</code> 目录</li>
+</ul>
+</li>
+<li><p><strong>configMap 和 secret</strong>：</p>
+<ul>
+<li>功能：挂载 ConfigMap 或 Secret 到 Pod</li>
+<li>例如：挂载 ConfigMap 到 Pod 的 <code>/config</code> 目录</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 存储实际案例</strong>：</p>
+<p><strong>案例：使用 PVC 持久化数据</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pvc.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolumeClaim</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">mysql-pvc</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">resources:</span><br>    <span class="hljs-attr">requests:</span><br>      <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br>  <span class="hljs-attr">storageClassName:</span> <span class="hljs-string">standard</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pod.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">mysql-pod</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">mysql</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">mysql:8.0</span><br>    <span class="hljs-attr">volumeMounts:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">mysql-storage</span><br>      <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/var/lib/mysql</span><br>  <span class="hljs-attr">volumes:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">mysql-storage</span><br>    <span class="hljs-attr">persistentVolumeClaim:</span><br>      <span class="hljs-attr">claimName:</span> <span class="hljs-string">mysql-pvc</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>执行命令</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 PVC</span><br>kubectl apply -f pvc.yaml<br><br><span class="hljs-comment"># 创建 Pod</span><br>kubectl apply -f pod.yaml<br><br><span class="hljs-comment"># 查看 PVC 状态</span><br>kubectl get pvc<br><br><span class="hljs-comment"># 查看 PV 状态</span><br>kubectl get pv<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 存储最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 PVC 持久化数据</strong>：</p>
+<ul>
+<li>例如：数据库数据、日志文件</li>
+</ul>
+</li>
+<li><p><strong>使用 StorageClass 动态创建 PV</strong>：</p>
+<ul>
+<li>例如：云环境使用 <code>standard</code> StorageClass</li>
+</ul>
+</li>
+<li><p><strong>选择合适的访问模式</strong>：</p>
+<ul>
+<li><code>ReadWriteOnce（RWO）</code>：单个 Node 读写</li>
+<li><code>ReadOnlyMany（ROX）</code>：多个 Node 只读</li>
+<li><code>ReadWriteMany（RWX）</code>：多个 Node 读写</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，理解 K8s 存储可以帮助我们更好地管理数据：</p>
+<ol>
+<li><p><strong>开发环境</strong>：</p>
+<ul>
+<li>使用 <code>emptyDir</code> 或 <code>hostPath</code></li>
+</ul>
+</li>
+<li><p><strong>生产环境</strong>：</p>
+<ul>
+<li>使用 PVC 和 StorageClass</li>
+</ul>
+</li>
+<li><p><strong>备份策略</strong>：</p>
+<ul>
+<li>定期备份 PV 数据</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的存储是通过 Volume、PersistentVolume（PV）、PersistentVolumeClaim（PVC）、StorageClass 等实现的。理解 K8s 存储是掌握 K8s 的核心。</p>
+<hr>
+<h3 id="Q8-请详细解释-Kubernetes-的配置管理（Configuration-Management）？"><a href="#Q8-请详细解释-Kubernetes-的配置管理（Configuration-Management）？" class="headerlink" title="Q8: 请详细解释 Kubernetes 的配置管理（Configuration Management）？"></a>Q8: 请详细解释 Kubernetes 的配置管理（Configuration Management）？</h3><p><strong>一句话总结</strong>：Kubernetes 的配置管理是通过 ConfigMap 和 Secret 实现的，支持多种配置方式。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的配置管理是确保应用配置可管理、安全的关键。理解 K8s 配置管理是掌握 K8s 的核心。</p>
+<p><strong>1. 配置管理核心概念</strong>：</p>
+<ul>
+<li><p><strong>ConfigMap</strong>：</p>
+<ul>
+<li>定义：存储配置数据</li>
+<li>例如：<code>kind: ConfigMap</code></li>
+</ul>
+</li>
+<li><p><strong>Secret</strong>：</p>
+<ul>
+<li>定义：存储敏感数据</li>
+<li>例如：<code>kind: Secret</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>2. ConfigMap 使用方法</strong>：</p>
+<ul>
+<li><p><strong>创建 ConfigMap</strong>：</p>
+<ul>
+<li>使用 <code>kubectl create configmap</code> 命令</li>
+<li>例如：<code>kubectl create configmap my-config --from-literal=key1=value1</code></li>
+</ul>
+</li>
+<li><p><strong>使用 ConfigMap</strong>：</p>
+<ul>
+<li>作为环境变量</li>
+<li>例如：<code>env: [ { name: KEY1, valueFrom: { configMapKeyRef: { name: my-config, key: key1 } } ] ]</code></li>
+<li>作为文件</li>
+<li>例如：<code>volumes: [ { name: config-volume, configMap: { name: my-config } } ]</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>3. Secret 使用方法</strong>：</p>
+<ul>
+<li><p><strong>创建 Secret</strong>：</p>
+<ul>
+<li>使用 <code>kubectl create secret</code> 命令</li>
+<li>例如：<code>kubectl create secret generic my-secret --from-literal=password=secret</code></li>
+</ul>
+</li>
+<li><p><strong>使用 Secret</strong>：</p>
+<ul>
+<li>作为环境变量</li>
+<li>例如：<code>env: [ { name: PASSWORD, valueFrom: { secretKeyRef: { name: my-secret, key: password } } ] ]</code></li>
+<li>作为文件</li>
+<li>例如：<code>volumes: [ { name: secret-volume, secret: { secretName: my-secret } } ]</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>4. 配置管理实际案例</strong>：</p>
+<p><strong>案例：使用 ConfigMap 和 Secret</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># configmap.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">ConfigMap</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">app-config</span><br><span class="hljs-attr">data:</span><br>  <span class="hljs-attr">database_url:</span> <span class="hljs-string">&quot;localhost:3306&quot;</span><br>  <span class="hljs-attr">log_level:</span> <span class="hljs-string">&quot;info&quot;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># secret.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Secret</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">app-secret</span><br><span class="hljs-attr">type:</span> <span class="hljs-string">Opaque</span><br><span class="hljs-attr">data:</span><br>  <span class="hljs-attr">database_password:</span> <span class="hljs-string">c2VjcmV0</span>  <span class="hljs-comment"># base64 编码的 &quot;secret&quot;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pod.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">app-pod</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">app</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">app:latest</span><br>    <span class="hljs-attr">env:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">DATABASE_URL</span><br>      <span class="hljs-attr">valueFrom:</span><br>        <span class="hljs-attr">configMapKeyRef:</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">app-config</span><br>          <span class="hljs-attr">key:</span> <span class="hljs-string">database_url</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">DATABASE_PASSWORD</span><br>      <span class="hljs-attr">valueFrom:</span><br>        <span class="hljs-attr">secretKeyRef:</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">app-secret</span><br>          <span class="hljs-attr">key:</span> <span class="hljs-string">database_password</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>执行命令</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 ConfigMap</span><br>kubectl apply -f configmap.yaml<br><br><span class="hljs-comment"># 创建 Secret</span><br>kubectl apply -f secret.yaml<br><br><span class="hljs-comment"># 创建 Pod</span><br>kubectl apply -f pod.yaml<br><br><span class="hljs-comment"># 查看 ConfigMap</span><br>kubectl get configmaps<br><br><span class="hljs-comment"># 查看 Secret</span><br>kubectl get secrets<br></code></pre></td></tr></table></figure>
+
+<p><strong>5. 配置管理最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 ConfigMap 存储配置数据</strong>：</p>
+<ul>
+<li>例如：数据库 URL、日志级别</li>
+</ul>
+</li>
+<li><p><strong>使用 Secret 存储敏感数据</strong>：</p>
+<ul>
+<li>例如：数据库密码、API 密钥</li>
+</ul>
+</li>
+<li><p><strong>不要在 Pod 定义中硬编码配置</strong>：</p>
+<ul>
+<li>例如：使用 ConfigMap 和 Secret</li>
+</ul>
+</li>
+<li><p><strong>定期轮换 Secret</strong>：</p>
+<ul>
+<li>例如：定期更改数据库密码</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，理解 K8s 配置管理可以帮助我们更好地管理应用配置：</p>
+<ol>
+<li><p><strong>开发环境</strong>：</p>
+<ul>
+<li>使用 ConfigMap 存储配置数据</li>
+</ul>
+</li>
+<li><p><strong>生产环境</strong>：</p>
+<ul>
+<li>使用 Secret 存储敏感数据</li>
+<li>启用 Secret 加密（K8s 1.13+）</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的配置管理是通过 ConfigMap 和 Secret 实现的。理解 K8s 配置管理是掌握 K8s 的核心。</p>
+<hr>
+<h3 id="Q9-请详细解释-Kubernetes-的安全（Security）？"><a href="#Q9-请详细解释-Kubernetes-的安全（Security）？" class="headerlink" title="Q9: 请详细解释 Kubernetes 的安全（Security）？"></a>Q9: 请详细解释 Kubernetes 的安全（Security）？</h3><p><strong>一句话总结</strong>：Kubernetes 的安全是通过认证、授权、准入控制、网络策略、安全上下文等实现的。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的安全是确保集群和应用安全的关键。理解 K8s 安全是掌握 K8s 的核心。</p>
+<p><strong>1. 安全核心概念</strong>：</p>
+<ul>
+<li><p><strong>认证（Authentication）</strong>：</p>
+<ul>
+<li>验证用户或服务的身份</li>
+<li>例如：客户端证书、Bearer Token、用户名密码</li>
+</ul>
+</li>
+<li><p><strong>授权（Authorization）</strong>：</p>
+<ul>
+<li>验证用户或服务是否有权限执行操作</li>
+<li>例如：RBAC（基于角色的访问控制）</li>
+</ul>
+</li>
+<li><p><strong>准入控制（Admission Control）</strong>：</p>
+<ul>
+<li>拦截 API 请求，验证或修改对象</li>
+<li>例如：Pod Security Policy、Resource Quota</li>
+</ul>
+</li>
+<li><p><strong>网络策略（Network Policy）</strong>：</p>
+<ul>
+<li>控制 Pod 之间的网络流量</li>
+<li>例如：只允许特定 Pod 访问数据库 Pod</li>
+</ul>
+</li>
+<li><p><strong>安全上下文（Security Context）</strong>：</p>
+<ul>
+<li>设置 Pod 或容器的安全参数</li>
+<li>例如：以非 root 用户运行容器</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. RBAC（基于角色的访问控制）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li><strong>Role</strong>：定义命名空间内的权限</li>
+<li><strong>ClusterRole</strong>：定义集群范围内的权限</li>
+<li><strong>RoleBinding</strong>：将 Role 绑定到用户或服务账户</li>
+<li><strong>ClusterRoleBinding</strong>：将 ClusterRole 绑定到用户或服务账户</li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># role.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">rbac.authorization.k8s.io/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Role</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pod-reader</span><br><span class="hljs-attr">rules:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">apiGroups:</span> [<span class="hljs-string">&quot;&quot;</span>]<br>  <span class="hljs-attr">resources:</span> [<span class="hljs-string">&quot;pods&quot;</span>]<br>  <span class="hljs-attr">verbs:</span> [<span class="hljs-string">&quot;get&quot;</span>, <span class="hljs-string">&quot;watch&quot;</span>, <span class="hljs-string">&quot;list&quot;</span>]<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. 网络策略（Network Policy）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li>控制 Pod 之间的网络流量</li>
+<li>例如：只允许特定 Pod 访问数据库 Pod</li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># network-policy.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">networking.k8s.io/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">NetworkPolicy</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">db-network-policy</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">podSelector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">role:</span> <span class="hljs-string">db</span><br>  <span class="hljs-attr">ingress:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">from:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">podSelector:</span><br>        <span class="hljs-attr">matchLabels:</span><br>          <span class="hljs-attr">role:</span> <span class="hljs-string">api</span><br>    <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">3306</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. 安全上下文（Security Context）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li>设置 Pod 或容器的安全参数</li>
+<li>例如：以非 root 用户运行容器</li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pod.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">security-context-pod</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">securityContext:</span><br>    <span class="hljs-attr">runAsUser:</span> <span class="hljs-number">1000</span><br>    <span class="hljs-attr">runAsGroup:</span> <span class="hljs-number">3000</span><br>    <span class="hljs-attr">fsGroup:</span> <span class="hljs-number">2000</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">nginx</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>5. 安全最佳实践</strong>：</p>
+<ul>
+<li><p><strong>启用 RBAC</strong>：</p>
+<ul>
+<li>例如：使用 <code>--authorization-mode=RBAC</code> 启动 API Server</li>
+</ul>
+</li>
+<li><p><strong>使用网络策略</strong>：</p>
+<ul>
+<li>例如：限制 Pod 之间的网络流量</li>
+</ul>
+</li>
+<li><p><strong>使用安全上下文</strong>：</p>
+<ul>
+<li>例如：以非 root 用户运行容器</li>
+</ul>
+</li>
+<li><p><strong>定期轮换证书</strong>：</p>
+<ul>
+<li>例如：定期轮换 API Server 证书</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，理解 K8s 安全可以帮助我们更好地保护集群和应用：</p>
+<ol>
+<li><p><strong>认证和授权</strong>：</p>
+<ul>
+<li>启用 RBAC</li>
+</ul>
+</li>
+<li><p><strong>网络隔离</strong>：</p>
+<ul>
+<li>使用网络策略</li>
+</ul>
+</li>
+<li><p><strong>容器安全</strong>：</p>
+<ul>
+<li>使用安全上下文、使用最小化基础镜像</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的安全是通过认证、授权、准入控制、网络策略、安全上下文等实现的。理解 K8s 安全是掌握 K8s 的核心。</p>
+<hr>
+<h3 id="Q10-请详细解释-Kubernetes-的监控和日志（Monitoring-and-Logging）？"><a href="#Q10-请详细解释-Kubernetes-的监控和日志（Monitoring-and-Logging）？" class="headerlink" title="Q10: 请详细解释 Kubernetes 的监控和日志（Monitoring and Logging）？"></a>Q10: 请详细解释 Kubernetes 的监控和日志（Monitoring and Logging）？</h3><p><strong>一句话总结</strong>：Kubernetes 的监控和日志是通过 Prometheus、Grafana、ELK Stack、Fluentd 等工具实现的。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的监控和日志是确保集群和应用可观测的关键。理解 K8s 监控和日志是掌握 K8s 的核心。</p>
+<p><strong>1. 监控核心概念</strong>：</p>
+<ul>
+<li><p><strong>Prometheus</strong>：</p>
+<ul>
+<li>功能：收集和存储指标数据</li>
+<li>例如：收集 Node、Pod、Container 指标</li>
+</ul>
+</li>
+<li><p><strong>Grafana</strong>：</p>
+<ul>
+<li>功能：可视化指标数据</li>
+<li>例如：创建 Dashboard 展示 CPU 使用率、内存使用率</li>
+</ul>
+</li>
+<li><p><strong>Alertmanager</strong>：</p>
+<ul>
+<li>功能：处理告警</li>
+<li>例如：发送告警到 Slack、Email</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 日志核心概念</strong>：</p>
+<ul>
+<li><p><strong>ELK Stack</strong>：</p>
+<ul>
+<li>Elasticsearch：存储日志数据</li>
+<li>Logstash：收集和处理日志</li>
+<li>Kibana：可视化日志</li>
+</ul>
+</li>
+<li><p><strong>EFK Stack</strong>：</p>
+<ul>
+<li>Elasticsearch：存储日志数据</li>
+<li>Fluentd：收集日志</li>
+<li>Kibana：可视化日志</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 监控和日志实际案例</strong>：</p>
+<p><strong>案例：使用 Prometheus 和 Grafana 监控 K8s</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 部署 Prometheus<br><span class="hljs-bullet">2.</span> 部署 Grafana<br><span class="hljs-bullet">3.</span> 配置 Prometheus 收集 K8s 指标<br><span class="hljs-bullet">4.</span> 在 Grafana 中创建 Dashboard<br><span class="hljs-bullet">5.</span> 配置 Alertmanager 发送告警<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 监控和日志最佳实践</strong>：</p>
+<ul>
+<li><p><strong>监控关键指标</strong>：</p>
+<ul>
+<li>例如：CPU 使用率、内存使用率、Pod 重启次数</li>
+</ul>
+</li>
+<li><p><strong>设置告警规则</strong>：</p>
+<ul>
+<li>例如：CPU 使用率超过 80%、Pod 重启次数超过 5 次</li>
+</ul>
+</li>
+<li><p><strong>集中式日志管理</strong>：</p>
+<ul>
+<li>例如：使用 ELK Stack 或 EFK Stack</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，理解 K8s 监控和日志可以帮助我们更好地管理集群和应用：</p>
+<ol>
+<li><p><strong>监控</strong>：</p>
+<ul>
+<li>使用 Prometheus 和 Grafana</li>
+</ul>
+</li>
+<li><p><strong>日志</strong>：</p>
+<ul>
+<li>使用 ELK Stack 或 EFK Stack</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的监控和日志是通过 Prometheus、Grafana、ELK Stack、Fluentd 等工具实现的。理解 K8s 监控和日志是掌握 K8s 的核心。</p>
+<hr>
+<h3 id="Q11-请详细解释-Kubernetes-的滚动更新和回滚（Rolling-Update-and-Rollback）？"><a href="#Q11-请详细解释-Kubernetes-的滚动更新和回滚（Rolling-Update-and-Rollback）？" class="headerlink" title="Q11: 请详细解释 Kubernetes 的滚动更新和回滚（Rolling Update and Rollback）？"></a>Q11: 请详细解释 Kubernetes 的滚动更新和回滚（Rolling Update and Rollback）？</h3><p><strong>一句话总结</strong>：Kubernetes 的滚动更新是通过逐步替换 Pod 副本实现零停机更新，回滚是恢复到上一个稳定版本。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的滚动更新（Rolling Update）和回滚（Rollback）是 Deployment 的核心功能，确保应用更新时不会停机。</p>
+<p><strong>1. 滚动更新（Rolling Update）</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>逐步创建新版本 Pod</li>
+<li>逐步删除旧版本 Pod</li>
+<li>确保始终有可用 Pod 提供服务</li>
+</ul>
+</li>
+<li><p><strong>参数</strong>：</p>
+<ul>
+<li><code>maxSurge</code>：最多可以比期望副本数多多少个 Pod</li>
+<li><code>maxUnavailable</code>：最多可以有多少个 Pod 不可用</li>
+<li>例如：<code>strategy.rollingUpdate.maxSurge: 25%</code>、<code>strategy.rollingUpdate.maxUnavailable: 25%</code></li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 更新 Deployment 镜像</span><br>kubectl <span class="hljs-built_in">set</span> image deployment/nginx-deployment nginx=nginx:1.16.1<br><br><span class="hljs-comment"># 查看滚动更新状态</span><br>kubectl rollout status deployment/nginx-deployment<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>2. 回滚（Rollback）</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>恢复到上一个稳定版本</li>
+<li>Kubernetes 会记录 Deployment 的变更历史</li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看回滚历史</span><br>kubectl rollout <span class="hljs-built_in">history</span> deployment/nginx-deployment<br><br><span class="hljs-comment"># 回滚到上一个版本</span><br>kubectl rollout undo deployment/nginx-deployment<br><br><span class="hljs-comment"># 回滚到指定版本</span><br>kubectl rollout undo deployment/nginx-deployment --to-revision=2<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. 滚动更新和回滚实际案例</strong>：</p>
+<p><strong>案例：滚动更新 Deployment</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Deployment</span><br>kubectl apply -f deployment.yaml<br><br><span class="hljs-comment"># 查看 Deployment</span><br>kubectl get deployments<br><br><span class="hljs-comment"># 更新 Deployment 镜像</span><br>kubectl <span class="hljs-built_in">set</span> image deployment/nginx-deployment nginx=nginx:1.16.1<br><br><span class="hljs-comment"># 查看滚动更新状态</span><br>kubectl rollout status deployment/nginx-deployment<br><br><span class="hljs-comment"># 查看 Pod</span><br>kubectl get pods<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 滚动更新和回滚最佳实践</strong>：</p>
+<ul>
+<li><p><strong>设置合理的 maxSurge 和 maxUnavailable</strong>：</p>
+<ul>
+<li>例如：<code>maxSurge: 25%</code>、<code>maxUnavailable: 25%</code></li>
+</ul>
+</li>
+<li><p><strong>使用健康检查（Liveness Probe 和 Readiness Probe）</strong>：</p>
+<ul>
+<li>确保 Pod 正常运行</li>
+</ul>
+</li>
+<li><p><strong>查看回滚历史</strong>：</p>
+<ul>
+<li>例如：<code>kubectl rollout history deployment/nginx-deployment</code></li>
+</ul>
+</li>
+<li><p><strong>测试回滚</strong>：</p>
+<ul>
+<li>例如：定期测试回滚流程</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，滚动更新和回滚是 Kubernetes Deployment 的核心功能：</p>
+<ol>
+<li><p><strong>滚动更新</strong>：</p>
+<ul>
+<li>确保应用更新时不会停机</li>
+</ul>
+</li>
+<li><p><strong>回滚</strong>：</p>
+<ul>
+<li>恢复到上一个稳定版本</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的滚动更新是通过逐步替换 Pod 副本实现零停机更新，回滚是恢复到上一个稳定版本。</p>
+<hr>
+<h3 id="Q12-请详细解释-Kubernetes-的自动扩缩容（Horizontal-Pod-Autoscaler）？"><a href="#Q12-请详细解释-Kubernetes-的自动扩缩容（Horizontal-Pod-Autoscaler）？" class="headerlink" title="Q12: 请详细解释 Kubernetes 的自动扩缩容（Horizontal Pod Autoscaler）？"></a>Q12: 请详细解释 Kubernetes 的自动扩缩容（Horizontal Pod Autoscaler）？</h3><p><strong>一句话总结</strong>：Kubernetes 的自动扩缩容是通过 Horizontal Pod Autoscaler（HPA）根据 CPU&#x2F;内存使用率自动调整 Pod 副本数。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的自动扩缩容（Horizontal Pod Autoscaler，HPA）是根据 CPU&#x2F;内存使用率自动调整 Pod 副本数。理解 HPA 是掌握 Kubernetes 自动扩缩容的关键。</p>
+<p><strong>1. HPA 原理</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li>根据 CPU&#x2F;内存使用率自动调整 Pod 副本数</li>
+<li>例如：CPU 使用率超过 80% 时，增加 Pod 副本数</li>
+</ul>
+</li>
+<li><p><strong>工作流程</strong>：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> Metrics Server 收集 Pod 的 CPU/内存使用率<br><span class="hljs-bullet">2.</span> HPA Controller 定期（默认 15 秒）查询 Metrics Server<br><span class="hljs-bullet">3.</span> 如果 CPU/内存使用率超过阈值，增加 Pod 副本数<br><span class="hljs-bullet">4.</span> 如果 CPU/内存使用率低于阈值，减少 Pod 副本数<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>2. HPA 配置</strong>：</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># hpa.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">autoscaling/v2</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">HorizontalPodAutoscaler</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-hpa</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">scaleTargetRef:</span><br>    <span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br>    <span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-deployment</span><br>  <span class="hljs-attr">minReplicas:</span> <span class="hljs-number">1</span><br>  <span class="hljs-attr">maxReplicas:</span> <span class="hljs-number">10</span><br>  <span class="hljs-attr">metrics:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">type:</span> <span class="hljs-string">Resource</span><br>    <span class="hljs-attr">resource:</span><br>      <span class="hljs-attr">name:</span> <span class="hljs-string">cpu</span><br>      <span class="hljs-attr">target:</span><br>        <span class="hljs-attr">type:</span> <span class="hljs-string">Utilization</span><br>        <span class="hljs-attr">averageUtilization:</span> <span class="hljs-number">80</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. HPA 实际使用</strong>：</p>
+<ul>
+<li><p><strong>部署 Metrics Server</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 部署 Metrics Server</span><br>kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml<br><br><span class="hljs-comment"># 查看 Metrics Server</span><br>kubectl get pods -n kube-system<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建 HPA</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 HPA</span><br>kubectl apply -f hpa.yaml<br><br><span class="hljs-comment"># 查看 HPA</span><br>kubectl get hpa<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>测试 HPA</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 增加负载</span><br>kubectl run -i --<span class="hljs-built_in">tty</span> load-generator --image=busybox /bin/sh<br><span class="hljs-comment"># 在 Pod 中执行：while true; do wget -q -O- http://nginx-deployment; done</span><br><br><span class="hljs-comment"># 查看 HPA</span><br>kubectl get hpa<br><br><span class="hljs-comment"># 查看 Pod 副本数</span><br>kubectl get pods<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. HPA 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>部署 Metrics Server</strong>：</p>
+<ul>
+<li>例如：<code>kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>设置合理的阈值</strong>：</p>
+<ul>
+<li>例如：<code>averageUtilization: 80</code></li>
+</ul>
+</li>
+<li><p><strong>设置合理的副本数范围</strong>：</p>
+<ul>
+<li>例如：<code>minReplicas: 1</code>、<code>maxReplicas: 10</code></li>
+</ul>
+</li>
+<li><p><strong>监控 HPA</strong>：</p>
+<ul>
+<li>例如：<code>kubectl get hpa</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，HPA 是 Kubernetes 自动扩缩容的核心功能：</p>
+<ol>
+<li><p><strong>部署 Metrics Server</strong>：</p>
+<ul>
+<li>例如：<code>kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml</code></li>
+</ul>
+</li>
+<li><p><strong>设置合理的阈值</strong>：</p>
+<ul>
+<li>例如：<code>averageUtilization: 80</code></li>
+</ul>
+</li>
+<li><p><strong>设置合理的副本数范围</strong>：</p>
+<ul>
+<li>例如：<code>minReplicas: 1</code>、<code>maxReplicas: 10</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的自动扩缩容是通过 Horizontal Pod Autoscaler（HPA）根据 CPU&#x2F;内存使用率自动调整 Pod 副本数。</p>
+<hr>
+<h3 id="Q13-请详细解释-Kubernetes-的亲和性和反亲和性（Affinity-and-Anti-Affinity）？"><a href="#Q13-请详细解释-Kubernetes-的亲和性和反亲和性（Affinity-and-Anti-Affinity）？" class="headerlink" title="Q13: 请详细解释 Kubernetes 的亲和性和反亲和性（Affinity and Anti-Affinity）？"></a>Q13: 请详细解释 Kubernetes 的亲和性和反亲和性（Affinity and Anti-Affinity）？</h3><p><strong>一句话总结</strong>：Kubernetes 的亲和性和反亲和性是通过节点亲和性、Pod 亲和性和 Pod 反亲和性控制 Pod 的调度位置。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的亲和性（Affinity）和反亲和性（Anti-Affinity）是控制 Pod 调度位置的重要功能。理解亲和性和反亲和性是掌握 Kubernetes 调度的高级特性。</p>
+<p><strong>1. 节点亲和性（Node Affinity）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li>控制 Pod 调度到哪些节点</li>
+<li>例如：Pod 必须调度到带有 <code>disktype=ssd</code> 标签的节点</li>
+</ul>
+</li>
+<li><p><strong>类型</strong>：</p>
+<ul>
+<li><code>requiredDuringSchedulingIgnoredDuringExecution</code>：硬亲和性（必须满足）</li>
+<li><code>preferredDuringSchedulingIgnoredDuringExecution</code>：软亲和性（尽量满足）</li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pod-with-node-affinity.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pod-with-node-affinity</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">affinity:</span><br>    <span class="hljs-attr">nodeAffinity:</span><br>      <span class="hljs-attr">requiredDuringSchedulingIgnoredDuringExecution:</span><br>        <span class="hljs-attr">nodeSelectorTerms:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">matchExpressions:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">key:</span> <span class="hljs-string">disktype</span><br>            <span class="hljs-attr">operator:</span> <span class="hljs-string">In</span><br>            <span class="hljs-attr">values:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">ssd</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">nginx</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>2. Pod 亲和性（Pod Affinity）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li>控制 Pod 调度到与其他 Pod 相同的节点或可用区</li>
+<li>例如：Pod A 和 Pod B 必须调度到相同的节点或可用区</li>
+</ul>
+</li>
+<li><p><strong>类型</strong>：</p>
+<ul>
+<li><code>requiredDuringSchedulingIgnoredDuringExecution</code>：硬亲和性（必须满足）</li>
+<li><code>preferredDuringSchedulingIgnoredDuringExecution</code>：软亲和性（尽量满足）</li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pod-with-pod-affinity.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pod-with-pod-affinity</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">affinity:</span><br>    <span class="hljs-attr">podAffinity:</span><br>      <span class="hljs-attr">requiredDuringSchedulingIgnoredDuringExecution:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">labelSelector:</span><br>          <span class="hljs-attr">matchExpressions:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">key:</span> <span class="hljs-string">app</span><br>            <span class="hljs-attr">operator:</span> <span class="hljs-string">In</span><br>            <span class="hljs-attr">values:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">nginx</span><br>        <span class="hljs-attr">topologyKey:</span> <span class="hljs-string">kubernetes.io/hostname</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">nginx</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. Pod 反亲和性（Pod Anti-Affinity）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li>控制 Pod 调度到与其他 Pod 不同的节点或可用区</li>
+<li>例如：Pod A 和 Pod B 必须调度到不同的节点或可用区</li>
+</ul>
+</li>
+<li><p><strong>类型</strong>：</p>
+<ul>
+<li><code>requiredDuringSchedulingIgnoredDuringExecution</code>：硬反亲和性（必须满足）</li>
+<li><code>preferredDuringSchedulingIgnoredDuringExecution</code>：软反亲和性（尽量满足）</li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pod-with-pod-anti-affinity.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pod-with-pod-anti-affinity</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">affinity:</span><br>    <span class="hljs-attr">podAntiAffinity:</span><br>      <span class="hljs-attr">requiredDuringSchedulingIgnoredDuringExecution:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">labelSelector:</span><br>          <span class="hljs-attr">matchExpressions:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">key:</span> <span class="hljs-string">app</span><br>            <span class="hljs-attr">operator:</span> <span class="hljs-string">In</span><br>            <span class="hljs-attr">values:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">nginx</span><br>        <span class="hljs-attr">topologyKey:</span> <span class="hljs-string">kubernetes.io/hostname</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">nginx</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. 亲和性和反亲和性实际案例</strong>：</p>
+<p><strong>案例：使用 Pod 反亲和性确保高可用性</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># deployment-with-pod-anti-affinity.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-deployment</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">affinity:</span><br>        <span class="hljs-attr">podAntiAffinity:</span><br>          <span class="hljs-attr">requiredDuringSchedulingIgnoredDuringExecution:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">labelSelector:</span><br>              <span class="hljs-attr">matchExpressions:</span><br>              <span class="hljs-bullet">-</span> <span class="hljs-attr">key:</span> <span class="hljs-string">app</span><br>                <span class="hljs-attr">operator:</span> <span class="hljs-string">In</span><br>                <span class="hljs-attr">values:</span><br>                <span class="hljs-bullet">-</span> <span class="hljs-string">nginx</span><br>            <span class="hljs-attr">topologyKey:</span> <span class="hljs-string">kubernetes.io/hostname</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">nginx</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>5. 亲和性和反亲和性最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用节点亲和性</strong>：</p>
+<ul>
+<li>例如：将 Pod 调度到带有 <code>disktype=ssd</code> 标签的节点</li>
+</ul>
+</li>
+<li><p><strong>使用 Pod 亲和性</strong>：</p>
+<ul>
+<li>例如：将 Pod 调度到与其他 Pod 相同的节点或可用区</li>
+</ul>
+</li>
+<li><p><strong>使用 Pod 反亲和性</strong>：</p>
+<ul>
+<li>例如：将 Pod 调度到与其他 Pod 不同的节点或可用区，确保高可用性</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，亲和性和反亲和性是控制 Pod 调度位置的重要功能：</p>
+<ol>
+<li><p><strong>节点亲和性</strong>：</p>
+<ul>
+<li>控制 Pod 调度到哪些节点</li>
+</ul>
+</li>
+<li><p><strong>Pod 亲和性</strong>：</p>
+<ul>
+<li>控制 Pod 调度到与其他 Pod 相同的节点或可用区</li>
+</ul>
+</li>
+<li><p><strong>Pod 反亲和性</strong>：</p>
+<ul>
+<li>控制 Pod 调度到与其他 Pod 不同的节点或可用区，确保高可用性</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的亲和性和反亲和性是通过节点亲和性、Pod 亲和性和 Pod 反亲和性控制 Pod 的调度位置。</p>
+<hr>
+<h3 id="Q14-请详细解释-Kubernetes-的污点和容忍（Taints-and-Tolerations）？"><a href="#Q14-请详细解释-Kubernetes-的污点和容忍（Taints-and-Tolerations）？" class="headerlink" title="Q14: 请详细解释 Kubernetes 的污点和容忍（Taints and Tolerations）？"></a>Q14: 请详细解释 Kubernetes 的污点和容忍（Taints and Tolerations）？</h3><p><strong>一句话总结</strong>：Kubernetes 的污点和容忍是通过污点标记节点拒绝 Pod 调度，通过容忍允许 Pod 调度到带有污点的节点。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的污点（Taints）和容忍（Tolerations）是控制 Pod 调度位置的重要功能。理解污点和容忍是掌握 Kubernetes 调度的高级特性。</p>
+<p><strong>1. 污点（Taints）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li>标记节点拒绝 Pod 调度</li>
+<li>例如：标记节点为 <code>disk=ssd:NoSchedule</code>，只有容忍这个污点的 Pod 才能调度到这个节点</li>
+</ul>
+</li>
+<li><p><strong>类型</strong>：</p>
+<ul>
+<li><code>NoSchedule</code>：不调度 Pod 到节点（已经调度的 Pod 不受影响）</li>
+<li><code>PreferNoSchedule</code>：尽量不调度 Pod 到节点</li>
+<li><code>NoExecute</code>：不调度 Pod 到节点，并且驱逐已经调度的 Pod</li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 标记节点为 disk=ssd:NoSchedule</span><br>kubectl taint nodes node1 disk=ssd:NoSchedule<br><br><span class="hljs-comment"># 查看节点污点</span><br>kubectl describe node node1<br><br><span class="hljs-comment"># 删除节点污点</span><br>kubectl taint nodes node1 disk=ssd:NoSchedule-<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>2. 容忍（Tolerations）</strong>：</p>
+<ul>
+<li><p><strong>核心概念</strong>：</p>
+<ul>
+<li>允许 Pod 调度到带有污点的节点</li>
+<li>例如：Pod 容忍 <code>disk=ssd:NoSchedule</code> 污点</li>
+</ul>
+</li>
+<li><p><strong>示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pod-with-toleration.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pod-with-toleration</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">tolerations:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">key:</span> <span class="hljs-string">&quot;disk&quot;</span><br>    <span class="hljs-attr">operator:</span> <span class="hljs-string">&quot;Equal&quot;</span><br>    <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;ssd&quot;</span><br>    <span class="hljs-attr">effect:</span> <span class="hljs-string">&quot;NoSchedule&quot;</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">nginx</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. 污点和容忍实际案例</strong>：</p>
+<p><strong>案例：标记 Master 节点不调度 Pod</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 标记 Master 节点为 node-role.kubernetes.io/master:NoSchedule</span><br>kubectl taint nodes master node-role.kubernetes.io/master:NoSchedule<br><br><span class="hljs-comment"># 查看 Master 节点污点</span><br>kubectl describe node master<br><br><span class="hljs-comment"># 创建 Pod 容忍 Master 节点污点</span><br>kubectl apply -f pod-with-toleration.yaml<br><br><span class="hljs-comment"># 查看 Pod</span><br>kubectl get pods -o wide<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 污点和容忍最佳实践</strong>：</p>
+<ul>
+<li><p><strong>标记 Master 节点不调度 Pod</strong>：</p>
+<ul>
+<li>例如：<code>kubectl taint nodes master node-role.kubernetes.io/master:NoSchedule</code></li>
+</ul>
+</li>
+<li><p><strong>标记专用节点</strong>：</p>
+<ul>
+<li>例如：标记节点为 <code>disk=ssd:NoSchedule</code>，只有需要 SSD 磁盘的 Pod 才能调度到这个节点</li>
+</ul>
+</li>
+<li><p><strong>使用容忍</strong>：</p>
+<ul>
+<li>例如：Pod 容忍 <code>disk=ssd:NoSchedule</code> 污点</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，污点和容忍是控制 Pod 调度位置的重要功能：</p>
+<ol>
+<li><p><strong>污点</strong>：</p>
+<ul>
+<li>标记节点拒绝 Pod 调度</li>
+</ul>
+</li>
+<li><p><strong>容忍</strong>：</p>
+<ul>
+<li>允许 Pod 调度到带有污点的节点</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的污点和容忍是通过污点标记节点拒绝 Pod 调度，通过容忍允许 Pod 调度到带有污点的节点。</p>
+<hr>
+<h3 id="Q15-请详细解释-Kubernetes-的-DaemonSet？"><a href="#Q15-请详细解释-Kubernetes-的-DaemonSet？" class="headerlink" title="Q15: 请详细解释 Kubernetes 的 DaemonSet？"></a>Q15: 请详细解释 Kubernetes 的 DaemonSet？</h3><p><strong>一句话总结</strong>：DaemonSet 确保在所有（或符合条件的）节点上运行一个 Pod 副本，常用于日志收集、监控代理等。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 DaemonSet 是确保在所有（或符合条件的）节点上运行一个 Pod 副本。理解 DaemonSet 是掌握 Kubernetes 系统守护进程的关键。</p>
+<p><strong>1. DaemonSet 核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：确保在所有（或符合条件的）节点上运行一个 Pod 副本</li>
+<li><strong>使用场景</strong>：<ul>
+<li>日志收集（例如：Fluentd、Fluent Bit）</li>
+<li>监控代理（例如：Prometheus Node Exporter、Datadog Agent）</li>
+<li>网络插件（例如：Calico、Flannel）</li>
+<li>存储插件（例如：Ceph、GlusterFS）</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. DaemonSet 配置</strong>：</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># daemonset.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">DaemonSet</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">fluentd</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">fluentd</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">fluentd</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">fluentd</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">fluentd:v1.0</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. DaemonSet 实际使用</strong>：</p>
+<ul>
+<li><strong>创建 DaemonSet</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 DaemonSet</span><br>kubectl apply -f daemonset.yaml<br><br><span class="hljs-comment"># 查看 DaemonSet</span><br>kubectl get daemonsets<br><br><span class="hljs-comment"># 查看 Pod</span><br>kubectl get pods<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. DaemonSet 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 DaemonSet 运行系统守护进程</strong>：</p>
+<ul>
+<li>例如：日志收集、监控代理、网络插件、存储插件</li>
+</ul>
+</li>
+<li><p><strong>使用节点选择器（Node Selector）</strong>：</p>
+<ul>
+<li>例如：只在带有 <code>disktype=ssd</code> 标签的节点上运行 DaemonSet</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，DaemonSet 是运行系统守护进程的关键：</p>
+<ol>
+<li><p><strong>日志收集</strong>：</p>
+<ul>
+<li>例如：Fluentd、Fluent Bit</li>
+</ul>
+</li>
+<li><p><strong>监控代理</strong>：</p>
+<ul>
+<li>例如：Prometheus Node Exporter、Datadog Agent</li>
+</ul>
+</li>
+<li><p><strong>网络插件</strong>：</p>
+<ul>
+<li>例如：Calico、Flannel</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：DaemonSet 确保在所有（或符合条件的）节点上运行一个 Pod 副本，常用于日志收集、监控代理等。</p>
+<hr>
+<h3 id="Q16-请详细解释-Kubernetes-的-StatefulSet？"><a href="#Q16-请详细解释-Kubernetes-的-StatefulSet？" class="headerlink" title="Q16: 请详细解释 Kubernetes 的 StatefulSet？"></a>Q16: 请详细解释 Kubernetes 的 StatefulSet？</h3><p><strong>一句话总结</strong>：StatefulSet 是用于管理有状态应用的控制器，提供稳定的网络标识、持久化存储和有序部署&#x2F;扩展&#x2F;删除。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 StatefulSet 是用于管理有状态应用的控制器。理解 StatefulSet 是掌握 Kubernetes 有状态应用管理的关键。</p>
+<p><strong>1. StatefulSet 核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：管理有状态应用的控制器</li>
+<li><strong>特点</strong>：<ul>
+<li>稳定的网络标识（Pod 名称固定）</li>
+<li>持久化存储（每个 Pod 有独立的 PVC）</li>
+<li>有序部署&#x2F;扩展&#x2F;删除（按顺序创建&#x2F;删除 Pod）</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>数据库（例如：MySQL、PostgreSQL）</li>
+<li>消息队列（例如：Kafka、RabbitMQ）</li>
+<li>分布式存储（例如：Elasticsearch、Cassandra）</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. StatefulSet 配置</strong>：</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># statefulset.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">StatefulSet</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">mysql</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">serviceName:</span> <span class="hljs-string">&quot;mysql&quot;</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">mysql</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">mysql</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">mysql</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">mysql:8.0</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">3306</span><br>        <span class="hljs-attr">volumeMounts:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">mysql-storage</span><br>          <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/var/lib/mysql</span><br>  <span class="hljs-attr">volumeClaimTemplates:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">name:</span> <span class="hljs-string">mysql-storage</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">accessModes:</span> [<span class="hljs-string">&quot;ReadWriteOnce&quot;</span>]<br>      <span class="hljs-attr">storageClassName:</span> <span class="hljs-string">&quot;standard&quot;</span><br>      <span class="hljs-attr">resources:</span><br>        <span class="hljs-attr">requests:</span><br>          <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. StatefulSet 实际使用</strong>：</p>
+<ul>
+<li><strong>创建 StatefulSet</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 StatefulSet</span><br>kubectl apply -f statefulset.yaml<br><br><span class="hljs-comment"># 查看 StatefulSet</span><br>kubectl get statefulsets<br><br><span class="hljs-comment"># 查看 Pod</span><br>kubectl get pods<br><br><span class="hljs-comment"># 查看 PVC</span><br>kubectl get pvc<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. StatefulSet 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 StatefulSet 管理有状态应用</strong>：</p>
+<ul>
+<li>例如：数据库、消息队列、分布式存储</li>
+</ul>
+</li>
+<li><p><strong>使用 Headless Service</strong>：</p>
+<ul>
+<li>例如：StatefulSet 需要 Headless Service 提供稳定的网络标识</li>
+</ul>
+</li>
+<li><p><strong>使用 PVC</strong>：</p>
+<ul>
+<li>例如：每个 Pod 有独立的 PVC</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，StatefulSet 是管理有状态应用的关键：</p>
+<ol>
+<li><p><strong>稳定的网络标识</strong>：</p>
+<ul>
+<li>Pod 名称固定</li>
+</ul>
+</li>
+<li><p><strong>持久化存储</strong>：</p>
+<ul>
+<li>每个 Pod 有独立的 PVC&#96;</li>
+</ul>
+</li>
+<li><p><strong>有序部署&#x2F;扩展&#x2F;删除</strong>：</p>
+<ul>
+<li>按顺序创建&#x2F;删除 Pod&#96;</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：StatefulSet 是用于管理有状态应用的控制器，提供稳定的网络标识、持久化存储和有序部署&#x2F;扩展&#x2F;删除。</p>
+<hr>
+<h3 id="Q17-请详细解释-Kubernetes-的-Job-和-CronJob？"><a href="#Q17-请详细解释-Kubernetes-的-Job-和-CronJob？" class="headerlink" title="Q17: 请详细解释 Kubernetes 的 Job 和 CronJob？"></a>Q17: 请详细解释 Kubernetes 的 Job 和 CronJob？</h3><p><strong>一句话总结</strong>：Job 是用于管理批处理任务的控制器，CronJob 是用于管理定时任务的控制器。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 Job 和 CronJob 是用于管理批处理任务和定时任务的控制器。理解 Job 和 CronJob 是掌握 Kubernetes 批处理任务管理的关键。</p>
+<p><strong>1. Job 核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：管理批处理任务</li>
+<li><strong>特点</strong>：<ul>
+<li>任务完成后 Pod 退出</li>
+<li>支持并行执行</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>数据库迁移</li>
+<li>数据备份</li>
+<li>数据分析</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. Job 配置</strong>：</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># job.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">batch/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Job</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">data-migration</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">migration</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">migration:v1.0</span><br>      <span class="hljs-attr">restartPolicy:</span> <span class="hljs-string">Never</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. CronJob 核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：管理定时任务</li>
+<li><strong>特点</strong>：<ul>
+<li>按照 Cron 格式定时执行任务</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>每天凌晨 2 点执行数据备份</li>
+<li>每周日凌晨 3 点执行日志清理</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. CronJob 配置</strong>：</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># cronjob.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">batch/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">CronJob</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">data-backup</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">schedule:</span> <span class="hljs-string">&quot;0 2 * * *&quot;</span><br>  <span class="hljs-attr">jobTemplate:</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">template:</span><br>        <span class="hljs-attr">spec:</span><br>          <span class="hljs-attr">containers:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">backup</span><br>            <span class="hljs-attr">image:</span> <span class="hljs-string">backup:v1.0</span><br>          <span class="hljs-attr">restartPolicy:</span> <span class="hljs-string">Never</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>5. Job 和 CronJob 实际使用</strong>：</p>
+<ul>
+<li><p><strong>创建 Job</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Job</span><br>kubectl apply -f job.yaml<br><br><span class="hljs-comment"># 查看 Job</span><br>kubectl get <span class="hljs-built_in">jobs</span><br><br><span class="hljs-comment"># 查看 Pod</span><br>kubectl get pods<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建 CronJob</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 CronJob</span><br>kubectl apply -f cronjob.yaml<br><br><span class="hljs-comment"># 查看 CronJob</span><br>kubectl get cronjobs<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>6. Job 和 CronJob 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 Job 管理批处理任务</strong>：</p>
+<ul>
+<li>例如：数据库迁移、数据备份、数据分析</li>
+</ul>
+</li>
+<li><p><strong>使用 CronJob 管理定时任务</strong>：</p>
+<ul>
+<li>例如：每天凌晨 2 点执行数据备份、每周日凌晨 3 点执行日志清理</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Job 和 CronJob 是管理批处理任务和定时任务的关键：</p>
+<ol>
+<li><p><strong>Job</strong>：</p>
+<ul>
+<li>管理批处理任务</li>
+</ul>
+</li>
+<li><p><strong>CronJob</strong>：</p>
+<ul>
+<li>管理定时任务</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Job 是用于管理批处理任务的控制器，CronJob 是用于管理定时任务的控制器。</p>
+<hr>
+<h3 id="Q18-请详细解释-Kubernetes-的-Ingress？"><a href="#Q18-请详细解释-Kubernetes-的-Ingress？" class="headerlink" title="Q18: 请详细解释 Kubernetes 的 Ingress？"></a>Q18: 请详细解释 Kubernetes 的 Ingress？</h3><p><strong>一句话总结</strong>：Ingress 是用于管理外部访问集群服务的 API 对象，提供 HTTP&#x2F;HTTPS 路由、负载均衡、SSL 终止等功能。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 Ingress 是用于管理外部访问集群服务的 API 对象。理解 Ingress 是掌握 Kubernetes 外部访问管理的关键。</p>
+<p><strong>1. Ingress 核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：管理外部访问集群服务的 API 对象</li>
+<li><strong>功能</strong>：<ul>
+<li>HTTP&#x2F;HTTPS 路由</li>
+<li>负载均衡</li>
+<li>SSL 终止</li>
+<li>名称虚拟主机（Name-based Virtual Hosting）</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>外部访问集群服务</li>
+<li>HTTP&#x2F;HTTPS 路由</li>
+<li>负载均衡</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. Ingress 配置</strong>：</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># ingress.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">networking.k8s.io/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Ingress</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-ingress</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">rules:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">host:</span> <span class="hljs-string">example.com</span><br>    <span class="hljs-attr">http:</span><br>      <span class="hljs-attr">paths:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">path:</span> <span class="hljs-string">/</span><br>        <span class="hljs-attr">pathType:</span> <span class="hljs-string">Prefix</span><br>        <span class="hljs-attr">backend:</span><br>          <span class="hljs-attr">service:</span><br>            <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-service</span><br>            <span class="hljs-attr">port:</span><br>              <span class="hljs-attr">number:</span> <span class="hljs-number">80</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. Ingress 实际使用</strong>：</p>
+<ul>
+<li><p><strong>部署 Ingress Controller</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 部署 Nginx Ingress Controller</span><br>kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml<br><br><span class="hljs-comment"># 查看 Ingress Controller</span><br>kubectl get pods -n ingress-nginx<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建 Ingress</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Ingress</span><br>kubectl apply -f ingress.yaml<br><br><span class="hljs-comment"># 查看 Ingress</span><br>kubectl get ingress<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. Ingress 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>部署 Ingress Controller</strong>：</p>
+<ul>
+<li>例如：Nginx Ingress Controller、Traefik Ingress Controller&#96;</li>
+</ul>
+</li>
+<li><p><strong>使用 Ingress 管理外部访问</strong>：</p>
+<ul>
+<li>例如：HTTP&#x2F;HTTPS 路由、负载均衡、SSL 终止&#96;</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Ingress 是管理外部访问集群服务的关键：</p>
+<ol>
+<li><p><strong>部署 Ingress Controller</strong>：</p>
+<ul>
+<li>例如：Nginx Ingress Controller、Traefik Ingress Controller&#96;</li>
+</ul>
+</li>
+<li><p><strong>使用 Ingress 管理外部访问</strong>：</p>
+<ul>
+<li>例如：HTTP&#x2F;HTTPS 路由、负载均衡、SSL 终止&#96;</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Ingress 是用于管理外部访问集群服务的 API 对象，提供 HTTP&#x2F;HTTPS 路由、负载均衡、SSL 终止等功能。</p>
+<hr>
+<h3 id="Q19-请详细解释-Kubernetes-的-PV-和-PVC？"><a href="#Q19-请详细解释-Kubernetes-的-PV-和-PVC？" class="headerlink" title="Q19: 请详细解释 Kubernetes 的 PV 和 PVC？"></a>Q19: 请详细解释 Kubernetes 的 PV 和 PVC？</h3><p><strong>一句话总结</strong>：PV（PersistentVolume）是集群级别的持久化存储资源，PVC（PersistentVolumeClaim）是用户对存储资源的请求。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 PV（PersistentVolume）和 PVC（PersistentVolumeClaim）是用于管理持久化存储的 API 对象。理解 PV 和 PVC 是掌握 Kubernetes 存储管理的关键。</p>
+<p><strong>1. PV（PersistentVolume）核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：集群级别的持久化存储资源</li>
+<li><strong>特点</strong>：<ul>
+<li>独立于 Pod 生命周期</li>
+<li>支持多种存储后端（例如：AWS EBS、GCP PD、Azure Disk、NFS、Ceph）</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>数据库数据持久化</li>
+<li>文件存储</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. PVC（PersistentVolumeClaim）核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：用户对存储资源的请求</li>
+<li><strong>特点</strong>：<ul>
+<li>请求存储资源（大小、访问模式）</li>
+<li>绑定到 PV</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>请求持久化存储</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. PV 和 PVC 配置</strong>：</p>
+<ul>
+<li><p><strong>PV 示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pv.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pv0001</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">capacity:</span><br>    <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br>  <span class="hljs-attr">accessModes:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">hostPath:</span><br>    <span class="hljs-attr">path:</span> <span class="hljs-string">&quot;/mnt/data&quot;</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>PVC 示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pvc.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolumeClaim</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pvc0001</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">resources:</span><br>    <span class="hljs-attr">requests:</span><br>      <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. PV 和 PVC 实际使用</strong>：</p>
+<ul>
+<li><p><strong>创建 PV</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 PV</span><br>kubectl apply -f pv.yaml<br><br><span class="hljs-comment"># 查看 PV</span><br>kubectl get pv<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建 PVC</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 PVC</span><br>kubectl apply -f pvc.yaml<br><br><span class="hljs-comment"># 查看 PVC</span><br>kubectl get pvc<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>5. PV 和 PVC 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 PV 和 PVC 管理持久化存储</strong>：</p>
+<ul>
+<li>例如：数据库数据持久化、文件存储&#96;</li>
+</ul>
+</li>
+<li><p><strong>使用 StorageClass 动态创建 PV</strong>：</p>
+<ul>
+<li>例如：<code>storageClassName: standard</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，PV 和 PVC 是管理持久化存储的关键：</p>
+<ol>
+<li><p><strong>PV</strong>：</p>
+<ul>
+<li>集群级别的持久化存储资源</li>
+</ul>
+</li>
+<li><p><strong>PVC</strong>：</p>
+<ul>
+<li>用户对存储资源的请求</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：PV（PersistentVolume）是集群级别的持久化存储资源，PVC（PersistentVolumeClaim）是用户对存储资源的请求。</p>
+<hr>
+<h3 id="Q20-请详细解释-Kubernetes-的-ConfigMap-和-Secret？"><a href="#Q20-请详细解释-Kubernetes-的-ConfigMap-和-Secret？" class="headerlink" title="Q20: 请详细解释 Kubernetes 的 ConfigMap 和 Secret？"></a>Q20: 请详细解释 Kubernetes 的 ConfigMap 和 Secret？</h3><p><strong>一句话总结</strong>：ConfigMap 是用于存储非敏感配置数据的 API 对象，Secret 是用于存储敏感数据的 API 对象。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 ConfigMap 和 Secret 是用于管理配置数据和敏感数据的 API 对象。理解 ConfigMap 和 Secret 是掌握 Kubernetes 配置管理的关键。</p>
+<p><strong>1. ConfigMap 核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：存储非敏感配置数据</li>
+<li><strong>使用场景</strong>：<ul>
+<li>配置文件</li>
+<li>环境变量</li>
+<li>命令行参数</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. ConfigMap 配置</strong>：</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># configmap.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">ConfigMap</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">app-config</span><br><span class="hljs-attr">data:</span><br>  <span class="hljs-attr">database_url:</span> <span class="hljs-string">&quot;localhost:3306&quot;</span><br>  <span class="hljs-attr">log_level:</span> <span class="hljs-string">&quot;info&quot;</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. Secret 核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：存储敏感数据</li>
+<li><strong>使用场景</strong>：<ul>
+<li>密码</li>
+<li>API 密钥</li>
+<li>TLS 证书</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. Secret 配置</strong>：</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># secret.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Secret</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">app-secret</span><br><span class="hljs-attr">type:</span> <span class="hljs-string">Opaque</span><br><span class="hljs-attr">data:</span><br>  <span class="hljs-attr">database_password:</span> <span class="hljs-string">c2VjcmV0</span>  <span class="hljs-comment"># base64 编码的 &quot;secret&quot;</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>5. ConfigMap 和 Secret 实际使用</strong>：</p>
+<ul>
+<li><p><strong>创建 ConfigMap</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 ConfigMap</span><br>kubectl apply -f configmap.yaml<br><br><span class="hljs-comment"># 查看 ConfigMap</span><br>kubectl get configmaps<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建 Secret</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Secret</span><br>kubectl apply -f secret.yaml<br><br><span class="hljs-comment"># 查看 Secret</span><br>kubectl get secrets<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>6. ConfigMap 和 Secret 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 ConfigMap 存储非敏感配置数据</strong>：</p>
+<ul>
+<li>例如：配置文件、环境变量、命令行参数&#96;</li>
+</ul>
+</li>
+<li><p><strong>使用 Secret 存储敏感数据</strong>：</p>
+<ul>
+<li>例如：密码、API 密钥、TLS 证书&#96;</li>
+</ul>
+</li>
+<li><p><strong>使用 Secret 加密</strong>：</p>
+<ul>
+<li>例如：启用 Secret 加密（Kubernetes 1.13+）</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，ConfigMap 和 Secret 是管理配置数据和敏感数据的关键：</p>
+<ol>
+<li><p><strong>ConfigMap</strong>：</p>
+<ul>
+<li>存储非敏感配置数据&#96;</li>
+</ul>
+</li>
+<li><p><strong>Secret</strong>：</p>
+<ul>
+<li>存储敏感数据&#96;</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：ConfigMap 是用于存储非敏感配置数据的 API 对象，Secret 是用于存储敏感数据的 API 对象。</p>
+<hr>
+<h3 id="Q21-请详细解释-Kubernetes-的网络模型（Network-Model）？"><a href="#Q21-请详细解释-Kubernetes-的网络模型（Network-Model）？" class="headerlink" title="Q21: 请详细解释 Kubernetes 的网络模型（Network Model）？"></a>Q21: 请详细解释 Kubernetes 的网络模型（Network Model）？</h3><p><strong>一句话总结</strong>：Kubernetes 的网络模型是通过 CNI 插件实现的，确保 Pod 之间、Pod 与 Service 之间、外部与 Service 之间可以通信。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的网络模型是由 CNI（Container Network Interface）插件实现的。理解 K8s 的网络模型是掌握 K8s 网络的关键。</p>
+<p><strong>1. Kubernetes 网络模型核心要求</strong>：</p>
+<ul>
+<li><p><strong>所有 Pod 可以互相通信</strong>：</p>
+<ul>
+<li>不需要 NAT</li>
+<li>例如：Pod A 可以直接访问 Pod B 的 IP 地址</li>
+</ul>
+</li>
+<li><p><strong>所有 Node 可以与所有 Pod 通信</strong>：</p>
+<ul>
+<li>不需要 NAT</li>
+<li>例如：Node A 可以直接访问 Pod B 的 IP 地址</li>
+</ul>
+</li>
+<li><p><strong>Pod 看到的自己的 IP 地址与其他 Pod 看到的 IP 地址相同</strong>：</p>
+<ul>
+<li>例如：Pod A 的 IP 地址是 10.244.1.2，Pod B 看到的 Pod A IP 地址也是 10.244.1.2</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. CNI 插件</strong>：</p>
+<ul>
+<li><strong>定义</strong>：CNI 插件是实现 K8s 网络模型的插件。</li>
+<li><strong>常见 CNI 插件</strong>：<ul>
+<li><strong>Flannel</strong>：<ul>
+<li>优点：简单易用、配置简单</li>
+<li>缺点：功能相对简单、性能一般</li>
+<li>适用场景：小规模集群、简单网络需求</li>
+</ul>
+</li>
+<li><strong>Calico</strong>：<ul>
+<li>优点：性能好、功能丰富、支持网络策略</li>
+<li>缺点：配置复杂</li>
+<li>适用场景：大规模集群、复杂网络需求</li>
+</ul>
+</li>
+<li><strong>Weave Net</strong>：<ul>
+<li>优点：简单易用、支持网络策略</li>
+<li>缺点：性能一般</li>
+<li>适用场景：小规模集群、简单网络需求</li>
+</ul>
+</li>
+<li><strong>Cilium</strong>：<ul>
+<li>优点：性能好、功能丰富、支持 eBPF</li>
+<li>缺点：配置复杂</li>
+<li>适用场景：大规模集群、复杂网络需求、需要 eBPF</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. Kubernetes 网络模型实际案例</strong>：</p>
+<p><strong>案例：使用 Calico 作为 CNI 插件</strong></p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-number">1.</span> 部署 Calico<br>   kubectl apply -f <span class="hljs-keyword">https</span>://docs.projectcalico.org/v3<span class="hljs-number">.14</span>/manifests/calico.yaml<br><br><span class="hljs-number">2.</span> 查看 Calico 状态<br>   kubectl <span class="hljs-built_in">get</span> pods -n kube-<span class="hljs-keyword">system</span><br><br><span class="hljs-number">3.</span> 创建 Pod<br>   kubectl run nginx <span class="hljs-comment">--image=nginx</span><br><br><span class="hljs-number">4.</span> 查看 Pod IP 地址<br>   kubectl <span class="hljs-built_in">get</span> pods -o wide<br><br><span class="hljs-number">5.</span> 在另一个 Pod 中访问这个 Pod<br>   kubectl exec -<span class="hljs-keyword">it</span> another-pod <span class="hljs-comment">-- curl http://10.244.1.2</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>4. Kubernetes 网络模型最佳实践</strong>：</p>
+<ul>
+<li><p><strong>选择合适的 CNI 插件</strong>：</p>
+<ul>
+<li>小规模集群、简单网络需求 → Flannel、Weave Net</li>
+<li>大规模集群、复杂网络需求 → Calico、Cilium</li>
+</ul>
+</li>
+<li><p><strong>配置网络策略（Network Policy）</strong>：</p>
+<ul>
+<li>例如：只允许特定 Pod 访问数据库 Pod</li>
+</ul>
+</li>
+<li><p><strong>监控网络性能</strong>：</p>
+<ul>
+<li>例如：使用 Prometheus 和 Grafana 监控网络流量</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Kubernetes 网络模型是通过 CNI 插件实现的：</p>
+<ol>
+<li><p><strong>小规模集群</strong>：</p>
+<ul>
+<li>使用 Flannel 或 Weave Net</li>
+</ul>
+</li>
+<li><p><strong>大规模集群</strong>：</p>
+<ul>
+<li>使用 Calico 或 Cilium</li>
+</ul>
+</li>
+<li><p><strong>需要网络策略</strong>：</p>
+<ul>
+<li>使用 Calico 或 Cilium</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的网络模型是通过 CNI 插件实现的，确保 Pod 之间、Pod 与 Service 之间、外部与 Service 之间可以通信。选择合适的 CNI 插件是 K8s 网络的关键。</p>
+<hr>
+<h3 id="Q22-请详细解释-Kubernetes-的-Service-Account？"><a href="#Q22-请详细解释-Kubernetes-的-Service-Account？" class="headerlink" title="Q22: 请详细解释 Kubernetes 的 Service Account？"></a>Q22: 请详细解释 Kubernetes 的 Service Account？</h3><p><strong>一句话总结</strong>：Service Account 是用于 Pod 访问 Kubernetes API 的身份标识，通过 RBAC 控制权限。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 Service Account 是用于 Pod 访问 Kubernetes API 的身份标识。理解 Service Account 是掌握 K8s 安全的关键。</p>
+<p><strong>1. Service Account 核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：用于 Pod 访问 Kubernetes API 的身份标识。</li>
+<li><strong>特点</strong>：<ul>
+<li>每个 Namespace 有一个默认的 Service Account（default）</li>
+<li>Pod 可以使用 Service Account 访问 Kubernetes API</li>
+<li>通过 RBAC 控制 Service Account 的权限</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>Pod 需要访问 Kubernetes API</li>
+<li>例如：Operator、Controller</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. Service Account 配置</strong>：</p>
+<ul>
+<li><p><strong>创建 Service Account</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># service-account.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">ServiceAccount</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">my-service-account</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">default</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建 Role</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># role.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">rbac.authorization.k8s.io/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Role</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pod-reader</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">default</span><br><span class="hljs-attr">rules:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">apiGroups:</span> [<span class="hljs-string">&quot;&quot;</span>]<br>  <span class="hljs-attr">resources:</span> [<span class="hljs-string">&quot;pods&quot;</span>]<br>  <span class="hljs-attr">verbs:</span> [<span class="hljs-string">&quot;get&quot;</span>, <span class="hljs-string">&quot;watch&quot;</span>, <span class="hljs-string">&quot;list&quot;</span>]<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建 RoleBinding</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># role-binding.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">rbac.authorization.k8s.io/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">RoleBinding</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">read-pods</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">default</span><br><span class="hljs-attr">subjects:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">kind:</span> <span class="hljs-string">ServiceAccount</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">my-service-account</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">default</span><br><span class="hljs-attr">roleRef:</span><br>  <span class="hljs-attr">kind:</span> <span class="hljs-string">Role</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pod-reader</span><br>  <span class="hljs-attr">apiGroup:</span> <span class="hljs-string">rbac.authorization.k8s.io</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3. Service Account 实际使用</strong>：</p>
+<ul>
+<li><p><strong>创建 Service Account、Role、RoleBinding</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Service Account</span><br>kubectl apply -f service-account.yaml<br><br><span class="hljs-comment"># 创建 Role</span><br>kubectl apply -f role.yaml<br><br><span class="hljs-comment"># 创建 RoleBinding</span><br>kubectl apply -f role-binding.yaml<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>使用 Service Account</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># pod.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">my-pod</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">serviceAccountName:</span> <span class="hljs-string">my-service-account</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">nginx</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. Service Account 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>不要使用 default Service Account</strong>：</p>
+<ul>
+<li>创建专用的 Service Account</li>
+</ul>
+</li>
+<li><p><strong>使用最小权限原则</strong>：</p>
+<ul>
+<li>只授予必要的权限</li>
+</ul>
+</li>
+<li><p><strong>定期轮换 Service Account 的 Token</strong>：</p>
+<ul>
+<li>例如：定期重新生成 Service Account 的 Token</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Service Account 是 Pod 访问 Kubernetes API 的身份标识：</p>
+<ol>
+<li><p><strong>创建专用的 Service Account</strong>：</p>
+<ul>
+<li>不要使用 default Service Account</li>
+</ul>
+</li>
+<li><p><strong>使用最小权限原则</strong>：</p>
+<ul>
+<li>只授予必要的权限</li>
+</ul>
+</li>
+<li><p><strong>定期轮换 Service Account 的 Token</strong>：</p>
+<ul>
+<li>例如：定期重新生成 Service Account 的 Token</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Service Account 是用于 Pod 访问 Kubernetes API 的身份标识，通过 RBAC 控制权限。理解 Service Account 是掌握 K8s 安全的关键。</p>
+<hr>
+<h3 id="Q23-请详细解释-Kubernetes-的-Resource-Quota-和-Limit-Range？"><a href="#Q23-请详细解释-Kubernetes-的-Resource-Quota-和-Limit-Range？" class="headerlink" title="Q23: 请详细解释 Kubernetes 的 Resource Quota 和 Limit Range？"></a>Q23: 请详细解释 Kubernetes 的 Resource Quota 和 Limit Range？</h3><p><strong>一句话总结</strong>：Resource Quota 是限制 Namespace 资源使用总量，Limit Range 是限制 Pod 或容器的资源请求和限制。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 Resource Quota 和 Limit Range 是用于管理资源使用的重要功能。理解 Resource Quota 和 Limit Range 是掌握 K8s 资源管理的关键。</p>
+<p><strong>1. Resource Quota</strong>：</p>
+<ul>
+<li><strong>定义</strong>：限制 Namespace 资源使用总量。</li>
+<li><strong>特点</strong>：<ul>
+<li>限制 CPU、内存、Pod 数量、Service 数量等</li>
+<li>例如：限制 default Namespace 最多使用 10 核 CPU、20GB 内存、50 个 Pod</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>多租户环境</li>
+<li>例如：限制每个团队可以使用的资源总量</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. Limit Range</strong>：</p>
+<ul>
+<li><strong>定义</strong>：限制 Pod 或容器的资源请求和限制。</li>
+<li><strong>特点</strong>：<ul>
+<li>限制 CPU、内存的请求和限制</li>
+<li>例如：限制 Pod 的 CPU 请求必须在 0.1 到 1 核之间</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>防止资源浪费</li>
+<li>例如：防止 Pod 请求过多资源</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. Resource Quota 和 Limit Range 配置</strong>：</p>
+<ul>
+<li><p><strong>Resource Quota 配置</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># resource-quota.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">ResourceQuota</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">compute-quota</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">default</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">hard:</span><br>    <span class="hljs-attr">requests.cpu:</span> <span class="hljs-string">&quot;10&quot;</span><br>    <span class="hljs-attr">requests.memory:</span> <span class="hljs-string">20Gi</span><br>    <span class="hljs-attr">limits.cpu:</span> <span class="hljs-string">&quot;20&quot;</span><br>    <span class="hljs-attr">limits.memory:</span> <span class="hljs-string">40Gi</span><br>    <span class="hljs-attr">pods:</span> <span class="hljs-string">&quot;50&quot;</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Limit Range 配置</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># limit-range.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">LimitRange</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">limits</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">default</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">limits:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">default:</span><br>      <span class="hljs-attr">cpu:</span> <span class="hljs-number">0.5</span><br>      <span class="hljs-attr">memory:</span> <span class="hljs-string">512Mi</span><br>    <span class="hljs-attr">defaultRequest:</span><br>      <span class="hljs-attr">cpu:</span> <span class="hljs-number">0.1</span><br>      <span class="hljs-attr">memory:</span> <span class="hljs-string">128Mi</span><br>    <span class="hljs-attr">max:</span><br>      <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;1&quot;</span><br>      <span class="hljs-attr">memory:</span> <span class="hljs-string">1Gi</span><br>    <span class="hljs-attr">min:</span><br>      <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;0.1&quot;</span><br>      <span class="hljs-attr">memory:</span> <span class="hljs-string">128Mi</span><br>    <span class="hljs-attr">type:</span> <span class="hljs-string">Container</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. Resource Quota 和 Limit Range 实际使用</strong>：</p>
+<ul>
+<li><p><strong>创建 Resource Quota</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Resource Quota</span><br>kubectl apply -f resource-quota.yaml<br><br><span class="hljs-comment"># 查看 Resource Quota</span><br>kubectl get resourcequota -n default<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建 Limit Range</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 Limit Range</span><br>kubectl apply -f limit-range.yaml<br><br><span class="hljs-comment"># 查看 Limit Range</span><br>kubectl get limitrange -n default<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>5. Resource Quota 和 Limit Range 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 Resource Quota 限制 Namespace 资源使用总量</strong>：</p>
+<ul>
+<li>例如：限制每个团队可以使用的资源总量</li>
+</ul>
+</li>
+<li><p><strong>使用 Limit Range 限制 Pod 或容器的资源请求和限制</strong>：</p>
+<ul>
+<li>例如：防止 Pod 请求过多资源</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Resource Quota 和 Limit Range 是用于管理资源使用的重要功能：</p>
+<ol>
+<li><p><strong>Resource Quota</strong>：</p>
+<ul>
+<li>限制 Namespace 资源使用总量</li>
+</ul>
+</li>
+<li><p><strong>Limit Range</strong>：</p>
+<ul>
+<li>限制 Pod 或容器的资源请求和限制</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Resource Quota 是限制 Namespace 资源使用总量，Limit Range 是限制 Pod 或容器的资源请求和限制。理解 Resource Quota 和 Limit Range 是掌握 K8s 资源管理的关键。</p>
+<hr>
+<h3 id="Q24-请详细解释-Kubernetes-的-Admission-Controller？"><a href="#Q24-请详细解释-Kubernetes-的-Admission-Controller？" class="headerlink" title="Q24: 请详细解释 Kubernetes 的 Admission Controller？"></a>Q24: 请详细解释 Kubernetes 的 Admission Controller？</h3><p><strong>一句话总结</strong>：Admission Controller 是拦截 Kubernetes API 请求的组件，用于验证或修改对象。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 Admission Controller 是拦截 Kubernetes API 请求的组件。理解 Admission Controller 是掌握 K8s 安全的关键。</p>
+<p><strong>1. Admission Controller 核心概念</strong>：</p>
+<ul>
+<li><strong>定义</strong>：拦截 Kubernetes API 请求的组件，用于验证或修改对象。</li>
+<li><strong>类型</strong>：<ul>
+<li><strong>Validating Admission Controller</strong>：验证对象（例如：Pod Security Policy）</li>
+<li><strong>Mutating Admission Controller</strong>：修改对象（例如：Mutating Webhook）</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>验证对象（例如：Pod 是否使用了不被允许的镜像）</li>
+<li>修改对象（例如：自动注入 Sidecar 容器）</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 常见 Admission Controller</strong>：</p>
+<ul>
+<li><p><strong>Pod Security Policy（PSP）</strong>：</p>
+<ul>
+<li>功能：验证 Pod 是否违反安全策略</li>
+<li>例如：禁止以 root 用户运行 Pod</li>
+</ul>
+</li>
+<li><p><strong>Resource Quota</strong>：</p>
+<ul>
+<li>功能：验证 Pod 是否超过 Resource Quota</li>
+<li>例如：禁止创建超过 Resource Quota 的 Pod</li>
+</ul>
+</li>
+<li><p><strong>Limit Range</strong>：</p>
+<ul>
+<li>功能：验证 Pod 是否违反 Limit Range</li>
+<li>例如：禁止创建违反 Limit Range 的 Pod</li>
+</ul>
+</li>
+<li><p><strong>Mutating Webhook</strong>：</p>
+<ul>
+<li>功能：修改对象</li>
+<li>例如：自动注入 Sidecar 容器</li>
+</ul>
+</li>
+<li><p><strong>Validating Webhook</strong>：</p>
+<ul>
+<li>功能：验证对象</li>
+<li>例如：验证 Pod 是否使用了不被允许的镜像</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. Admission Controller 实际案例</strong>：</p>
+<p><strong>案例：使用 Validating Webhook 验证 Pod 镜像</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 创建 Validating Webhook<br><span class="hljs-bullet">2.</span> 配置 Webhook 服务器<br><span class="hljs-bullet">3.</span> 当创建 Pod 时，Admission Controller 会拦截请求<br><span class="hljs-bullet">4.</span> 调用 Webhook 服务器验证 Pod 镜像<br><span class="hljs-bullet">5.</span> 如果 Pod 镜像不被允许，拒绝请求<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. Admission Controller 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 Admission Controller 提高安全性</strong>：</p>
+<ul>
+<li>例如：使用 Pod Security Policy 验证 Pod 是否违反安全策略</li>
+</ul>
+</li>
+<li><p><strong>使用 Admission Controller 自动化操作</strong>：</p>
+<ul>
+<li>例如：使用 Mutating Webhook 自动注入 Sidecar 容器</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Admission Controller 是拦截 Kubernetes API 请求的组件：</p>
+<ol>
+<li><p><strong>提高安全性</strong>：</p>
+<ul>
+<li>使用 Validating Admission Controller 验证对象</li>
+</ul>
+</li>
+<li><p><strong>自动化操作</strong>：</p>
+<ul>
+<li>使用 Mutating Admission Controller 修改对象</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Admission Controller 是拦截 Kubernetes API 请求的组件，用于验证或修改对象。理解 Admission Controller 是掌握 K8s 安全的关键。</p>
+<hr>
+<h3 id="Q25-请详细解释-Kubernetes-的-CRD-和-Operator？"><a href="#Q25-请详细解释-Kubernetes-的-CRD-和-Operator？" class="headerlink" title="Q25: 请详细解释 Kubernetes 的 CRD 和 Operator？"></a>Q25: 请详细解释 Kubernetes 的 CRD 和 Operator？</h3><p><strong>一句话总结</strong>：CRD（Custom Resource Definition）是用于定义自定义资源，Operator 是用于管理自定义资源的控制器。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的 CRD（Custom Resource Definition）和 Operator 是用于扩展 Kubernetes API 的重要功能。理解 CRD 和 Operator 是掌握 K8s 扩展的关键。</p>
+<p><strong>1. CRD（Custom Resource Definition）</strong>：</p>
+<ul>
+<li><strong>定义</strong>：用于定义自定义资源。</li>
+<li><strong>特点</strong>：<ul>
+<li>扩展 Kubernetes API</li>
+<li>例如：定义 MySQL 自定义资源</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>管理有状态应用</li>
+<li>例如：MySQL、PostgreSQL、Elasticsearch</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. Operator</strong>：</p>
+<ul>
+<li><strong>定义</strong>：用于管理自定义资源的控制器。</li>
+<li><strong>特点</strong>：<ul>
+<li>封装运维知识</li>
+<li>例如：MySQL Operator 可以自动备份、恢复、扩展 MySQL</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>管理有状态应用</li>
+<li>例如：MySQL、PostgreSQL、Elasticsearch</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. CRD 和 Operator 实际案例</strong>：</p>
+<p><strong>案例：使用 CRD 和 Operator 管理 MySQL</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 创建 CRD（MySQL）<br><span class="hljs-bullet">2.</span> 创建 MySQL Operator<br><span class="hljs-bullet">3.</span> 创建 MySQL 自定义资源<br><span class="hljs-bullet">4.</span> MySQL Operator 会自动创建 Deployment、Service、PVC 等<br><span class="hljs-bullet">5.</span> MySQL Operator 会自动备份、恢复、扩展 MySQL<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. CRD 和 Operator 最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 CRD 和 Operator 管理有状态应用</strong>：</p>
+<ul>
+<li>例如：MySQL、PostgreSQL、Elasticsearch</li>
+</ul>
+</li>
+<li><p><strong>使用成熟的 Operator</strong>：</p>
+<ul>
+<li>例如：MySQL Operator、PostgreSQL Operator、Elasticsearch Operator</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，CRD 和 Operator 是用于扩展 Kubernetes API 的重要功能：</p>
+<ol>
+<li><p><strong>管理有状态应用</strong>：</p>
+<ul>
+<li>使用 CRD 和 Operator</li>
+</ul>
+</li>
+<li><p><strong>使用成熟的 Operator</strong>：</p>
+<ul>
+<li>例如：MySQL Operator、PostgreSQL Operator、Elasticsearch Operator</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：CRD（Custom Resource Definition）是用于定义自定义资源，Operator 是用于管理自定义资源的控制器。理解 CRD 和 Operator 是掌握 K8s 扩展的关键。</p>
+<hr>
+<h3 id="Q26-请详细解释-Kubernetes-的升级策略（Upgrade-Strategy）？"><a href="#Q26-请详细解释-Kubernetes-的升级策略（Upgrade-Strategy）？" class="headerlink" title="Q26: 请详细解释 Kubernetes 的升级策略（Upgrade Strategy）？"></a>Q26: 请详细解释 Kubernetes 的升级策略（Upgrade Strategy）？</h3><p><strong>一句话总结</strong>：Kubernetes 的升级策略包括原地升级、蓝绿部署、金丝雀部署等，确保升级过程不会停机。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的升级策略是确保升级过程不会停机的重要功能。理解 K8s 的升级策略是掌握 K8s 部署的关键。</p>
+<p><strong>1. 原地升级（In-Place Upgrade）</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>直接升级 Control Plane 和 Worker Node</li>
+<li>例如：使用 <code>kubeadm upgrade</code> 命令</li>
+</ul>
+</li>
+<li><p><strong>优点</strong>：</p>
+<ul>
+<li>简单、快速</li>
+</ul>
+</li>
+<li><p><strong>缺点</strong>：</p>
+<ul>
+<li>可能停机</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 蓝绿部署（Blue-Green Deployment）</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>同时运行两个集群：Blue（当前版本）和 Green（新版本）</li>
+<li>通过修改 DNS 或 Load Balancer 切换流量</li>
+<li>升级时：升级 Green 集群，验证通过后切换流量</li>
+<li>回滚时：直接切换回 Blue 集群</li>
+</ul>
+</li>
+<li><p><strong>优点</strong>：</p>
+<ul>
+<li>零停机时间</li>
+<li>瞬间切换，快速回滚</li>
+</ul>
+</li>
+<li><p><strong>缺点</strong>：</p>
+<ul>
+<li>需要双倍资源（两个完整集群）</li>
+<li>数据迁移需要特殊处理（向后兼容）</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 金丝雀部署（Canary Deployment）</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>逐步将流量从旧版本切换到新版本</li>
+<li>先让小部分用户使用新版本</li>
+<li>监控新版本的表现，如果没有问题则逐步扩大范围</li>
+<li>如果发现问题则立即回滚</li>
+</ul>
+</li>
+<li><p><strong>优点</strong>：</p>
+<ul>
+<li>风险可控（先小范围试点）</li>
+<li>资源消耗小（不需要双倍资源）</li>
+</ul>
+</li>
+<li><p><strong>缺点</strong>：</p>
+<ul>
+<li>升级时间长（需要逐步放量）</li>
+<li>需要精细的流量控制能力</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. 升级策略实际案例</strong>：</p>
+<p><strong>案例：使用蓝绿部署升级 Kubernetes 集群</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 创建 Green 集群（新版本）<br><span class="hljs-bullet">2.</span> 在 Green 集群部署应用<br><span class="hljs-bullet">3.</span> 验证 Green 集群<br><span class="hljs-bullet">4.</span> 修改 DNS 或 Load Balancer，将流量切换到 Green 集群<br><span class="hljs-bullet">5.</span> 监控 Green 集群运行状态<br><span class="hljs-bullet">6.</span> 如果发现问题，直接切换回 Blue 集群<br></code></pre></td></tr></table></figure>
+
+<p><strong>5. 升级策略最佳实践</strong>：</p>
+<ul>
+<li><p><strong>选择合适的升级策略</strong>：</p>
+<ul>
+<li>资源充足 → 蓝绿部署</li>
+<li>资源有限 → 金丝雀部署</li>
+</ul>
+</li>
+<li><p><strong>测试升级流程</strong>：</p>
+<ul>
+<li>例如：在测试环境测试升级流程</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Kubernetes 的升级策略是确保升级过程不会停机的重要功能：</p>
+<ol>
+<li><p><strong>资源充足</strong>：</p>
+<ul>
+<li>使用蓝绿部署</li>
+</ul>
+</li>
+<li><p><strong>资源有限</strong>：</p>
+<ul>
+<li>使用金丝雀部署</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的升级策略包括原地升级、蓝绿部署、金丝雀部署等，确保升级过程不会停机。理解 K8s 的升级策略是掌握 K8s 部署的关键。</p>
+<hr>
+<h3 id="Q27-请详细解释-Kubernetes-的备份和恢复（Backup-and-Restore）？"><a href="#Q27-请详细解释-Kubernetes-的备份和恢复（Backup-and-Restore）？" class="headerlink" title="Q27: 请详细解释 Kubernetes 的备份和恢复（Backup and Restore）？"></a>Q27: 请详细解释 Kubernetes 的备份和恢复（Backup and Restore）？</h3><p><strong>一句话总结</strong>：Kubernetes 的备份和恢复是通过备份 etcd 数据、资源定义等，确保集群状态不会丢失。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的备份和恢复是确保集群状态不会丢失的重要功能。理解 K8s 的备份和恢复是掌握 K8s 运维的关键。</p>
+<p><strong>1. 备份 etcd 数据</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>etcd 是 Kubernetes 的分布式键值存储，存储集群状态</li>
+<li>备份 etcd 数据可以恢复集群状态</li>
+</ul>
+</li>
+<li><p><strong>方法</strong>：</p>
+<ul>
+<li>使用 <code>etcdctl snapshot save</code> 命令备份 etcd 数据</li>
+<li>例如：<code>ETCDCTL_API=3 etcdctl snapshot save snapshot.db</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 备份资源定义</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>备份 Kubernetes 资源定义（YAML 文件）</li>
+<li>例如：备份 Deployment、Service、ConfigMap 等</li>
+</ul>
+</li>
+<li><p><strong>方法</strong>：</p>
+<ul>
+<li>使用 <code>kubectl get</code> 命令导出资源定义</li>
+<li>例如：<code>kubectl get deployment -o yaml &gt; deployment.yaml</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 恢复 etcd 数据</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>使用备份的 etcd 数据恢复集群状态</li>
+</ul>
+</li>
+<li><p><strong>方法</strong>：</p>
+<ul>
+<li>使用 <code>etcdctl snapshot restore</code> 命令恢复 etcd 数据</li>
+<li>例如：<code>ETCDCTL_API=3 etcdctl snapshot restore snapshot.db</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>4. 恢复资源定义</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>使用备份的资源定义恢复集群状态</li>
+</ul>
+</li>
+<li><p><strong>方法</strong>：</p>
+<ul>
+<li>使用 <code>kubectl apply</code> 命令恢复资源定义</li>
+<li>例如：<code>kubectl apply -f deployment.yaml</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>5. 备份和恢复实际案例</strong>：</p>
+<p><strong>案例：备份和恢复 Kubernetes 集群</strong></p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs routeros">1. 备份 etcd 数据<br>   <span class="hljs-attribute">ETCDCTL_API</span>=3 etcdctl snapshot save snapshot.db<br><br>2. 备份资源定义<br>   kubectl <span class="hljs-built_in">get</span> deployment -o yaml &gt; deployment.yaml<br><br>3. 恢复 etcd 数据<br>   <span class="hljs-attribute">ETCDCTL_API</span>=3 etcdctl snapshot restore snapshot.db<br><br>4. 恢复资源定义<br>   kubectl apply -f deployment.yaml<br></code></pre></td></tr></table></figure>
+
+<p><strong>6. 备份和恢复最佳实践</strong>：</p>
+<ul>
+<li><p><strong>定期备份 etcd 数据</strong>：</p>
+<ul>
+<li>例如：每天备份一次</li>
+</ul>
+</li>
+<li><p><strong>定期备份资源定义</strong>：</p>
+<ul>
+<li>例如：每天备份一次</li>
+</ul>
+</li>
+<li><p><strong>测试恢复流程</strong>：</p>
+<ul>
+<li>例如：定期测试恢复流程，确保备份可用</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Kubernetes 的备份和恢复是确保集群状态不会丢失的重要功能：</p>
+<ol>
+<li><p><strong>定期备份 etcd 数据</strong>：</p>
+<ul>
+<li>例如：每天备份一次</li>
+</ul>
+</li>
+<li><p><strong>定期备份资源定义</strong>：</p>
+<ul>
+<li>例如：每天备份一次</li>
+</ul>
+</li>
+<li><p><strong>测试恢复流程</strong>：</p>
+<ul>
+<li>例如：定期测试恢复流程，确保备份可用</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的备份和恢复是通过备份 etcd 数据、资源定义等，确保集群状态不会丢失。理解 K8s 的备份和恢复是掌握 K8s 运维的关键。</p>
+<hr>
+<h3 id="Q28-请详细解释-Kubernetes-的性能优化（Performance-Optimization）？"><a href="#Q28-请详细解释-Kubernetes-的性能优化（Performance-Optimization）？" class="headerlink" title="Q28: 请详细解释 Kubernetes 的性能优化（Performance Optimization）？"></a>Q28: 请详细解释 Kubernetes 的性能优化（Performance Optimization）？</h3><p><strong>一句话总结</strong>：Kubernetes 的性能优化是通过优化 Control Plane、Worker Node、网络、存储等，提高集群性能。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的性能优化是提高集群性能的重要功能。理解 K8s 的性能优化是掌握 K8s 运维的关键。</p>
+<p><strong>1. 优化 Control Plane</strong>：</p>
+<ul>
+<li><p><strong>优化 API Server</strong>：</p>
+<ul>
+<li>增加 API Server 实例数</li>
+<li>例如：部署 3 个 API Server 实例</li>
+</ul>
+</li>
+<li><p><strong>优化 etcd</strong>：</p>
+<ul>
+<li>使用 SSD 磁盘</li>
+<li>例如：使用 SSD 磁盘存储 etcd 数据</li>
+</ul>
+</li>
+<li><p><strong>优化 Scheduler</strong>：</p>
+<ul>
+<li>增加 Scheduler 实例数</li>
+<li>例如：部署 3 个 Scheduler 实例</li>
+</ul>
+</li>
+<li><p><strong>优化 Controller Manager</strong>：</p>
+<ul>
+<li>增加 Controller Manager 实例数</li>
+<li>例如：部署 3 个 Controller Manager 实例</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 优化 Worker Node</strong>：</p>
+<ul>
+<li><p><strong>优化 kubelet</strong>：</p>
+<ul>
+<li>增加 kubelet 资源限制</li>
+<li>例如：设置 <code>kubelet --image-gc-high-threshold=90</code></li>
+</ul>
+</li>
+<li><p><strong>优化 kube-proxy</strong>：</p>
+<ul>
+<li>使用 IPVS 模式</li>
+<li>例如：设置 <code>kube-proxy --mode=ipvs</code></li>
+</ul>
+</li>
+<li><p><strong>优化容器运行时</strong>：</p>
+<ul>
+<li>使用 Containerd 或 CRI-O</li>
+<li>例如：使用 Containerd 替代 Docker</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 优化网络</strong>：</p>
+<ul>
+<li><p><strong>选择合适的 CNI 插件</strong>：</p>
+<ul>
+<li>例如：使用 Calico 或 Cilium</li>
+</ul>
+</li>
+<li><p><strong>使用 Service Mesh</strong>：</p>
+<ul>
+<li>例如：使用 Istio 或 Linkerd</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. 优化存储</strong>：</p>
+<ul>
+<li><p><strong>选择合适的存储后端</strong>：</p>
+<ul>
+<li>例如：使用 SSD 磁盘或云厂商高性能存储**</li>
+</ul>
+</li>
+<li><p><strong>使用本地存储</strong>：</p>
+<ul>
+<li>例如：使用 Local PV</li>
+</ul>
+</li>
+</ul>
+<p><strong>5. 性能优化实际案例</strong>：</p>
+<p><strong>案例：优化 Kubernetes 集群性能</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 优化 Control Plane<br><span class="hljs-bullet">   -</span> 增加 API Server 实例数<br><span class="hljs-bullet">   -</span> 使用 SSD 磁盘存储 etcd 数据<br><br><span class="hljs-bullet">2.</span> 优化 Worker Node<br><span class="hljs-bullet">   -</span> 使用 Containerd 替代 Docker<br><span class="hljs-bullet">   -</span> 使用 IPVS 模式的 kube-proxy<br><br><span class="hljs-bullet">3.</span> 优化网络<br><span class="hljs-bullet">   -</span> 使用 Calico 作为 CNI 插件<br><br><span class="hljs-bullet">4.</span> 优化存储<br><span class="hljs-bullet">   -</span> 使用 SSD 磁盘<br></code></pre></td></tr></table></figure>
+
+<p><strong>6. 性能优化最佳实践</strong>：</p>
+<ul>
+<li><p><strong>优化 Control Plane</strong>：</p>
+<ul>
+<li>例如：增加 API Server 实例数、使用 SSD 磁盘存储 etcd 数据**</li>
+</ul>
+</li>
+<li><p><strong>优化 Worker Node</strong>：</p>
+<ul>
+<li>例如：使用 Containerd 替代 Docker、使用 IPVS 模式的 kube-proxy**</li>
+</ul>
+</li>
+<li><p><strong>优化网络</strong>：</p>
+<ul>
+<li>例如：使用 Calico 或 Cilium**</li>
+</ul>
+</li>
+<li><p><strong>优化存储</strong>：</p>
+<ul>
+<li>例如：使用 SSD 磁盘或云厂商高性能存储**</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Kubernetes 的性能优化是提高集群性能的重要功能：</p>
+<ol>
+<li><p><strong>优化 Control Plane</strong>：</p>
+<ul>
+<li>例如：增加 API Server 实例数、使用 SSD 磁盘存储 etcd 数据**</li>
+</ul>
+</li>
+<li><p><strong>优化 Worker Node</strong>：</p>
+<ul>
+<li>例如：使用 Containerd 替代 Docker、使用 IPVS 模式的 kube-proxy**</li>
+</ul>
+</li>
+<li><p><strong>优化网络</strong>：</p>
+<ul>
+<li>例如：使用 Calico 或 Cilium**</li>
+</ul>
+</li>
+<li><p><strong>优化存储</strong>：</p>
+<ul>
+<li>例如：使用 SSD 磁盘或云厂商高性能存储**</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的性能优化是通过优化 Control Plane、Worker Node、网络、存储等，提高集群性能。理解 K8s 的性能优化是掌握 K8s 运维的关键。</p>
+<hr>
+<h3 id="Q29-请详细解释-Kubernetes-的安全加固（Security-Hardening）？"><a href="#Q29-请详细解释-Kubernetes-的安全加固（Security-Hardening）？" class="headerlink" title="Q29: 请详细解释 Kubernetes 的安全加固（Security Hardening）？"></a>Q29: 请详细解释 Kubernetes 的安全加固（Security Hardening）？</h3><p><strong>一句话总结</strong>：Kubernetes 的安全加固是通过加固 Control Plane、Worker Node、网络、存储等，提高集群安全性。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 的安全加固是提高集群安全性的重要功能。理解 K8s 的安全加固是掌握 K8s 安全的关键。</p>
+<p><strong>1. 加固 Control Plane</strong>：</p>
+<ul>
+<li><p><strong>加固 API Server</strong>：</p>
+<ul>
+<li>启用 RBAC</li>
+<li>例如：设置 <code>--authorization-mode=RBAC</code></li>
+<li>启用 TLS</li>
+<li>例如：设置 <code>--tls-cert-file=/path/to/cert</code>、<code>--tls-private-key-file=/path/to/key</code></li>
+</ul>
+</li>
+<li><p><strong>加固 etcd</strong>：</p>
+<ul>
+<li>启用 TLS</li>
+<li>例如：设置 <code>--cert-file=/path/to/cert</code>、<code>--key-file=/path/to/key</code></li>
+<li>启用认证</li>
+<li>例如：设置 <code>--client-cert-auth=true</code></li>
+</ul>
+</li>
+<li><p><strong>加固 Scheduler</strong>：</p>
+<ul>
+<li>启用 TLS</li>
+<li>例如：设置 <code>--tls-cert-file=/path/to/cert</code>、<code>--tls-private-key-file=/path/to/key</code></li>
+</ul>
+</li>
+<li><p><strong>加固 Controller Manager</strong>：</p>
+<ul>
+<li>启用 TLS</li>
+<li>例如：设置 <code>--tls-cert-file=/path/to/cert</code>、<code>--tls-private-key-file=/path/to/key</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 加固 Worker Node</strong>：</p>
+<ul>
+<li><p><strong>加固 kubelet</strong>：</p>
+<ul>
+<li>启用 TLS</li>
+<li>例如：设置 <code>--tls-cert-file=/path/to/cert</code>、<code>--tls-private-key-file=/path/to/key</code></li>
+<li>启用认证</li>
+<li>例如：设置 <code>--authentication-token-webhook=true</code></li>
+</ul>
+</li>
+<li><p><strong>加固 kube-proxy</strong>：</p>
+<ul>
+<li>启用 TLS</li>
+<li>例如：设置 <code>--tls-cert-file=/path/to/cert</code>、<code>--tls-private-key-file=/path/to/key</code></li>
+</ul>
+</li>
+<li><p><strong>加固容器运行时</strong>：</p>
+<ul>
+<li>使用最小化基础镜像</li>
+<li>例如：使用 Alpine（5MB）</li>
+<li>非 root 用户运行容器</li>
+<li>例如：在 Dockerfile 中创建非 root 用户，并以该用户运行容器</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 加固网络</strong>：</p>
+<ul>
+<li><p><strong>使用网络策略（Network Policy）</strong>：</p>
+<ul>
+<li>例如：只允许特定 Pod 访问数据库 Pod</li>
+</ul>
+</li>
+<li><p><strong>使用 Service Mesh</strong>：</p>
+<ul>
+<li>例如：使用 Istio 或 Linkerd</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. 加固存储</strong>：</p>
+<ul>
+<li><p><strong>使用 Secret 存储敏感数据</strong>：</p>
+<ul>
+<li>例如：使用 Secret 存储密码、API 密钥**</li>
+</ul>
+</li>
+<li><p><strong>启用 Secret 加密</strong>：</p>
+<ul>
+<li>例如：启用 Kubernetes 1.13+ 的 Secret 加密功能**</li>
+</ul>
+</li>
+</ul>
+<p><strong>5. 安全加固实际案例</strong>：</p>
+<p><strong>案例：加固 Kubernetes 集群安全性</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 加固 Control Plane<br><span class="hljs-bullet">   -</span> 启用 RBAC<br><span class="hljs-bullet">   -</span> 启用 TLS<br><br><span class="hljs-bullet">2.</span> 加固 Worker Node<br><span class="hljs-bullet">   -</span> 启用 TLS<br><span class="hljs-bullet">   -</span> 启用认证<br><br><span class="hljs-bullet">3.</span> 加固网络<br><span class="hljs-bullet">   -</span> 使用网络策略<br><br><span class="hljs-bullet">4.</span> 加固存储<br><span class="hljs-bullet">   -</span> 使用 Secret 存储敏感数据<br><span class="hljs-bullet">   -</span> 启用 Secret 加密<br></code></pre></td></tr></table></figure>
+
+<p><strong>6. 安全加固最佳实践</strong>：</p>
+<ul>
+<li><p><strong>加固 Control Plane</strong>：</p>
+<ul>
+<li>例如：启用 RBAC、启用 TLS**</li>
+</ul>
+</li>
+<li><p><strong>加固 Worker Node</strong>：</p>
+<ul>
+<li>例如：启用 TLS、启用认证**</li>
+</ul>
+</li>
+<li><p><strong>加固网络</strong>：</p>
+<ul>
+<li>例如：使用网络策略**</li>
+</ul>
+</li>
+<li><p><strong>加固存储</strong>：</p>
+<ul>
+<li>例如：使用 Secret 存储敏感数据、启用 Secret 加密**</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，Kubernetes 的安全加固是提高集群安全性的重要功能：</p>
+<ol>
+<li><p><strong>加固 Control Plane</strong>：</p>
+<ul>
+<li>例如：启用 RBAC、启用 TLS**</li>
+</ul>
+</li>
+<li><p><strong>加固 Worker Node</strong>：</p>
+<ul>
+<li>例如：启用 TLS、启用认证**</li>
+</ul>
+</li>
+<li><p><strong>加固网络</strong>：</p>
+<ul>
+<li>例如：使用网络策略**</li>
+</ul>
+</li>
+<li><p><strong>加固存储</strong>：</p>
+<ul>
+<li>例如：使用 Secret 存储敏感数据、启用 Secret 加密**</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的安全加固是通过加固 Control Plane、Worker Node、网络、存储等，提高集群安全性。理解 K8s 的安全加固是掌握 K8s 安全的关键。</p>
+<hr>
+<h3 id="Q30-请详细解释-Kubernetes-的未来趋势（Future-Trends）？"><a href="#Q30-请详细解释-Kubernetes-的未来趋势（Future-Trends）？" class="headerlink" title="Q30: 请详细解释 Kubernetes 的未来趋势（Future Trends）？"></a>Q30: 请详细解释 Kubernetes 的未来趋势（Future Trends）？</h3><p><strong>一句话总结</strong>：Kubernetes 的未来趋势包括 Serverless、Service Mesh、eBPF、Wasm 等，将进一步提高性能、安全性和可观测性。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Kubernetes 是一个快速发展的技术。了解 Kubernetes 的未来趋势，可以帮助我们更好地规划和技术选型。</p>
+<p><strong>1. Serverless</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>Serverless 是无服务器计算，用户不需要管理服务器</li>
+<li>Kubernetes 可以通过 Knative、OpenFaaS 等实现 Serverless</li>
+</ul>
+</li>
+<li><p><strong>工具</strong>：</p>
+<ul>
+<li><strong>Knative</strong>：<ul>
+<li>功能：Kubernetes 原生 Serverless 平台</li>
+<li>优点：功能丰富、与 Kubernetes 集成好</li>
+<li>缺点：配置复杂</li>
+</ul>
+</li>
+<li><strong>OpenFaaS</strong>：<ul>
+<li>功能：开源 Serverless 平台</li>
+<li>优点：简单易用、与 Kubernetes 集成好</li>
+<li>缺点：功能相对简单</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. Service Mesh</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>Service Mesh 是微服务网络层，提供流量管理、安全、可观测性等功能</li>
+<li>Kubernetes 可以通过 Istio、Linkerd 等实现 Service Mesh</li>
+</ul>
+</li>
+<li><p><strong>工具</strong>：</p>
+<ul>
+<li><strong>Istio</strong>：<ul>
+<li>功能：功能丰富的 Service Mesh</li>
+<li>优点：功能丰富、与 Kubernetes 集成好</li>
+<li>缺点：配置复杂、资源消耗大</li>
+</ul>
+</li>
+<li><strong>Linkerd</strong>：<ul>
+<li>功能：轻量级 Service Mesh</li>
+<li>优点：轻量级、简单易用</li>
+<li>缺点：功能相对简单</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. eBPF</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>eBPF（extended Berkeley Packet Filter）是一种在 Linux 内核中运行程序的技术</li>
+<li>eBPF 可以用于容器网络、安全、可观测性等</li>
+<li>Kubernetes 可以通过 Cilium 等实现 eBPF</li>
+</ul>
+</li>
+<li><p><strong>工具</strong>：</p>
+<ul>
+<li><strong>Cilium</strong>：<ul>
+<li>功能：基于 eBPF 的 Kubernetes CNI 插件</li>
+<li>优点：性能好、功能丰富、支持 eBPF</li>
+<li>缺点：配置复杂</li>
+</ul>
+</li>
+<li><strong>Falco</strong>：<ul>
+<li>功能：基于 eBPF 的容器安全工具</li>
+<li>优点：性能好、功能丰富、支持 eBPF**</li>
+<li>缺点：配置复杂</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. Wasm（WebAssembly）</strong>：</p>
+<ul>
+<li><p><strong>原理</strong>：</p>
+<ul>
+<li>Wasm（WebAssembly）是一种二进制指令格式，可以在浏览器中运行</li>
+<li>Wasm 可以用于容器，提供更快的启动速度和更小的内存占用</li>
+<li>Kubernetes 可以通过 WasmCloud、WasmEdge 等实现 Wasm**</li>
+</ul>
+</li>
+<li><p><strong>工具</strong>：</p>
+<ul>
+<li><strong>WasmCloud</strong>：<ul>
+<li>功能：Wasm 运行时</li>
+<li>优点：启动速度快、内存占用小**</li>
+<li>缺点：生态不成熟</li>
+</ul>
+</li>
+<li><strong>WasmEdge</strong>：<ul>
+<li>功能：Wasm 运行时</li>
+<li>优点：启动速度快、内存占用小**</li>
+<li>缺点：生态不成熟</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>5. Kubernetes 未来趋势实际案例</strong>：</p>
+<p><strong>案例：使用 Istio 实现 Service Mesh</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 部署 Istio<br><span class="hljs-bullet">2.</span> 配置 VirtualService 和 DestinationRule<br><span class="hljs-bullet">3.</span> 实现流量管理、安全、可观测性等功能<br></code></pre></td></tr></table></figure>
+
+<p><strong>6. Kubernetes 未来趋势最佳实践</strong>：</p>
+<ul>
+<li><p><strong>使用 Serverless</strong>：</p>
+<ul>
+<li>例如：使用 Knative 或 OpenFaaS**</li>
+</ul>
+</li>
+<li><p><strong>使用 Service Mesh</strong>：</p>
+<ul>
+<li>例如：使用 Istio 或 Linkerd**</li>
+</ul>
+</li>
+<li><p><strong>使用 eBPF</strong>：</p>
+<ul>
+<li>例如：使用 Cilium**</li>
+</ul>
+</li>
+<li><p><strong>使用 Wasm</strong>：</p>
+<ul>
+<li>例如：使用 WasmCloud 或 WasmEdge**</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<p>在实际工作中，了解 Kubernetes 的未来趋势可以帮助我们更好地规划和技术选型：</p>
+<ol>
+<li><p><strong>Serverless</strong>：</p>
+<ul>
+<li>例如：使用 Knative 或 OpenFaaS**</li>
+</ul>
+</li>
+<li><p><strong>Service Mesh</strong>：</p>
+<ul>
+<li>例如：使用 Istio 或 Linkerd**</li>
+</ul>
+</li>
+<li><p><strong>eBPF</strong>：</p>
+<ul>
+<li>例如：使用 Cilium**</li>
+</ul>
+</li>
+<li><p><strong>Wasm</strong>：</p>
+<ul>
+<li>例如：使用 WasmCloud 或 WasmEdge**</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：Kubernetes 的未来趋势包括 Serverless、Service Mesh、eBPF、Wasm 等，将进一步提高性能、安全性和可观测性。了解这些未来趋势可以帮助我们更好地规划和技术选型。</p>
+<hr>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/" class="category-chain-item">面试准备</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/%E6%8A%80%E6%9C%AF%E9%9D%A2%E8%AF%95/" class="category-chain-item">技术面试</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/%E6%8A%80%E6%9C%AF%E9%9D%A2%E8%AF%95/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87/" class="category-chain-item">面试八股文</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/" class="print-no-link">#傻子都能懂</a>
+      
+        <a href="/tags/%E9%AB%98%E6%A0%87%E5%87%86/" class="print-no-link">#高标准</a>
+      
+        <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Kubernetes 面试八股文（傻子都能懂系列）</div>
+      <div>https://whyalwaysme.lol/2026/06/09/2026-06-09-kubernetes-interview-deep/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/09/2026-06-09-docker-interview-deep/" title="Docker 面试八股文（傻子都能懂系列）">
+                        <span class="hidden-mobile">Docker 面试八股文（傻子都能懂系列）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
