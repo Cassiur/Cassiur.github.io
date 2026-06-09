@@ -228,6 +228,77 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2026/06/08/2026-06-08-knowflow-upload-pipeline-learn/" target="_self">
+          KnowFlow 项目学习笔记（一）：上传流水线深度解析
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-knowflow-upload-pipeline-learn/" target="_self">
+        <div>
+          写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解文件上传流水线的实现细节（分片上传、断点续传、MinIO 存储、Redis Bitmap 去重）。并指出源码里的 4 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是上传流水线？傻子都能懂的解释： 想象你要上传一个 100MB 的文件到服务器：  传统方式：直接上传整个文件，如果
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-08 21:45" pubdate>
+              2026-06-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DevLink%E9%9D%A2%E8%AF%95%E6%89%8B%E5%86%8C/" class="category-chain-item">DevLink面试手册</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/KnowFlow/">#KnowFlow</a>
+            
+              <a href="/tags/MinIO/">#MinIO</a>
+            
+              <a href="/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">#文件上传</a>
+            
+              <a href="/tags/%E5%88%86%E7%89%87%E4%B8%8A%E4%BC%A0/">#分片上传</a>
+            
+              <a href="/tags/Redis-Bitmap/">#Redis Bitmap</a>
+            
+              <a href="/tags/%E6%96%AD%E7%82%B9%E7%BB%AD%E4%BC%A0/">#断点续传</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2026/06/08/2026-06-07-algorithm-interview-deep/" target="_self">
           算法面试八股文——30道LeetCode高频题（BAT面试必刷）
         </a>
@@ -905,79 +976,6 @@
               <a href="/tags/RabbitMQ/">#RabbitMQ</a>
             
               <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">#消息队列</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/06/08/2026-06-08-devlink-cache-pipeline-qa/" target="_self">
-          技术派缓存+Pipeline面试题深度解析（22问·附源码）
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/08/2026-06-08-devlink-cache-pipeline-qa/" target="_self">
-        <div>
-          技术派缓存 + Pipeline 面试题深度解析（22 问·附源码） 简历原文：针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓存拦截热点聚合数据（侧边栏、热文榜），利用 Redis Hash + hIncr 原子操作聚合用户&#x2F;文章的点赞数、评论数、阅读数等高频写计数，并通过 Pipeline 批量提交减少 RTT，有效降低直接落库压力 下面每道题都贴出项目源码，
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-06-08 18:56" pubdate>
-              2026-06-08
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E9%9D%A2%E8%AF%95/">#面试</a>
-            
-              <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/">#八股文</a>
-            
-              <a href="/tags/Redis/">#Redis</a>
-            
-              <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/">#字节跳动</a>
-            
-              <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/">#技术派</a>
-            
-              <a href="/tags/Caffeine/">#Caffeine</a>
-            
-              <a href="/tags/Pipeline/">#Pipeline</a>
             
           </div>
         

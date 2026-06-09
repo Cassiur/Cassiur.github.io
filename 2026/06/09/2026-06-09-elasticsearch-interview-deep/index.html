@@ -1,0 +1,1850 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="Elasticsearch 面试八股文（50 题） 📚 面试高频：本文覆盖 Elasticsearch 核心知识点，从基础概念到高级优化，帮你系统掌握 ES 面试要点。 🎯 面试加分：每个问题都包含深度解析和面试加分回答，让你在面试中脱颖而出。 ⚡ 快速掌握：所有问题都附有通俗易懂的解释和实战经验分享。   📋 目录 第一部分：Elasticsearch 基础（Q1-Q10） 第二部分：El">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch 面试八股文（50 题）">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/09/2026-06-09-elasticsearch-interview-deep/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="Elasticsearch 面试八股文（50 题） 📚 面试高频：本文覆盖 Elasticsearch 核心知识点，从基础概念到高级优化，帮你系统掌握 ES 面试要点。 🎯 面试加分：每个问题都包含深度解析和面试加分回答，让你在面试中脱颖而出。 ⚡ 快速掌握：所有问题都附有通俗易懂的解释和实战经验分享。   📋 目录 第一部分：Elasticsearch 基础（Q1-Q10） 第二部分：El">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-09T06:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-09T06:33:01.934Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Elasticsearch">
+<meta property="article:tag" content="分布式">
+<meta property="article:tag" content="搜索">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Elasticsearch 面试八股文（50 题） - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Elasticsearch 面试八股文（50 题）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-09 14:30" pubdate>
+          2026年6月9日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          133 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Elasticsearch 面试八股文（50 题）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Elasticsearch-面试八股文（50-题）"><a href="#Elasticsearch-面试八股文（50-题）" class="headerlink" title="Elasticsearch 面试八股文（50 题）"></a>Elasticsearch 面试八股文（50 题）</h1><blockquote>
+<p>📚 <strong>面试高频</strong>：本文覆盖 Elasticsearch 核心知识点，从基础概念到高级优化，帮你系统掌握 ES 面试要点。</p>
+<p>🎯 <strong>面试加分</strong>：每个问题都包含深度解析和面试加分回答，让你在面试中脱颖而出。</p>
+<p>⚡ <strong>快速掌握</strong>：所有问题都附有通俗易懂的解释和实战经验分享。</p>
+</blockquote>
+<hr>
+<h2 id="📋-目录"><a href="#📋-目录" class="headerlink" title="📋 目录"></a>📋 目录</h2><ul>
+<li><a href="#%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86elasticsearch-%E5%9F%BA%E7%A1%80q1-q10">第一部分：Elasticsearch 基础（Q1-Q10）</a></li>
+<li><a href="#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86elasticsearch-%E7%B4%A2%E5%BC%95%E5%92%8C%E6%98%A0%E5%B0%84q11-q20">第二部分：Elasticsearch 索引和映射（Q11-Q20）</a></li>
+<li><a href="#%E7%AC%AC%E4%B8%89%E9%83%A8%E5%88%86elasticsearch-%E6%90%9C%E7%B4%A2q21-q30">第三部分：Elasticsearch 搜索（Q21-Q30）</a></li>
+<li><a href="#%E7%AC%AC%E5%9B%9B%E9%83%A8%E5%88%86elasticsearch-%E9%9B%86%E7%BE%A4%E5%92%8C%E5%88%86%E5%B8%83%E5%BC%8Fq31-q40">第四部分：Elasticsearch 集群和分布式（Q31-Q40）</a></li>
+<li><a href="#%E7%AC%AC%E4%BA%94%E9%83%A8%E5%88%86elasticsearch-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96q41-q50">第五部分：Elasticsearch 性能优化（Q41-Q50）</a></li>
+</ul>
+<hr>
+<h2 id="第一部分：Elasticsearch-基础（Q1-Q10）"><a href="#第一部分：Elasticsearch-基础（Q1-Q10）" class="headerlink" title="第一部分：Elasticsearch 基础（Q1-Q10）"></a>第一部分：Elasticsearch 基础（Q1-Q10）</h2><h3 id="Q1：什么是-Elasticsearch？它和-Solr-的区别是什么？"><a href="#Q1：什么是-Elasticsearch？它和-Solr-的区别是什么？" class="headerlink" title="Q1：什么是 Elasticsearch？它和 Solr 的区别是什么？"></a>Q1：什么是 Elasticsearch？它和 Solr 的区别是什么？</h3><p><strong>一句话总结</strong>：Elasticsearch 是一个<strong>分布式搜索和分析引擎</strong>，基于 Lucene 构建，擅长<strong>全文搜索、结构化搜索、分析</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Elasticsearch 的核心概念</strong>：</p>
+<ul>
+<li><strong>倒排索引（Inverted Index）</strong>：ES 的核心，通过词项（Term）快速查找文档</li>
+<li><strong>近实时搜索（NRT）</strong>：文档索引后，默认可在 1 秒内被搜索到</li>
+<li><strong>分布式架构</strong>：天然支持水平扩展</li>
+</ul>
+<p><strong>ES vs Solr</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Elasticsearch</th>
+<th>Solr</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分布式</td>
+<td>天然分布式，易于扩展</td>
+<td>需要 Zookeeper 协调</td>
+</tr>
+<tr>
+<td>近实时</td>
+<td>支持（1 秒延迟）</td>
+<td>支持（但配置复杂）</td>
+</tr>
+<tr>
+<td>社区</td>
+<td>活跃，生态丰富</td>
+<td>较成熟，但社区增长慢</td>
+</tr>
+<tr>
+<td>REST API</td>
+<td>原生支持</td>
+<td>需要额外配置</td>
+</tr>
+<tr>
+<td>大数据</td>
+<td>适合（可处理 PB 级数据）</td>
+<td>适合（但扩展性不如 ES）</td>
+</tr>
+</tbody></table>
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 ES 的<strong>使用场景</strong>（日志分析、全文搜索、安全分析）</li>
+<li>可以讲讲 <strong>ELK Stack</strong>（Elasticsearch + Logstash + Kibana）</li>
+<li>可以讲讲实际项目中的应用（比如商品搜索、日志检索）</li>
+</ul>
+<hr>
+<h3 id="Q2：Elasticsearch-的核心概念有哪些？"><a href="#Q2：Elasticsearch-的核心概念有哪些？" class="headerlink" title="Q2：Elasticsearch 的核心概念有哪些？"></a>Q2：Elasticsearch 的核心概念有哪些？</h3><p><strong>一句话总结</strong>：ES 的核心概念包括：<strong>索引（Index）</strong>、<strong>类型（Type）</strong>、<strong>文档（Document）</strong>、<strong>字段（Field）</strong>、<strong>映射（Mapping）</strong>、<strong>分片（Shard）</strong>、<strong>副本（Replica）</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>ES 的数据模型</strong>：</p>
+<ul>
+<li><strong>索引（Index）</strong>：相当于关系型数据库的<strong>数据库</strong></li>
+<li><strong>类型（Type）</strong>：相当于<strong>表</strong>（ES 7.x 已废弃，一个索引只能有一个类型 <code>_doc</code>）</li>
+<li><strong>文档（Document）</strong>：相当于<strong>行</strong></li>
+<li><strong>字段（Field）</strong>：相当于<strong>列</strong></li>
+</ul>
+<p><strong>ES 的分布式模型</strong>：</p>
+<ul>
+<li><strong>分片（Shard）</strong>：索引的<strong>水平拆分</strong>，每个分片是一个独立的 Lucene 索引</li>
+<li><strong>主分片（Primary Shard）</strong>：<strong>原始数据</strong>，负责处理写请求</li>
+<li><strong>副本分片（Replica Shard）</strong>：<strong>备份数据</strong>，负责处理读请求，提供高可用</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看索引的设置</span><br>GET /my_index/_settings<br><br><span class="hljs-comment"># 返回：</span><br>&#123;<br>  <span class="hljs-string">&quot;my_index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;settings&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;number_of_shards&quot;</span>: <span class="hljs-string">&quot;3&quot;</span>,        <span class="hljs-comment"># 3 个主分片</span><br>        <span class="hljs-string">&quot;number_of_replicas&quot;</span>: <span class="hljs-string">&quot;1&quot;</span>     <span class="hljs-comment"># 每个主分片有 1 个副本</span><br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲<strong>分片数量为什么不能修改</strong>（因为路由公式 <code>shard = hash(_routing) % number_of_primary_shards</code>）</li>
+<li>可以讲讲<strong>如何规划分片数量</strong>（根据数据量和硬件资源）</li>
+<li>可以讲讲实际项目中的分片策略（比如按时间滚动索引）</li>
+</ul>
+<hr>
+<h3 id="Q3：Elasticsearch-的倒排索引（Inverted-Index）是什么？"><a href="#Q3：Elasticsearch-的倒排索引（Inverted-Index）是什么？" class="headerlink" title="Q3：Elasticsearch 的倒排索引（Inverted Index）是什么？"></a>Q3：Elasticsearch 的倒排索引（Inverted Index）是什么？</h3><p><strong>一句话总结</strong>：倒排索引是 ES 的<strong>核心数据结构</strong>，通过<strong>词项（Term）→ 文档列表（Posting List）</strong> 的映射，实现快速全文搜索。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>正排索引 vs 倒排索引</strong>：</p>
+<ul>
+<li><strong>正排索引</strong>（比如数据库索引）：通过 <strong>ID → 内容</strong> 查找</li>
+<li><strong>倒排索引</strong>：通过 <strong>词项 → 文档 ID 列表</strong> 查找</li>
+</ul>
+<p><strong>倒排索引的组成</strong>：</p>
+<ol>
+<li><strong>词项字典（Term Dictionary）</strong>：存储所有词项，按字典序排列（用 FST 压缩存储）</li>
+<li><strong>倒排列表（Posting List）</strong>：存储包含该词项的文档 ID 列表（用 Roaring Bitmap 压缩存储）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs prolog">文档 <span class="hljs-number">1</span>: <span class="hljs-string">&quot;I love Elasticsearch&quot;</span><br>文档 <span class="hljs-number">2</span>: <span class="hljs-string">&quot;Elasticsearch is fast&quot;</span><br>文档 <span class="hljs-number">3</span>: <span class="hljs-string">&quot;I love fast search&quot;</span><br><br>倒排索引：<br><span class="hljs-string">&quot;I&quot;</span> → [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>]<br><span class="hljs-string">&quot;love&quot;</span> → [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>]<br><span class="hljs-string">&quot;Elasticsearch&quot;</span> → [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>]<br><span class="hljs-string">&quot;fast&quot;</span> → [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>]<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>FST（Finite State Transducer）</strong> 如何压缩词项字典</li>
+<li>可以讲讲 <strong>Roaring Bitmap</strong> 如何压缩倒排列表</li>
+<li>可以讲讲实际项目中的优化（比如禁用倒排索引的字段）</li>
+</ul>
+<hr>
+<h3 id="Q4：Elasticsearch-的文档-CRUD-操作有哪些？"><a href="#Q4：Elasticsearch-的文档-CRUD-操作有哪些？" class="headerlink" title="Q4：Elasticsearch 的文档 CRUD 操作有哪些？"></a>Q4：Elasticsearch 的文档 CRUD 操作有哪些？</h3><p><strong>一句话总结</strong>：ES 的文档 CRUD 操作包括：<strong>索引（Index）</strong>、<strong>创建（Create）</strong>、<strong>读取（Get）</strong>、<strong>更新（Update）</strong>、<strong>删除（Delete）</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>CRUD 操作示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 索引文档（ID 由 ES 自动生成）</span><br>POST /my_index/_doc<br>&#123;<br>  <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 实战&quot;</span>,<br>  <span class="hljs-string">&quot;author&quot;</span>: <span class="hljs-string">&quot;张三&quot;</span>,<br>  <span class="hljs-string">&quot;price&quot;</span>: 99<br>&#125;<br><br><span class="hljs-comment"># 2. 创建文档（指定 ID，如果已存在则报错）</span><br>PUT /my_index/_create/1<br>&#123;<br>  <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 实战&quot;</span>,<br>  <span class="hljs-string">&quot;author&quot;</span>: <span class="hljs-string">&quot;张三&quot;</span>,<br>  <span class="hljs-string">&quot;price&quot;</span>: 99<br>&#125;<br><br><span class="hljs-comment"># 3. 读取文档</span><br>GET /my_index/_doc/1<br><br><span class="hljs-comment"># 4. 更新文档（部分更新）</span><br>POST /my_index/_update/1<br>&#123;<br>  <span class="hljs-string">&quot;doc&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;price&quot;</span>: 79<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 5. 删除文档</span><br>DELETE /my_index/_doc/1<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>Index vs Create</strong> 的区别（<code>PUT /_create/</code> 如果 ID 已存在则报错，<code>POST /_doc/</code> 或 <code>PUT /_doc/</code> 会覆盖）</li>
+<li>可以讲讲 <strong>Update 的内部原理</strong>（先获取文档，修改，再索引）</li>
+<li>可以讲讲实际项目中的最佳实践（比如使用 <strong>Bulk API</strong> 批量操作）</li>
+</ul>
+<hr>
+<h3 id="Q5：Elasticsearch-的搜索类型有哪些？"><a href="#Q5：Elasticsearch-的搜索类型有哪些？" class="headerlink" title="Q5：Elasticsearch 的搜索类型有哪些？"></a>Q5：Elasticsearch 的搜索类型有哪些？</h3><p><strong>一句话总结</strong>：ES 的搜索类型包括：<strong>全文搜索</strong>、<strong>结构化搜索</strong>、<strong>聚合搜索</strong>、<strong>地理位置搜索</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>1. 全文搜索</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Match 查询（分词后搜索）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;match&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 实战&quot;</span><br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 结构化搜索</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Term 查询（精确匹配）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;term&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;status&quot;</span>: 1<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 聚合搜索</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 按作者分组，统计每本书的平均价格</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;aggs&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;by_author&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;terms&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;author.keyword&quot;</span><br>      &#125;,<br>      <span class="hljs-string">&quot;aggs&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;avg_price&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;avg&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;price&quot;</span><br>          &#125;<br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 地理位置搜索</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查询距离指定坐标 1km 内的文档</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;geo_distance&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;distance&quot;</span>: <span class="hljs-string">&quot;1km&quot;</span>,<br>      <span class="hljs-string">&quot;location&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;lat&quot;</span>: 40.7128,<br>        <span class="hljs-string">&quot;lon&quot;</span>: -74.0060<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>Match vs Term</strong> 的区别（<code>match</code> 会分词，<code>term</code> 不会分词）</li>
+<li>可以讲讲 <strong>聚合的性能优化</strong>（比如 <code>size: 0</code> 不返回文档，只返回聚合结果）</li>
+<li>可以讲讲实际项目中的应用（比如商品搜索、用户画像分析）</li>
+</ul>
+<hr>
+<h3 id="Q6：Elasticsearch-的-mapping（映射）是什么？"><a href="#Q6：Elasticsearch-的-mapping（映射）是什么？" class="headerlink" title="Q6：Elasticsearch 的 mapping（映射）是什么？"></a>Q6：Elasticsearch 的 mapping（映射）是什么？</h3><p><strong>一句话总结</strong>：Mapping 是 ES 的<strong>数据模式定义</strong>，定义了文档的字段类型、分词器、是否索引等属性。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Mapping 的类型</strong>：</p>
+<ol>
+<li><strong>动态映射（Dynamic Mapping）</strong>：ES 自动推断字段类型（不推荐，因为可能推断错误）</li>
+<li><strong>静态映射（Explicit Mapping）</strong>：手动定义字段类型（推荐）</li>
+</ol>
+<p><strong>字段类型</strong>：</p>
+<ul>
+<li><strong>text</strong>：用于全文搜索（会分词）</li>
+<li><strong>keyword</strong>：用于结构化搜索（不会分词）</li>
+<li><strong>integer</strong>、<strong>long</strong>、<strong>float</strong>、<strong>double</strong>：数值类型</li>
+<li><strong>date</strong>：日期类型</li>
+<li><strong>boolean</strong>：布尔类型</li>
+<li><strong>geo_point</strong>：地理位置类型</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建索引时定义 mapping</span><br>PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,               <span class="hljs-comment"># 全文搜索</span><br>        <span class="hljs-string">&quot;analyzer&quot;</span>: <span class="hljs-string">&quot;ik_max_word&quot;</span>      <span class="hljs-comment"># 中文分词器</span><br>      &#125;,<br>      <span class="hljs-string">&quot;author&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;keyword&quot;</span>             <span class="hljs-comment"># 精确匹配</span><br>      &#125;,<br>      <span class="hljs-string">&quot;price&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;float&quot;</span>                <span class="hljs-comment"># 数值类型</span><br>      &#125;,<br>      <span class="hljs-string">&quot;publish_date&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;date&quot;</span>                 <span class="hljs-comment"># 日期类型</span><br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>text vs keyword</strong> 的区别（<code>text</code> 会分词，用于全文搜索；<code>keyword</code> 不会分词，用于精确匹配）</li>
+<li>可以讲讲 <strong>动态映射的风险</strong>（比如数字被推断为 <code>long</code>，导致无法精确匹配）</li>
+<li>可以讲讲实际项目中的最佳实践（** always 使用静态映射**）</li>
+</ul>
+<hr>
+<h3 id="Q7：Elasticsearch-的分词器（Analyzer）是什么？"><a href="#Q7：Elasticsearch-的分词器（Analyzer）是什么？" class="headerlink" title="Q7：Elasticsearch 的分词器（Analyzer）是什么？"></a>Q7：Elasticsearch 的分词器（Analyzer）是什么？</h3><p><strong>一句话总结</strong>：分词器是 ES 用于处理<strong>文本字段</strong>的组件，包括：<strong>字符过滤器（Character Filter）</strong>、<strong>分词器（Tokenizer）</strong>、<strong>词项过滤器（Token Filter）</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>分词器的组成</strong>：</p>
+<ol>
+<li><strong>字符过滤器</strong>：预处理文本（比如去除 HTML 标签）</li>
+<li><strong>分词器</strong>：将文本切分成词项（比如按空格分词）</li>
+<li><strong>词项过滤器</strong>：后处理词项（比如转小写、去除停用词、添加同义词）</li>
+</ol>
+<p><strong>内置分词器</strong>：</p>
+<ul>
+<li><strong>Standard Analyzer</strong>：默认分词器，按词切分，转小写</li>
+<li><strong>Simple Analyzer</strong>：按非字母字符切分，转小写</li>
+<li><strong>Whitespace Analyzer</strong>：按空格切分</li>
+<li><strong>IK Analyzer</strong>：中文分词器（需要安装插件）</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 测试分词器</span><br>POST /_analyze<br>&#123;<br>  <span class="hljs-string">&quot;analyzer&quot;</span>: <span class="hljs-string">&quot;standard&quot;</span>,<br>  <span class="hljs-string">&quot;text&quot;</span>: <span class="hljs-string">&quot;I love Elasticsearch&quot;</span><br>&#125;<br><br><span class="hljs-comment"># 返回：</span><br>&#123;<br>  <span class="hljs-string">&quot;tokens&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;token&quot;</span>: <span class="hljs-string">&quot;i&quot;</span>, <span class="hljs-string">&quot;position&quot;</span>: 0 &#125;,<br>    &#123; <span class="hljs-string">&quot;token&quot;</span>: <span class="hljs-string">&quot;love&quot;</span>, <span class="hljs-string">&quot;position&quot;</span>: 1 &#125;,<br>    &#123; <span class="hljs-string">&quot;token&quot;</span>: <span class="hljs-string">&quot;elasticsearch&quot;</span>, <span class="hljs-string">&quot;position&quot;</span>: 2 &#125;<br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何选择合适的分词器</strong>（英文用 <code>standard</code>，中文用 <code>ik_max_word</code>）</li>
+<li>可以讲讲 <strong>如何自定义分词器</strong>（比如添加同义词过滤器）</li>
+<li>可以讲讲实际项目中的优化（比如禁用不必要的词项过滤器）</li>
+</ul>
+<hr>
+<h3 id="Q8：Elasticsearch-的评分机制（Scoring）是什么？"><a href="#Q8：Elasticsearch-的评分机制（Scoring）是什么？" class="headerlink" title="Q8：Elasticsearch 的评分机制（Scoring）是什么？"></a>Q8：Elasticsearch 的评分机制（Scoring）是什么？</h3><p><strong>一句话总结</strong>：ES 使用 <strong>BM25</strong> 算法计算文档的相关性评分（_score），评分越高，排序越靠前。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>BM25 算法</strong>：</p>
+<ul>
+<li>是 <strong>TF-IDF</strong> 的改进版</li>
+<li>考虑<strong>词频（TF）</strong> 和 <strong>逆文档频率（IDF）</strong></li>
+<li>但会对<strong>词频</strong>进行饱和处理（避免高频词主导评分）</li>
+</ul>
+<p><strong>评分公式</strong>（简化版）：</p>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-variable">score</span> <span class="hljs-operator">=</span> <span class="hljs-variable">TF</span> <span class="hljs-operator">*</span> <span class="hljs-variable">IDF</span> <span class="hljs-operator">*</span> <span class="hljs-variable">Field</span><span class="hljs-operator">-</span><span class="hljs-built_in">Length</span><span class="hljs-operator">-</span><span class="hljs-built_in">Norm</span><br><br>其中：<br><span class="hljs-operator">-</span> <span class="hljs-variable">TF</span>（词频）：词项在文档中出现的次数（经过饱和处理）<br><span class="hljs-operator">-</span> <span class="hljs-variable">IDF</span>（逆文档频率）：<span class="hljs-number">1</span> <span class="hljs-operator">/</span> <span class="hljs-punctuation">(</span>包含该词项的文档数<span class="hljs-punctuation">)</span><br><span class="hljs-operator">-</span> <span class="hljs-variable">Field</span><span class="hljs-operator">-</span><span class="hljs-built_in">Length</span><span class="hljs-operator">-</span><span class="hljs-built_in">Norm</span>（字段长度归一化）：<span class="hljs-number">1</span> <span class="hljs-operator">/</span> <span class="hljs-variable">sqrt</span><span class="hljs-punctuation">(</span>字段长度<span class="hljs-punctuation">)</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看文档的评分详情</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;explain&quot;</span>: <span class="hljs-literal">true</span>,<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;match&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch&quot;</span><br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何自定义评分</strong>（使用 <code>function_score</code> 查询）</li>
+<li>可以讲讲 <strong>如何影响评分</strong>（比如给新发布的文档加权）</li>
+<li>可以讲讲实际项目中的优化（比如<strong>取消评分</strong> <code>_score</code> 以提高性能）</li>
+</ul>
+<hr>
+<h3 id="Q9：Elasticsearch-的分布式架构是什么？"><a href="#Q9：Elasticsearch-的分布式架构是什么？" class="headerlink" title="Q9：Elasticsearch 的分布式架构是什么？"></a>Q9：Elasticsearch 的分布式架构是什么？</h3><p><strong>一句话总结</strong>：ES 是<strong>分布式系统</strong>，通过<strong>分片（Shard）</strong> 实现水平扩展，通过<strong>副本（Replica）</strong> 实现高可用。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>ES 的节点类型</strong>：</p>
+<ul>
+<li><strong>主节点（Master Node）</strong>：负责集群管理（创建&#x2F;删除索引、跟踪节点状态）</li>
+<li><strong>数据节点（Data Node）</strong>：负责存储数据和执行搜索</li>
+<li><strong>协调节点（Coordinating Node）</strong>：负责接收客户端请求，路由到正确的节点，合并结果</li>
+<li><strong>预处理节点（Ingest Node）</strong>：负责文档预处理（比如解析附件）</li>
+</ul>
+<p><strong>ES 的写入流程</strong>：</p>
+<ol>
+<li>客户端发送写请求到<strong>协调节点</strong></li>
+<li>协调节点根据 <strong>文档 ID</strong> 或 <strong>路由值</strong> 计算目标<strong>主分片</strong></li>
+<li>协调节点将请求转发到<strong>主分片所在节点</strong></li>
+<li>主分片写入成功后，并行转发到<strong>所有副本分片</strong></li>
+<li>所有副本分片写入成功后，返回成功给客户端</li>
+</ol>
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何规划节点角色</strong>（小规模集群可以混合部署，大规模集群应该分离角色）</li>
+<li>可以讲讲 <strong>如何避免脑裂问题</strong>（设置 <code>discovery.zen.minimum_master_nodes</code>）</li>
+<li>可以讲讲实际项目中的部署方案（比如 3 个主节点 + 多个数据节点）</li>
+</ul>
+<hr>
+<h3 id="Q10：Elasticsearch-的近实时搜索（NRT）是什么？"><a href="#Q10：Elasticsearch-的近实时搜索（NRT）是什么？" class="headerlink" title="Q10：Elasticsearch 的近实时搜索（NRT）是什么？"></a>Q10：Elasticsearch 的近实时搜索（NRT）是什么？</h3><p><strong>一句话总结</strong>：ES 的<strong>近实时搜索</strong>是指文档索引后，默认可在 <strong>1 秒</strong> 内被搜索到（不是实时，但接近实时）。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>为什么不是实时？</strong></p>
+<ul>
+<li>Lucene 的<strong>倒排索引</strong>是不可变的（Immutable）</li>
+<li>新的文档首先写入<strong>内存缓冲区</strong>（In-memory Buffer）</li>
+<li>然后定期（默认 1 秒）<strong>刷新（Refresh）</strong> 到<strong>文件系统缓存</strong>（File System Cache）</li>
+<li>只有刷新后，文档才能被搜索到</li>
+</ul>
+<p><strong>刷新（Refresh）vs 刷写（Flush）</strong>：</p>
+<ul>
+<li><strong>刷新（Refresh）</strong>：将内存缓冲区写入文件系统缓存（<strong>轻量级</strong>，不保证持久化）</li>
+<li><strong>刷写（Flush）</strong>：将文件系统缓存写入磁盘（<strong>重量级</strong>，保证持久化）</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 手动触发刷新</span><br>POST /my_index/_refresh<br><br><span class="hljs-comment"># 修改刷新间隔（默认 1 秒）</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;refresh_interval&quot;</span>: <span class="hljs-string">&quot;30s&quot;</span>   <span class="hljs-comment"># 30 秒刷新一次</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何优化刷新间隔</strong>（提高写入性能 vs 提高搜索实时性）</li>
+<li>可以讲讲 <strong>为什么文件系统缓存很重要</strong>（Linux 会自动缓存文件，提高搜索性能）</li>
+<li>可以讲讲实际项目中的调优（比如批量导入时禁用刷新）</li>
+</ul>
+<hr>
+<h2 id="第二部分：Elasticsearch-索引和映射（Q11-Q20）"><a href="#第二部分：Elasticsearch-索引和映射（Q11-Q20）" class="headerlink" title="第二部分：Elasticsearch 索引和映射（Q11-Q20）"></a>第二部分：Elasticsearch 索引和映射（Q11-Q20）</h2><h3 id="Q11：Elasticsearch-的索引模板（Index-Template）是什么？"><a href="#Q11：Elasticsearch-的索引模板（Index-Template）是什么？" class="headerlink" title="Q11：Elasticsearch 的索引模板（Index Template）是什么？"></a>Q11：Elasticsearch 的索引模板（Index Template）是什么？</h3><p><strong>一句话总结</strong>：索引模板是 ES 的<strong>自动应用 mapping 和 settings</strong> 的机制，当创建新索引时，如果匹配模板模式，则自动应用模板中的配置。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>索引模板的组成</strong>：</p>
+<ul>
+<li><strong>索引模式（Index Pattern）</strong>：匹配哪些索引（比如 <code>log-*</code>）</li>
+<li><strong>Mapping</strong>：字段类型定义</li>
+<li><strong>Settings</strong>：索引设置（比如分片数量、刷新间隔）</li>
+<li><strong>别名（Alias）</strong>：索引别名</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建索引模板</span><br>PUT /_index_template/log_template<br>&#123;<br>  <span class="hljs-string">&quot;index_patterns&quot;</span>: [<span class="hljs-string">&quot;log-*&quot;</span>],           <span class="hljs-comment"># 匹配所有 log- 开头的索引</span><br>  <span class="hljs-string">&quot;template&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;settings&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;number_of_shards&quot;</span>: 3,<br>      <span class="hljs-string">&quot;number_of_replicas&quot;</span>: 1,<br>      <span class="hljs-string">&quot;refresh_interval&quot;</span>: <span class="hljs-string">&quot;30s&quot;</span><br>    &#125;,<br>    <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;timestamp&quot;</span>: &#123; <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;date&quot;</span> &#125;,<br>        <span class="hljs-string">&quot;level&quot;</span>: &#123; <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;keyword&quot;</span> &#125;,<br>        <span class="hljs-string">&quot;message&quot;</span>: &#123; <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;analyzer&quot;</span>: <span class="hljs-string">&quot;ik_max_word&quot;</span> &#125;<br>      &#125;<br>    &#125;,<br>    <span class="hljs-string">&quot;aliases&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;logs&quot;</span>: &#123;&#125;                         <span class="hljs-comment"># 自动添加别名 logs</span><br>    &#125;<br>  &#125;,<br>  <span class="hljs-string">&quot;priority&quot;</span>: 10                            <span class="hljs-comment"># 模板优先级（数字越大优先级越高）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>索引模板的使用场景</strong>（比如日志索引、时间序列索引）</li>
+<li>可以讲讲 <strong>如何滚动索引</strong>（使用 <code>Rollover API</code>）</li>
+<li>可以讲讲实际项目中的应用（比如按天创建日志索引）</li>
+</ul>
+<hr>
+<h3 id="Q12：Elasticsearch-的别名（Alias）是什么？"><a href="#Q12：Elasticsearch-的别名（Alias）是什么？" class="headerlink" title="Q12：Elasticsearch 的别名（Alias）是什么？"></a>Q12：Elasticsearch 的别名（Alias）是什么？</h3><p><strong>一句话总结</strong>：别名是 ES 的<strong>索引昵称</strong>，可以通过别名访问多个索引，实现<strong>零停机时间重建索引</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>别名的好处</strong>：</p>
+<ol>
+<li><strong>简化查询</strong>：可以通过一个别名查询多个索引</li>
+<li><strong>零停机时间重建索引</strong>：先创建新索引，然后切换别名</li>
+<li><strong>过滤别名</strong>：可以给别名添加过滤器，实现多租户</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建别名</span><br>POST /_aliases<br>&#123;<br>  <span class="hljs-string">&quot;actions&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;add&quot;</span>: &#123; <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;log-2024-01-01&quot;</span>, <span class="hljs-string">&quot;alias&quot;</span>: <span class="hljs-string">&quot;logs&quot;</span> &#125;&#125;,<br>    &#123; <span class="hljs-string">&quot;add&quot;</span>: &#123; <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;log-2024-01-02&quot;</span>, <span class="hljs-string">&quot;alias&quot;</span>: <span class="hljs-string">&quot;logs&quot;</span> &#125;&#125;<br>  ]<br>&#125;<br><br><span class="hljs-comment"># 通过别名查询</span><br>GET /logs/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;<br>&#125;<br><br><span class="hljs-comment"># 零停机时间重建索引</span><br>POST /_aliases<br>&#123;<br>  <span class="hljs-string">&quot;actions&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;remove&quot;</span>: &#123; <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;my_index_v1&quot;</span>, <span class="hljs-string">&quot;alias&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span> &#125;&#125;,<br>    &#123; <span class="hljs-string">&quot;add&quot;</span>: &#123; <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;my_index_v2&quot;</span>, <span class="hljs-string">&quot;alias&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span> &#125;&#125;<br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>别名的实现原理</strong>（别名是保存在集群状态中的）</li>
+<li>可以讲讲 <strong>如何使用别名实现零停机时间重建索引</strong></li>
+<li>可以讲讲实际项目中的应用（比如版本化索引）</li>
+</ul>
+<hr>
+<h3 id="Q13：Elasticsearch-的动态映射（Dynamic-Mapping）有什么问题？"><a href="#Q13：Elasticsearch-的动态映射（Dynamic-Mapping）有什么问题？" class="headerlink" title="Q13：Elasticsearch 的动态映射（Dynamic Mapping）有什么问题？"></a>Q13：Elasticsearch 的动态映射（Dynamic Mapping）有什么问题？</h3><p><strong>一句话总结</strong>：动态映射是 ES <strong>自动推断字段类型</strong>的机制，但可能推断错误，导致<strong>搜索结果不符合预期</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>动态映射的问题</strong>：</p>
+<ol>
+<li><strong>数字被推断为 long</strong>：比如 <code>&quot;123&quot;</code> 被推断为 <code>long</code>，导致无法精确匹配</li>
+<li><strong>日期被推断为 text</strong>：比如 <code>&quot;2024-01-01&quot;</code> 被推断为 <code>text</code>，导致无法按日期范围搜索&#96;</li>
+<li><strong>新字段自动加入 mapping</strong>：可能导致 mapping 爆炸（比如动态生成成千上万个字段）</li>
+</ol>
+<p><strong>解决方案</strong>：</p>
+<ol>
+<li><strong>使用静态映射</strong>（推荐）</li>
+<li><strong>禁用动态映射</strong>：<code>&quot;dynamic&quot;: false</code></li>
+<li><strong>严格动态映射</strong>：<code>&quot;dynamic&quot;: &quot;strict&quot;</code>（不允许新字段）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 动态映射可能推断错误</span><br>POST /my_index/_doc<br>&#123;<br>  <span class="hljs-string">&quot;price&quot;</span>: <span class="hljs-string">&quot;123&quot;</span>,          <span class="hljs-comment"># 被推断为 long</span><br>  <span class="hljs-string">&quot;date&quot;</span>: <span class="hljs-string">&quot;2024-01-01&quot;</span>  <span class="hljs-comment"># 被推断为 text</span><br>&#125;<br><br><span class="hljs-comment"># 查询时出现问题</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;term&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;price&quot;</span>: <span class="hljs-string">&quot;123&quot;</span>       <span class="hljs-comment"># 无法匹配，因为 price 是 long 类型</span><br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>为什么应该禁用动态映射</strong></li>
+<li>可以讲讲 <strong>如何修复错误的 mapping</strong>（重建索引）</li>
+<li>可以讲讲实际项目中的最佳实践（** always 使用静态映射**）</li>
+</ul>
+<hr>
+<h3 id="Q14：Elasticsearch-的嵌套对象（Nested-Object）是什么？"><a href="#Q14：Elasticsearch-的嵌套对象（Nested-Object）是什么？" class="headerlink" title="Q14：Elasticsearch 的嵌套对象（Nested Object）是什么？"></a>Q14：Elasticsearch 的嵌套对象（Nested Object）是什么？</h3><p><strong>一句话总结</strong>：嵌套对象是 ES 的<strong>复杂数据类型</strong>，用于<strong>数组中的对象</strong>，保持对象的<strong>独立性</strong>，避免<strong>数组扁平化问题</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>数组扁平化问题</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 错误示例：数组中的对象会被扁平化</span><br>PUT /my_index/_doc/1<br>&#123;<br>  <span class="hljs-string">&quot;users&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;张三&quot;</span>, <span class="hljs-string">&quot;age&quot;</span>: 20 &#125;,<br>    &#123; <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;李四&quot;</span>, <span class="hljs-string">&quot;age&quot;</span>: 30 &#125;<br>  ]<br>&#125;<br><br><span class="hljs-comment"># 查询时出现问题：</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;bool&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;must&quot;</span>: [<br>        &#123; <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;users.name&quot;</span>: <span class="hljs-string">&quot;张三&quot;</span> &#125;&#125;,<br>        &#123; <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;users.age&quot;</span>: 30 &#125;&#125;   <span class="hljs-comment"># 会匹配到文档 1（错误！）</span><br>      ]<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>嵌套对象解决方案</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 使用 nested 类型</span><br>PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;users&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;nested&quot;</span>,           <span class="hljs-comment"># 嵌套对象类型</span><br>        <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;name&quot;</span>: &#123; <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;keyword&quot;</span> &#125;,<br>          <span class="hljs-string">&quot;age&quot;</span>: &#123; <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;integer&quot;</span> &#125;<br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 查询嵌套对象（必须使用 nested 查询）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;nested&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;path&quot;</span>: <span class="hljs-string">&quot;users&quot;</span>,<br>      <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;bool&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;must&quot;</span>: [<br>            &#123; <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;users.name&quot;</span>: <span class="hljs-string">&quot;张三&quot;</span> &#125;&#125;,<br>            &#123; <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;users.age&quot;</span>: 20 &#125;&#125;   <span class="hljs-comment"># 不会匹配到李四</span><br>          ]<br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>nested vs object</strong> 的区别（<code>object</code> 类型会扁平化，<code>nested</code> 类型保持独立性）</li>
+<li>可以讲讲 <strong>nested 的性能问题</strong>（嵌套查询较慢，因为需要加载整个嵌套文档）</li>
+<li>可以讲讲实际项目中的应用（比如订单中的商品列表）</li>
+</ul>
+<hr>
+<h3 id="Q15：Elasticsearch-的父子关系（Parent-Child-Relationship）是什么？"><a href="#Q15：Elasticsearch-的父子关系（Parent-Child-Relationship）是什么？" class="headerlink" title="Q15：Elasticsearch 的父子关系（Parent-Child Relationship）是什么？"></a>Q15：Elasticsearch 的父子关系（Parent-Child Relationship）是什么？</h3><p><strong>一句话总结</strong>：父子关系是 ES 的<strong>关联数据模型</strong>，用于<strong>一对多关系</strong>，父文档和子文档是<strong>独立的文档</strong>，但可以<strong>联合查询</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>父子关系 vs 嵌套对象</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>父子关系</th>
+<th>嵌套对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据存储</td>
+<td>父文档和子文档是独立的文档</td>
+<td>嵌套对象是父文档的一部分</td>
+</tr>
+<tr>
+<td>更新</td>
+<td>可以独立更新子文档</td>
+<td>必须更新整个父文档</td>
+</tr>
+<tr>
+<td>查询</td>
+<td>支持父子联合查询</td>
+<td>只支持嵌套查询</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>较慢（需要 Join）</td>
+<td>较快</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建父子关系 mapping</span><br>PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;question&quot;</span>: &#123; <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;keyword&quot;</span> &#125;,<br>      <span class="hljs-string">&quot;answer&quot;</span>: &#123; <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span> &#125;,<br>      <span class="hljs-string">&quot;my_join_field&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;join&quot;</span>,<br>        <span class="hljs-string">&quot;relations&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;question&quot;</span>: <span class="hljs-string">&quot;answer&quot;</span>   <span class="hljs-comment"># question 是父，answer 是子</span><br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 索引父文档</span><br>PUT /my_index/_doc/1<br>&#123;<br>  <span class="hljs-string">&quot;question&quot;</span>: <span class="hljs-string">&quot;什么是 Elasticsearch？&quot;</span>,<br>  <span class="hljs-string">&quot;my_join_field&quot;</span>: <span class="hljs-string">&quot;question&quot;</span><br>&#125;<br><br><span class="hljs-comment"># 索引子文档（必须指定 routing=父文档 ID）</span><br>PUT /my_index/_doc/2?routing=1<br>&#123;<br>  <span class="hljs-string">&quot;answer&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 是一个分布式搜索和分析引擎&quot;</span>,<br>  <span class="hljs-string">&quot;my_join_field&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;answer&quot;</span>,<br>    <span class="hljs-string">&quot;parent&quot;</span>: <span class="hljs-string">&quot;1&quot;</span><br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 查询子文档（使用 has_parent 查询）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;has_parent&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;parent_type&quot;</span>: <span class="hljs-string">&quot;question&quot;</span>,<br>      <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;question&quot;</span>: <span class="hljs-string">&quot;Elasticsearch&quot;</span> &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>父子关系的性能问题</strong>（Join 操作较慢）</li>
+<li>可以讲讲 <strong>父子关系的使用场景</strong>（比如问答系统、评论系统）</li>
+<li>可以讲讲实际项目中的替代方案（比如<strong>非规范化数据</strong>，将父子数据放在同一个文档中）</li>
+</ul>
+<hr>
+<h3 id="Q16：Elasticsearch-的索引生命周期管理（ILM）是什么？"><a href="#Q16：Elasticsearch-的索引生命周期管理（ILM）是什么？" class="headerlink" title="Q16：Elasticsearch 的索引生命周期管理（ILM）是什么？"></a>Q16：Elasticsearch 的索引生命周期管理（ILM）是什么？</h3><p><strong>一句话总结</strong>：ILM 是 ES 的<strong>自动化索引管理</strong>功能，可以自动执行<strong>滚动、收缩、强制合并、删除</strong>等操作，适用于<strong>时间序列数据</strong>（比如日志）。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>ILM 的阶段</strong>：</p>
+<ol>
+<li><strong>Hot 阶段</strong>：索引正在被频繁写入和查询</li>
+<li><strong>Warm 阶段</strong>：索引不再写入，但偶尔查询</li>
+<li><strong>Cold 阶段</strong>：索引很少查询，可以存储在便宜的硬件上</li>
+<li><strong>Delete 阶段</strong>：索引可以被删除</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 ILM 策略</span><br>PUT /_ilm/policy/log_policy<br>&#123;<br>  <span class="hljs-string">&quot;policy&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;phases&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;hot&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;min_age&quot;</span>: <span class="hljs-string">&quot;0ms&quot;</span>,<br>        <span class="hljs-string">&quot;actions&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;rollover&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;max_size&quot;</span>: <span class="hljs-string">&quot;1GB&quot;</span>,         <span class="hljs-comment"># 索引大小超过 1GB 时滚动</span><br>            <span class="hljs-string">&quot;max_age&quot;</span>: <span class="hljs-string">&quot;7d&quot;</span>             <span class="hljs-comment"># 索引创建超过 7 天时滚动</span><br>          &#125;<br>        &#125;<br>      &#125;,<br>      <span class="hljs-string">&quot;warm&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;min_age&quot;</span>: <span class="hljs-string">&quot;7d&quot;</span>,<br>        <span class="hljs-string">&quot;actions&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;shrink&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;number_of_shards&quot;</span>: 1      <span class="hljs-comment"># 收缩到 1 个分片</span><br>          &#125;<br>        &#125;<br>      &#125;,<br>      <span class="hljs-string">&quot;cold&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;min_age&quot;</span>: <span class="hljs-string">&quot;30d&quot;</span>,<br>        <span class="hljs-string">&quot;actions&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;freeze&quot;</span>: &#123;&#125;                 <span class="hljs-comment"># 冻结索引（释放内存）</span><br>        &#125;<br>      &#125;,<br>      <span class="hljs-string">&quot;delete&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;min_age&quot;</span>: <span class="hljs-string">&quot;90d&quot;</span>,<br>        <span class="hljs-string">&quot;actions&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;delete&quot;</span>: &#123;&#125;                 <span class="hljs-comment"># 删除索引</span><br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>ILM 的使用场景</strong>（比如日志索引、指标索引）</li>
+<li>可以讲讲 <strong>如何监控 ILM 的执行</strong>（使用 <code>GET /_ilm/status</code>）</li>
+<li>可以讲讲实际项目中的应用（比如按天创建日志索引，自动删除 90 天前的索引）</li>
+</ul>
+<hr>
+<h3 id="Q17：Elasticsearch-的索引设置（Index-Settings）有哪些重要的？"><a href="#Q17：Elasticsearch-的索引设置（Index-Settings）有哪些重要的？" class="headerlink" title="Q17：Elasticsearch 的索引设置（Index Settings）有哪些重要的？"></a>Q17：Elasticsearch 的索引设置（Index Settings）有哪些重要的？</h3><p><strong>一句话总结</strong>：索引设置是 ES 的<strong>索引级别配置</strong>，包括：<strong>分片数量</strong>、<strong>刷新间隔</strong>、<strong>写入限流</strong>、<strong>合并策略</strong>等。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>重要的索引设置</strong>：</p>
+<ol>
+<li><strong>number_of_shards</strong>：主分片数量（<strong>不能修改</strong>）</li>
+<li><strong>number_of_replicas</strong>：副本分片数量（可以动态修改）</li>
+<li><strong>refresh_interval</strong>：刷新间隔（默认 1 秒）</li>
+<li><strong>index.translog.flush_threshold_size</strong>：刷写阈值（默认 512MB）</li>
+<li><strong>index.merge.scheduler.max_thread_count</strong>：合并线程数</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 修改索引设置</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;number_of_replicas&quot;</span>: 2,         <span class="hljs-comment"># 增加副本数量</span><br>    <span class="hljs-string">&quot;refresh_interval&quot;</span>: <span class="hljs-string">&quot;30s&quot;</span>,        <span class="hljs-comment"># 降低刷新频率（提高写入性能）</span><br>    <span class="hljs-string">&quot;translog.flush_threshold_size&quot;</span>: <span class="hljs-string">&quot;1gb&quot;</span>  <span class="hljs-comment"># 提高刷写阈值（减少磁盘 I/O）</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何优化写入性能</strong>（增大刷新间隔、禁用副本、使用 Bulk API）</li>
+<li>可以讲讲 <strong>如何优化查询性能</strong>（增加副本、使用文件系统缓存、优化 mapping）</li>
+<li>可以讲讲实际项目中的调优经验（比如批量导入时临时禁用刷新）</li>
+</ul>
+<hr>
+<h3 id="Q18：Elasticsearch-的-mapping-优化技巧有哪些？"><a href="#Q18：Elasticsearch-的-mapping-优化技巧有哪些？" class="headerlink" title="Q18：Elasticsearch 的 mapping 优化技巧有哪些？"></a>Q18：Elasticsearch 的 mapping 优化技巧有哪些？</h3><p><strong>一句话总结</strong>：Mapping 优化技巧包括：<strong>禁用不需要搜索的字段</strong>、<strong>使用 keyword 类型</strong>、<strong>启用 doc_values</strong>、<strong>禁用 _source</strong> 等。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Mapping 优化技巧</strong>：</p>
+<ol>
+<li><strong>禁用不需要搜索的字段</strong>：<code>&quot;index&quot;: false</code></li>
+<li><strong>使用 keyword 类型</strong>：用于精确匹配（比 text 类型快）</li>
+<li><strong>启用 doc_values</strong>：用于排序和聚合（默认启用）</li>
+<li><strong>禁用 _source</strong>：如果不获取原始文档，可以禁用（节省磁盘空间）</li>
+<li><strong>使用常量关键字（constant_keyword）</strong>：如果字段值固定，可以使用（节省存储空间）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash">PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,<br>        <span class="hljs-string">&quot;analyzer&quot;</span>: <span class="hljs-string">&quot;ik_max_word&quot;</span><br>      &#125;,<br>      <span class="hljs-string">&quot;content&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,<br>        <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-literal">false</span>            <span class="hljs-comment"># 禁用搜索（只用于存储）</span><br>      &#125;,<br>      <span class="hljs-string">&quot;status&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;keyword&quot;</span><br>      &#125;,<br>      <span class="hljs-string">&quot;price&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;float&quot;</span>,<br>        <span class="hljs-string">&quot;doc_values&quot;</span>: <span class="hljs-literal">false</span>      <span class="hljs-comment"># 禁用 doc_values（如果不需要排序和聚合）</span><br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何减少索引大小</strong>（禁用不需要的功能）</li>
+<li>可以讲讲 <strong>如何优化聚合性能</strong>（启用 doc_values）</li>
+<li>可以讲讲实际项目中的优化经验（比如只为需要的字段启用索引）</li>
+</ul>
+<hr>
+<h3 id="Q19：Elasticsearch-的索引重建（Reindex）是什么？"><a href="#Q19：Elasticsearch-的索引重建（Reindex）是什么？" class="headerlink" title="Q19：Elasticsearch 的索引重建（Reindex）是什么？"></a>Q19：Elasticsearch 的索引重建（Reindex）是什么？</h3><p><strong>一句话总结</strong>：索引重建是将<strong>旧索引的数据复制到新索引</strong>的操作，用于<strong>修改 mapping、增加分片数量、拆分索引</strong>等场景。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>为什么需要重建索引？</strong></p>
+<ul>
+<li>Mapping 错误（比如字段类型推断错误）</li>
+<li>需要修改分片数量（主分片数量不能修改，只能重建索引）</li>
+<li>需要优化索引结构（比如启用&#x2F;doc_values、禁用 _source）</li>
+</ul>
+<p><strong>重建索引的步骤</strong>：</p>
+<ol>
+<li>创建新索引（正确的 mapping 和 settings）</li>
+<li>使用 <strong>Reindex API</strong> 复制数据</li>
+<li>等待重建完成</li>
+<li>切换别名（实现零停机时间）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 重建索引</span><br>POST /_reindex<br>&#123;<br>  <span class="hljs-string">&quot;source&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;my_index_v1&quot;</span><br>  &#125;,<br>  <span class="hljs-string">&quot;dest&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;my_index_v2&quot;</span><br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 切换别名（零停机时间）</span><br>POST /_aliases<br>&#123;<br>  <span class="hljs-string">&quot;actions&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;remove&quot;</span>: &#123; <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;my_index_v1&quot;</span>, <span class="hljs-string">&quot;alias&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span> &#125;&#125;,<br>    &#123; <span class="hljs-string">&quot;add&quot;</span>: &#123; <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;my_index_v2&quot;</span>, <span class="hljs-string">&quot;alias&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span> &#125;&#125;<br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何加速重建索引</strong>（使用 <code>slices</code> 参数并行重建）</li>
+<li>可以讲讲 <strong>如何避免重建索引时的性能问题</strong>（限制重建速度）</li>
+<li>可以讲讲实际项目中的经验（比如<strong>提前规划 mapping</strong>，避免重建索引）</li>
+</ul>
+<hr>
+<h3 id="Q20：Elasticsearch-的索引拆分（Split）是什么？"><a href="#Q20：Elasticsearch-的索引拆分（Split）是什么？" class="headerlink" title="Q20：Elasticsearch 的索引拆分（Split）是什么？"></a>Q20：Elasticsearch 的索引拆分（Split）是什么？</h3><p><strong>一句话总结</strong>：索引拆分是 ES 的<strong>增加主分片数量</strong>的操作，但有限制（<strong>新分片数量必须是原分片数量的倍数</strong>）。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>为什么需要拆分索引？</strong></p>
+<ul>
+<li>主分片数量不能修改（因为路由公式）</li>
+<li>但如果索引的<strong>设置</strong> <code>index.number_of_routing_shards</code> 大于 <code>index.number_of_shards</code>，则可以拆分&#96;</li>
+</ul>
+<p><strong>拆分的限制</strong>：</p>
+<ul>
+<li>新分片数量必须是原分片数量的倍数</li>
+<li>原索引必须<strong>只读</strong>（不能写入）</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 将原索引设置为只读</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;blocks.write&quot;</span>: <span class="hljs-literal">true</span><br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 2. 拆分索引（分片数量从 3 增加到 6）</span><br>POST /my_index/_split/my_index_new<br>&#123;<br>  <span class="hljs-string">&quot;settings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;number_of_shards&quot;</span>: 6<br>    &#125;<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 3. 等待拆分完成</span><br>GET /_cat/recovery/my_index_new?v=<br><br><span class="hljs-comment"># 4. 切换别名</span><br>POST /_aliases<br>&#123;<br>  <span class="hljs-string">&quot;actions&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;remove&quot;</span>: &#123; <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span>, <span class="hljs-string">&quot;alias&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span> &#125;&#125;,<br>    &#123; <span class="hljs-string">&quot;add&quot;</span>: &#123; <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-string">&quot;my_index_new&quot;</span>, <span class="hljs-string">&quot;alias&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span> &#125;&#125;<br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>拆分索引的使用场景</strong>（比如数据量增长，需要增加分片数量）</li>
+<li>可以讲讲 <strong>拆分索引的限制</strong>（必须是倍数）</li>
+<li>可以讲讲实际项目中的替代方案（比如<strong>按时间滚动索引</strong>，而不是拆分索引）</li>
+</ul>
+<hr>
+<h2 id="第三部分：Elasticsearch-搜索（Q21-Q30）"><a href="#第三部分：Elasticsearch-搜索（Q21-Q30）" class="headerlink" title="第三部分：Elasticsearch 搜索（Q21-Q30）"></a>第三部分：Elasticsearch 搜索（Q21-Q30）</h2><h3 id="Q21：Elasticsearch-的-Match-查询和-Term-查询的区别是什么？"><a href="#Q21：Elasticsearch-的-Match-查询和-Term-查询的区别是什么？" class="headerlink" title="Q21：Elasticsearch 的 Match 查询和 Term 查询的区别是什么？"></a>Q21：Elasticsearch 的 Match 查询和 Term 查询的区别是什么？</h3><p><strong>一句话总结</strong>：<code>match</code> 查询会<strong>分词</strong>，用于<strong>全文搜索</strong>；<code>term</code> 查询<strong>不会分词</strong>，用于<strong>精确匹配</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Match 查询</strong>：</p>
+<ul>
+<li>会对查询字符串进行<strong>分词</strong></li>
+<li>然后对<strong>每个词项</strong>进行搜索</li>
+<li>最后<strong>合并结果</strong>（默认是 OR 关系）</li>
+</ul>
+<p><strong>Term 查询</strong>：</p>
+<ul>
+<li>不会对查询字符串进行分词</li>
+<li>直接<strong>精确匹配</strong>倒排索引中的词项**</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Match 查询（会分词）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;match&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 实战&quot;</span><br>    &#125;<br>  &#125;<br>&#125;<br><span class="hljs-comment"># 等价于：搜索包含 &quot;elasticsearch&quot; OR &quot;实战&quot; 的文档</span><br><br><span class="hljs-comment"># Term 查询（不会分词）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;term&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 实战&quot;</span><br>    &#125;<br>  &#125;<br>&#125;<br><span class="hljs-comment"># 等价于：搜索包含词项 &quot;Elasticsearch 实战&quot; 的文档（通常匹配不到，因为 title 是 text 类型，已经被分词了）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>Match vs Term</strong> 的区别（<code>match</code> 会分词，<code>term</code> 不会分词）</li>
+<li>可以讲讲 <strong>如何选择合适的查询类型</strong>（全文搜索用 <code>match</code>，精确匹配用 <code>term</code>）</li>
+<li>可以讲讲实际项目中的常见错误（比如对 <code>text</code> 字段使用 <code>term</code> 查询）</li>
+</ul>
+<hr>
+<h3 id="Q22：Elasticsearch-的-Bool-查询是什么？"><a href="#Q22：Elasticsearch-的-Bool-查询是什么？" class="headerlink" title="Q22：Elasticsearch 的 Bool 查询是什么？"></a>Q22：Elasticsearch 的 Bool 查询是什么？</h3><p><strong>一句话总结</strong>：<code>bool</code> 查询是 ES 的<strong>复合查询</strong>，可以组合多个查询条件，包括：<strong>must</strong>、<strong>should</strong>、<strong>must_not</strong>、<strong>filter</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Bool 查询的子句</strong>：</p>
+<ol>
+<li><strong>must</strong>：<strong>必须匹配</strong>，会贡献评分</li>
+<li><strong>should</strong>：<strong>可以匹配</strong>，会贡献评分（但可以通过 <code>minimum_should_match</code> 控制至少匹配几个）</li>
+<li><strong>must_not</strong>：<strong>必须不匹配</strong></li>
+<li><strong>filter</strong>：<strong>必须匹配</strong>，但<strong>不会贡献评分</strong>（会使用缓存，性能更高）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash">GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;bool&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;must&quot;</span>: [<br>        &#123; <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch&quot;</span> &#125;&#125;     <span class="hljs-comment"># 必须包含 &quot;Elasticsearch&quot;</span><br>      ],<br>      <span class="hljs-string">&quot;should&quot;</span>: [<br>        &#123; <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;实战&quot;</span> &#125;&#125;,            <span class="hljs-comment"># 可以包含 &quot;实战&quot;（匹配到会提高评分）</span><br>        &#123; <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;教程&quot;</span> &#125;&#125;             <span class="hljs-comment"># 可以包含 &quot;教程&quot;（匹配到会提高评分）</span><br>      ],<br>      <span class="hljs-string">&quot;minimum_should_match&quot;</span>: 1,                       <span class="hljs-comment"># 至少匹配 1 个 should 子句</span><br>      <span class="hljs-string">&quot;must_not&quot;</span>: [<br>        &#123; <span class="hljs-string">&quot;term&quot;</span>: &#123; <span class="hljs-string">&quot;status&quot;</span>: 0 &#125;&#125;                  <span class="hljs-comment"># 必须不包含 status=0 的文档</span><br>      ],<br>      <span class="hljs-string">&quot;filter&quot;</span>: [<br>        &#123; <span class="hljs-string">&quot;range&quot;</span>: &#123; <span class="hljs-string">&quot;price&quot;</span>: &#123; <span class="hljs-string">&quot;gte&quot;</span>: 50, <span class="hljs-string">&quot;lte&quot;</span>: 100 &#125;&#125;&#125;  <span class="hljs-comment"># 价格必须在 50-100 之间（不贡献评分）</span><br>      ]<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>filter vs must</strong> 的区别（<code>filter</code> 不贡献评分，会使用缓存）</li>
+<li>可以讲讲 <strong>如何优化 bool 查询的性能</strong>（将不需要评分的条件放在 <code>filter</code> 中）</li>
+<li>可以讲讲实际项目中的复杂查询案例（比如电商搜索）</li>
+</ul>
+<hr>
+<h3 id="Q23：Elasticsearch-的聚合（Aggregation）是什么？"><a href="#Q23：Elasticsearch-的聚合（Aggregation）是什么？" class="headerlink" title="Q23：Elasticsearch 的聚合（Aggregation）是什么？"></a>Q23：Elasticsearch 的聚合（Aggregation）是什么？</h3><p><strong>一句话总结</strong>：聚合是 ES 的<strong>分析功能</strong>，类似于 SQL 的 <code>GROUP BY</code> 和聚合函数，包括：<strong>指标聚合</strong>、<strong>桶聚合</strong>、<strong>管道聚合</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>聚合的类型</strong>：</p>
+<ol>
+<li><strong>指标聚合（Metric Aggregation）</strong>：计算指标（比如 <code>sum</code>、<code>avg</code>、<code>max</code>、<code>min</code>、<code>cardinality</code>）</li>
+<li><strong>桶聚合（Bucket Aggregation）</strong>：将文档分组（比如 <code>terms</code>、<code>range</code>、<code>histogram</code>）</li>
+<li><strong>管道聚合（Pipeline Aggregation）</strong>：对聚合结果进行二次计算（比如 <code>avg_bucket</code>、<code>max_bucket</code>）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 按作者分组，统计每本书的平均价格、最高价格、不同价格区间的文档数</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;size&quot;</span>: 0,                                      <span class="hljs-comment"># 不返回文档，只返回聚合结果</span><br>  <span class="hljs-string">&quot;aggs&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;by_author&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;terms&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;author.keyword&quot;</span><br>      &#125;,<br>      <span class="hljs-string">&quot;aggs&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;avg_price&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;avg&quot;</span>: &#123; <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;price&quot;</span> &#125;<br>        &#125;,<br>        <span class="hljs-string">&quot;max_price&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;max&quot;</span>: &#123; <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;price&quot;</span> &#125;<br>        &#125;,<br>        <span class="hljs-string">&quot;price_ranges&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;range&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;price&quot;</span>,<br>            <span class="hljs-string">&quot;ranges&quot;</span>: [<br>              &#123; <span class="hljs-string">&quot;to&quot;</span>: 50 &#125;,<br>              &#123; <span class="hljs-string">&quot;from&quot;</span>: 50, <span class="hljs-string">&quot;to&quot;</span>: 100 &#125;,<br>              &#123; <span class="hljs-string">&quot;from&quot;</span>: 100 &#125;<br>            ]<br>          &#125;<br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>聚合的性能优化</strong>（比如 <code>size: 0</code>、使用 <code>execution_hint</code>）</li>
+<li>可以讲讲 <strong>聚合的内存限制</strong>（比如 <code>circuit_breaker</code>）</li>
+<li>可以讲讲实际项目中的应用（比如用户画像分析、日志统计分析）</li>
+</ul>
+<hr>
+<h3 id="Q24：Elasticsearch-的排序（Sorting）是什么？"><a href="#Q24：Elasticsearch-的排序（Sorting）是什么？" class="headerlink" title="Q24：Elasticsearch 的排序（Sorting）是什么？"></a>Q24：Elasticsearch 的排序（Sorting）是什么？</h3><p><strong>一句话总结</strong>：排序是 ES 的<strong>自定义文档顺序</strong>的功能，可以按<strong>字段值</strong>、<strong>评分</strong>、<strong>地理距离</strong>排序。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>排序的类型</strong>：</p>
+<ol>
+<li><strong>按字段值排序</strong>：比如按价格、日期排序</li>
+<li><strong>按评分排序</strong>：按 <code>_score</code> 排序（默认）</li>
+<li><strong>按地理距离排序</strong>：按距离指定坐标的远近排序**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 按价格升序排序</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;sort&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;price&quot;</span>: &#123; <span class="hljs-string">&quot;order&quot;</span>: <span class="hljs-string">&quot;asc&quot;</span> &#125;&#125;<br>  ]<br>&#125;<br><br><span class="hljs-comment"># 按地理距离排序</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;sort&quot;</span>: [<br>    &#123;<br>      <span class="hljs-string">&quot;_geo_distance&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;location&quot;</span>: &#123; <span class="hljs-string">&quot;lat&quot;</span>: 40.7128, <span class="hljs-string">&quot;lon&quot;</span>: -74.0060 &#125;,<br>        <span class="hljs-string">&quot;order&quot;</span>: <span class="hljs-string">&quot;asc&quot;</span>,<br>        <span class="hljs-string">&quot;unit&quot;</span>: <span class="hljs-string">&quot;km&quot;</span><br>      &#125;<br>    &#125;<br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>排序的性能问题</strong>（排序需要加载字段值，会消耗内存）</li>
+<li>可以讲讲 <strong>如何优化排序性能</strong>（启用 <code>doc_values</code>、使用 <code>unmapped_type</code>）</li>
+<li>可以讲讲实际项目中的需求（比如<strong>多维度排序</strong>，先按评分排序，再按时间排序）</li>
+</ul>
+<hr>
+<h3 id="Q25：Elasticsearch-的分页（Pagination）是什么？"><a href="#Q25：Elasticsearch-的分页（Pagination）是什么？" class="headerlink" title="Q25：Elasticsearch 的分页（Pagination）是什么？"></a>Q25：Elasticsearch 的分页（Pagination）是什么？</h3><p><strong>一句话总结</strong>：分页是 ES 的<strong>限制返回结果数量</strong>的功能，包括：<strong>From&#x2F;Size</strong>、<strong>Scroll</strong>、<strong>Search After</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>分页的类型</strong>：</p>
+<ol>
+<li><strong>From&#x2F;Size</strong>：<strong>浅分页</strong>（适合前 1000 条结果）</li>
+<li><strong>Scroll</strong>：<strong>深分页</strong>（适合导出大量数据）</li>
+<li><strong>Search After</strong>：<strong>深分页</strong>（适合实时分页）</li>
+</ol>
+<p><strong>From&#x2F;Size 的问题</strong>：</p>
+<ul>
+<li>比如 <code>from: 990, size: 10</code>，ES 需要从每个分片获取 <strong>1000 条</strong>结果，然后在协调节点合并排序，最后返回第 990-1000 条</li>
+<li><strong>性能很差</strong>（占用大量内存和 CPU）</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># From/Size 分页（浅分页）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;from&quot;</span>: 0,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10<br>&#125;<br><br><span class="hljs-comment"># Scroll 分页（深分页，适合导出数据）</span><br>POST /my_index/_search?scroll=1m<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;size&quot;</span>: 100<br>&#125;<br><br><span class="hljs-comment"># 获取下一页</span><br>POST /_search/scroll<br>&#123;<br>  <span class="hljs-string">&quot;scroll&quot;</span>: <span class="hljs-string">&quot;1m&quot;</span>,<br>  <span class="hljs-string">&quot;scroll_id&quot;</span>: <span class="hljs-string">&quot;XXXXXXXXXX&quot;</span><br>&#125;<br><br><span class="hljs-comment"># Search After 分页（深分页，适合实时分页）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10,<br>  <span class="hljs-string">&quot;sort&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;asc&quot;</span> &#125;                         <span class="hljs-comment"># 必须包含唯一值字段</span><br>  ]<br>&#125;<br><br><span class="hljs-comment"># 下一页（使用上一页最后一条文档的 sort 值）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10,<br>  <span class="hljs-string">&quot;sort&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;asc&quot;</span> &#125;<br>  ],<br>  <span class="hljs-string">&quot;search_after&quot;</span>: [<span class="hljs-string">&quot;doc_id_10&quot;</span>]              <span class="hljs-comment"># 上一页最后一条文档的 _id 值</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>为什么 From&#x2F;Size 不适合深分页</strong></li>
+<li>可以讲讲 <strong>Scroll vs Search After</strong> 的区别（<code>scroll</code> 适合导出数据，<code>search_after</code> 适合实时分页）</li>
+<li>可以讲讲实际项目中的分页方案（比如<strong>无限滚动分页</strong>，使用 <code>search_after</code>）</li>
+</ul>
+<hr>
+<h3 id="Q26：Elasticsearch-的高亮（Highlighting）是什么？"><a href="#Q26：Elasticsearch-的高亮（Highlighting）是什么？" class="headerlink" title="Q26：Elasticsearch 的高亮（Highlighting）是什么？"></a>Q26：Elasticsearch 的高亮（Highlighting）是什么？</h3><p><strong>一句话总结</strong>：高亮是 ES 的<strong>在搜索结果中标记关键词</strong>的功能，通常用于<strong>全文搜索</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>高亮的类型</strong>：</p>
+<ol>
+<li><strong>unified</strong>：默认高亮器，适用于大多数场景</li>
+<li><strong>plain</strong>：传统高亮器，适用于小片段**</li>
+<li><strong>fvh（Fast Vector Highlighter）</strong>：快速向量高亮器，适用于大文档**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs bash">GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Elasticsearch&quot;</span> &#125;<br>  &#125;,<br>  <span class="hljs-string">&quot;highlight&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;fields&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;content&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;pre_tags&quot;</span>: [<span class="hljs-string">&quot;&lt;em&gt;&quot;</span>],<br>        <span class="hljs-string">&quot;post_tags&quot;</span>: [<span class="hljs-string">&quot;&lt;/em&gt;&quot;</span>]<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 返回：</span><br>&#123;<br>  <span class="hljs-string">&quot;hits&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;hits&quot;</span>: [<br>      &#123;<br>        <span class="hljs-string">&quot;_source&quot;</span>: &#123; <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 是一个搜索引擎&quot;</span> &#125;,<br>        <span class="hljs-string">&quot;highlight&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;content&quot;</span>: [<span class="hljs-string">&quot;&lt;em&gt;Elasticsearch&lt;/em&gt; 是一个搜索引擎&quot;</span>]<br>        &#125;<br>      &#125;<br>    ]<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>高亮的性能问题</strong>（高亮需要重新分析文本，会消耗 CPU）</li>
+<li>可以讲讲 <strong>如何优化高亮性能</strong>（使用 <code>fvh</code>，提前存储词项向量）</li>
+<li>可以讲讲实际项目中的优化（比如<strong>禁用高亮</strong> <code>_score</code> 以提高性能）</li>
+</ul>
+<hr>
+<h3 id="Q27：Elasticsearch-的建议器（Suggester）是什么？"><a href="#Q27：Elasticsearch-的建议器（Suggester）是什么？" class="headerlink" title="Q27：Elasticsearch 的建议器（Suggester）是什么？"></a>Q27：Elasticsearch 的建议器（Suggester）是什么？</h3><p><strong>一句话总结</strong>：建议器是 ES 的<strong>搜索建议</strong>功能，包括：<strong>Term Suggester</strong>、<strong>Phrase Suggester</strong>、<strong>Completion Suggester</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>建议器的类型</strong>：</p>
+<ol>
+<li><strong>Term Suggester</strong>：<strong>拼写纠正</strong>（比如输入 “elasticserch”，建议 “elasticsearch”）</li>
+<li><strong>Phrase Suggester</strong>：<strong>短语建议</strong>（基于 Term Suggester，但考虑词组）</li>
+<li><strong>Completion Suggester</strong>：<strong>自动补全</strong>（输入 “ela”，建议 “elasticsearch”）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Term Suggester（拼写纠正）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;suggest&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;my_suggest&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;text&quot;</span>: <span class="hljs-string">&quot;elasticserch&quot;</span>,<br>      <span class="hljs-string">&quot;term&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;title&quot;</span><br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># Completion Suggester（自动补全）</span><br>PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;completion&quot;</span>           <span class="hljs-comment"># 自动补全类型</span><br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br><br>POST /my_index/_doc<br>&#123;<br>  <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 实战&quot;</span><br>&#125;<br><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;suggest&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;my_suggest&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;prefix&quot;</span>: <span class="hljs-string">&quot;ela&quot;</span>,<br>      <span class="hljs-string">&quot;completion&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;title&quot;</span><br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>建议器的使用场景</strong>（比如搜索框的自动补全、拼写纠正）</li>
+<li>可以讲讲 <strong>如何优化建议器的性能</strong>（使用 <code>completion</code> 类型，存储在内存中）</li>
+<li>可以讲讲实际项目中的应用（比如电商搜索的自动补全）</li>
+</ul>
+<hr>
+<h3 id="Q28：Elasticsearch-的地理位置搜索（Geo-Search）是什么？"><a href="#Q28：Elasticsearch-的地理位置搜索（Geo-Search）是什么？" class="headerlink" title="Q28：Elasticsearch 的地理位置搜索（Geo Search）是什么？"></a>Q28：Elasticsearch 的地理位置搜索（Geo Search）是什么？</h3><p><strong>一句话总结</strong>：地理位置搜索是 ES 的<strong>基于地理位置的搜索</strong>功能，包括：<strong>地理距离查询</strong>、<strong>地理边界查询</strong>、<strong>地理聚合</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>地理位置字段类型</strong>：</p>
+<ol>
+<li><strong>geo_point</strong>：一个点（经纬度）</li>
+<li><strong>geo_shape</strong>：一个形状（圆形、多边形等）</li>
+</ol>
+<p><strong>地理位置查询</strong>：</p>
+<ol>
+<li><strong>geo_distance</strong>：查询距离指定坐标一定范围内的文档</li>
+<li><strong>geo_bounding_box</strong>：查询在指定矩形范围内的文档</li>
+<li><strong>geo_polygon</strong>：查询在指定多边形范围内的文档**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs bash">PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;location&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;geo_point&quot;</span><br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br><br>POST /my_index/_doc/1<br>&#123;<br>  <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;纽约帝国大厦&quot;</span>,<br>  <span class="hljs-string">&quot;location&quot;</span>: &#123; <span class="hljs-string">&quot;lat&quot;</span>: 40.7484, <span class="hljs-string">&quot;lon&quot;</span>: -73.9857 &#125;<br>&#125;<br><br><span class="hljs-comment"># 查询距离指定坐标 1km 内的文档</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;geo_distance&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;distance&quot;</span>: <span class="hljs-string">&quot;1km&quot;</span>,<br>      <span class="hljs-string">&quot;location&quot;</span>: &#123; <span class="hljs-string">&quot;lat&quot;</span>: 40.7128, <span class="hljs-string">&quot;lon&quot;</span>: -74.0060 &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>地理位置搜索的使用场景</strong>（比如附近的商家、配送范围）</li>
+<li>可以讲讲 <strong>如何优化地理位置搜索的性能</strong>（使用 <code>geo_point</code> 类型，启用 <code>doc_values</code>）</li>
+<li>可以讲讲实际项目中的应用（比如外卖平台的附近商家搜索）</li>
+</ul>
+<hr>
+<h3 id="Q29：Elasticsearch-的多索引搜索（Multi-Index-Search）是什么？"><a href="#Q29：Elasticsearch-的多索引搜索（Multi-Index-Search）是什么？" class="headerlink" title="Q29：Elasticsearch 的多索引搜索（Multi-Index Search）是什么？"></a>Q29：Elasticsearch 的多索引搜索（Multi-Index Search）是什么？</h3><p><strong>一句话总结</strong>：多索引搜索是 ES 的<strong>同时搜索多个索引</strong>的功能，可以通过<strong>索引模式</strong>、<strong>别名</strong>实现。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>多索引搜索的方式</strong>：</p>
+<ol>
+<li><strong>指定多个索引</strong>：<code>GET /index1,index2/_search</code></li>
+<li><strong>使用索引模式</strong>：<code>GET /log-*/_search</code></li>
+<li><strong>使用别名</strong>：<code>GET /logs/_search</code>（别名可以指向多个索引）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 搜索多个索引</span><br>GET /my_index_v1,my_index_v2/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;<br>&#125;<br><br><span class="hljs-comment"># 搜索匹配模式的索引</span><br>GET /log-2024-01-*/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;<br>&#125;<br><br><span class="hljs-comment"># 搜索别名（指向多个索引）</span><br>GET /logs/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>多索引搜索的使用场景</strong>（比如日志索引、时间序列索引）</li>
+<li>可以讲讲 <strong>如何优化多索引搜索的性能</strong>（使用别名、限制搜索的索引数量）</li>
+<li>可以讲讲实际项目中的最佳实践（<strong>总是使用别名</strong>）</li>
+</ul>
+<hr>
+<h3 id="Q30：Elasticsearch-的批量操作（Bulk-API）是什么？"><a href="#Q30：Elasticsearch-的批量操作（Bulk-API）是什么？" class="headerlink" title="Q30：Elasticsearch 的批量操作（Bulk API）是什么？"></a>Q30：Elasticsearch 的批量操作（Bulk API）是什么？</h3><p><strong>一句话总结</strong>：Bulk API 是 ES 的<strong>批量执行多个操作</strong>的功能，可以<strong>显著提高写入性能</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Bulk API 的操作类型</strong>：</p>
+<ol>
+<li><strong>index</strong>：索引文档（如果已存在则覆盖）</li>
+<li><strong>create</strong>：创建文档（如果已存在则报错）</li>
+<li><strong>update</strong>：更新文档（部分更新）</li>
+<li><strong>delete</strong>：删除文档**</li>
+</ol>
+<p><strong>Bulk API 的格式</strong>：</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs n1ql">&#123; &quot;<span class="hljs-keyword">index</span><span class="hljs-string">&quot;: &#123; &quot;</span>_index<span class="hljs-string">&quot;: &quot;</span>my_index<span class="hljs-string">&quot;, &quot;</span>_id<span class="hljs-string">&quot;: &quot;</span><span class="hljs-number">1</span><span class="hljs-string">&quot; &#125; &#125;</span><br><span class="hljs-string">&#123; &quot;</span><span class="hljs-built_in">title</span><span class="hljs-string">&quot;: &quot;</span>Elasticsearch 实战<span class="hljs-string">&quot;, &quot;</span>price<span class="hljs-string">&quot;: 99 &#125;</span><br><span class="hljs-string">&#123; &quot;</span><span class="hljs-keyword">delete</span><span class="hljs-string">&quot;: &#123; &quot;</span>_index<span class="hljs-string">&quot;: &quot;</span>my_index<span class="hljs-string">&quot;, &quot;</span>_id<span class="hljs-string">&quot;: &quot;</span><span class="hljs-number">2</span><span class="hljs-string">&quot; &#125; &#125;</span><br><span class="hljs-string">&#123; &quot;</span><span class="hljs-keyword">update</span><span class="hljs-string">&quot;: &#123; &quot;</span>_index<span class="hljs-string">&quot;: &quot;</span>my_index<span class="hljs-string">&quot;, &quot;</span>_id<span class="hljs-string">&quot;: &quot;</span><span class="hljs-number">3</span><span class="hljs-string">&quot; &#125; &#125;</span><br><span class="hljs-string">&#123; &quot;</span>doc<span class="hljs-string">&quot;: &#123; &quot;</span>price<span class="hljs-string">&quot;: 79 &#125; &#125;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 批量操作</span><br>POST /_bulk<br>&#123; <span class="hljs-string">&quot;index&quot;</span>: &#123; <span class="hljs-string">&quot;_index&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span>, <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;1&quot;</span> &#125; &#125;<br>&#123; <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 实战&quot;</span>, <span class="hljs-string">&quot;price&quot;</span>: 99 &#125;<br>&#123; <span class="hljs-string">&quot;create&quot;</span>: &#123; <span class="hljs-string">&quot;_index&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span>, <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;2&quot;</span> &#125; &#125;<br>&#123; <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Lucene 实战&quot;</span>, <span class="hljs-string">&quot;price&quot;</span>: 79 &#125;<br>&#123; <span class="hljs-string">&quot;delete&quot;</span>: &#123; <span class="hljs-string">&quot;_index&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span>, <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;3&quot;</span> &#125; &#125;<br>&#123; <span class="hljs-string">&quot;update&quot;</span>: &#123; <span class="hljs-string">&quot;_index&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span>, <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;1&quot;</span> &#125; &#125;<br>&#123; <span class="hljs-string">&quot;doc&quot;</span>: &#123; <span class="hljs-string">&quot;price&quot;</span>: 89 &#125; &#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>Bulk API 的性能优化</strong>（批量大小控制在 5-15MB）</li>
+<li>可以讲讲 <strong>Bulk API 的错误处理</strong>（某个操作失败不会影响其他操作）</li>
+<li>可以讲讲实际项目中的应用（比如批量导入数据、批量更新数据）</li>
+</ul>
+<hr>
+<h2 id="第四部分：Elasticsearch-集群和分布式（Q31-Q40）"><a href="#第四部分：Elasticsearch-集群和分布式（Q31-Q40）" class="headerlink" title="第四部分：Elasticsearch 集群和分布式（Q31-Q40）"></a>第四部分：Elasticsearch 集群和分布式（Q31-Q40）</h2><h3 id="Q31：Elasticsearch-的集群健康状态（Cluster-Health）有哪些？"><a href="#Q31：Elasticsearch-的集群健康状态（Cluster-Health）有哪些？" class="headerlink" title="Q31：Elasticsearch 的集群健康状态（Cluster Health）有哪些？"></a>Q31：Elasticsearch 的集群健康状态（Cluster Health）有哪些？</h3><p><strong>一句话总结</strong>：ES 的集群健康状态包括：<strong>绿色（Green）</strong>、<strong>黄色（Yellow）</strong>、<strong>红色（Red）</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>集群健康状态</strong>：</p>
+<ol>
+<li><strong>绿色（Green）</strong>：所有主分片和副本分片都可用</li>
+<li><strong>黄色（Yellow）</strong>：所有主分片可用，但<strong>有些副本分片不可用</strong></li>
+<li><strong>红色（Red）</strong>：<strong>有些主分片不可用</strong></li>
+</ol>
+<p><strong>查看集群健康状态</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">GET /_cluster/health<br><br><span class="hljs-comment"># 返回：</span><br>&#123;<br>  <span class="hljs-string">&quot;cluster_name&quot;</span>: <span class="hljs-string">&quot;my-cluster&quot;</span>,<br>  <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;yellow&quot;</span>,             <span class="hljs-comment"># 集群状态</span><br>  <span class="hljs-string">&quot;number_of_nodes&quot;</span>: 3,                 <span class="hljs-comment"># 节点数量</span><br>  <span class="hljs-string">&quot;number_of_data_nodes&quot;</span>: 3,              <span class="hljs-comment"># 数据节点数量</span><br>  <span class="hljs-string">&quot;active_primary_shards&quot;</span>: 10,             <span class="hljs-comment"># 活动主分片数量</span><br>  <span class="hljs-string">&quot;active_shards&quot;</span>: 15,                    <span class="hljs-comment"># 活动分片数量（主分片 + 副本分片）</span><br>  <span class="hljs-string">&quot;relocating_shards&quot;</span>: 0,                  <span class="hljs-comment"># 正在迁移的分片数量</span><br>  <span class="hljs-string">&quot;initializing_shards&quot;</span>: 0,                <span class="hljs-comment"># 正在初始化的分片数量</span><br>  <span class="hljs-string">&quot;unassigned_shards&quot;</span>: 5,                  <span class="hljs-comment"># 未分配的分片数量（副本分片没有地方分配）</span><br>  <span class="hljs-string">&quot;delayed_unassigned_shards&quot;</span>: 0<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>为什么集群状态是黄色</strong>（因为副本分片没有地方分配，比如只有一个节点）</li>
+<li>可以讲讲 <strong>如何处理红色状态</strong>（找到不可用主分片的原因，可能是节点故障）</li>
+<li>可以讲讲实际项目中的监控（比如使用 <strong>Watcher</strong> 监控集群健康状态）</li>
+</ul>
+<hr>
+<h3 id="Q32：Elasticsearch-的节点发现（Node-Discovery）是什么？"><a href="#Q32：Elasticsearch-的节点发现（Node-Discovery）是什么？" class="headerlink" title="Q32：Elasticsearch 的节点发现（Node Discovery）是什么？"></a>Q32：Elasticsearch 的节点发现（Node Discovery）是什么？</h3><p><strong>一句话总结</strong>：节点发现是 ES 的<strong>节点加入集群</strong>的机制，包括：<strong>Zen Discovery</strong>（ES 7.x 之前）和 <strong>Coordinator</strong>（ES 7.x 之后）。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Zen Discovery</strong>（ES 7.x 之前）：</p>
+<ul>
+<li>使用 <strong>单播（Unicast）</strong> 或 <strong>多播（Multicast）</strong> 发现节点</li>
+<li>需要配置 <code>discovery.zen.ping.unicast.hosts</code></li>
+<li>需要配置 <code>discovery.zen.minimum_master_nodes</code>（防止脑裂）</li>
+</ul>
+<p><strong>Coordinator</strong>（ES 7.x 之后）：</p>
+<ul>
+<li>使用 <strong>Coordinator 节点</strong> 管理集群状态</li>
+<li>自动发现节点（不需要手动配置）</li>
+<li>防止脑裂（内部实现）</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># ES 7.x 之前的配置（zen discovery）</span><br>discovery.zen.ping.unicast.hosts: [<span class="hljs-string">&quot;node1&quot;</span>, <span class="hljs-string">&quot;node2&quot;</span>, <span class="hljs-string">&quot;node3&quot;</span>]<br>discovery.zen.minimum_master_nodes: 2<br><br><span class="hljs-comment"># ES 7.x 之后的配置（coordinator）</span><br>discovery.seed.hosts: [<span class="hljs-string">&quot;node1&quot;</span>, <span class="hljs-string">&quot;node2&quot;</span>, <span class="hljs-string">&quot;node3&quot;</span>]<br>cluster.initial_master_nodes: [<span class="hljs-string">&quot;node1&quot;</span>, <span class="hljs-string">&quot;node2&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>为什么 ES 7.x 废弃了 zen discovery</strong>（容易配置错误，导致脑裂）</li>
+<li>可以讲讲 <strong>如何避免脑裂问题</strong></li>
+<li>可以讲讲实际项目中的部署方案（比如 3 个 Coordinator 节点）</li>
+</ul>
+<hr>
+<h3 id="Q33：Elasticsearch-的主节点选举（Master-Election）是什么？"><a href="#Q33：Elasticsearch-的主节点选举（Master-Election）是什么？" class="headerlink" title="Q33：Elasticsearch 的主节点选举（Master Election）是什么？"></a>Q33：Elasticsearch 的主节点选举（Master Election）是什么？</h3><p><strong>一句话总结</strong>：主节点选举是 ES 的<strong>选举主节点</strong>的机制，保证集群有<strong>唯一的主节点</strong>管理集群状态。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>主节点选举的流程</strong>：</p>
+<ol>
+<li><strong>节点启动</strong>：节点尝试加入集群（或形成集群）</li>
+<li><strong>选举临时主节点</strong>：从<strong>候选主节点</strong>中选举一个作为临时主节点</li>
+<li><strong>投票</strong>：候选主节点向临时主节点投票</li>
+<li><strong>选举成功</strong>：如果临时主节点获得 <strong>超过半数</strong> 的候选主节点投票，则成为正式主节点</li>
+<li><strong>选举失败</strong>：如果没有候选主节点获得超过半数投票，则重新选举</li>
+</ol>
+<p><strong>防止脑裂</strong>：</p>
+<ul>
+<li><strong>minimum_master_nodes</strong>：最少候选主节点数量（ES 7.x 之前）</li>
+<li><strong>公式</strong>：<code>minimum_master_nodes = (候选主节点数量 / 2) + 1</code></li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 3 个候选主节点，minimum_master_nodes = 2</span><br>node.master: <span class="hljs-literal">true</span>           <span class="hljs-comment"># 该节点是候选主节点</span><br><br>discovery.zen.minimum_master_nodes: 2   <span class="hljs-comment"># ES 7.x 之前</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>主节点选举的原理</strong>（类似 Raft 协议）</li>
+<li>可以讲讲 <strong>为什么需要超过半数投票</strong>（防止脑裂）</li>
+<li>可以讲讲实际项目中的部署方案（比如 3 个候选主节点）</li>
+</ul>
+<hr>
+<h3 id="Q34：Elasticsearch-的分片分配（Shard-Allocation）是什么？"><a href="#Q34：Elasticsearch-的分片分配（Shard-Allocation）是什么？" class="headerlink" title="Q34：Elasticsearch 的分片分配（Shard Allocation）是什么？"></a>Q34：Elasticsearch 的分片分配（Shard Allocation）是什么？</h3><p><strong>一句话总结</strong>：分片分配是 ES 的<strong>将分片分配到节点</strong>的机制，包括：<strong>主分片分配</strong>、<strong>副本分片分配</strong>、<strong>再平衡</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>分片分配的阶段</strong>：</p>
+<ol>
+<li><strong>主分片分配</strong>：当索引创建时，主分片分配到哪些节点</li>
+<li><strong>副本分片分配</strong>：当主分片分配完成后，副本分片分配到哪些节点（<strong>不能和主分片在同一个节点</strong>）</li>
+<li><strong>再平衡</strong>：当节点加入或离开时，重新分配分片（保持平衡）</li>
+</ol>
+<p><strong>分片分配的策略</strong>：</p>
+<ol>
+<li><strong>Same Shard Policy</strong>：不要让主分片和副本分片在同一个节点</li>
+<li><strong>Awareness Policy</strong>：按<strong>机房</strong>、<strong>机架</strong>分配分片（提高容灾能力）</li>
+<li><strong>Filter Policy</strong>：允许&#x2F;禁止将分片分配到某些节点**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 按机房分配分片（提高容灾能力）</span><br>node.attr.zone: zone1                <span class="hljs-comment"># 节点属性</span><br><br>cluster.routing.allocation.awareness.attributes: zone   <span class="hljs-comment"># 启用机房感知</span><br><br><span class="hljs-comment"># 禁止将分片分配到某些节点</span><br>cluster.routing.allocation.exclude._ip: <span class="hljs-string">&quot;192.168.1.1&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何优化分片分配</strong>（按机房分配、控制每个节点的分片数量）</li>
+<li>可以讲讲 <strong>如何手动迁移分片</strong>（使用 <code>cluster reroute</code> API）</li>
+<li>可以讲讲实际项目中的经验（比如<strong>避免单个节点分配过多分片</strong>）</li>
+</ul>
+<hr>
+<h3 id="Q35：Elasticsearch-的写入一致性（Write-Consistency）是什么？"><a href="#Q35：Elasticsearch-的写入一致性（Write-Consistency）是什么？" class="headerlink" title="Q35：Elasticsearch 的写入一致性（Write Consistency）是什么？"></a>Q35：Elasticsearch 的写入一致性（Write Consistency）是什么？</h3><p><strong>一句话总结</strong>：写入一致性是 ES 的<strong>控制写入操作需要多少副本分片可用</strong>的机制，包括：<strong>all</strong>、<strong>quorum</strong>、<strong>one</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>写入一致性的级别</strong>：</p>
+<ol>
+<li><strong>all</strong>：所有副本分片都可用（最强一致性）</li>
+<li><strong>quorum</strong>：大部分副本分片可用（默认，公式是 <code>(主分片数量 + 副本分片数量) / 2 + 1</code>）</li>
+<li><strong>one</strong>：只要主分片可用（最弱一致性）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 设置写入一致性级别</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;write.wait_for_active_shards&quot;</span>: <span class="hljs-string">&quot;all&quot;</span>   <span class="hljs-comment"># 等待所有分片可用</span><br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 写入时指定一致性级别</span><br>PUT /my_index/_doc/1?wait_for_active_shards=all<br>&#123;<br>  <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch 实战&quot;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>写入一致性和可用性的权衡</strong>（<code>all</code> 一致性最强，但可用性最差）</li>
+<li>可以讲讲 <strong>如何保证数据不丢失</strong>（设置 <code>wait_for_active_shards=all</code>）</li>
+<li>可以讲讲实际项目中的配置（比如金融场景用 <code>all</code>，日志场景用 <code>one</code>）</li>
+</ul>
+<hr>
+<h3 id="Q36：Elasticsearch-的读取一致性（Read-Consistency）是什么？"><a href="#Q36：Elasticsearch-的读取一致性（Read-Consistency）是什么？" class="headerlink" title="Q36：Elasticsearch 的读取一致性（Read Consistency）是什么？"></a>Q36：Elasticsearch 的读取一致性（Read Consistency）是什么？</h3><p><strong>一句话总结</strong>：读取一致性是 ES 的<strong>控制读取操作从哪个分片读取</strong>的机制，包括：<strong>all</strong>、<strong>quorum</strong>、<strong>one</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>读取一致性的级别</strong>：</p>
+<ol>
+<li><strong>all</strong>：从所有分片读取（最慢，但结果最准确）</li>
+<li><strong>quorum</strong>：从大部分分片读取</li>
+<li><strong>one</strong>：从单个分片读取（最快，但结果可能不准确）</li>
+</ol>
+<p><strong>ES 的实际实现</strong>：</p>
+<ul>
+<li>ES <strong>没有</strong> 读取一致性级别（和 Cassandra 不同）</li>
+<li>ES 的读取请求会<strong>自动路由到相关分片</strong>（主分片或副本分片）</li>
+<li>但可以通过 <strong>preference</strong> 参数控制读取哪个分片</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 控制读取哪个分片</span><br>GET /my_index/_search?preference=_primary    <span class="hljs-comment"># 只读取主分片</span><br>GET /my_index/_search?preference=_replica    <span class="hljs-comment"># 只读取副本分片</span><br>GET /my_index/_search?preference=custom_value  <span class="hljs-comment"># 相同 value 的请求会路由到相同分片（提高缓存命中率）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>ES 为什么没有读取一致性级别</strong>（因为 ES 是近实时搜索，主分片和副本分片可能有延迟）</li>
+<li>可以讲讲 <strong>如何保证读取结果准确</strong>（使用 <code>preference=_primary</code>）</li>
+<li>可以讲讲实际项目中的配置（比如<strong>提高缓存命中率</strong>，使用 <code>preference=session_id</code>）</li>
+</ul>
+<hr>
+<h3 id="Q37：Elasticsearch-的集群扩容（Cluster-Scaling）是什么？"><a href="#Q37：Elasticsearch-的集群扩容（Cluster-Scaling）是什么？" class="headerlink" title="Q37：Elasticsearch 的集群扩容（Cluster Scaling）是什么？"></a>Q37：Elasticsearch 的集群扩容（Cluster Scaling）是什么？</h3><p><strong>一句话总结</strong>：集群扩容是 ES 的<strong>增加节点</strong>的操作，可以<strong>提高容量</strong>和<strong>提高性能</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>扩容的方式</strong>：</p>
+<ol>
+<li><strong>增加数据节点</strong>：提高容量和读取性能</li>
+<li><strong>增加协调节点</strong>：提高请求路由性能</li>
+<li><strong>增加预处理节点</strong>：提高文档预处理性能**</li>
+</ol>
+<p><strong>扩容的限制</strong>：</p>
+<ul>
+<li><strong>主分片数量不能修改</strong>（如果容量不够，需要重建索引）</li>
+<li><strong>但可以增加副本分片数量</strong>（提高读取性能）</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 增加副本分片数量（提高读取性能）</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;number_of_replicas&quot;</span>: 2         <span class="hljs-comment"># 从 1 个副本增加到 2 个副本</span><br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 添加数据节点（只需要启动新节点，ES 会自动分配分片）</span><br><span class="hljs-comment"># 新节点会加入集群，集群状态变为黄色（因为副本分片正在分配）</span><br><span class="hljs-comment"># 分配完成后，集群状态变为绿色</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何规划集群规模</strong>（根据数据量、写入 QPS、读取 QPS）</li>
+<li>可以讲讲 <strong>如何避免扩容时的性能问题</strong>（控制分片分配速率）</li>
+<li>可以讲讲实际项目中的扩容方案（比如<strong>滚动扩容</strong>，逐个重启节点）</li>
+</ul>
+<hr>
+<h3 id="Q38：Elasticsearch-的集群缩容（Cluster-Shrink）是什么？"><a href="#Q38：Elasticsearch-的集群缩容（Cluster-Shrink）是什么？" class="headerlink" title="Q38：Elasticsearch 的集群缩容（Cluster Shrink）是什么？"></a>Q38：Elasticsearch 的集群缩容（Cluster Shrink）是什么？</h3><p><strong>一句话总结</strong>：集群缩容是 ES 的<strong>减少节点</strong>的操作，通常用于<strong>下线故障节点</strong>或<strong>降低硬件成本</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>缩容的步骤</strong>：</p>
+<ol>
+<li><strong>迁移分片</strong>：将待下线节点上的分片迁移到其他节点</li>
+<li><strong>等待集群状态变为绿色</strong>：确保所有分片都有副本</li>
+<li><strong>下线节点</strong>：关闭待下线节点</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 迁移分片（排除待下线节点）</span><br>PUT /_cluster/settings<br>&#123;<br>  <span class="hljs-string">&quot;transient&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;cluster.routing.allocation.exclude._ip&quot;</span>: <span class="hljs-string">&quot;192.168.1.1&quot;</span><br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 2. 等待分片迁移完成</span><br>GET /_cat/recovery?v=<br><br><span class="hljs-comment"># 3. 下线节点</span><br><span class="hljs-comment"># 关闭待下线节点的 ES 进程</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何安全下线节点</strong>（先迁移分片，再下线）</li>
+<li>可以讲讲 <strong>如何避免缩容时的数据丢失</strong>（确保副本分片可用）</li>
+<li>可以讲讲实际项目中的缩容方案（比如<strong>滚动缩容</strong>，逐个下线节点）</li>
+</ul>
+<hr>
+<h3 id="Q39：Elasticsearch-的跨集群搜索（Cross-Cluster-Search）是什么？"><a href="#Q39：Elasticsearch-的跨集群搜索（Cross-Cluster-Search）是什么？" class="headerlink" title="Q39：Elasticsearch 的跨集群搜索（Cross-Cluster Search）是什么？"></a>Q39：Elasticsearch 的跨集群搜索（Cross-Cluster Search）是什么？</h3><p><strong>一句话总结</strong>：跨集群搜索是 ES 的<strong>搜索多个集群</strong>的功能，适用于<strong>多数据中心</strong>、<strong>冷热分离</strong>场景。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>跨集群搜索的配置</strong>：</p>
+<ol>
+<li><strong>配置远程集群</strong>：在本地集群中配置远程集群的连接信息</li>
+<li><strong>搜索远程集群</strong>：使用 <code>集群别名:</code> 前缀搜索远程集群</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 配置远程集群</span><br>PUT /_cluster/settings<br>&#123;<br>  <span class="hljs-string">&quot;persistent&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;cluster.remote&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;cluster_one&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;seeds&quot;</span>: [<span class="hljs-string">&quot;node1:9300&quot;</span>, <span class="hljs-string">&quot;node2:9300&quot;</span>]<br>      &#125;,<br>      <span class="hljs-string">&quot;cluster_two&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;seeds&quot;</span>: [<span class="hljs-string">&quot;node3:9300&quot;</span>, <span class="hljs-string">&quot;node4:9300&quot;</span>]<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 搜索远程集群</span><br>GET /cluster_one:my_index,cluster_two:my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>跨集群搜索的使用场景</strong>（比如多数据中心、冷热分离）</li>
+<li>可以讲讲 <strong>如何优化跨集群搜索的性能</strong>（使用 <strong>CCR（Cross-Cluster Replication）</strong> 复制数据到本地集群）</li>
+<li>可以讲讲实际项目中的应用（比如<strong>搜索历史数据</strong>，从远程集群搜索）</li>
+</ul>
+<hr>
+<h3 id="Q40：Elasticsearch-的跨集群复制（CCR-Cross-Cluster-Replication）是什么？"><a href="#Q40：Elasticsearch-的跨集群复制（CCR-Cross-Cluster-Replication）是什么？" class="headerlink" title="Q40：Elasticsearch 的跨集群复制（CCR - Cross-Cluster Replication）是什么？"></a>Q40：Elasticsearch 的跨集群复制（CCR - Cross-Cluster Replication）是什么？</h3><p><strong>一句话总结</strong>：跨集群复制是 ES 的<strong>复制索引到远程集群</strong>的功能，适用于<strong>灾备</strong>、<strong>就近读取</strong>场景。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>CCR 的使用场景</strong>：</p>
+<ol>
+<li><strong>灾备</strong>：将索引复制到远程集群，防止数据中心故障</li>
+<li><strong>就近读取</strong>：将索引复制到多个数据中心，提高读取性能</li>
+<li><strong>数据本地化</strong>：将全局索引复制到本地集群，减少跨数据中心延迟**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建复制规则</span><br>PUT /_ccr/follow/my_index<br>&#123;<br>  <span class="hljs-string">&quot;remote_cluster&quot;</span>: <span class="hljs-string">&quot;cluster_one&quot;</span>,<br>  <span class="hljs-string">&quot;leader_index&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span><br>&#125;<br><br><span class="hljs-comment"># 查看复制状态</span><br>GET /_ccr/stats<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>CCR 和跨集群搜索的区别</strong>（CCR 是复制数据，跨集群搜索是远程搜索）</li>
+<li>可以讲讲 <strong>如何优化 CCR 的性能</strong>（使用<strong>自动跟随模式</strong>，自动复制新索引）</li>
+<li>可以讲讲实际项目中的应用（比如<strong>灾备方案</strong>，将索引复制到远程集群）</li>
+</ul>
+<hr>
+<h2 id="第五部分：Elasticsearch-性能优化（Q41-Q50）"><a href="#第五部分：Elasticsearch-性能优化（Q41-Q50）" class="headerlink" title="第五部分：Elasticsearch 性能优化（Q41-Q50）"></a>第五部分：Elasticsearch 性能优化（Q41-Q50）</h2><h3 id="Q41：Elasticsearch-的写入性能优化有哪些？"><a href="#Q41：Elasticsearch-的写入性能优化有哪些？" class="headerlink" title="Q41：Elasticsearch 的写入性能优化有哪些？"></a>Q41：Elasticsearch 的写入性能优化有哪些？</h3><p><strong>一句话总结</strong>：写入性能优化包括：<strong>禁用刷新</strong>、<strong>禁用副本</strong>、<strong>使用 Bulk API</strong>、<strong>增加刷新间隔</strong>、<strong>使用 SSD</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>写入性能优化技巧</strong>：</p>
+<ol>
+<li><strong>禁用刷新</strong>：<code>index.refresh_interval: -1</code>（批量导入完成后恢复）</li>
+<li><strong>禁用副本</strong>：<code>index.number_of_replicas: 0</code>（批量导入完成后恢复）</li>
+<li><strong>使用 Bulk API</strong>：批量写入（批量大小控制在 5-15MB）</li>
+<li><strong>增加刷新间隔</strong>：<code>index.refresh_interval: 30s</code>（降低刷新频率）</li>
+<li><strong>使用 SSD</strong>：SSD 的随机 I&#x2F;O 性能远好于机械硬盘**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 批量导入时临时优化写入性能</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;refresh_interval&quot;</span>: <span class="hljs-string">&quot;-1&quot;</span>,              <span class="hljs-comment"># 禁用刷新</span><br>    <span class="hljs-string">&quot;number_of_replicas&quot;</span>: 0                 <span class="hljs-comment"># 禁用副本</span><br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 批量导入完成后恢复设置</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;refresh_interval&quot;</span>: <span class="hljs-string">&quot;1s&quot;</span>,               <span class="hljs-comment"># 恢复刷新</span><br>    <span class="hljs-string">&quot;number_of_replicas&quot;</span>: 1                 <span class="hljs-comment"># 恢复副本</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何平衡写入性能和搜索实时性</strong>（根据业务需求调整 <code>refresh_interval</code>）</li>
+<li>可以讲讲 <strong>如何使用 Bulk API 的最佳实践</strong>（控制批量大小、并行写入）</li>
+<li>可以讲讲实际项目中的优化经验（比如<strong>日志导入</strong>，禁用刷新和副本）</li>
+</ul>
+<hr>
+<h3 id="Q42：Elasticsearch-的读取性能优化有哪些？"><a href="#Q42：Elasticsearch-的读取性能优化有哪些？" class="headerlink" title="Q42：Elasticsearch 的读取性能优化有哪些？"></a>Q42：Elasticsearch 的读取性能优化有哪些？</h3><p><strong>一句话总结</strong>：读取性能优化包括：<strong>增加副本</strong>、<strong>使用文件系统缓存</strong>、<strong>优化 mapping</strong>、<strong>使用 filter 查询</strong>、<strong>避免深度分页</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>读取性能优化技巧</strong>：</p>
+<ol>
+<li><strong>增加副本</strong>：提高读取吞吐量（但需要更多硬件资源）</li>
+<li><strong>使用文件系统缓存</strong>：Linux 会自动缓存文件（需要足够的内存）</li>
+<li><strong>优化 mapping</strong>：禁用不需要搜索的字段、使用 keyword 类型</li>
+<li><strong>使用 filter 查询</strong>：filter 查询不贡献评分，会使用缓存</li>
+<li><strong>避免深度分页</strong>：使用 <code>search_after</code> 代替 <code>from/size</code></li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 增加副本（提高读取吞吐量）</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;number_of_replicas&quot;</span>: 2<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 使用 filter 查询（会使用缓存）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;bool&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;filter&quot;</span>: [<br>        &#123; <span class="hljs-string">&quot;term&quot;</span>: &#123; <span class="hljs-string">&quot;status&quot;</span>: 1 &#125;&#125;,<br>        &#123; <span class="hljs-string">&quot;range&quot;</span>: &#123; <span class="hljs-string">&quot;price&quot;</span>: &#123; <span class="hljs-string">&quot;gte&quot;</span>: 50 &#125;&#125;&#125;<br>      ]<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何优化聚合性能</strong>（使用 <code>doc_values</code>、控制聚合数量）</li>
+<li>可以讲讲 <strong>如何优化排序性能</strong>（使用 <code>doc_values</code>）</li>
+<li>可以讲讲实际项目中的优化经验（比如<strong>为热数据增加副本</strong>）</li>
+</ul>
+<hr>
+<h3 id="Q43：Elasticsearch-的硬件选择有哪些建议？"><a href="#Q43：Elasticsearch-的硬件选择有哪些建议？" class="headerlink" title="Q43：Elasticsearch 的硬件选择有哪些建议？"></a>Q43：Elasticsearch 的硬件选择有哪些建议？</h3><p><strong>一句话总结</strong>：ES 的硬件选择建议：<strong>CPU 不需要太强</strong>（主要瓶颈在 I&#x2F;O 和内存）、<strong>内存要足够</strong>（文件系统缓存）、<strong>使用 SSD</strong>（提高 I&#x2F;O 性能）、<strong>网络要快</strong>（分布式系统）。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>硬件选择建议</strong>：</p>
+<ol>
+<li><strong>CPU</strong>：2-8 核（不需要太强，ES 主要瓶颈在 I&#x2F;O 和内存）</li>
+<li><strong>内存</strong>：64GB-128GB（一半给 ES，一半给文件系统缓存）</li>
+<li><strong>磁盘</strong>：SSD（提高 I&#x2F;O 性能，尤其是写入性能）</li>
+<li><strong>网络</strong>：千兆网卡或万兆网卡（分布式系统，节点间通信频繁）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 设置 ES 的 JVM 堆内存（建议设置为物理内存的一半，但不超过 32GB）</span><br><span class="hljs-comment"># 修改 config/jvm.options</span><br>-Xms32g<br>-Xmx32g<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>为什么 JVM 堆内存不要超过 32GB</strong>（因为 JVM 的<strong>压缩指针</strong>机制，超过 32GB 后效率下降）</li>
+<li>可以讲讲 <strong>如何监控硬件资源使用率</strong>（使用 <code>node.stats</code> API）</li>
+<li>可以讲讲实际项目中的硬件选择经验（比如<strong>热数据用 SSD，冷数据用机械硬盘</strong>）</li>
+</ul>
+<hr>
+<h3 id="Q44：Elasticsearch-的-JVM-堆内存优化有哪些？"><a href="#Q44：Elasticsearch-的-JVM-堆内存优化有哪些？" class="headerlink" title="Q44：Elasticsearch 的 JVM 堆内存优化有哪些？"></a>Q44：Elasticsearch 的 JVM 堆内存优化有哪些？</h3><p><strong>一句话总结</strong>：JVM 堆内存优化包括：<strong>设置合适的堆内存大小</strong>、<strong>避免频繁 Full GC</strong>、<strong>使用 G1GC</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>JVM 堆内存优化技巧</strong>：</p>
+<ol>
+<li><strong>设置合适的堆内存大小</strong>：<code>Xms</code> 和 <code>Xmx</code> 设置为相同值（避免动态调整）</li>
+<li><strong>不要超过 32GB</strong>：因为 JVM 的<strong>压缩指针</strong>机制，超过 32GB 后效率下降</li>
+<li><strong>使用 G1GC</strong>：ES 默认使用 G1GC（适合大堆内存）</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 修改 config/jvm.options</span><br>-Xms32g                   <span class="hljs-comment"># 初始堆内存</span><br>-Xmx32g                   <span class="hljs-comment"># 最大堆内存（不要超过 32GB）</span><br><br><span class="hljs-comment"># 使用 G1GC（ES 默认）</span><br>-XX:+UseG1GC<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何监控 JVM 堆内存使用率</strong>（使用 <code>node.stats</code> API 或 Kibana）</li>
+<li>可以讲讲 <strong>如何避免频繁 Full GC</strong>（增加堆内存、优化查询）</li>
+<li>可以讲讲实际项目中的调优案例（比如<strong>解决 OOM 问题</strong>）</li>
+</ul>
+<hr>
+<h3 id="Q45：Elasticsearch-的索引性能监控有哪些指标？"><a href="#Q45：Elasticsearch-的索引性能监控有哪些指标？" class="headerlink" title="Q45：Elasticsearch 的索引性能监控有哪些指标？"></a>Q45：Elasticsearch 的索引性能监控有哪些指标？</h3><p><strong>一句话总结</strong>：索引性能监控指标包括：<strong>索引速率</strong>、<strong>索引延迟</strong>、<strong>索引拒绝次数</strong>、<strong>合并速率</strong>、<strong>刷写速率</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>索引性能监控指标</strong>：</p>
+<ol>
+<li><strong>索引速率（Index Rate）</strong>：每秒索引多少文档</li>
+<li><strong>索引延迟（Index Latency）</strong>：索引一个文档需要多少时间</li>
+<li><strong>索引拒绝次数（Index Rejected）</strong>：线程池拒绝次数（如果很高，说明写入过载）</li>
+<li><strong>合并速率（Merge Rate）</strong>：每秒合并多少文档</li>
+<li><strong>刷写速率（Flush Rate）</strong>：每秒刷写多少次**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看索引性能统计</span><br>GET /_nodes/stats/indices<br><br><span class="hljs-comment"># 查看线程池统计（包括拒绝次数）</span><br>GET /_nodes/stats/thread_pool<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何判断写入过载</strong>（索引拒绝次数 &gt; 0）</li>
+<li>可以讲讲 <strong>如何优化写入性能</strong>（增加线程池大小、优化 mapping）</li>
+<li>可以讲讲实际项目中的监控方案（比如使用 <strong>Prometheus + Grafana</strong> 监控 ES 指标）</li>
+</ul>
+<hr>
+<h3 id="Q46：Elasticsearch-的搜索性能监控有哪些指标？"><a href="#Q46：Elasticsearch-的搜索性能监控有哪些指标？" class="headerlink" title="Q46：Elasticsearch 的搜索性能监控有哪些指标？"></a>Q46：Elasticsearch 的搜索性能监控有哪些指标？</h3><p><strong>一句话总结</strong>：搜索性能监控指标包括：<strong>搜索速率</strong>、<strong>搜索延迟</strong>、<strong>搜索拒绝次数</strong>、<strong>缓存命中率</strong>、<strong>内存使用率</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>搜索性能监控指标</strong>：</p>
+<ol>
+<li><strong>搜索速率（Search Rate）</strong>：每秒执行多少次搜索</li>
+<li><strong>搜索延迟（Search Latency）</strong>：搜索需要多少时间</li>
+<li><strong>搜索拒绝次数（Search Rejected）</strong>：线程池拒绝次数（如果很高，说明搜索过载）</li>
+<li><strong>缓存命中率（Cache Hit Rate）</strong>：filter 查询缓存命中率</li>
+<li><strong>内存使用率（Memory Usage）</strong>：JVM 堆内存使用率**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看搜索性能统计</span><br>GET /_nodes/stats/indices/search<br><br><span class="hljs-comment"># 查看缓存统计</span><br>GET /_nodes/stats/indices/query_cache<br><br><span class="hljs-comment"># 查看内存统计</span><br>GET /_nodes/stats/jvm<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何判断搜索过载</strong>（搜索拒绝次数 &gt; 0）</li>
+<li>可以讲讲 <strong>如何优化搜索性能</strong>（增加副本、使用 filter 查询、优化 mapping）</li>
+<li>可以讲讲实际项目中的监控方案（比如使用 <strong>Elastic APM</strong> 监控搜索性能）</li>
+</ul>
+<hr>
+<h3 id="Q47：Elasticsearch-的常见性能问题有哪些？"><a href="#Q47：Elasticsearch-的常见性能问题有哪些？" class="headerlink" title="Q47：Elasticsearch 的常见性能问题有哪些？"></a>Q47：Elasticsearch 的常见性能问题有哪些？</h3><p><strong>一句话总结</strong>：常见性能问题包括：<strong>写入过载</strong>、<strong>搜索过载</strong>、<strong>内存不足</strong>、<strong>磁盘 I&#x2F;O 瓶颈</strong>、<strong>网络延迟</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>常见性能问题及解决方案</strong>：</p>
+<ol>
+<li><strong>写入过载</strong>：索引拒绝次数 &gt; 0 → 增加数据节点、优化 mapping、使用 Bulk API</li>
+<li><strong>搜索过载</strong>：搜索拒绝次数 &gt; 0 → 增加数据节点、增加副本、优化查询</li>
+<li><strong>内存不足</strong>：JVM 堆内存使用率 &gt; 75% → 增加堆内存、优化查询、增加节点</li>
+<li><strong>磁盘 I&#x2F;O 瓶颈</strong>：磁盘 I&#x2F;O 使用率 &gt; 80% → 使用 SSD、增加节点**</li>
+<li><strong>网络延迟</strong>：节点间通信延迟高 → 使用万兆网卡、将节点部署在同一个机房**</li>
+</ol>
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何排查性能问题</strong>（使用 <code>node.stats</code> API、查看日志）</li>
+<li>可以讲讲 <strong>如何优化性能</strong>（硬件升级、配置调优、查询优化）</li>
+<li>可以讲讲实际项目中的性能问题案例（比如<strong>解决写入拒绝问题</strong>）</li>
+</ul>
+<hr>
+<h3 id="Q48：Elasticsearch-的数据建模最佳实践有哪些？"><a href="#Q48：Elasticsearch-的数据建模最佳实践有哪些？" class="headerlink" title="Q48：Elasticsearch 的数据建模最佳实践有哪些？"></a>Q48：Elasticsearch 的数据建模最佳实践有哪些？</h3><p><strong>一句话总结</strong>：数据建模最佳实践包括：<strong>避免过度嵌套</strong>、<strong>使用非规范化数据</strong>、<strong>合理使用父子关系</strong>、<strong>控制字段数量</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>数据建模最佳实践</strong>：</p>
+<ol>
+<li><strong>避免过度嵌套</strong>：嵌套查询较慢，如果嵌套层级很深，性能会很差</li>
+<li><strong>使用非规范化数据</strong>：将关联数据存储在同一文档中（提高查询性能）</li>
+<li><strong>合理使用父子关系</strong>：父子关系查询较慢，如果不需要独立更新子文档，使用嵌套对象或非规范化数据</li>
+<li><strong>控制字段数量</strong>：字段数量过多会导致 mapping 爆炸，影响性能**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 反例：过度嵌套</span><br>&#123;<br>  <span class="hljs-string">&quot;user&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;张三&quot;</span>,<br>    <span class="hljs-string">&quot;orders&quot;</span>: [                         <span class="hljs-comment"># 嵌套对象</span><br>      &#123;<br>        <span class="hljs-string">&quot;order_id&quot;</span>: 1,<br>        <span class="hljs-string">&quot;products&quot;</span>: [                   <span class="hljs-comment"># 多层嵌套</span><br>          &#123; <span class="hljs-string">&quot;product_id&quot;</span>: 1, <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;商品1&quot;</span> &#125;<br>        ]<br>      &#125;<br>    ]<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 正例：非规范化数据</span><br>&#123;<br>  <span class="hljs-string">&quot;user_name&quot;</span>: <span class="hljs-string">&quot;张三&quot;</span>,<br>  <span class="hljs-string">&quot;order_id&quot;</span>: 1,<br>  <span class="hljs-string">&quot;product_name&quot;</span>: <span class="hljs-string">&quot;商品1&quot;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>如何选择合适的关联数据模型</strong>（嵌套对象 vs 父子关系 vs 非规范化数据）</li>
+<li>可以讲讲 <strong>如何避免 mapping 爆炸</strong>（禁用动态映射、使用 <code>nested</code> 类型）</li>
+<li>可以讲讲实际项目中的数据建模案例（比如<strong>电商搜索的数据建模</strong>）</li>
+</ul>
+<hr>
+<h3 id="Q49：Elasticsearch-的备份和恢复（Snapshot-and-Restore）是什么？"><a href="#Q49：Elasticsearch-的备份和恢复（Snapshot-and-Restore）是什么？" class="headerlink" title="Q49：Elasticsearch 的备份和恢复（Snapshot and Restore）是什么？"></a>Q49：Elasticsearch 的备份和恢复（Snapshot and Restore）是什么？</h3><p><strong>一句话总结</strong>：备份和恢复是 ES 的<strong>数据备份</strong>功能，可以将索引备份到<strong>远程仓库</strong>（比如 HDFS、S3），然后恢复。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>备份和恢复的步骤</strong>：</p>
+<ol>
+<li><strong>创建快照仓库</strong>：配置远程仓库（比如 HDFS、S3）</li>
+<li><strong>创建快照</strong>：备份索引</li>
+<li><strong>恢复快照</strong>：恢复索引**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 创建快照仓库（使用本地文件系统）</span><br>PUT /_snapshot/my_backup<br>&#123;<br>  <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;fs&quot;</span>,<br>  <span class="hljs-string">&quot;settings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;location&quot;</span>: <span class="hljs-string">&quot;/path/to/backup&quot;</span>,<br>    <span class="hljs-string">&quot;compress&quot;</span>: <span class="hljs-literal">true</span><br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 2. 创建快照（备份所有索引）</span><br>PUT /_snapshot/my_backup/snapshot_1?wait_for_completion=<span class="hljs-literal">true</span><br><br><span class="hljs-comment"># 3. 恢复快照</span><br>POST /_snapshot/my_backup/snapshot_1/_restore<br>&#123;<br>  <span class="hljs-string">&quot;indices&quot;</span>: <span class="hljs-string">&quot;my_index&quot;</span>,              <span class="hljs-comment"># 只恢复 my_index 索引</span><br>  <span class="hljs-string">&quot;include_global_state&quot;</span>: <span class="hljs-literal">false</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>备份和恢复的使用场景</strong>（比如数据迁移、灾难恢复）</li>
+<li>可以讲讲 <strong>如何自动化备份</strong>（使用 <strong>Watcher</strong> 定时创建快照）</li>
+<li>可以讲讲实际项目中的备份方案（比如<strong>每天备份一次</strong>，保留最近 7 天的快照）</li>
+</ul>
+<hr>
+<h3 id="Q50：Elasticsearch-的安全机制（Security）有哪些？"><a href="#Q50：Elasticsearch-的安全机制（Security）有哪些？" class="headerlink" title="Q50：Elasticsearch 的安全机制（Security）有哪些？"></a>Q50：Elasticsearch 的安全机制（Security）有哪些？</h3><p><strong>一句话总结</strong>：ES 的安全机制包括：<strong>身份认证</strong>、<strong>权限控制</strong>、<strong>传输加密</strong>、<strong>审计日志</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>ES 的安全功能</strong>（需要安装 X-Pack 插件）：</p>
+<ol>
+<li><strong>身份认证</strong>：使用 <strong>Realm</strong>（比如 Native Realm、LDAP Realm）</li>
+<li><strong>权限控制</strong>：使用 <strong>Role</strong> 和 <strong>User</strong></li>
+<li><strong>传输加密</strong>：使用 <strong>TLS&#x2F;SSL</strong> 加密节点间通信</li>
+<li><strong>审计日志</strong>：记录用户操作**</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建用户</span><br>POST /_security/user/john<br>&#123;<br>  <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">&quot;password&quot;</span>,<br>  <span class="hljs-string">&quot;roles&quot;</span>: [<span class="hljs-string">&quot;admin&quot;</span>]<br>&#125;<br><br><span class="hljs-comment"># 创建角色</span><br>POST /_security/role/devops<br>&#123;<br>  <span class="hljs-string">&quot;indices&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;names&quot;</span>: [<span class="hljs-string">&quot;*&quot;</span>], <span class="hljs-string">&quot;privileges&quot;</span>: [<span class="hljs-string">&quot;all&quot;</span>] &#125;<br>  ]<br>&#125;<br><br><span class="hljs-comment"># 启用 TLS/SSL</span><br><span class="hljs-comment"># 修改 config/elasticsearch.yml</span><br>xpack.security.enabled: <span class="hljs-literal">true</span><br>xpack.security.transport.ll.enabled: <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>为什么需要启用安全机制</strong>（防止未授权访问、保护敏感数据）</li>
+<li>可以讲讲 <strong>如何集成 LDAP&#x2F;AD</strong>（使用 LDAP Realm）</li>
+<li>可以讲讲实际项目中的安全方案（比如<strong>启用身份认证和权限控制</strong>）</li>
+</ul>
+<hr>
+<h2 id="💪-实战演练（真实面试场景）"><a href="#💪-实战演练（真实面试场景）" class="headerlink" title="💪 实战演练（真实面试场景）"></a>💪 实战演练（真实面试场景）</h2><blockquote>
+<p>🎯 <strong>面试技巧</strong>：面试时遇到 Elasticsearch 问题，不要只背概念，要结合<strong>实际项目经验</strong>回答。</p>
+</blockquote>
+<h3 id="场景-1：请你设计一个电商搜索系统？"><a href="#场景-1：请你设计一个电商搜索系统？" class="headerlink" title="场景 1：请你设计一个电商搜索系统？"></a>场景 1：请你设计一个电商搜索系统？</h3><p><strong>回答思路</strong>：</p>
+<ol>
+<li><strong>数据建模</strong>：商品数据如何存储（使用非规范化数据，将商品信息、库存信息、价格信息存储在同一文档中）</li>
+<li><strong>分词器选择</strong>：中文分词器（使用 IK Analyzer）</li>
+<li><strong>搜索类型</strong>：全文搜索（使用 <code>match</code> 查询）、过滤搜索（使用 <code>filter</code> 查询）</li>
+<li><strong>排序</strong>：按评分排序、按销量排序、按价格排序</li>
+<li><strong>分页</strong>：使用 <code>search_after</code> 实现无限滚动分页**</li>
+<li><strong>性能优化</strong>：增加副本、使用文件系统缓存、使用 filter 查询**</li>
+</ol>
+<h3 id="场景-2：如何优化-ES-的写入性能？"><a href="#场景-2：如何优化-ES-的写入性能？" class="headerlink" title="场景 2：如何优化 ES 的写入性能？"></a>场景 2：如何优化 ES 的写入性能？</h3><p><strong>回答思路</strong>：</p>
+<ol>
+<li><strong>禁用刷新和副本</strong>（批量导入时）</li>
+<li><strong>使用 Bulk API</strong>（批量写入）</li>
+<li><strong>增加刷新间隔</strong>（降低刷新频率）</li>
+<li><strong>使用 SSD</strong>（提高 I&#x2F;O 性能）</li>
+<li><strong>优化 mapping</strong>（禁用不需要搜索的字段）</li>
+</ol>
+<h3 id="场景-3：ES-集群状态是红色，如何排查？"><a href="#场景-3：ES-集群状态是红色，如何排查？" class="headerlink" title="场景 3：ES 集群状态是红色，如何排查？"></a>场景 3：ES 集群状态是红色，如何排查？</h3><p><strong>回答思路</strong>：</p>
+<ol>
+<li><strong>查看集群健康状态</strong>：<code>GET /_cluster/health</code></li>
+<li><strong>查看未分配的分片</strong>：<code>GET /_cat/shards?h=index,shard,prirep,state,unassigned.reason</code></li>
+<li><strong>查看节点状态</strong>：<code>GET /_cat/nodes</code></li>
+<li><strong>查看日志</strong>：<code>tail -f logs/elasticsearch.log</code></li>
+<li><strong>解决方案</strong>：如果是节点故障，下线故障节点，恢复副本分片**</li>
+</ol>
+<hr>
+<h2 id="📚-扩展学习资源"><a href="#📚-扩展学习资源" class="headerlink" title="📚 扩展学习资源**"></a>📚 扩展学习资源**</h2><blockquote>
+<p>📖 <strong>持续学习</strong>：Elasticsearch 发展很快，要保持学习状态。</p>
+</blockquote>
+<h3 id="官方资源"><a href="#官方资源" class="headerlink" title="官方资源"></a>官方资源</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html">Elasticsearch 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html">Elasticsearch: The Definitive Guide</a>（免费电子书）</li>
+</ul>
+<h3 id="书籍推荐"><a href="#书籍推荐" class="headerlink" title="书籍推荐"></a>书籍推荐</h3><ul>
+<li>《Elasticsearch 实战》（Elasticsearch in Action）</li>
+<li>《Elasticsearch 权威指南》（旧版，但基础概念讲得好）</li>
+</ul>
+<h3 id="博客推荐"><a href="#博客推荐" class="headerlink" title="博客推荐"></a>博客推荐</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/blog">Elastic 官方博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://elasticsearch.cn/">Elasticsearch 中文社区</a></li>
+</ul>
+<hr>
+<h2 id="🎉-总结"><a href="#🎉-总结" class="headerlink" title="🎉 总结"></a>🎉 总结</h2><p>恭喜你！如果你认真学完了上面的 <strong>50 个问题</strong>，那么你已经掌握了 <strong>Elasticsearch 的核心知识</strong>。</p>
+<p><strong>下一步建议</strong>：</p>
+<ol>
+<li><strong>动手实践</strong>：搭建一个 ES 集群，创建索引，执行搜索</li>
+<li><strong>阅读源码</strong>：如果你对 ES 的实现原理感兴趣，可以阅读 Lucene 源码</li>
+<li><strong>参与社区</strong>：在 Elasticsearch 中文社区回答问题，加深理解</li>
+<li><strong>准备面试</strong>：刷 LeetCode 数据库题目，复习 ES 知识**</li>
+</ol>
+<p><strong>最后的最后</strong>：</p>
+<ul>
+<li>面试不仅考察知识，还考察<strong>思维能力</strong>和<strong>沟通能力</strong></li>
+<li>回答问题时，要<strong>逻辑清晰</strong>、<strong>深入浅出</strong></li>
+<li>遇到不会的问题，不要慌，可以<strong>引导到你会的方向</strong></li>
+</ul>
+<p><strong>祝你面试顺利！🎉</strong></p>
+<hr>
+<blockquote>
+<p>💡 <strong>提示</strong>：本文档会持续更新，如果你发现错误或想补充内容，欢迎提 Issue！</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87/" class="category-chain-item">面试八股文</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Elasticsearch/" class="print-no-link">#Elasticsearch</a>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E6%90%9C%E7%B4%A2/" class="print-no-link">#搜索</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="print-no-link">#分布式</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Elasticsearch 面试八股文（50 题）</div>
+      <div>https://whyalwaysme.lol/2026/06/09/2026-06-09-elasticsearch-interview-deep/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/09/2026-06-09-kubernetes-interview-deep/" title="Kubernetes 面试八股文（傻子都能懂系列）">
+                        <span class="hidden-mobile">Kubernetes 面试八股文（傻子都能懂系列）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
