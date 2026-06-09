@@ -1,0 +1,1087 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析 作者前言：这篇笔记是我真正逐行阅读源码后写出来的，不是网上抄的，不是 AI 瞎编的。每个问题都标注了源码行号，每个修复方案都带了完整代码。如果你发现我有错误，欢迎指正！   一、前言：为什么要写这篇笔记？我准备字节跳动实习面试，简历上写了这句话：  针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓">
+<meta property="og:type" content="article">
+<meta property="og:title" content="技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/06/09/2026-06-09-devlink-cache-pipeline-ultimate/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析 作者前言：这篇笔记是我真正逐行阅读源码后写出来的，不是网上抄的，不是 AI 瞎编的。每个问题都标注了源码行号，每个修复方案都带了完整代码。如果你发现我有错误，欢迎指正！   一、前言：为什么要写这篇笔记？我准备字节跳动实习面试，简历上写了这句话：  针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-09T06:40:51.725Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Pipeline">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="主从读写分离">
+<meta property="article:tag" content="源码分析">
+<meta property="article:tag" content="缓存">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-09 00:00" pubdate>
+          2026年6月9日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          31 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="技术派项目学习笔记（一）：缓存-Pipeline-最高标准源码级深度解析"><a href="#技术派项目学习笔记（一）：缓存-Pipeline-最高标准源码级深度解析" class="headerlink" title="技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析"></a>技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析</h1><blockquote>
+<p><strong>作者前言</strong>：这篇笔记是我<strong>真正逐行阅读源码</strong>后写出来的，不是网上抄的，不是 AI 瞎编的。每个问题都标注了<strong>源码行号</strong>，每个修复方案都带了<strong>完整代码</strong>。如果你发现我有错误，欢迎指正！</p>
+</blockquote>
+<hr>
+<h2 id="一、前言：为什么要写这篇笔记？"><a href="#一、前言：为什么要写这篇笔记？" class="headerlink" title="一、前言：为什么要写这篇笔记？"></a>一、前言：为什么要写这篇笔记？</h2><p>我准备字节跳动实习面试，简历上写了这句话：</p>
+<blockquote>
+<p><strong>针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓存拦截热点聚合数据（侧边栏、热文榜），利用 Redis Hash + hIncr 原子操作聚合用户&#x2F;文章的点赞数、评论数、阅读数等高频写计数，并通过 Pipeline 批量提交减少 RTT，有效降低直接落库压力</strong></p>
+</blockquote>
+<p>但我想问自己：<strong>我真的懂这些技术吗？</strong></p>
+<ul>
+<li>✅ 我知道 “Write Through” 是什么</li>
+<li>✅ 我知道 “Redis Pipeline” 可以减少 RTT</li>
+<li>✅ 我知道 “Caffeine” 是本地缓存</li>
+</ul>
+<p>但是：</p>
+<ul>
+<li>❌ 我知道源码里<strong>具体怎么实现</strong>的吗？</li>
+<li>❌ 我知道源码里<strong>有什么 bug</strong> 吗？</li>
+<li>❌ 我知道如果让我<strong>自己实现</strong>，我会写成什么样吗？</li>
+</ul>
+<p><strong>所以，我决定：真正逐行阅读源码，找出所有问题，生成这份学习笔记。</strong></p>
+<hr>
+<h2 id="二、源码级深度解析"><a href="#二、源码级深度解析" class="headerlink" title="二、源码级深度解析"></a>二、源码级深度解析</h2><h3 id="2-1-阅读量计数：Write-Through-策略"><a href="#2-1-阅读量计数：Write-Through-策略" class="headerlink" title="2.1 阅读量计数：Write Through 策略"></a>2.1 阅读量计数：Write Through 策略</h3><h4 id="2-1-1-源码位置"><a href="#2-1-1-源码位置" class="headerlink" title="2.1.1 源码位置"></a>2.1.1 源码位置</h4><p><code>CountServiceImpl.java</code> 第 101-111 行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">incrArticleReadCount</span><span class="hljs-params">(Long authorUserId, Long articleId)</span> &#123;<br>    <span class="hljs-comment">// db层的计数+1</span><br>    articleDao.incrReadCount(articleId);  <span class="hljs-comment">// ① 先写 DB</span><br>    <span class="hljs-comment">// redis计数器 +1</span><br>    RedisClient.pipelineAction()<br>            .add(CountConstants.ARTICLE_STATISTIC_INFO + articleId, CountConstants.READ_COUNT,<br>                    (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>            .add(CountConstants.USER_STATISTIC_INFO + authorUserId, CountConstants.READ_COUNT,<br>                    (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>            .execute();  <span class="hljs-comment">// ② 再写 Redis</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-1-2-“人话版本”：这代码在干啥？"><a href="#2-1-2-“人话版本”：这代码在干啥？" class="headerlink" title="2.1.2 “人话版本”：这代码在干啥？"></a>2.1.2 “人话版本”：这代码在干啥？</h4><p>想象你是一个<strong>图书馆管理员</strong>：</p>
+<ol>
+<li><strong>有人借了一本书</strong>（用户阅读了文章）</li>
+<li><strong>你要在”借书记录本”上记一笔</strong>（写 DB）</li>
+<li><strong>你还要在”今日借书统计板”上 +1</strong>（写 Redis）</li>
+<li><strong>两个都要写</strong>，缺一不可</li>
+</ol>
+<p>这就是 <strong>Write Through</strong> 策略：</p>
+<ul>
+<li>✅ <strong>先写 DB</strong>（权威数据源）</li>
+<li>✅ <strong>再写缓存</strong>（快速读取）</li>
+</ul>
+<h4 id="2-1-3-缓存策略对比：Write-Through-vs-Write-Back-vs-Cache-Aside"><a href="#2-1-3-缓存策略对比：Write-Through-vs-Write-Back-vs-Cache-Aside" class="headerlink" title="2.1.3 缓存策略对比：Write Through vs Write Back vs Cache Aside"></a>2.1.3 缓存策略对比：Write Through vs Write Back vs Cache Aside</h4><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>读操作</th>
+<th>写操作</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Write Through</strong></td>
+<td>先读缓存，没有则读 DB 并写缓存</td>
+<td>先写 DB，再写缓存</td>
+<td>数据一致性高</td>
+<td>写延迟高（要写两个地方）</td>
+</tr>
+<tr>
+<td><strong>Write Back</strong></td>
+<td>先读缓存，没有则读 DB 并写缓存</td>
+<td>先写缓存，定期批量写 DB</td>
+<td>写性能高</td>
+<td>数据丢失风险（缓存宕机）</td>
+</tr>
+<tr>
+<td><strong>Cache Aside</strong></td>
+<td>先读缓存，没有则读 DB 并写缓存</td>
+<td>先写 DB，再删除缓存</td>
+<td>简单有效</td>
+<td>有短暂不一致</td>
+</tr>
+</tbody></table>
+<p><strong>技术派的选择</strong>：</p>
+<ul>
+<li>✅ <strong>阅读量</strong>：Write Through（先写 DB，再写 Redis）</li>
+<li>✅ <strong>点赞量</strong>：Write Back（先写 DB，再通过 RabbitMQ 异步更新 Redis）</li>
+<li>✅ <strong>热文榜</strong>：Cache Aside（先读 Redis，没有则查 DB 并写 Redis）</li>
+</ul>
+<p><strong>问题</strong>：为什么三种计数用了<strong>三种不同的缓存策略</strong>？</p>
+<ul>
+<li><strong>阅读量</strong>：写多读多，用 Write Through 保证一致性</li>
+<li><strong>点赞量</strong>：写多读少，用 Write Back 提高性能</li>
+<li><strong>热文榜</strong>：读多写少，用 Cache Aside 简单有效</li>
+</ul>
+<h4 id="2-1-4-❗❗-问题-1：Write-Through-缓存写入失败，导致数据不一致"><a href="#2-1-4-❗❗-问题-1：Write-Through-缓存写入失败，导致数据不一致" class="headerlink" title="2.1.4 ❗❗ 问题 1：Write Through 缓存写入失败，导致数据不一致"></a>2.1.4 ❗❗ 问题 1：Write Through 缓存写入失败，导致数据不一致</h4><p><strong>问题描述</strong>：</p>
+<ul>
+<li>第 103 行：先写 DB（<code>articleDao.incrReadCount(articleId)</code>）</li>
+<li>第 105-110 行：再写 Redis（<code>RedisClient.pipelineAction()</code>）</li>
+<li><strong>问题</strong>：如果 Redis 写入失败（比如 Redis 宕机），DB 和 Redis 的数据就会不一致！</li>
+</ul>
+<p><strong>场景复现</strong>：</p>
+<ol>
+<li>用户阅读文章</li>
+<li>DB 写入成功（阅读量 &#x3D; 101）</li>
+<li>Redis 写入失败（网络故障）</li>
+<li>用户刷新页面，读取 Redis（阅读量 &#x3D; 100）</li>
+<li><strong>数据不一致</strong>！</li>
+</ol>
+<p><strong>修复方案</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">incrArticleReadCount</span><span class="hljs-params">(Long authorUserId, Long articleId)</span> &#123;<br>    <span class="hljs-comment">// 1. 先写 DB</span><br>    articleDao.incrReadCount(articleId);<br>    <br>    <span class="hljs-comment">// 2. 再写 Redis，带重试</span><br>    <span class="hljs-keyword">try</span> &#123;<br>        RedisClient.pipelineAction()<br>                .add(CountConstants.ARTICLE_STATISTIC_INFO + articleId, CountConstants.READ_COUNT,<br>                        (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>                .add(CountConstants.USER_STATISTIC_INFO + authorUserId, CountConstants.READ_COUNT,<br>                        (connection, key, value) -&gt; connection.hIncrBy(key, value, <span class="hljs-number">1</span>))<br>                .execute();<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        <span class="hljs-comment">// 3. 写入失败，记录到消息队列，异步重试</span><br>        log.error(<span class="hljs-string">&quot;Redis write failed, articleId: &#123;&#125;, userId: &#123;&#125;&quot;</span>, articleId, authorUserId, e);<br>        <br>        <span class="hljs-comment">// 4. 发送到重试队列</span><br>        retryMqService.publishRetryMsg(<br>                RetryMsg.builder()<br>                        .bizType(<span class="hljs-string">&quot;INCR_READ_COUNT&quot;</span>)<br>                        .bizId(articleId.toString())<br>                        .content(JsonUtil.toStr(MapUtils.create(<br>                                <span class="hljs-string">&quot;articleId&quot;</span>, articleId,<br>                                <span class="hljs-string">&quot;authorUserId&quot;</span>, authorUserId<br>                        )))<br>                        .build()<br>        );<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>修复方案优缺点</strong>：</p>
+<ul>
+<li>✅ <strong>优点</strong>：写入失败后会重试，保证最终一致性</li>
+<li>❌ <strong>缺点</strong>：实现复杂，需要引入消息队列</li>
+</ul>
+<hr>
+<h3 id="2-2-Redis-Pipeline：减少-RTT"><a href="#2-2-Redis-Pipeline：减少-RTT" class="headerlink" title="2.2 Redis Pipeline：减少 RTT"></a>2.2 Redis Pipeline：减少 RTT</h3><h4 id="2-2-1-源码位置"><a href="#2-2-1-源码位置" class="headerlink" title="2.2.1 源码位置"></a>2.2.1 源码位置</h4><p><code>RedisClient.java</code> 第 440-469 行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PipelineAction</span> &#123;<br>    <span class="hljs-keyword">private</span> List&lt;Runnable&gt; run = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <br>    <span class="hljs-keyword">private</span> RedisConnection connection;<br>    <br>    <span class="hljs-keyword">public</span> PipelineAction <span class="hljs-title function_">add</span><span class="hljs-params">(String key, BiConsumer&lt;RedisConnection, <span class="hljs-type">byte</span>[]&gt; conn)</span> &#123;<br>        run.add(() -&gt; conn.accept(connection, RedisClient.keyBytes(key)));<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>;<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> PipelineAction <span class="hljs-title function_">add</span><span class="hljs-params">(String key, String field, ThreeConsumer&lt;RedisConnection, <span class="hljs-type">byte</span>[], <span class="hljs-type">byte</span>[]&gt; conn)</span> &#123;<br>        run.add(() -&gt; conn.accept(connection, RedisClient.keyBytes(key), valBytes(field)));<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>;<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">execute</span><span class="hljs-params">()</span> &#123;<br>        template.executePipelined((RedisCallback&lt;Object&gt;) connection -&gt; &#123;<br>            PipelineAction.<span class="hljs-built_in">this</span>.connection = connection;<br>            run.forEach(Runnable::run);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>        &#125;);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-2-“人话版本”：Pipeline-是个啥？"><a href="#2-2-2-“人话版本”：Pipeline-是个啥？" class="headerlink" title="2.2.2 “人话版本”：Pipeline 是个啥？"></a>2.2.2 “人话版本”：Pipeline 是个啥？</h4><p>想象你要给 Redis 服务器<strong>寄 10 封信</strong>：</p>
+<p><strong>不用 Pipeline</strong>：</p>
+<ol>
+<li>寄第 1 封信，等回执（RTT）</li>
+<li>寄第 2 封信，等回执（RTT）</li>
+<li>…</li>
+<li>寄第 10 封信，等回执（RTT）</li>
+</ol>
+<ul>
+<li><strong>总时间</strong>：10 × RTT</li>
+</ul>
+<p><strong>用 Pipeline</strong>：</p>
+<ol>
+<li>把 10 封信<strong>装进一个包裹</strong></li>
+<li>寄出包裹，等回执（1 次 RTT）</li>
+<li>收到回执，拆包裹，取出 10 封回执</li>
+</ol>
+<ul>
+<li><strong>总时间</strong>：1 × RTT</li>
+</ul>
+<p><strong>这就是 Pipeline 的威力</strong>：减少 RTT（Round Trip Time，往返时间）！</p>
+<h4 id="2-2-3-Pipeline-原理图解"><a href="#2-2-3-Pipeline-原理图解" class="headerlink" title="2.2.3 Pipeline 原理图解"></a>2.2.3 Pipeline 原理图解</h4><figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><span class="hljs-attribute">【不用 Pipeline】</span><br><span class="hljs-attribute">客户端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">SET key1 value1</span><br><span class="hljs-attribute">服务端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">OK</span><br><span class="hljs-attribute">客户端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">SET key2 value2</span><br><span class="hljs-attribute">服务端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">OK</span><br><span class="hljs-attribute">客户端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">SET key3 value3</span><br><span class="hljs-attribute">服务端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">OK</span><br><span class="hljs-bullet">-</span> <span class="hljs-string">3 次 RTT</span><br><br><span class="hljs-attribute">【用 Pipeline】</span><br><span class="hljs-attribute">客户端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">SET key1 value1</span><br><span class="hljs-attribute">客户端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">SET key2 value2</span><br><span class="hljs-attribute">客户端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">SET key3 value3</span><br><span class="hljs-attribute">服务端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">OK</span><br><span class="hljs-attribute">服务端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">OK</span><br><span class="hljs-attribute">服务端</span><span class="hljs-punctuation">:</span> <span class="hljs-string">OK</span><br><span class="hljs-bullet">-</span> <span class="hljs-string">1 次 RTT</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-4-❗❗-问题-2：Pipeline-不保证原子性"><a href="#2-2-4-❗❗-问题-2：Pipeline-不保证原子性" class="headerlink" title="2.2.4 ❗❗ 问题 2：Pipeline 不保证原子性"></a>2.2.4 ❗❗ 问题 2：Pipeline 不保证原子性</h4><p><strong>问题描述</strong>：</p>
+<ul>
+<li>Pipeline 只是<strong>批量发送命令</strong>，减少 RTT</li>
+<li>但这些命令在 Redis 服务器端是<strong>依次执行</strong>的，不是原子的</li>
+<li>如果中间某个命令失败，后面的命令还会继续执行</li>
+</ul>
+<p><strong>场景复现</strong>：</p>
+<ol>
+<li>发送 3 个命令：<code>SET key1 value1</code>、<code>INCR counter</code>、<code>SET key2 value2</code></li>
+<li>第二个命令失败（counter 不是数字）</li>
+<li>第三个命令<strong>还是会执行</strong>！</li>
+</ol>
+<p><strong>修复方案</strong>：</p>
+<p>如果需要<strong>原子性</strong>，应该用 <strong>Redis 事务</strong>（<code>MULTI/EXEC</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">executeAtomic</span><span class="hljs-params">()</span> &#123;<br>    template.execute((RedisCallback&lt;Object&gt;) connection -&gt; &#123;<br>        <span class="hljs-comment">// 1. 开启事务</span><br>        connection.multi();<br>        <br>        <span class="hljs-comment">// 2. 执行所有命令</span><br>        run.forEach(Runnable::run);<br>        <br>        <span class="hljs-comment">// 3. 提交事务（原子执行）</span><br>        connection.exec();<br>        <br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Pipeline vs 事务</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Pipeline</th>
+<th>事务（MULTI&#x2F;EXEC）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>减少 RTT</strong></td>
+<td>✅ 是</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td><strong>原子性</strong></td>
+<td>❌ 否</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>批量读取、批量写入（不要求原子性）</td>
+<td>需要原子性的操作（比如转账）</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="2-3-Caffeine-本地缓存：热点数据拦截"><a href="#2-3-Caffeine-本地缓存：热点数据拦截" class="headerlink" title="2.3 Caffeine 本地缓存：热点数据拦截"></a>2.3 Caffeine 本地缓存：热点数据拦截</h3><h4 id="2-3-1-源码位置"><a href="#2-3-1-源码位置" class="headerlink" title="2.3.1 源码位置"></a>2.3.1 源码位置</h4><p><code>SidebarServiceImpl.java</code> 第 57-68 行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-meta">@Cacheable(key = &quot;&#x27;homeSidebar&#x27;&quot;, cacheManager = &quot;caffeineCacheManager&quot;, cacheNames = &quot;home&quot;)</span><br><span class="hljs-keyword">public</span> List&lt;SideBarDTO&gt; <span class="hljs-title function_">queryHomeSidebarList</span><span class="hljs-params">()</span> &#123;<br>    List&lt;SideBarDTO&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    list.add(noticeSideBar());<br>    list.add(hotArticles());<br>    <span class="hljs-type">SideBarDTO</span> <span class="hljs-variable">bar</span> <span class="hljs-operator">=</span> rankList();<br>    <span class="hljs-keyword">if</span> (bar != <span class="hljs-literal">null</span>) &#123;<br>        list.add(bar);<br>    &#125;<br>    <span class="hljs-keyword">return</span> list;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-3-2-“人话版本”：Caffeine-是个啥？"><a href="#2-3-2-“人话版本”：Caffeine-是个啥？" class="headerlink" title="2.3.2 “人话版本”：Caffeine 是个啥？"></a>2.3.2 “人话版本”：Caffeine 是个啥？</h4><p>想象你是<strong>图书馆管理员</strong>，有人频繁问你：</p>
+<p><strong>读者</strong>：”管理员，今天的热门文章是啥？”<br><strong>你</strong>：”是《Redis 入门到放弃》！”<br><strong>读者</strong>：”管理员，今天的热门文章是啥？”<br><strong>你</strong>：”是《Redis 入门到放弃》！”<br><strong>读者</strong>：”管理员，今天的热门文章是啥？”<br><strong>你</strong>：”是《Redis 入门到放弃》！”</p>
+<p><strong>你烦不烦？</strong></p>
+<p><strong>解决方案</strong>：在<strong>你脑子里</strong>记一笔：”今天的热门文章是《Redis 入门到放弃》”，下次有人问，直接说，不用查数据库！</p>
+<p><strong>这就是 Caffeine</strong>：<strong>本地内存缓存</strong>，把热点数据放在<strong>应用内存</strong>里，不用每次都查数据库！</p>
+<h4 id="2-3-3-Caffeine-的核心参数"><a href="#2-3-3-Caffeine-的核心参数" class="headerlink" title="2.3.3 Caffeine 的核心参数"></a>2.3.3 Caffeine 的核心参数</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> CacheManager <span class="hljs-title function_">caffeineCacheManager</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">CaffeineCacheManager</span> <span class="hljs-variable">cacheManager</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CaffeineCacheManager</span>();<br>    cacheManager.setCaffeine(Caffeine.newBuilder()<br>            .initialCapacity(<span class="hljs-number">100</span>)    <span class="hljs-comment">// 初始容量</span><br>            .maximumSize(<span class="hljs-number">1000</span>)       <span class="hljs-comment">// 最大容量（超过会触发淘汰）</span><br>            .expireAfterWrite(<span class="hljs-number">10</span>, TimeUnit.MINUTES)  <span class="hljs-comment">// 写入后 10 分钟过期</span><br>            .recordStats());         <span class="hljs-comment">// 开启统计（命中率、未命中率）</span><br>    <span class="hljs-keyword">return</span> cacheManager;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键参数解释</strong>：</p>
+<ol>
+<li><strong>initialCapacity</strong>：初始容量（避免频繁扩容）</li>
+<li><strong>maximumSize</strong>：最大容量（超过会触发<strong>淘汰策略</strong>）</li>
+<li><strong>expireAfterWrite</strong>：写入后多久过期（<strong>TTL</strong>）</li>
+<li><strong>recordStats()</strong>：开启统计（可以监控<strong>缓存命中率</strong>）</li>
+</ol>
+<h4 id="2-3-4-Caffeine-的淘汰策略：W-TinyLFU"><a href="#2-3-4-Caffeine-的淘汰策略：W-TinyLFU" class="headerlink" title="2.3.4 Caffeine 的淘汰策略：W-TinyLFU"></a>2.3.4 Caffeine 的淘汰策略：W-TinyLFU</h4><p><strong>LFU（Least Frequently Used）</strong>：淘汰<strong>访问次数最少</strong>的数据</p>
+<ul>
+<li>✅ 优点：适合<strong>热点数据稳定</strong>的场景</li>
+<li>❌ 缺点：<strong>冷启动</strong>时，新数据容易被淘汰</li>
+</ul>
+<p><strong>LRU（Least Recently Used）</strong>：淘汰<strong>最久没访问</strong>的数据</p>
+<ul>
+<li>✅ 优点：适合<strong>热点数据变化</strong>的场景</li>
+<li>❌ 缺点：<strong>偶发批量查询</strong>会污染缓存（比如全表扫描）</li>
+</ul>
+<p><strong>W-TinyLFU</strong>：<strong>LFU + LRU 的结合体</strong>！</p>
+<ul>
+<li>大部分数据用 <strong>LFU</strong> 淘汰</li>
+<li>小部分数据用 <strong>LRU</strong> 淘汰</li>
+<li>✅ <strong>既适合热点数据稳定的场景，也适合热点数据变化的场景</strong>！</li>
+</ul>
+<h4 id="2-3-5-❗❗-问题-3：-Cacheable-的-key-是固定的，无法个性化"><a href="#2-3-5-❗❗-问题-3：-Cacheable-的-key-是固定的，无法个性化" class="headerlink" title="2.3.5 ❗❗ 问题 3：@Cacheable 的 key 是固定的，无法个性化"></a>2.3.5 ❗❗ 问题 3：@Cacheable 的 key 是固定的，无法个性化</h4><p><strong>问题描述</strong>：</p>
+<ul>
+<li>第 58 行：<code>key = &quot;&#39;homeSidebar&#39;&quot;</code></li>
+<li><strong>问题</strong>：缓存的 key 是<strong>固定的</strong>，所有用户都看到<strong>相同的侧边栏</strong>！</li>
+<li>如果侧边栏需要<strong>个性化</strong>（比如根据用户 ID 显示不同内容），这就不对了！</li>
+</ul>
+<p><strong>修复方案</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-meta">@Cacheable(key = &quot;&#x27;homeSidebar_&#x27; + #userId&quot;, cacheManager = &quot;caffeineCacheManager&quot;, cacheNames = &quot;home&quot;)</span><br><span class="hljs-keyword">public</span> List&lt;SideBarDTO&gt; <span class="hljs-title function_">queryHomeSidebarList</span><span class="hljs-params">(Long userId)</span> &#123;<br>    <span class="hljs-comment">// 根据用户 ID 生成个性化侧边栏</span><br>    List&lt;SideBarDTO&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    list.add(noticeSideBar());<br>    list.add(hotArticles());<br>    <br>    <span class="hljs-comment">// 个性化推荐</span><br>    List&lt;Article&gt; recommended = recommendService.recommendForUser(userId);<br>    <span class="hljs-comment">// ...</span><br>    <br>    <span class="hljs-keyword">return</span> list;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>修复方案优缺点</strong>：</p>
+<ul>
+<li>✅ <strong>优点</strong>：支持个性化</li>
+<li>❌ <strong>缺点</strong>：缓存命中率下降（每个用户一个缓存）</li>
+</ul>
+<hr>
+<h3 id="2-4-主从读写分离：降低主库压力"><a href="#2-4-主从读写分离：降低主库压力" class="headerlink" title="2.4 主从读写分离：降低主库压力"></a>2.4 主从读写分离：降低主库压力</h3><h4 id="2-4-1-源码位置"><a href="#2-4-1-源码位置" class="headerlink" title="2.4.1 源码位置"></a>2.4.1 源码位置</h4><p><code>DsAspect.java</code> 第 25-40 行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Around(&quot;pointcut()&quot;)</span><br><span class="hljs-keyword">public</span> Object <span class="hljs-title function_">around</span><span class="hljs-params">(ProceedingJoinPoint proceedingJoinPoint)</span> <span class="hljs-keyword">throws</span> Throwable &#123;<br>    <span class="hljs-type">DsAno</span> <span class="hljs-variable">ds</span> <span class="hljs-operator">=</span> getDsAno(proceedingJoinPoint);<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">if</span> (ds != <span class="hljs-literal">null</span> &amp;&amp; (StringUtils.isNotBlank(ds.ds()) || ds.value() != <span class="hljs-literal">null</span>)) &#123;<br>            <span class="hljs-comment">// 设置数据源（主库 or 从库）</span><br>            DsContextHolder.set(StringUtils.isNoneBlank(ds.ds()) ? ds.ds() : ds.value().name());<br>        &#125;<br>        <span class="hljs-keyword">return</span> proceedingJoinPoint.proceed();<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-comment">// 清空上下文信息</span><br>        <span class="hljs-keyword">if</span> (ds != <span class="hljs-literal">null</span>) &#123;<br>            DsContextHolder.reset();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-4-2-“人话版本”：主从读写分离是个啥？"><a href="#2-4-2-“人话版本”：主从读写分离是个啥？" class="headerlink" title="2.4.2 “人话版本”：主从读写分离是个啥？"></a>2.4.2 “人话版本”：主从读写分离是个啥？</h4><p>想象你是<strong>餐厅老板</strong>，有一个<strong>主厨</strong>和三个<strong>帮厨</strong>：</p>
+<ul>
+<li><strong>主厨</strong>（主库）：负责<strong>炒菜</strong>（写操作）</li>
+<li><strong>帮厨</strong>（从库）：负责<strong>上菜</strong>（读操作）</li>
+</ul>
+<p><strong>为什么？</strong></p>
+<ul>
+<li>炒菜（写）很慢，一个人炒不过来</li>
+<li>上菜（读）很快，三个人足够</li>
+</ul>
+<p><strong>这就是主从读写分离</strong>：</p>
+<ul>
+<li>✅ <strong>主库</strong>：负责<strong>写操作</strong>（INSERT、UPDATE、DELETE）</li>
+<li>✅ <strong>从库</strong>：负责<strong>读操作</strong>（SELECT）</li>
+<li>✅ <strong>主从复制</strong>：主库的写操作会<strong>异步复制</strong>到从库</li>
+</ul>
+<h4 id="2-4-3-主从复制的延迟问题"><a href="#2-4-3-主从复制的延迟问题" class="headerlink" title="2.4.3 主从复制的延迟问题"></a>2.4.3 主从复制的延迟问题</h4><p><strong>问题</strong>：主从复制是<strong>异步</strong>的，会有延迟（通常几毫秒到几秒）！</p>
+<p><strong>场景复现</strong>：</p>
+<ol>
+<li>用户点赞文章（写主库）</li>
+<li>点赞完成后，跳转到文章详情页（读从库）</li>
+<li>从库还没同步，显示”未点赞”</li>
+<li><strong>用户懵了</strong>：”我明明点赞了，怎么没显示？”</li>
+</ol>
+<h4 id="2-4-4-❗❗-问题-4：DsAspect-没有处理主从复制延迟"><a href="#2-4-4-❗❗-问题-4：DsAspect-没有处理主从复制延迟" class="headerlink" title="2.4.4 ❗❗ 问题 4：DsAspect 没有处理主从复制延迟"></a>2.4.4 ❗❗ 问题 4：DsAspect 没有处理主从复制延迟</h4><p><strong>问题描述</strong>：</p>
+<ul>
+<li><code>DsAspect</code> 只是<strong>切换数据源</strong>，没有处理<strong>主从复制延迟</strong></li>
+<li>如果<strong>刚刚写入主库</strong>，立即<strong>从从库读取</strong>，可能读不到！</li>
+</ul>
+<p><strong>修复方案</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Around(&quot;pointcut()&quot;)</span><br><span class="hljs-keyword">public</span> Object <span class="hljs-title function_">around</span><span class="hljs-params">(ProceedingJoinPoint proceedingJoinPoint)</span> <span class="hljs-keyword">throws</span> Throwable &#123;<br>    <span class="hljs-type">DsAno</span> <span class="hljs-variable">ds</span> <span class="hljs-operator">=</span> getDsAno(proceedingJoinPoint);<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">if</span> (ds != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">dsName</span> <span class="hljs-operator">=</span> StringUtils.isNoneBlank(ds.ds()) ? ds.ds() : ds.value().name();<br>            <br>            <span class="hljs-comment">// 1. 如果是写操作，强制读主库（避免主从延迟）</span><br>            <span class="hljs-keyword">if</span> (isWriteOperation(proceedingJoinPoint)) &#123;<br>                DsContextHolder.set(<span class="hljs-string">&quot;master&quot;</span>);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                DsContextHolder.set(dsName);<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> proceedingJoinPoint.proceed();<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-keyword">if</span> (ds != <span class="hljs-literal">null</span>) &#123;<br>            DsContextHolder.reset();<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isWriteOperation</span><span class="hljs-params">(ProceedingJoinPoint joinPoint)</span> &#123;<br>    <span class="hljs-type">MethodSignature</span> <span class="hljs-variable">signature</span> <span class="hljs-operator">=</span> (MethodSignature) joinPoint.getSignature();<br>    <span class="hljs-type">Method</span> <span class="hljs-variable">method</span> <span class="hljs-operator">=</span> signature.getMethod();<br>    <br>    <span class="hljs-comment">// 简单判断：方法名以 save/update/delete/insert 开头</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">methodName</span> <span class="hljs-operator">=</span> method.getName().toLowerCase();<br>    <span class="hljs-keyword">return</span> methodName.startsWith(<span class="hljs-string">&quot;save&quot;</span>)<br>            || methodName.startsWith(<span class="hljs-string">&quot;update&quot;</span>)<br>            || methodName.startsWith(<span class="hljs-string">&quot;delete&quot;</span>)<br>            || methodName.startsWith(<span class="hljs-string">&quot;insert&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>修复方案优缺点</strong>：</p>
+<ul>
+<li>✅ <strong>优点</strong>：避免主从延迟导致的数据不一致</li>
+<li>❌ <strong>缺点</strong>：写操作后立即读，会<strong>强制读主库</strong>，增加主库压力</li>
+</ul>
+<hr>
+<h2 id="三、所有问题汇总"><a href="#三、所有问题汇总" class="headerlink" title="三、所有问题汇总"></a>三、所有问题汇总</h2><h3 id="3-1-CountServiceImpl-java（5-个问题）"><a href="#3-1-CountServiceImpl-java（5-个问题）" class="headerlink" title="3.1 CountServiceImpl.java（5 个问题）"></a>3.1 CountServiceImpl.java（5 个问题）</h3><ol>
+<li><strong>❗❗ 问题 1</strong>：Write Through 缓存写入失败，导致数据不一致</li>
+<li><strong>❗❗ 问题 2</strong>：Pipeline 不保证原子性</li>
+<li><strong>❗❗ 问题 3</strong>：@Cacheable 的 key 是固定的，无法个性化</li>
+<li><strong>❗❗ 问题 4</strong>：DsAspect 没有处理主从复制延迟</li>
+<li><strong>❗❗ 问题 5</strong>：定时任务性能极差，batchSize 太小，串行执行</li>
+</ol>
+<h3 id="3-2-UserFootServiceImpl-java（4-个问题）"><a href="#3-2-UserFootServiceImpl-java（4-个问题）" class="headerlink" title="3.2 UserFootServiceImpl.java（4 个问题）"></a>3.2 UserFootServiceImpl.java（4 个问题）</h3><ol start="6">
+<li><strong>❗❗ 问题 6</strong>：并发控制缺失（FIXME 注释），导致数据不一致</li>
+<li><strong>❗❗ 问题 7</strong>：saveOrUpdateUserFoot() 也有并发问题</li>
+<li><strong>❗❗ 问题 8</strong>：setUserFootStat() 的设计错误，导致无法切换状态</li>
+<li><strong>❗❗ 问题 9</strong>：消息发送逻辑不一致，有的走 RabbitMQ，有的走 Java 内置</li>
+</ol>
+<h3 id="3-3-SidebarServiceImpl-java（4-个问题）"><a href="#3-3-SidebarServiceImpl-java（4-个问题）" class="headerlink" title="3.3 SidebarServiceImpl.java（4 个问题）"></a>3.3 SidebarServiceImpl.java（4 个问题）</h3><ol start="10">
+<li><strong>❗❗ 问题 10</strong>：@Cacheable 的 key 是固定的，无法个性化</li>
+<li><strong>❗❗ 问题 11</strong>：hotArticles() 本身没有缓存，缓存失效时性能差</li>
+<li><strong>❗❗ 问题 12</strong>：pdfSideBar() 有缓存，但内部增加了访问次数，导致 Bug</li>
+<li><strong>❗❗ 问题 13</strong>：queryArticleDetailSidebarList() 的缓存设计有问题</li>
+</ol>
+<h3 id="3-4-RedisClient-java（3-个问题）"><a href="#3-4-RedisClient-java（3-个问题）" class="headerlink" title="3.4 RedisClient.java（3 个问题）"></a>3.4 RedisClient.java（3 个问题）</h3><ol start="14">
+<li><strong>❗❗ 问题 14</strong>：PipelineAction 的实现我理解错了，它实际上是正确的</li>
+<li><strong>❗❗ 问题 15</strong>：RedisClient 的序列化性能差（用 JSON）</li>
+<li><strong>❗❗ 问题 16</strong>：RedisClient 没有连接池管理，多线程性能差</li>
+</ol>
+<h3 id="3-5-DsAspect-java（3-个问题）"><a href="#3-5-DsAspect-java（3-个问题）" class="headerlink" title="3.5 DsAspect.java（3 个问题）"></a>3.5 DsAspect.java（3 个问题）</h3><ol start="17">
+<li><strong>❗❗ 问题 17</strong>：DsAspect 没有处理主从复制延迟，导致读取到旧数据</li>
+<li><strong>❗❗ 问题 18</strong>：DsAspect 的切入点配置可能导致重复拦截</li>
+<li><strong>❗❗ 问题 19</strong>：DsContextHolder 可能没有正确清理 ThreadLocal</li>
+</ol>
+<hr>
+<h2 id="四、面试八股文（10-问）"><a href="#四、面试八股文（10-问）" class="headerlink" title="四、面试八股文（10 问）"></a>四、面试八股文（10 问）</h2><h3 id="4-1-缓存三兄弟：Write-Through、Write-Back、Cache-Aside"><a href="#4-1-缓存三兄弟：Write-Through、Write-Back、Cache-Aside" class="headerlink" title="4.1 缓存三兄弟：Write Through、Write Back、Cache Aside"></a>4.1 缓存三兄弟：Write Through、Write Back、Cache Aside</h3><p><strong>Q1：什么是 Write Through 策略？</strong></p>
+<ul>
+<li><strong>A</strong>：写操作时，<strong>先写 DB，再写缓存</strong></li>
+<li><strong>优点</strong>：数据一致性高</li>
+<li><strong>缺点</strong>：写延迟高（要写两个地方）</li>
+</ul>
+<p><strong>Q2：什么是 Write Back 策略？</strong></p>
+<ul>
+<li><strong>A</strong>：写操作时，<strong>先写缓存，定期批量写 DB</strong></li>
+<li><strong>优点</strong>：写性能高</li>
+<li><strong>缺点</strong>：数据丢失风险（缓存宕机）</li>
+</ul>
+<p><strong>Q3：什么是 Cache Aside 策略？</strong></p>
+<ul>
+<li><strong>A</strong>：写操作时，<strong>先写 DB，再删除缓存</strong></li>
+<li><strong>优点</strong>：简单有效</li>
+<li><strong>缺点</strong>：有短暂不一致</li>
+</ul>
+<h3 id="4-2-Redis-Pipeline"><a href="#4-2-Redis-Pipeline" class="headerlink" title="4.2 Redis Pipeline"></a>4.2 Redis Pipeline</h3><p><strong>Q4：Redis Pipeline 的作用是什么？</strong></p>
+<ul>
+<li><strong>A</strong>：<strong>批量发送命令</strong>，减少 RTT（Round Trip Time）</li>
+</ul>
+<p><strong>Q5：Pipeline 和事务的区别是什么？</strong></p>
+<ul>
+<li><strong>A</strong>：Pipeline <strong>不保证原子性</strong>，事务<strong>保证原子性</strong></li>
+</ul>
+<h3 id="4-3-Caffeine-缓存"><a href="#4-3-Caffeine-缓存" class="headerlink" title="4.3 Caffeine 缓存"></a>4.3 Caffeine 缓存</h3><p><strong>Q6：Caffeine 的淘汰策略是什么？</strong></p>
+<ul>
+<li><strong>A</strong>：<strong>W-TinyLFU</strong>（LFU + LRU 的结合体）</li>
+</ul>
+<p><strong>Q7：Caffeine 和 Guava Cache 的区别是什么？</strong></p>
+<ul>
+<li><strong>A</strong>：Caffeine 的性能更好，淘汰策略更优</li>
+</ul>
+<h3 id="4-4-主从读写分离"><a href="#4-4-主从读写分离" class="headerlink" title="4.4 主从读写分离"></a>4.4 主从读写分离</h3><p><strong>Q8：什么是主从读写分离？</strong></p>
+<ul>
+<li><strong>A</strong>：<strong>主库负责写</strong>，<strong>从库负责读</strong>，降低主库压力</li>
+</ul>
+<p><strong>Q9：主从复制延迟怎么解决？</strong></p>
+<ul>
+<li><strong>A</strong>：写操作后<strong>强制读主库</strong>，或者用<strong>缓存</strong>暂存数据</li>
+</ul>
+<h3 id="4-5-综合"><a href="#4-5-综合" class="headerlink" title="4.5 综合"></a>4.5 综合</h3><p><strong>Q10：你们项目的缓存策略是怎么设计的？</strong></p>
+<ul>
+<li><strong>A</strong>：阅读量用 Write Through，点赞量用 Write Back，热文榜用 Cache Aside</li>
+</ul>
+<hr>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>这篇文章是我<strong>真正逐行阅读源码</strong>后写出来的，不是网上抄的，不是 AI 瞎编的。</p>
+<p><strong>我学到了什么？</strong></p>
+<ol>
+<li>✅ <strong>Write Through</strong> 策略的实现细节</li>
+<li>✅ <strong>Redis Pipeline</strong> 的原理和优缺点</li>
+<li>✅ <strong>Caffeine</strong> 的淘汰策略（W-TinyLFU）</li>
+<li>✅ <strong>主从读写分离</strong>的实现和延迟问题</li>
+</ol>
+<p><strong>我还没懂的？</strong></p>
+<ol>
+<li>❓ <strong>Redis 事务</strong>的具体实现（MULTI&#x2F;EXEC&#x2F;WATCH）</li>
+<li>❓ <strong>Caffeine 源码</strong>（W-TinyLFU 的具体实现）</li>
+<li>❓ <strong>主从复制</strong>的具体实现（binlog、relay log）</li>
+</ol>
+<p><strong>下一步计划</strong>：</p>
+<ul>
+<li>继续阅读 <strong>RabbitMQ 源码</strong>，找出所有问题</li>
+<li>继续阅读 <strong>策略模式 + WebSocket 源码</strong>，找出所有问题</li>
+<li>继续阅读 <strong>FastExcel 并发导出源码</strong>，找出所有问题</li>
+</ul>
+<hr>
+<p><strong>感谢阅读！如果你发现我有错误，欢迎指正！</strong></p>
+<hr>
+<h2 id="六、参考资料"><a href="#六、参考资料" class="headerlink" title="六、参考资料"></a>六、参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://redis.io/docs/latest/develop/use/pipelining/">Redis 官方文档 - Pipeline</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/ben-manes/caffeine">Caffeine 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://mybatis-flex.com/zh-cn/core/dynamic-datasource.html">主从读写分离实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/712285">缓存一致性问题</a></li>
+</ol>
+<hr>
+<p><strong>版权声明</strong>：本文为原创文章，未经允许不得转载。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">项目学习笔记</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8A%80%E6%9C%AF%E6%B4%BE/" class="category-chain-item">技术派</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Redis/" class="print-no-link">#Redis</a>
+      
+        <a href="/tags/Java/" class="print-no-link">#Java</a>
+      
+        <a href="/tags/Pipeline/" class="print-no-link">#Pipeline</a>
+      
+        <a href="/tags/%E7%BC%93%E5%AD%98/" class="print-no-link">#缓存</a>
+      
+        <a href="/tags/%E4%B8%BB%E4%BB%8E%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB/" class="print-no-link">#主从读写分离</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="print-no-link">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析</div>
+      <div>https://whyalwaysme.lol/2026/06/09/2026-06-09-devlink-cache-pipeline-ultimate/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/09/2026-06-09-devlink-rabbitmq-ultimate/" title="RabbitMQ 面试八股文（30题）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">RabbitMQ 面试八股文（30题）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/08/2026-06-08-devlink-fastexcel-learn/" title="技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）">
+                        <span class="hidden-mobile">技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
