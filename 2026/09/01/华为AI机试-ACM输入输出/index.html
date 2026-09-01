@@ -1,0 +1,1011 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="ACM模式输入输出完全指南一、ACM模式基础知识什么是ACM模式？ 需要手动处理标准输入输出（stdin&#x2F;stdout） 不同于OJ模式（函数签名给定） 华为机试使用此模式  Python输入输出函数123456789# 输入input()          # 读取一行，返回字符串（自动去除换行符）sys.stdin.readline()  # 读取一行（保留换行符，需strip()）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="华为AI机试ACM模式输入输出大全">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/09/01/%E5%8D%8E%E4%B8%BAAI%E6%9C%BA%E8%AF%95-ACM%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="ACM模式输入输出完全指南一、ACM模式基础知识什么是ACM模式？ 需要手动处理标准输入输出（stdin&#x2F;stdout） 不同于OJ模式（函数签名给定） 华为机试使用此模式  Python输入输出函数123456789# 输入input()          # 读取一行，返回字符串（自动去除换行符）sys.stdin.readline()  # 读取一行（保留换行符，需strip()）">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-01T12:30:00.000Z">
+<meta property="article:modified_time" content="2026-09-01T09:04:10.946Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="ACM">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="华为">
+<meta property="article:tag" content="输入输出">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>华为AI机试ACM模式输入输出大全 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="华为AI机试ACM模式输入输出大全"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-09-01 20:30" pubdate>
+          2026年9月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">华为AI机试ACM模式输入输出大全</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="ACM模式输入输出完全指南"><a href="#ACM模式输入输出完全指南" class="headerlink" title="ACM模式输入输出完全指南"></a>ACM模式输入输出完全指南</h1><h2 id="一、ACM模式基础知识"><a href="#一、ACM模式基础知识" class="headerlink" title="一、ACM模式基础知识"></a>一、ACM模式基础知识</h2><h3 id="什么是ACM模式？"><a href="#什么是ACM模式？" class="headerlink" title="什么是ACM模式？"></a>什么是ACM模式？</h3><ul>
+<li>需要<strong>手动处理标准输入输出</strong>（stdin&#x2F;stdout）</li>
+<li>不同于OJ模式（函数签名给定）</li>
+<li>华为机试使用此模式</li>
+</ul>
+<h3 id="Python输入输出函数"><a href="#Python输入输出函数" class="headerlink" title="Python输入输出函数"></a>Python输入输出函数</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 输入</span><br><span class="hljs-built_in">input</span>()          <span class="hljs-comment"># 读取一行，返回字符串（自动去除换行符）</span><br>sys.stdin.readline()  <span class="hljs-comment"># 读取一行（保留换行符，需strip()）</span><br>sys.stdin.readlines() <span class="hljs-comment"># 读取所有行</span><br><br><span class="hljs-comment"># 输出</span><br><span class="hljs-built_in">print</span>()          <span class="hljs-comment"># 输出并换行</span><br><span class="hljs-built_in">print</span>(x, end=<span class="hljs-string">&#x27;&#x27;</span>) <span class="hljs-comment"># 输出不换行</span><br>sys.stdout.write() <span class="hljs-comment"># 直接写入（需手动添加\n）</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="二、常见输入格式模板⭐⭐⭐⭐⭐"><a href="#二、常见输入格式模板⭐⭐⭐⭐⭐" class="headerlink" title="二、常见输入格式模板⭐⭐⭐⭐⭐"></a>二、常见输入格式模板⭐⭐⭐⭐⭐</h2><h3 id="1-单行单个整数"><a href="#1-单行单个整数" class="headerlink" title="1. 单行单个整数"></a>1. 单行单个整数</h3><p><strong>输入格式：</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">5<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())<br><span class="hljs-built_in">print</span>(n)<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-单行多个整数（空格分隔）"><a href="#2-单行多个整数（空格分隔）" class="headerlink" title="2. 单行多个整数（空格分隔）"></a>2. 单行多个整数（空格分隔）</h3><p><strong>输入格式：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">1 </span><span class="hljs-number">2</span> <span class="hljs-number">3</span> <span class="hljs-number">4</span> <span class="hljs-number">5</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码模板1（列表）：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br><span class="hljs-built_in">print</span>(nums)  <span class="hljs-comment"># [1, 2, 3, 4, 5]</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码模板2（多个变量）：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">a, b, c = <span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())<br><span class="hljs-built_in">print</span>(a, b, c)  <span class="hljs-comment"># 1 2 3</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-多行输入（已知行数）"><a href="#3-多行输入（已知行数）" class="headerlink" title="3. 多行输入（已知行数）"></a>3. 多行输入（已知行数）</h3><p><strong>输入格式：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-number">3</span><br><span class="hljs-symbol">10 </span><span class="hljs-number">20</span><br><span class="hljs-symbol">30 </span><span class="hljs-number">40</span><br><span class="hljs-symbol">50 </span><span class="hljs-number">60</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())  <span class="hljs-comment"># 读取行数</span><br>data = []<br><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):<br>    row = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br>    data.append(row)<br><br><span class="hljs-built_in">print</span>(data)<br><span class="hljs-comment"># [[10, 20], [30, 40], [50, 60]]</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-多行输入（未知行数，读到EOF）"><a href="#4-多行输入（未知行数，读到EOF）" class="headerlink" title="4. 多行输入（未知行数，读到EOF）"></a>4. 多行输入（未知行数，读到EOF）</h3><p><strong>输入格式：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">1 </span><span class="hljs-number">2</span><br><span class="hljs-symbol">3 </span><span class="hljs-number">4</span><br><span class="hljs-symbol">5 </span><span class="hljs-number">6</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码模板1（推荐）：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><br>data = []<br><span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> sys.stdin:<br>    row = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, line.strip().split()))<br>    data.append(row)<br><br><span class="hljs-built_in">print</span>(data)<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码模板2（try-except）：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">data = []<br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    <span class="hljs-keyword">try</span>:<br>        row = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br>        data.append(row)<br>    <span class="hljs-keyword">except</span> EOFError:<br>        <span class="hljs-keyword">break</span><br><br><span class="hljs-built_in">print</span>(data)<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码模板3（一次性读取）：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><br>lines = sys.stdin.readlines()<br>data = [<span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, line.strip().split())) <span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> lines]<br><span class="hljs-built_in">print</span>(data)<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-矩阵输入（二维数组）"><a href="#5-矩阵输入（二维数组）" class="headerlink" title="5. 矩阵输入（二维数组）"></a>5. 矩阵输入（二维数组）</h3><p><strong>输入格式：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">3 </span><span class="hljs-number">4</span><br><span class="hljs-symbol">1 </span><span class="hljs-number">2</span> <span class="hljs-number">3</span> <span class="hljs-number">4</span><br><span class="hljs-symbol">5 </span><span class="hljs-number">6</span> <span class="hljs-number">7</span> <span class="hljs-number">8</span><br><span class="hljs-symbol">9 </span><span class="hljs-number">10</span> <span class="hljs-number">11</span> <span class="hljs-number">12</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">n, m = <span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())  <span class="hljs-comment"># n行m列</span><br>matrix = []<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):<br>    row = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br>    matrix.append(row)<br><br><span class="hljs-comment"># 或使用列表推导式</span><br>matrix = [<span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n)]<br><br><span class="hljs-built_in">print</span>(matrix)<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-字符串输入"><a href="#6-字符串输入" class="headerlink" title="6. 字符串输入"></a>6. 字符串输入</h3><p><strong>输入格式：</strong></p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">hello world</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 读取整行（包括空格）</span><br>line = <span class="hljs-built_in">input</span>()<br><span class="hljs-built_in">print</span>(line)  <span class="hljs-comment"># &quot;hello world&quot;</span><br><br><span class="hljs-comment"># 读取单词列表</span><br>words = <span class="hljs-built_in">input</span>().split()<br><span class="hljs-built_in">print</span>(words)  <span class="hljs-comment"># [&quot;hello&quot;, &quot;world&quot;]</span><br><br><span class="hljs-comment"># 读取单个字符串（无空格）</span><br>s = <span class="hljs-built_in">input</span>().strip()<br><span class="hljs-built_in">print</span>(s)<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-逗号分隔输入"><a href="#7-逗号分隔输入" class="headerlink" title="7. 逗号分隔输入"></a>7. 逗号分隔输入</h3><p><strong>输入格式：</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split(<span class="hljs-string">&#x27;,&#x27;</span>)))<br><span class="hljs-built_in">print</span>(nums)  <span class="hljs-comment"># [1, 2, 3, 4, 5]</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="8-混合类型输入"><a href="#8-混合类型输入" class="headerlink" title="8. 混合类型输入"></a>8. 混合类型输入</h3><p><strong>输入格式：</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Alice</span> <span class="hljs-number">25</span> <span class="hljs-number">3</span>.<span class="hljs-number">5</span><br><span class="hljs-attribute">Bob</span> <span class="hljs-number">30</span> <span class="hljs-number">4</span>.<span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">2</span>):<br>    line = <span class="hljs-built_in">input</span>().split()<br>    name = line[<span class="hljs-number">0</span>]<br>    age = <span class="hljs-built_in">int</span>(line[<span class="hljs-number">1</span>])<br>    score = <span class="hljs-built_in">float</span>(line[<span class="hljs-number">2</span>])<br>    <span class="hljs-built_in">print</span>(name, age, score)<br></code></pre></td></tr></table></figure>
+
+<h3 id="9-多组测试用例"><a href="#9-多组测试用例" class="headerlink" title="9. 多组测试用例"></a>9. 多组测试用例</h3><p><strong>输入格式：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-number">2</span><br><span class="hljs-number">3</span><br><span class="hljs-symbol">1 </span><span class="hljs-number">2</span> <span class="hljs-number">3</span><br><span class="hljs-number">5</span><br><span class="hljs-symbol">4 </span><span class="hljs-number">5</span> <span class="hljs-number">6</span> <span class="hljs-number">7</span> <span class="hljs-number">8</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">T = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())  <span class="hljs-comment"># 测试用例数量</span><br><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(T):<br>    n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())<br>    nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br>    <span class="hljs-comment"># 处理当前测试用例</span><br>    result = <span class="hljs-built_in">sum</span>(nums)<br>    <span class="hljs-built_in">print</span>(result)<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、常见输出格式模板⭐⭐⭐⭐⭐"><a href="#三、常见输出格式模板⭐⭐⭐⭐⭐" class="headerlink" title="三、常见输出格式模板⭐⭐⭐⭐⭐"></a>三、常见输出格式模板⭐⭐⭐⭐⭐</h2><h3 id="1-单个值输出"><a href="#1-单个值输出" class="headerlink" title="1. 单个值输出"></a>1. 单个值输出</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">result = <span class="hljs-number">42</span><br><span class="hljs-built_in">print</span>(result)  <span class="hljs-comment"># 输出：42</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-多个值输出（空格分隔）"><a href="#2-多个值输出（空格分隔）" class="headerlink" title="2. 多个值输出（空格分隔）"></a>2. 多个值输出（空格分隔）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">a, b, c = <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span><br><br><span class="hljs-comment"># 方法1</span><br><span class="hljs-built_in">print</span>(a, b, c)  <span class="hljs-comment"># 输出：1 2 3</span><br><br><span class="hljs-comment"># 方法2</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;a&#125;</span> <span class="hljs-subst">&#123;b&#125;</span> <span class="hljs-subst">&#123;c&#125;</span>&quot;</span>)<br><br><span class="hljs-comment"># 方法3（列表）</span><br>nums = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27; &#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, nums)))  <span class="hljs-comment"># 输出：1 2 3</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-数组输出（每个元素一行）"><a href="#3-数组输出（每个元素一行）" class="headerlink" title="3. 数组输出（每个元素一行）"></a>3. 数组输出（每个元素一行）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">nums = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]<br><br><span class="hljs-comment"># 方法1</span><br><span class="hljs-keyword">for</span> num <span class="hljs-keyword">in</span> nums:<br>    <span class="hljs-built_in">print</span>(num)<br><br><span class="hljs-comment"># 方法2</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;\n&#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, nums)))<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-二维数组输出"><a href="#4-二维数组输出" class="headerlink" title="4. 二维数组输出"></a>4. 二维数组输出</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">matrix = [[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>], [<span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>]]<br><br><span class="hljs-comment"># 每行空格分隔</span><br><span class="hljs-keyword">for</span> row <span class="hljs-keyword">in</span> matrix:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27; &#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, row)))<br><br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># 1 2 3</span><br><span class="hljs-comment"># 4 5 6</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-格式化输出（保留小数）"><a href="#5-格式化输出（保留小数）" class="headerlink" title="5. 格式化输出（保留小数）"></a>5. 格式化输出（保留小数）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">pi = <span class="hljs-number">3.1415926</span><br><br><span class="hljs-comment"># 保留2位小数</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;pi:<span class="hljs-number">.2</span>f&#125;</span>&quot;</span>)  <span class="hljs-comment"># 3.14</span><br><br><span class="hljs-comment"># 保留4位小数</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;pi:<span class="hljs-number">.4</span>f&#125;</span>&quot;</span>)  <span class="hljs-comment"># 3.1416</span><br><br><span class="hljs-comment"># 科学计数法</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;pi:<span class="hljs-number">.2</span>e&#125;</span>&quot;</span>)  <span class="hljs-comment"># 3.14e+00</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-输出Yes-No或TRUE-FALSE"><a href="#6-输出Yes-No或TRUE-FALSE" class="headerlink" title="6. 输出Yes&#x2F;No或TRUE&#x2F;FALSE"></a>6. 输出Yes&#x2F;No或TRUE&#x2F;FALSE</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">result = <span class="hljs-literal">True</span><br><br><span class="hljs-comment"># 方法1</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Yes&quot;</span> <span class="hljs-keyword">if</span> result <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;No&quot;</span>)<br><br><span class="hljs-comment"># 方法2</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;TRUE&quot;</span> <span class="hljs-keyword">if</span> result <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;FALSE&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-输出列表（特定格式）"><a href="#7-输出列表（特定格式）" class="headerlink" title="7. 输出列表（特定格式）"></a>7. 输出列表（特定格式）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">nums = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]<br><br><span class="hljs-comment"># 方括号格式</span><br><span class="hljs-built_in">print</span>(nums)  <span class="hljs-comment"># [1, 2, 3, 4, 5]</span><br><br><span class="hljs-comment"># 逗号分隔</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;,&#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, nums)))  <span class="hljs-comment"># 1,2,3,4,5</span><br><br><span class="hljs-comment"># 空格分隔无括号</span><br><span class="hljs-built_in">print</span>(*nums)  <span class="hljs-comment"># 1 2 3 4 5</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、实战案例⭐⭐⭐⭐⭐"><a href="#四、实战案例⭐⭐⭐⭐⭐" class="headerlink" title="四、实战案例⭐⭐⭐⭐⭐"></a>四、实战案例⭐⭐⭐⭐⭐</h2><h3 id="案例1：求和问题"><a href="#案例1：求和问题" class="headerlink" title="案例1：求和问题"></a>案例1：求和问题</h3><p><strong>题目：</strong> 输入n个整数，输出它们的和</p>
+<p><strong>输入：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-number">5</span><br><span class="hljs-symbol">1 </span><span class="hljs-number">2</span> <span class="hljs-number">3</span> <span class="hljs-number">4</span> <span class="hljs-number">5</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>输出：</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">15<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())<br>nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br>result = <span class="hljs-built_in">sum</span>(nums)<br><span class="hljs-built_in">print</span>(result)<br></code></pre></td></tr></table></figure>
+
+<h3 id="案例2：矩阵转置"><a href="#案例2：矩阵转置" class="headerlink" title="案例2：矩阵转置"></a>案例2：矩阵转置</h3><p><strong>题目：</strong> 输入一个n×m矩阵，输出其转置</p>
+<p><strong>输入：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">2 </span><span class="hljs-number">3</span><br><span class="hljs-symbol">1 </span><span class="hljs-number">2</span> <span class="hljs-number">3</span><br><span class="hljs-symbol">4 </span><span class="hljs-number">5</span> <span class="hljs-number">6</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>输出：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">1 </span><span class="hljs-number">4</span><br><span class="hljs-symbol">2 </span><span class="hljs-number">5</span><br><span class="hljs-symbol">3 </span><span class="hljs-number">6</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">n, m = <span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())<br>matrix = [<span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n)]<br><br><span class="hljs-comment"># 转置</span><br>transpose = [[matrix[i][j] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n)] <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(m)]<br><br><span class="hljs-comment"># 或使用numpy</span><br><span class="hljs-comment"># import numpy as np</span><br><span class="hljs-comment"># transpose = np.array(matrix).T.tolist()</span><br><br><span class="hljs-comment"># 输出</span><br><span class="hljs-keyword">for</span> row <span class="hljs-keyword">in</span> transpose:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27; &#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, row)))<br></code></pre></td></tr></table></figure>
+
+<h3 id="案例3：多组测试用例"><a href="#案例3：多组测试用例" class="headerlink" title="案例3：多组测试用例"></a>案例3：多组测试用例</h3><p><strong>题目：</strong> T组测试，每组输入两个数，输出较大值</p>
+<p><strong>输入：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-number">3</span><br><span class="hljs-symbol">5 </span><span class="hljs-number">3</span><br><span class="hljs-symbol">8 </span><span class="hljs-number">12</span><br><span class="hljs-symbol">7 </span><span class="hljs-number">7</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>输出：</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">5<br>12<br>7<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">T = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())<br><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(T):<br>    a, b = <span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">max</span>(a, b))<br></code></pre></td></tr></table></figure>
+
+<h3 id="案例4：字符串处理"><a href="#案例4：字符串处理" class="headerlink" title="案例4：字符串处理"></a>案例4：字符串处理</h3><p><strong>题目：</strong> 输入一个句子，统计每个单词出现次数</p>
+<p><strong>输入：</strong></p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">hello world hello</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>输出：</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">hello</span> <span class="hljs-number">2</span><br><span class="hljs-attribute">world</span> <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> Counter<br><br>words = <span class="hljs-built_in">input</span>().split()<br>count = Counter(words)<br><br><span class="hljs-keyword">for</span> word, freq <span class="hljs-keyword">in</span> <span class="hljs-built_in">sorted</span>(count.items()):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;word&#125;</span> <span class="hljs-subst">&#123;freq&#125;</span>&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="案例5：CSV格式处理"><a href="#案例5：CSV格式处理" class="headerlink" title="案例5：CSV格式处理"></a>案例5：CSV格式处理</h3><p><strong>题目：</strong> 读取CSV格式数据，计算每行和</p>
+<p><strong>输入：</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">3</span><br><span class="hljs-attribute">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span><br><span class="hljs-attribute">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">6</span><br><span class="hljs-attribute">7</span>,<span class="hljs-number">8</span>,<span class="hljs-number">9</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>输出：</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">6<br>15<br>24<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())<br><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):<br>    nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split(<span class="hljs-string">&#x27;,&#x27;</span>)))<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">sum</span>(nums))<br></code></pre></td></tr></table></figure>
+
+<h3 id="案例6：读到特定标记结束"><a href="#案例6：读到特定标记结束" class="headerlink" title="案例6：读到特定标记结束"></a>案例6：读到特定标记结束</h3><p><strong>题目：</strong> 读取整数直到遇到-1，输出所有数的和</p>
+<p><strong>输入：</strong></p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">1 </span><span class="hljs-number">2</span> <span class="hljs-number">3</span> <span class="hljs-number">4</span> <span class="hljs-number">5</span> -<span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br>result = <span class="hljs-built_in">sum</span>(x <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> nums <span class="hljs-keyword">if</span> x != -<span class="hljs-number">1</span>)<br><span class="hljs-built_in">print</span>(result)<br></code></pre></td></tr></table></figure>
+
+<h3 id="案例7：处理浮点数矩阵"><a href="#案例7：处理浮点数矩阵" class="headerlink" title="案例7：处理浮点数矩阵"></a>案例7：处理浮点数矩阵</h3><p><strong>题目：</strong> 输入浮点数矩阵，输出每列平均值</p>
+<p><strong>输入：</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">3</span> <span class="hljs-number">2</span><br><span class="hljs-attribute">1</span>.<span class="hljs-number">5</span> <span class="hljs-number">2</span>.<span class="hljs-number">5</span><br><span class="hljs-attribute">3</span>.<span class="hljs-number">5</span> <span class="hljs-number">4</span>.<span class="hljs-number">5</span><br><span class="hljs-attribute">5</span>.<span class="hljs-number">5</span> <span class="hljs-number">6</span>.<span class="hljs-number">5</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>输出：</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">3</span>.<span class="hljs-number">50</span> <span class="hljs-number">4</span>.<span class="hljs-number">50</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br>n, m = <span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())<br>matrix = []<br><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):<br>    row = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">float</span>, <span class="hljs-built_in">input</span>().split()))<br>    matrix.append(row)<br><br>matrix = np.array(matrix)<br>col_means = np.mean(matrix, axis=<span class="hljs-number">0</span>)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27; &#x27;</span>.join([<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;x:<span class="hljs-number">.2</span>f&#125;</span>&quot;</span> <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> col_means]))<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、NumPy数组的输入输出⭐⭐⭐⭐"><a href="#五、NumPy数组的输入输出⭐⭐⭐⭐" class="headerlink" title="五、NumPy数组的输入输出⭐⭐⭐⭐"></a>五、NumPy数组的输入输出⭐⭐⭐⭐</h2><h3 id="输入为NumPy数组"><a href="#输入为NumPy数组" class="headerlink" title="输入为NumPy数组"></a>输入为NumPy数组</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br><span class="hljs-comment"># 1D数组</span><br>nums = np.array(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())))<br><br><span class="hljs-comment"># 2D数组</span><br>n, m = <span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())<br>matrix = np.array([<span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n)])<br><br><span class="hljs-comment"># 或者</span><br>data = []<br><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):<br>    row = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br>    data.append(row)<br>matrix = np.array(data)<br></code></pre></td></tr></table></figure>
+
+<h3 id="输出NumPy数组"><a href="#输出NumPy数组" class="headerlink" title="输出NumPy数组"></a>输出NumPy数组</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br>arr = np.array([[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>], [<span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>]])<br><br><span class="hljs-comment"># 方法1：循环</span><br><span class="hljs-keyword">for</span> row <span class="hljs-keyword">in</span> arr:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27; &#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, row)))<br><br><span class="hljs-comment"># 方法2：numpy转字符串</span><br><span class="hljs-keyword">for</span> row <span class="hljs-keyword">in</span> arr:<br>    <span class="hljs-built_in">print</span>(*row)  <span class="hljs-comment"># 解包输出</span><br><br><span class="hljs-comment"># 方法3：一维数组</span><br>vec = np.array([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>])<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27; &#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, vec)))<br><br><span class="hljs-comment"># 保留小数</span><br>float_arr = np.array([<span class="hljs-number">1.234</span>, <span class="hljs-number">5.678</span>])<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27; &#x27;</span>.join([<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;x:<span class="hljs-number">.2</span>f&#125;</span>&quot;</span> <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> float_arr]))<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、常见错误与调试⭐⭐⭐"><a href="#六、常见错误与调试⭐⭐⭐" class="headerlink" title="六、常见错误与调试⭐⭐⭐"></a>六、常见错误与调试⭐⭐⭐</h2><h3 id="错误1：忘记strip"><a href="#错误1：忘记strip" class="headerlink" title="错误1：忘记strip()"></a>错误1：忘记strip()</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 错误</span><br>line = sys.stdin.readline()<br>nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, line.split()))  <span class="hljs-comment"># 可能包含\n</span><br><br><span class="hljs-comment"># 正确</span><br>line = sys.stdin.readline().strip()<br>nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, line.split()))<br></code></pre></td></tr></table></figure>
+
+<h3 id="错误2：类型转换错误"><a href="#错误2：类型转换错误" class="headerlink" title="错误2：类型转换错误"></a>错误2：类型转换错误</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 错误：期望整数，实际是浮点数</span><br>n = <span class="hljs-built_in">int</span>(<span class="hljs-string">&quot;3.5&quot;</span>)  <span class="hljs-comment"># ValueError</span><br><br><span class="hljs-comment"># 正确</span><br>n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">float</span>(<span class="hljs-string">&quot;3.5&quot;</span>))  <span class="hljs-comment"># 先转浮点再转整数</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="错误3：输出格式不符"><a href="#错误3：输出格式不符" class="headerlink" title="错误3：输出格式不符"></a>错误3：输出格式不符</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">nums = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]<br><br><span class="hljs-comment"># 错误：输出带括号</span><br><span class="hljs-built_in">print</span>(nums)  <span class="hljs-comment"># [1, 2, 3]</span><br><br><span class="hljs-comment"># 正确：无括号空格分隔</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27; &#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, nums)))  <span class="hljs-comment"># 1 2 3</span><br><span class="hljs-built_in">print</span>(*nums)  <span class="hljs-comment"># 1 2 3</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="错误4：多余的空行"><a href="#错误4：多余的空行" class="headerlink" title="错误4：多余的空行"></a>错误4：多余的空行</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 错误：输出多余空行</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>):<br>    <span class="hljs-built_in">print</span>(i)<br>    <span class="hljs-built_in">print</span>()  <span class="hljs-comment"># 多余的空行</span><br><br><span class="hljs-comment"># 正确</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>):<br>    <span class="hljs-built_in">print</span>(i)<br></code></pre></td></tr></table></figure>
+
+<h3 id="错误5：EOF处理不当"><a href="#错误5：EOF处理不当" class="headerlink" title="错误5：EOF处理不当"></a>错误5：EOF处理不当</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 错误：没有处理EOF</span><br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())  <span class="hljs-comment"># 读完会报错</span><br><br><span class="hljs-comment"># 正确</span><br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    <span class="hljs-keyword">try</span>:<br>        n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())<br>    <span class="hljs-keyword">except</span> EOFError:<br>        <span class="hljs-keyword">break</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="调试技巧"><a href="#调试技巧" class="headerlink" title="调试技巧"></a>调试技巧</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><br><span class="hljs-comment"># 方法1：重定向输入（本地测试）</span><br><span class="hljs-keyword">if</span> <span class="hljs-literal">False</span>:  <span class="hljs-comment"># 本地调试时改为True</span><br>    sys.stdin = <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;input.txt&#x27;</span>, <span class="hljs-string">&#x27;r&#x27;</span>)<br>    sys.stdout = <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;output.txt&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>)<br><br><span class="hljs-comment"># 方法2：打印到stderr（不影响标准输出）</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Debug info:&quot;</span>, x, file=sys.stderr)<br><br><span class="hljs-comment"># 方法3：使用assert</span><br><span class="hljs-keyword">assert</span> <span class="hljs-built_in">len</span>(nums) == n, <span class="hljs-string">f&quot;Expected <span class="hljs-subst">&#123;n&#125;</span>, got <span class="hljs-subst">&#123;<span class="hljs-built_in">len</span>(nums)&#125;</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、完整模板（直接套用）⭐⭐⭐⭐⭐"><a href="#七、完整模板（直接套用）⭐⭐⭐⭐⭐" class="headerlink" title="七、完整模板（直接套用）⭐⭐⭐⭐⭐"></a>七、完整模板（直接套用）⭐⭐⭐⭐⭐</h2><h3 id="模板1：标准ACM输入输出框架"><a href="#模板1：标准ACM输入输出框架" class="headerlink" title="模板1：标准ACM输入输出框架"></a>模板1：标准ACM输入输出框架</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">solve</span>():<br>    <span class="hljs-string">&quot;&quot;&quot;主求解函数&quot;&quot;&quot;</span><br>    <span class="hljs-comment"># ============ 读取输入 ============</span><br>    n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())<br>    nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br>    <br>    <span class="hljs-comment"># ============ 算法逻辑 ============</span><br>    result = <span class="hljs-built_in">sum</span>(nums)<br>    <br>    <span class="hljs-comment"># ============ 输出结果 ============</span><br>    <span class="hljs-built_in">print</span>(result)<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    solve()<br></code></pre></td></tr></table></figure>
+
+<h3 id="模板2：多组测试用例"><a href="#模板2：多组测试用例" class="headerlink" title="模板2：多组测试用例"></a>模板2：多组测试用例</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">solve_case</span>():<br>    <span class="hljs-string">&quot;&quot;&quot;单个测试用例求解&quot;&quot;&quot;</span><br>    n = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())<br>    nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split()))<br>    result = <span class="hljs-built_in">sum</span>(nums)<br>    <span class="hljs-keyword">return</span> result<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    T = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())  <span class="hljs-comment"># 测试用例数</span><br>    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(T):<br>        result = solve_case()<br>        <span class="hljs-built_in">print</span>(result)<br></code></pre></td></tr></table></figure>
+
+<h3 id="模板3：矩阵输入处理"><a href="#模板3：矩阵输入处理" class="headerlink" title="模板3：矩阵输入处理"></a>模板3：矩阵输入处理</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">solve</span>():<br>    <span class="hljs-comment"># 读取矩阵维度</span><br>    n, m = <span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())<br>    <br>    <span class="hljs-comment"># 读取矩阵</span><br>    matrix = np.array([<br>        <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">float</span>, <span class="hljs-built_in">input</span>().split())) <br>        <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n)<br>    ])<br>    <br>    <span class="hljs-comment"># 算法处理</span><br>    result = np.<span class="hljs-built_in">sum</span>(matrix, axis=<span class="hljs-number">0</span>)  <span class="hljs-comment"># 按列求和</span><br>    <br>    <span class="hljs-comment"># 输出（保留2位小数）</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27; &#x27;</span>.join([<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;x:<span class="hljs-number">.2</span>f&#125;</span>&quot;</span> <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> result]))<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    solve()<br></code></pre></td></tr></table></figure>
+
+<h3 id="模板4：读到EOF"><a href="#模板4：读到EOF" class="headerlink" title="模板4：读到EOF"></a>模板4：读到EOF</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">solve</span>():<br>    data = []<br>    <br>    <span class="hljs-comment"># 读取所有输入</span><br>    <span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> sys.stdin:<br>        nums = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, line.strip().split()))<br>        data.append(nums)<br>    <br>    <span class="hljs-comment"># 处理数据</span><br>    result = <span class="hljs-built_in">sum</span>(<span class="hljs-built_in">sum</span>(row) <span class="hljs-keyword">for</span> row <span class="hljs-keyword">in</span> data)<br>    <br>    <span class="hljs-comment"># 输出</span><br>    <span class="hljs-built_in">print</span>(result)<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    solve()<br></code></pre></td></tr></table></figure>
+
+<h3 id="模板5：ML算法题框架"><a href="#模板5：ML算法题框架" class="headerlink" title="模板5：ML算法题框架"></a>模板5：ML算法题框架</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">train_model</span>(<span class="hljs-params">X, y</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;训练模型（逻辑回归示例）&quot;&quot;&quot;</span><br>    n, d = X.shape<br>    w = np.zeros(d)<br>    b = <span class="hljs-number">0</span><br>    lr = <span class="hljs-number">0.01</span><br>    epochs = <span class="hljs-number">100</span><br>    <br>    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(epochs):<br>        z = X @ w + b<br>        y_pred = <span class="hljs-number">1</span> / (<span class="hljs-number">1</span> + np.exp(-z))<br>        <br>        dw = X.T @ (y_pred - y) / n<br>        db = np.mean(y_pred - y)<br>        <br>        w -= lr * dw<br>        b -= lr * db<br>    <br>    <span class="hljs-keyword">return</span> w, b<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">predict</span>(<span class="hljs-params">X, w, b</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;预测&quot;&quot;&quot;</span><br>    z = X @ w + b<br>    probs = <span class="hljs-number">1</span> / (<span class="hljs-number">1</span> + np.exp(-z))<br>    <span class="hljs-keyword">return</span> (probs &gt;= <span class="hljs-number">0.5</span>).astype(<span class="hljs-built_in">int</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">solve</span>():<br>    <span class="hljs-comment"># ========== 读取训练数据 ==========</span><br>    n_train, n_features = <span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">input</span>().split())<br>    X_train = []<br>    y_train = []<br>    <br>    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n_train):<br>        row = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">float</span>, <span class="hljs-built_in">input</span>().split()))<br>        X_train.append(row[:-<span class="hljs-number">1</span>])  <span class="hljs-comment"># 特征</span><br>        y_train.append(<span class="hljs-built_in">int</span>(row[-<span class="hljs-number">1</span>]))  <span class="hljs-comment"># 标签</span><br>    <br>    X_train = np.array(X_train)<br>    y_train = np.array(y_train)<br>    <br>    <span class="hljs-comment"># ========== 训练 ==========</span><br>    w, b = train_model(X_train, y_train)<br>    <br>    <span class="hljs-comment"># ========== 读取测试数据 ==========</span><br>    n_test = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>())<br>    X_test = np.array([<br>        <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">float</span>, <span class="hljs-built_in">input</span>().split())) <br>        <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n_test)<br>    ])<br>    <br>    <span class="hljs-comment"># ========== 预测并输出 ==========</span><br>    predictions = predict(X_test, w, b)<br>    <span class="hljs-keyword">for</span> pred <span class="hljs-keyword">in</span> predictions:<br>        <span class="hljs-built_in">print</span>(pred)<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    solve()<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="八、考试注意事项🎯"><a href="#八、考试注意事项🎯" class="headerlink" title="八、考试注意事项🎯"></a>八、考试注意事项🎯</h2><h3 id="考前准备清单"><a href="#考前准备清单" class="headerlink" title="考前准备清单"></a>考前准备清单</h3><ol>
+<li>✅ <strong>熟悉输入输出格式</strong>：提前练习10道ACM模式题</li>
+<li>✅ <strong>准备模板代码</strong>：保存常用输入输出模板</li>
+<li>✅ <strong>测试本地环境</strong>：确保Python版本、NumPy可用</li>
+<li>✅ <strong>练习盲打import</strong>：<code>import numpy as np</code>, <code>import sys</code></li>
+</ol>
+<h3 id="考试时检查项"><a href="#考试时检查项" class="headerlink" title="考试时检查项"></a>考试时检查项</h3><ul>
+<li><input disabled="" type="checkbox"> 是否正确处理输入格式（空格&#x2F;逗号分隔）</li>
+<li><input disabled="" type="checkbox"> 是否处理多组测试用例</li>
+<li><input disabled="" type="checkbox"> 输出格式是否符合要求（空格&#x2F;换行&#x2F;小数位数）</li>
+<li><input disabled="" type="checkbox"> 是否有多余的调试print语句</li>
+<li><input disabled="" type="checkbox"> 数组下标是否越界</li>
+<li><input disabled="" type="checkbox"> 类型转换是否正确（int&#x2F;float&#x2F;str）</li>
+</ul>
+<h3 id="快速调试方法"><a href="#快速调试方法" class="headerlink" title="快速调试方法"></a>快速调试方法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 方法1：本地文件输入测试</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">创建 input.txt:</span><br><span class="hljs-string">3</span><br><span class="hljs-string">1 2 3</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-comment"># 在代码开头加入（提交前删除）</span><br><span class="hljs-keyword">import</span> sys<br>sys.stdin = <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;input.txt&#x27;</span>, <span class="hljs-string">&#x27;r&#x27;</span>)<br><br><span class="hljs-comment"># 方法2：硬编码测试数据（提交前删除）</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_input</span>():<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>([<br>        <span class="hljs-string">&quot;3&quot;</span>,<br>        <span class="hljs-string">&quot;1 2 3&quot;</span><br>    ])<br><br><span class="hljs-comment"># 临时替换input</span><br><span class="hljs-comment"># input = lambda: next(test_input())</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="时间分配建议"><a href="#时间分配建议" class="headerlink" title="时间分配建议"></a>时间分配建议</h3><ul>
+<li><strong>读题</strong>：2分钟</li>
+<li><strong>设计输入输出</strong>：3分钟</li>
+<li><strong>编写算法</strong>：25分钟</li>
+<li><strong>调试</strong>：8分钟</li>
+<li><strong>检查输出格式</strong>：2分钟</li>
+</ul>
+<hr>
+<h2 id="九、快速参考表⭐"><a href="#九、快速参考表⭐" class="headerlink" title="九、快速参考表⭐"></a>九、快速参考表⭐</h2><table>
+<thead>
+<tr>
+<th>输入格式</th>
+<th>代码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单个整数</td>
+<td><code>n = int(input())</code></td>
+</tr>
+<tr>
+<td>空格分隔整数</td>
+<td><code>nums = list(map(int, input().split()))</code></td>
+</tr>
+<tr>
+<td>逗号分隔</td>
+<td><code>nums = list(map(int, input().split(&#39;,&#39;)))</code></td>
+</tr>
+<tr>
+<td>多个变量</td>
+<td><code>a, b, c = map(int, input().split())</code></td>
+</tr>
+<tr>
+<td>矩阵（n行）</td>
+<td><code>[list(map(int, input().split())) for _ in range(n)]</code></td>
+</tr>
+<tr>
+<td>读到EOF</td>
+<td><code>for line in sys.stdin: ...</code></td>
+</tr>
+<tr>
+<td>浮点数</td>
+<td><code>nums = list(map(float, input().split()))</code></td>
+</tr>
+<tr>
+<td>字符串</td>
+<td><code>s = input().strip()</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>输出格式</th>
+<th>代码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单个值</td>
+<td><code>print(result)</code></td>
+</tr>
+<tr>
+<td>空格分隔</td>
+<td><code>print(&#39; &#39;.join(map(str, nums)))</code> 或 <code>print(*nums)</code></td>
+</tr>
+<tr>
+<td>每个一行</td>
+<td><code>print(&#39;\n&#39;.join(map(str, nums)))</code></td>
+</tr>
+<tr>
+<td>保留2位小数</td>
+<td><code>print(f&quot;{x:.2f}&quot;)</code></td>
+</tr>
+<tr>
+<td>Yes&#x2F;No</td>
+<td><code>print(&quot;Yes&quot; if cond else &quot;No&quot;)</code></td>
+</tr>
+<tr>
+<td>矩阵按行</td>
+<td><code>for row in matrix: print(*row)</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="十、牛客网华为专区练习题推荐"><a href="#十、牛客网华为专区练习题推荐" class="headerlink" title="十、牛客网华为专区练习题推荐"></a>十、牛客网华为专区练习题推荐</h2><h3 id="入门级（ACM模式熟悉）"><a href="#入门级（ACM模式熟悉）" class="headerlink" title="入门级（ACM模式熟悉）"></a>入门级（ACM模式熟悉）</h3><ol>
+<li>HJ1: 字符串最后一个单词的长度</li>
+<li>HJ2: 计算某字符出现次数</li>
+<li>HJ3: 明明的随机数</li>
+</ol>
+<h3 id="进阶级（算法实现）"><a href="#进阶级（算法实现）" class="headerlink" title="进阶级（算法实现）"></a>进阶级（算法实现）</h3><ol start="4">
+<li>HJ10: 字符个数统计</li>
+<li>HJ17: 坐标移动</li>
+<li>HJ20: 密码验证合格程序</li>
+</ol>
+<h3 id="AI相关（必做⭐⭐⭐⭐⭐）"><a href="#AI相关（必做⭐⭐⭐⭐⭐）" class="headerlink" title="AI相关（必做⭐⭐⭐⭐⭐）"></a>AI相关（必做⭐⭐⭐⭐⭐）</h3><ol start="7">
+<li>逻辑回归实现</li>
+<li>KNN分类器</li>
+<li>数据预处理</li>
+<li>MLP前向传播</li>
+</ol>
+<hr>
+<p><strong>考前30分钟必看内容：</strong></p>
+<ol>
+<li>本文第二节（常见输入格式）</li>
+<li>本文第三节（常见输出格式）</li>
+<li>本文第七节（完整模板）</li>
+</ol>
+<p><strong>祝考试顺利！💪</strong></p>
+<p><strong>下一篇：<a href="./%E5%8D%8E%E4%B8%BAAI%E6%9C%BA%E8%AF%95-NumPy%E9%80%9F%E6%9F%A5.md">NumPy速查手册</a></strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/" class="category-chain-item">面试准备</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8D%8E%E4%B8%BA/" class="print-no-link">#华为</a>
+      
+        <a href="/tags/ACM/" class="print-no-link">#ACM</a>
+      
+        <a href="/tags/%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA/" class="print-no-link">#输入输出</a>
+      
+        <a href="/tags/Python/" class="print-no-link">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>华为AI机试ACM模式输入输出大全</div>
+      <div>https://whyalwaysme.lol/2026/09/01/华为AI机试-ACM输入输出/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年9月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/09/01/%E5%8D%8E%E4%B8%BAAI%E6%9C%BA%E8%AF%95-NumPy%E9%80%9F%E6%9F%A5/" title="华为AI机试NumPy速查手册">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">华为AI机试NumPy速查手册</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/01/%E5%8D%8E%E4%B8%BAAI%E6%9C%BA%E8%AF%95-%E7%BC%96%E7%A8%8B%E9%A2%98%E6%A8%A1%E6%9D%BF/" title="华为AI机试编程题算法模板（NumPy手写）">
+                        <span class="hidden-mobile">华为AI机试编程题算法模板（NumPy手写）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
