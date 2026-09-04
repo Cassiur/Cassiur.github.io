@@ -27,7 +27,7 @@
 <meta property="og:description" content="📖 学习指南 🎯 学习目标：通过本文，你将系统掌握 JVM 的核心知识，能够自信地应对任何相关面试问题。  适合人群 🔰 初学者：想系统学习 JVM 的开发者 🚀 有经验者：想深入理解 JVM 原理的高级开发者 💼 面试准备者：想刷 JVM 面试题的求职者  学习建议 先理解概念，再深入原理：先搞懂”是什么”，再搞懂”为什么” 结合实战场景：不要死记硬背，要理解实际应用场景 动手实践：在">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:10:00.000Z">
-<meta property="article:modified_time" content="2026-06-09T06:44:58.908Z">
+<meta property="article:modified_time" content="2026-09-03T16:48:06.925Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="JVM">
 <meta property="article:tag" content="Java">
@@ -226,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          28k 字
+          32k 字
         
       </span>
     
@@ -237,7 +237,7 @@
         
         
         
-          234 分钟
+          263 分钟
         
       </span>
     
@@ -301,38 +301,59 @@
 <hr>
 <h2 id="🗺️-知识图谱"><a href="#🗺️-知识图谱" class="headerlink" title="🗺️ 知识图谱"></a>🗺️ 知识图谱</h2><pre><code class=" mermaid">mindmap
   root((JVM))
-    基础概念
-      核心概念1
-      核心概念2
-      核心概念3
-    高级特性
-      特性1
-      特性2
-    实战应用
-      应用场景1
-      应用场景2
-    性能优化
-      优化技巧1
-      优化技巧2
+    内存区域
+      堆 Heap
+      虚拟机栈
+      本地方法栈
+      程序计数器
+      方法区/元空间
+    对象与引用
+      对象内存布局
+      内存分配策略
+      四种引用类型
+    垃圾回收
+      GC Roots 与可达性分析
+      三色标记与漏标
+      标记-清除/复制/整理
+    垃圾收集器
+      CMS
+      G1
+      ZGC
+      Shenandoah
+    类加载机制
+      双亲委派模型
+      类加载五阶段
+      自定义类加载器
+    调优与诊断
+      JVM 参数调优
+      GC 日志分析
+      OOM 排查
+      JIT 与逃逸分析
 </code></pre>
 
 <hr>
-<h2 id="⚠️-常见陷阱与误区"><a href="#⚠️-常见陷阱与误区" class="headerlink" title="⚠️ 常见陷阱与误区"></a>⚠️ 常见陷阱与误区</h2><h3 id="陷阱-1：概念理解错误"><a href="#陷阱-1：概念理解错误" class="headerlink" title="陷阱 1：概念理解错误"></a>陷阱 1：概念理解错误</h3><p>❌ <strong>错误示例</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 错误的理解或用法</span><br></code></pre></td></tr></table></figure>
+<h2 id="⚠️-常见陷阱与误区"><a href="#⚠️-常见陷阱与误区" class="headerlink" title="⚠️ 常见陷阱与误区"></a>⚠️ 常见陷阱与误区</h2><h3 id="陷阱-1：以为”方法区”就是”永久代”"><a href="#陷阱-1：以为”方法区”就是”永久代”" class="headerlink" title="陷阱 1：以为”方法区”就是”永久代”"></a>陷阱 1：以为”方法区”就是”永久代”</h3><p>❌ <strong>错误理解</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 方法区 = 永久代（PermGen），这是错的</span><br><span class="hljs-comment"># 方法区是《Java 虚拟机规范》中定义的一块&quot;逻辑区域&quot;（规范概念）</span><br><span class="hljs-comment"># 永久代（JDK 7 及之前）和元空间 Metaspace（JDK 8+）只是 HotSpot 对方法区的两种&quot;实现&quot;</span><br><span class="hljs-comment"># 严格来说不能划等号，就像&quot;车&quot;和&quot;汽车&quot;的关系一样</span><br></code></pre></td></tr></table></figure>
 <p>✅ <strong>正确做法</strong>：</p>
 <ul>
-<li>正确理解概念</li>
-<li>避免常见误区</li>
+<li>回答时说”方法区的 HotSpot 实现，在 JDK 8 之前是永久代，JDK 8 之后是元空间”，而不是笼统地说”方法区就是永久代”</li>
 </ul>
-<h3 id="陷阱-2：忽略边界条件"><a href="#陷阱-2：忽略边界条件" class="headerlink" title="陷阱 2：忽略边界条件"></a>陷阱 2：忽略边界条件</h3><p>❌ <strong>错误做法</strong>：</p>
+<h3 id="陷阱-2：误以为-Full-GC-一定会回收老年代所有垃圾，或一定伴随-STW-很久"><a href="#陷阱-2：误以为-Full-GC-一定会回收老年代所有垃圾，或一定伴随-STW-很久" class="headerlink" title="陷阱 2：误以为 Full GC 一定会回收老年代所有垃圾，或一定伴随 STW 很久"></a>陷阱 2：误以为 Full GC 一定会回收老年代所有垃圾，或一定伴随 STW 很久</h3><p>❌ <strong>错误理解</strong>：</p>
 <ul>
-<li>不考虑特殊情况</li>
-<li>忽略异常处理</li>
+<li>认为 Full GC 结束后老年代一定会变干净、内存占用一定大幅下降</li>
+<li>认为所有收集器的 Full GC 停顿都很长</li>
 </ul>
 <p>✅ <strong>正确做法</strong>：</p>
 <ul>
-<li>总是考虑边界条件</li>
-<li>添加异常处理</li>
+<li>Full GC 只是回收范围更大（新生代+老年代+方法区），是否”彻底”取决于可达性分析的结果，和 Minor GC 一样只回收不可达对象</li>
+<li>G1、ZGC 等现代收集器已经大幅压缩了 Full GC 的停顿时间，不能一概而论</li>
+</ul>
+<h3 id="陷阱-3：误以为调用-System-gc-一定会触发-GC"><a href="#陷阱-3：误以为调用-System-gc-一定会触发-GC" class="headerlink" title="陷阱 3：误以为调用 System.gc() 一定会触发 GC"></a>陷阱 3：误以为调用 System.gc() 一定会触发 GC</h3><p>❌ <strong>错误理解</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">System.gc(); <span class="hljs-comment">// 以为这行代码执行后一定会立刻发生一次 Full GC</span><br></code></pre></td></tr></table></figure>
+<p>✅ <strong>正确做法</strong>：</p>
+<ul>
+<li><code>System.gc()</code> 只是<strong>建议</strong> JVM 尽快进行一次垃圾回收，是否真正执行、何时执行由 JVM 自行决定</li>
+<li>可以用 <code>-XX:+DisableExplicitGC</code> 直接屏蔽这个建议，线上代码应避免手动调用 <code>System.gc()</code></li>
 </ul>
 <hr>
 <h2 id="💡-面试技巧"><a href="#💡-面试技巧" class="headerlink" title="💡 面试技巧"></a>💡 面试技巧</h2><h3 id="技巧-1：结构化回答"><a href="#技巧-1：结构化回答" class="headerlink" title="技巧 1：结构化回答"></a>技巧 1：结构化回答</h3><p>不要只回答”是什么”，要按照以下结构回答：</p>
@@ -344,12 +365,12 @@
 <h3 id="技巧-2：结合实战场景"><a href="#技巧-2：结合实战场景" class="headerlink" title="技巧 2：结合实战场景"></a>技巧 2：结合实战场景</h3><p>不要只背概念，要结合实际项目经验回答。</p>
 <h3 id="技巧-3：引导到你会的方向"><a href="#技巧-3：引导到你会的方向" class="headerlink" title="技巧 3：引导到你会的方向"></a>技巧 3：引导到你会的方向</h3><p>如果遇到不会的问题，不要慌，可以引导到你会的方向。</p>
 <hr>
-<h2 id="🎯-实战演练（真实面试场景）"><a href="#🎯-实战演练（真实面试场景）" class="headerlink" title="🎯 实战演练（真实面试场景）"></a>🎯 实战演练（真实面试场景）</h2><h3 id="场景-1：请你设计一个系统？"><a href="#场景-1：请你设计一个系统？" class="headerlink" title="场景 1：请你设计一个系统？"></a>场景 1：请你设计一个系统？</h3><p><strong>回答思路</strong>：</p>
+<h2 id="🎯-实战演练（真实面试场景）"><a href="#🎯-实战演练（真实面试场景）" class="headerlink" title="🎯 实战演练（真实面试场景）"></a>🎯 实战演练（真实面试场景）</h2><h3 id="场景-1：线上服务频繁-Full-GC，你怎么排查？"><a href="#场景-1：线上服务频繁-Full-GC，你怎么排查？" class="headerlink" title="场景 1：线上服务频繁 Full GC，你怎么排查？"></a>场景 1：线上服务频繁 Full GC，你怎么排查？</h3><p><strong>回答思路</strong>：</p>
 <ol>
-<li><strong>需求分析</strong>：明确系统需求</li>
-<li><strong>技术选型</strong>：选择合适的技术栈</li>
-<li><strong>架构设计</strong>：设计系统架构</li>
-<li><strong>性能优化</strong>：考虑性能瓶颈和优化方案</li>
+<li><strong>观察现象</strong>：用 <code>jstat -gcutil &lt;pid&gt; 1000</code> 观察老年代（O）使用率和 GC 频率，确认是不是真的频繁 Full GC，而不是 Minor GC</li>
+<li><strong>抓取证据</strong>：开启&#x2F;查看 GC 日志（<code>-Xlog:gc*</code>），结合 <code>jmap -histo:live &lt;pid&gt;</code> 或 <code>-XX:+HeapDumpOnOutOfMemoryError</code> 拿到的堆转储文件（用 MAT&#x2F;JProfiler 分析）</li>
+<li><strong>定位原因</strong>：常见原因排查顺序——① 内存泄漏（某类对象数量持续增长不释放）② 大对象&#x2F;大集合一次性加载 ③ Survivor 空间过小导致对象过早晋升老年代 ④ 显式调用了 <code>System.gc()</code> ⑤ 元空间不足（类加载过多，如动态代理、热部署）</li>
+<li><strong>给出方案</strong>：根据定位结果对症下药，比如调大堆&#x2F;调整新生代比例、修复代码中的泄漏点、更换为低停顿收集器（G1&#x2F;ZGC）</li>
 </ol>
 <hr>
 <h2 id="🚀-学习路径总结"><a href="#🚀-学习路径总结" class="headerlink" title="🚀 学习路径总结"></a>🚀 学习路径总结</h2><h3 id="第一阶段：基础概念（1-2-天）"><a href="#第一阶段：基础概念（1-2-天）" class="headerlink" title="第一阶段：基础概念（1-2 天）"></a>第一阶段：基础概念（1-2 天）</h3><ul>
@@ -375,16 +396,16 @@
 </ul>
 <hr>
 <h2 id="📚-扩展学习资源"><a href="#📚-扩展学习资源" class="headerlink" title="📚 扩展学习资源"></a>📚 扩展学习资源</h2><h3 id="官方资源"><a href="#官方资源" class="headerlink" title="官方资源"></a>官方资源</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">官方文档</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">官方教程</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/">Java 虚拟机规范（The Java Virtual Machine Specification）</a></li>
+<li><a target="_blank" rel="noopener" href="https://openjdk.org/jeps/0">OpenJDK JEP 索引</a></li>
 </ul>
 <h3 id="书籍推荐"><a href="#书籍推荐" class="headerlink" title="书籍推荐"></a>书籍推荐</h3><ul>
-<li>《JVM 实战》</li>
-<li>《JVM 权威指南》</li>
+<li>《深入理解Java虚拟机》（周志明 著，第 3 版）</li>
+<li>《Java性能权威指南》（Scott Oaks 著）</li>
 </ul>
 <h3 id="博客推荐"><a href="#博客推荐" class="headerlink" title="博客推荐"></a>博客推荐</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">官方博客</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">技术社区</a></li>
+<li><a target="_blank" rel="noopener" href="https://wiki.openjdk.org/">OpenJDK 官方 Wiki</a></li>
+<li><a target="_blank" rel="noopener" href="https://openjdk.org/groups/hotspot/">HotSpot GC 官方文档合集</a></li>
 </ul>
 <hr>
 <h1 id="JVM-面试八股文30条（深度详解版）"><a href="#JVM-面试八股文30条（深度详解版）" class="headerlink" title="JVM 面试八股文30条（深度详解版）"></a>JVM 面试八股文30条（深度详解版）</h1><blockquote>
@@ -398,6 +419,22 @@
 <hr>
 <h4 id="深度解析"><a href="#深度解析" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>JVM 内存区域全景图：</strong></p>
 <figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs armasm">┌─────────────────────────────────────────────────────┐<br>│                  JVM 内存区域                        │<br>├──────────────────┬──────────────────────────────────┤<br>│                  │  元空间（Metaspace）              │<br>│                  │  （类元数据、常量池、方法字节码） │<br>│                  ├──────────────────────────────────┤<br>│   所有线程共享    │  堆（Heap）                      │<br>│                  │  （对象实例、数组）                │<br>│                  │  分代：新生代 + 老年代            │<br>├──────────────────┼──────────────────────────────────┤<br>│                  │  虚拟机栈（Stack）                │<br>│   线程私有        │  （栈帧：局部变量表、操作数栈）   │<br>│                  │  本地方法栈（Native 方法）         │<br>│                  │  程序计数器（<span class="hljs-built_in">PC</span> Register）         │<br>└──────────────────┴──────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<p><strong>用图区分「线程私有」和「线程共享」两栏，并标注每块区域会不会 OOM &#x2F; StackOverflowError（面试常问）：</strong></p>
+<pre><code class=" mermaid">flowchart TB
+    subgraph PRIVATE[&quot;线程私有（每个线程一份）&quot;]
+        direction TB
+        PC[&quot;程序计数器 PC Register\n不会 OOM\n不会 StackOverflowError\n（唯一不会有内存溢出问题的区域）&quot;]
+        VMS[&quot;虚拟机栈 JVM Stack\n会 StackOverflowError（栈深度超限）\n会 OOM（-Xss 设太大，线程数过多）&quot;]
+        NMS[&quot;本地方法栈 Native Method Stack\nHotSpot 中与虚拟机栈合二为一\n同样会 StackOverflowError / OOM&quot;]
+    end
+
+    subgraph SHARED[&quot;线程共享（所有线程一份）&quot;]
+        direction TB
+        HEAP[&quot;堆 Heap\n会 OOM：Java heap space\n对象实例、数组\n新生代 + 老年代&quot;]
+        META[&quot;方法区 / 元空间 Metaspace\n会 OOM：Metaspace\n类元数据、运行时常量池、JIT 编译代码&quot;]
+    end
+</code></pre>
 
 <hr>
 <p><strong>各区域详解：</strong></p>
@@ -450,7 +487,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 以下信息都存放在元空间中：</span><br><span class="hljs-number">1.</span> 类的元数据（Class 对象、字段、方法、字节码）<br><span class="hljs-number">2.</span> 运行时常量池（Runtime Constant Pool）<br><span class="hljs-number">3.</span> 方法字节码<br><span class="hljs-number">4.</span> JIT 编译后的本地代码缓存<br></code></pre></td></tr></table></figure>
 
 <p><strong>为什么要用元空间替代永久代？</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java 7：字符串常量池在永久代，容易 OOM</span><br><span class="hljs-type">String</span> <span class="hljs-variable">s1</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;abc&quot;</span>;<br><span class="hljs-type">String</span> <span class="hljs-variable">s2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;abc&quot;</span>);<br><span class="hljs-comment">// 如果程序中大量使用字符串 intern，永久代会 OOM</span><br><br><span class="hljs-comment">// Java 8：字符串常量池移到堆中，元空间使用本地内存</span><br><span class="hljs-comment">// → 默认不限制大小（受物理内存限制），不容易 OOM</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java 6 及之前：字符串常量池在永久代，容易 OOM</span><br><span class="hljs-type">String</span> <span class="hljs-variable">s1</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;abc&quot;</span>;<br><span class="hljs-type">String</span> <span class="hljs-variable">s2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;abc&quot;</span>);<br><span class="hljs-comment">// 如果程序中大量使用字符串 intern，永久代会 OOM</span><br><br><span class="hljs-comment">// Java 7 起：字符串常量池移到堆中（与永久代是否被元空间取代无关）</span><br><span class="hljs-comment">// Java 8：方法区的实现从永久代改为元空间，使用本地内存</span><br><span class="hljs-comment">// → 默认不限制大小（受物理内存限制），不容易 OOM</span><br></code></pre></td></tr></table></figure>
 
 <hr>
 <h4 id="面试加分回答"><a href="#面试加分回答" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
@@ -750,13 +787,88 @@
 <p>「标记-复制算法有一个有趣的细节：<strong>对象存活率很高时，复制算法的效率会很低</strong>（需要复制大量对象）。所以复制算法只适合<strong>对象存活率低</strong>的场景（新生代，98% 的对象活不过一次 GC）。另外，<strong>HotSpot 的 Survivor 区设计</strong>也是经过优化的：如果 Survivor 区太小，存活对象放不下，就会<strong>提前晋升到老年代</strong>（Premature Promotion），导致老年代增长过快，引发 Full GC。」</p>
 </blockquote>
 <hr>
-<h2 id="三、垃圾收集器（11-17）"><a href="#三、垃圾收集器（11-17）" class="headerlink" title="三、垃圾收集器（11-17）"></a>三、垃圾收集器（11-17）</h2><hr>
-<h3 id="第-11-题：常见的垃圾收集器有哪些？"><a href="#第-11-题：常见的垃圾收集器有哪些？" class="headerlink" title="第 11 题：常见的垃圾收集器有哪些？"></a>第 11 题：常见的垃圾收集器有哪些？</h3><h4 id="一句话结论-10"><a href="#一句话结论-10" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>新生代收集器：Serial、ParNew、Parallel Scavenge；老年代收集器：Serial Old、Parallel Old、CMS；整堆收集器：G1（Java 7+）、ZGC（Java 11+）、Shenandoah（Java 12+）。</strong></p>
+<h3 id="补充题：对象的内存分配策略是怎样的？（高频必考，面试必问）"><a href="#补充题：对象的内存分配策略是怎样的？（高频必考，面试必问）" class="headerlink" title="补充题：对象的内存分配策略是怎样的？（高频必考，面试必问）"></a>补充题：对象的内存分配策略是怎样的？（高频必考，面试必问）</h3><h4 id="一句话结论-10"><a href="#一句话结论-10" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>对象优先在 Eden 区分配；大对象直接进入老年代；长期存活的对象按年龄晋升老年代；同时存在”动态年龄判定”和”空间分配担保”两条兜底规则。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-10"><a href="#深度解析-10" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>收集器的发展史：</strong></p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Java</span> 的发展：<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">1</span>.<span class="hljs-number">3</span>：Serial（单线程，STW 很长）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">1</span>.<span class="hljs-number">4</span>：Parallel（多线程，但还是要 STW）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">5</span>：CMS（第一款并发收集器，标记阶段可以与用户线程并发）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">7</span>：G1（里程碑，不再物理分代，而是逻辑分代）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">11</span>：ZGC（超低延迟，&lt; <span class="hljs-number">10</span>ms）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">12</span>：Shenandoah（类似 ZGC，OpenJDK 社区驱动）<br></code></pre></td></tr></table></figure>
+<h4 id="深度解析-10"><a href="#深度解析-10" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>① 对象优先在 Eden 区分配</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs markdown">new 一个对象时：<br><span class="hljs-bullet">    1.</span> JVM 优先尝试在 Eden 区分配内存（TLAB，线程本地分配缓冲区，避免加锁）<br><span class="hljs-bullet">    2.</span> 如果 Eden 区空间不足，触发一次 Minor GC（Young GC）<br><span class="hljs-bullet">    3.</span> Minor GC 后，Eden 中的存活对象被复制到 Survivor 区<br><span class="hljs-bullet">    4.</span> 如果 Minor GC 后 Eden 仍然放不下新对象，再尝试扩容或直接分配到老年代<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>大多数对象都是”朝生夕死”的——这正是新生代用标记-复制算法、且 Eden:Survivor 默认按 8:1:1 划分的依据（见第 10 题）。</p>
+</blockquote>
+<hr>
+<p><strong>② 大对象直接进入老年代</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 通过 -XX:PretenureSizeThreshold 设置阈值（单位字节，只对 Serial、ParNew 有效）</span><br>-XX:PretenureSizeThreshold=<span class="hljs-number">3145728</span>   <span class="hljs-comment">// 3MB 以上的对象直接进入老年代</span><br><br><span class="hljs-comment">// 典型的大对象：</span><br><span class="hljs-comment">// 1. 很长的字符串</span><br><span class="hljs-comment">// 2. 元素很多的数组</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>为什么大对象要直接进入老年代？</strong><br>→ 新生代用的是标记-复制算法，对象要在 Eden 和 Survivor 之间来回复制。<br>→ 如果大对象也走这条路，复制的成本非常高（内存拷贝本身就慢），还容易导致 Survivor 区放不下，提前触发 Minor GC 甚至 Full GC。<br>→ 让大对象一步到位分配到老年代，可以避免这种大量内存复制的开销。</p>
+</blockquote>
+<hr>
+<p><strong>③ 长期存活的对象将进入老年代（年龄晋升）</strong></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs markdown">对象头（Mark Word）中有一个 4 位的 age 计数器：<br><span class="hljs-bullet">    1.</span> 对象在 Eden 出生，第一次 Minor GC 存活并进入 Survivor，age = 1<br><span class="hljs-bullet">    2.</span> 之后每熬过一次 Minor GC，age + 1<br><span class="hljs-bullet">    3.</span> 当 age 达到阈值（默认 -XX:MaxTenuringThreshold=15），晋升到老年代<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">-XX:MaxTenuringThreshold=<span class="hljs-number">15</span>   <span class="hljs-comment">// 默认值；4 位存储，最大只能是 15</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>阈值设得越小，对象越容易晋升老年代（节省 Survivor 空间，但老年代压力大，Full GC 更频繁）；设得越大，对象在新生代停留时间越长（Survivor 空间要求更高）。</p>
+</blockquote>
+<hr>
+<p><strong>④ 动态年龄判定（Dynamic Age Determination）</strong></p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs abnf">规则：<br>    Survivor 空间中，相同年龄所有对象大小的总和，<br>    如果 &gt;<span class="hljs-operator">=</span> Survivor 空间的一半，<br>    则年龄 &gt;<span class="hljs-operator">=</span> 该年龄的对象直接晋升老年代，<br>    不需要等到 MaxTenuringThreshold！<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这是很多人不知道的细节：<strong>MaxTenuringThreshold 只是一个”上限”，不是必须等到的固定值</strong>。动态年龄判定的意义在于：与其让一批”注定要晋升”的同龄对象反复复制、拖慢 Minor GC，不如提前一次性晋升，腾出 Survivor 空间。</p>
+</blockquote>
+<hr>
+<p><strong>⑤ 空间分配担保（Handle Promotion Failure）</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs powershell">Minor <span class="hljs-built_in">GC</span> 之前，JVM 会检查：<br>    老年代最大可用连续空间  是否  &gt;  新生代所有对象总空间（保守）<br>    或者                  是否  &gt;  历次晋升到老年代的平均大小（激进，JDK <span class="hljs-number">6</span> Update <span class="hljs-number">24</span> 起默认）<br><br>情况 A：空间足够 → 正常执行 Minor <span class="hljs-built_in">GC</span>（安全）<br>情况 B：空间不够，但允许冒险（<span class="hljs-literal">-XX</span>:+HandlePromotionFailure）<br>    → 仍然尝试 Minor <span class="hljs-built_in">GC</span>（赌 Survivor 能装下大部分存活对象）<br>    → 如果赌输了（Survivor 装不下，需要晋升的对象超过老年代剩余空间）→ 退化为一次 Full <span class="hljs-built_in">GC</span><br>情况 C：空间不够，且不允许冒险 → 直接改为 Full <span class="hljs-built_in">GC</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>历史与现状</strong>：<code>-XX:+HandlePromotionFailure</code> 参数在 JDK 6 Update 24 之前需要显式配置，之后已经是默认行为，参数本身被保留但不再需要手动开启，很多老资料仍会提到它，理解其含义即可，不必再手动配置。</p>
+</blockquote>
+<hr>
+<p><strong>⑥ Minor GC &#x2F; Major GC &#x2F; Full GC 触发条件对比</strong></p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>回收区域</th>
+<th>常见触发条件</th>
+<th>STW 时长</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Minor GC（Young GC）</td>
+<td>新生代（Eden + Survivor）</td>
+<td>Eden 区空间不足</td>
+<td>短（毫秒级）</td>
+</tr>
+<tr>
+<td>Major GC（Old GC）</td>
+<td>老年代</td>
+<td>老年代空间不足（多数收集器实际以 Full GC 形式体现，单独的 Major GC 在 CMS 等场景下才有明确区分）</td>
+<td>较长</td>
+</tr>
+<tr>
+<td>Full GC</td>
+<td>整个堆（新生代 + 老年代）+ 方法区&#x2F;元空间</td>
+<td>1. 老年代空间不足；2. 空间分配担保失败；3. 元空间不足；4. 显式调用 <code>System.gc()</code>；5. CMS 出现 Concurrent Mode Failure</td>
+<td>长（可达秒级，是调优的重点排查对象）</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="面试加分回答-10"><a href="#面试加分回答-10" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「对象分配策略是<strong>分代收集理论</strong>在工程上的具体落地，面试时经常追问一个连环问题：<strong>为什么要有动态年龄判定？</strong> 因为固定的 <code>MaxTenuringThreshold</code> 是一刀切的：如果本轮 Minor GC 后，某个年龄段的对象已经占了 Survivor 一半以上空间，说明这批对象大概率会继续存活，与其让它们在 Eden&#x2F;Survivor 之间反复复制拖慢下次 GC，不如直接晋升老年代，用空间换时间。另外，<strong>空间分配担保</strong>容易被问到”如果担保失败会怎样”——答案是退化为一次 Full GC，这也是为什么线上如果发现 Full GC 频繁，除了看老年代本身，还要排查新生代对象是否”晋升过快”（比如 Survivor 设置太小、或者业务代码里有大量长生命周期的临时对象）。」</p>
+</blockquote>
+<hr>
+<h2 id="三、垃圾收集器（11-17）"><a href="#三、垃圾收集器（11-17）" class="headerlink" title="三、垃圾收集器（11-17）"></a>三、垃圾收集器（11-17）</h2><hr>
+<h3 id="第-11-题：常见的垃圾收集器有哪些？"><a href="#第-11-题：常见的垃圾收集器有哪些？" class="headerlink" title="第 11 题：常见的垃圾收集器有哪些？"></a>第 11 题：常见的垃圾收集器有哪些？</h3><h4 id="一句话结论-11"><a href="#一句话结论-11" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>新生代收集器：Serial、ParNew、Parallel Scavenge；老年代收集器：Serial Old、Parallel Old、CMS；整堆收集器：G1（Java 7+）、ZGC（JDK 11 实验特性引入，JDK 15 转正为生产可用，JDK 21 引入分代 ZGC 并成为默认模式）、Shenandoah（Java 12+）。</strong></p>
+</blockquote>
+<hr>
+<h4 id="深度解析-11"><a href="#深度解析-11" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>收集器的发展史：</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Java</span> 的发展：<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">1</span>.<span class="hljs-number">3</span>：Serial（单线程，STW 很长）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">1</span>.<span class="hljs-number">4</span>：Parallel（多线程，但还是要 STW）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">5</span>：CMS（第一款并发收集器，标记阶段可以与用户线程并发）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">7</span>：G1（里程碑，不再物理分代，而是逻辑分代）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">11</span>：ZGC 引入（实验特性，超低延迟 &lt; <span class="hljs-number">10</span>ms）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">12</span>：Shenandoah（类似 ZGC，OpenJDK 社区驱动）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">15</span>：ZGC 转正为生产可用（不再是实验特性）<br>    <span class="hljs-attribute">Java</span> <span class="hljs-number">21</span>：分代 ZGC（Generational ZGC）引入，并成为 ZGC 的默认模式<br></code></pre></td></tr></table></figure>
 
 <hr>
 <p><strong>各收集器特点：</strong></p>
@@ -833,26 +945,26 @@
 <td>并发</td>
 <td>染色指针</td>
 <td>超低延迟（&lt; 10ms）</td>
-<td>超大内存（Java 11+）</td>
+<td>超大内存（JDK 11+ 实验，JDK 15+ 生产可用）</td>
 </tr>
 </tbody></table>
 <hr>
 <p><strong>收集器的搭配关系：</strong></p>
-<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">合法的搭配：<br>    Serial       + Serial <span class="hljs-keyword">Old</span>       （客户端）<br>    ParNew       + CMS             （Java <span class="hljs-number">8</span> 主流）<br>    <span class="hljs-keyword">Parallel</span>     + <span class="hljs-keyword">Parallel</span> <span class="hljs-keyword">Old</span>     （吞吐量优先）<br>    G1（独立，不需要搭配）          （Java <span class="hljs-number">8</span>+ 推荐）<br>    ZGC（独立）                    （Java <span class="hljs-number">11</span>+，超低延迟）<br></code></pre></td></tr></table></figure>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">合法的搭配：<br>    Serial       + Serial Old       （客户端）<br>    ParNew       + CMS             （<span class="hljs-keyword">Java </span><span class="hljs-number">8</span> 主流）<br>    Parallel     + Parallel Old     （吞吐量优先）<br>    G1（独立，不需要搭配）          （<span class="hljs-keyword">Java </span><span class="hljs-number">8</span>+ 推荐）<br>    ZGC（独立）                    （<span class="hljs-keyword">JDK </span><span class="hljs-number">11</span>+ 实验，<span class="hljs-keyword">JDK </span><span class="hljs-number">15</span>+ 生产可用，超低延迟）<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p><strong>Java 8 的默认收集器</strong>：Parallel Scavenge + Parallel Old（吞吐量优先）<br><strong>Java 9+ 的默认收集器</strong>：G1</p>
 </blockquote>
 <hr>
-<h4 id="面试加分回答-10"><a href="#面试加分回答-10" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-11"><a href="#面试加分回答-11" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「收集器的选择是一个经典问题。面试时经常问：<strong>你们的线上服务用的什么收集器？为什么？</strong> 典型回答：Java 8 用 CMS（低延迟），Java 8+ 用 G1（可预测停顿）。如果是<strong>大内存（&gt; 32GB）+ 低延迟（&lt; 10ms）</strong> 的场景，用 ZGC。另外，CMS 已经在 Java 9 被标记为 Deprecated，Java 14 被移除，所以新项目不要用 CMS 了。」</p>
 </blockquote>
 <hr>
-<h3 id="第-12-题：CMS-收集器的工作原理？"><a href="#第-12-题：CMS-收集器的工作原理？" class="headerlink" title="第 12 题：CMS 收集器的工作原理？"></a>第 12 题：CMS 收集器的工作原理？</h3><h4 id="一句话结论-11"><a href="#一句话结论-11" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-12-题：CMS-收集器的工作原理？"><a href="#第-12-题：CMS-收集器的工作原理？" class="headerlink" title="第 12 题：CMS 收集器的工作原理？"></a>第 12 题：CMS 收集器的工作原理？</h3><h4 id="一句话结论-12"><a href="#一句话结论-12" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>CMS（Concurrent Mark Sweep）&#x3D; 一款并发的、低延迟的老年代收集器。流程：初始标记（STW）→ 并发标记 → 重新标记（STW）→ 并发清除。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-11"><a href="#深度解析-11" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>CMS 的完整流程：</strong></p>
+<h4 id="深度解析-12"><a href="#深度解析-12" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>CMS 的完整流程：</strong></p>
 <figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs coq">CMS 收集器（老年代）：<br>    ┌─────────────────────────────────────────────┐<br>    │ 阶段 <span class="hljs-number">1</span>：初始标记（<span class="hljs-keyword">Initial</span> Mark）【STW】    │<br>    │   → 标记 GC Roots 直接关联的对象            │<br>    │   → 速度很快（只标记直接关联）              │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">2</span>：并发标记（Concurrent Mark）         │<br>    │   → 与用户线程并发执行                      │<br>    │   → 从「初始标记」的结果出发，遍历整个对象 │<br>    │     图，标记所有存活对象                    │<br>    │   → 因为用户线程在运行，对象图可能变化     │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">3</span>：重新标记（<span class="hljs-keyword">Remark</span>）【STW】         │<br>    │   → 修复「并发标记」期间用户线程修改的引用  │<br>    │   → 使用「增量更新」算法                   │<br>    │   → 比初始标记慢，但比 Full GC 快很多    │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">4</span>：并发清除（Concurrent Sweep）        │<br>    │   → 与用户线程并发执行                      │<br>    │   → 清除未标记的对象                       │<br>    │   → 不会产生内存碎片（标记-清除算法）      │<br>    └─────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -864,15 +976,15 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 缺陷 1：对 CPU 资源敏感</span><br><span class="hljs-comment">//   → 并发标记和并发清除会占用一部分 CPU 资源</span><br><span class="hljs-comment">//   → CPU 核心数少时（如 2 核），用户线程会变慢</span><br><br><span class="hljs-comment">// 缺陷 2：无法处理浮动垃圾</span><br><span class="hljs-comment">//   → 「并发清除」阶段，用户线程还在产生垃圾</span><br><span class="hljs-comment">//   → 这些垃圾叫「浮动垃圾」，本次 GC 无法回收</span><br><span class="hljs-comment">//   → 需要等到下次 GC</span><br><br><span class="hljs-comment">// 缺陷 3：内存碎片（标记-清除算法）</span><br><span class="hljs-comment">//   → 运行一段时间后，会产生大量内存碎片</span><br><span class="hljs-comment">//   → 大对象可能无法分配，触发 Full GC（用标记-整理）</span><br><span class="hljs-comment">//   → 解决：-XX:+UseCMSCompactAtFullCollection（默认开启）</span><br><br><span class="hljs-comment">// 缺陷 4：Concurrent Mode Failure</span><br><span class="hljs-comment">//   → 并发清除时，老年代空间不足（浮动垃圾太多）</span><br><span class="hljs-comment">//   → CMS 会失败，降级为 Serial Old（单线程，STW 很长）</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-11"><a href="#面试加分回答-11" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-12"><a href="#面试加分回答-12" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「CMS 的「重新标记」阶段使用了 <strong>写后屏障（Write Barrier）</strong> 来记录引用变化。具体来说，是 <strong>增量更新（Incremental Update）</strong> 算法：当黑色对象的引用变化时，把它标记为灰色（需要重新扫描）。另一个算法是 <strong>原始快照（SATB，G1 使用）</strong>，记录删除前的引用关系。面试时可能会追问这两个算法的区别。」</p>
 </blockquote>
 <hr>
-<h3 id="第-13-题：G1-收集器的工作原理？"><a href="#第-13-题：G1-收集器的工作原理？" class="headerlink" title="第 13 题：G1 收集器的工作原理？"></a>第 13 题：G1 收集器的工作原理？</h3><h4 id="一句话结论-12"><a href="#一句话结论-12" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-13-题：G1-收集器的工作原理？"><a href="#第-13-题：G1-收集器的工作原理？" class="headerlink" title="第 13 题：G1 收集器的工作原理？"></a>第 13 题：G1 收集器的工作原理？</h3><h4 id="一句话结论-13"><a href="#一句话结论-13" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>G1（Garbage First）&#x3D; 面向服务端应用的收集器，把堆划分为多个大小相等的 Region，优先回收垃圾最多的 Region（Garbage First）。可预测停顿时间。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-12"><a href="#深度解析-12" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>G1 的内存布局（不再物理分代）：</strong></p>
+<h4 id="深度解析-13"><a href="#深度解析-13" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>G1 的内存布局（不再物理分代）：</strong></p>
 <figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">G1</span> 的堆布局：<br>    ┌────┬────┬────┬────┬────┬────┬────┬────┐<br>    │ <span class="hljs-built_in">R1</span> │ <span class="hljs-built_in">R2</span> │ <span class="hljs-built_in">R3</span> │ <span class="hljs-built_in">R4</span> │ <span class="hljs-built_in">R5</span> │ <span class="hljs-built_in">R6</span> │ <span class="hljs-built_in">R7</span> │ <span class="hljs-built_in">R8</span> │ ...<br>    └────┴────┴────┴────┴────┴────┴────┴────┘<br>    <br>    每个 Region（Region）大小相等（<span class="hljs-number">1</span>MB ~ <span class="hljs-number">32</span>MB，必须是 <span class="hljs-number">2</span> 的幂）<br>    每个 Region 可以是：<br>        → Eden Region（新生代）<br>        → Survivor Region（幸存区）<br>        → Old Region（老年代）<br>        → Humongous Region（大对象，占连续多个 Region）<br></code></pre></td></tr></table></figure>
 
 <blockquote>
@@ -891,15 +1003,15 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># G1 重要参数</span><br>-XX:+UseG1GC                    <span class="hljs-comment"># 开启 G1</span><br>-XX:MaxGCPauseMillis=200        <span class="hljs-comment"># 目标停顿时间（默认 200ms）</span><br>-XX:G1HeapRegionSize=4m         <span class="hljs-comment"># 每个 Region 的大小</span><br>-XX:InitiatingHeapOccupancyPercent=45  <span class="hljs-comment"># 触发并发 GC 的堆占用率（默认 45%）</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-12"><a href="#面试加分回答-12" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-13"><a href="#面试加分回答-13" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「G1 的 <strong>Humongous Object（大对象）</strong> 处理是一个细节：大小超过 Region 一半的对象，会被分配到 <strong>Humongous Region</strong>（连续的多个 Region）。大对象会<strong>直接进入老年代</strong>，且 G1 在 Full GC 时才会回收大对象。所以如果应用中<strong>大对象很多</strong>，会导致频繁 Full GC。解决方式：调大 Region 大小（<code>-XX:G1HeapRegionSize</code>），或减少大对象的使用。」</p>
 </blockquote>
 <hr>
-<h3 id="第-14-题：ZGC-的工作原理？"><a href="#第-14-题：ZGC-的工作原理？" class="headerlink" title="第 14 题：ZGC 的工作原理？"></a>第 14 题：ZGC 的工作原理？</h3><h4 id="一句话结论-13"><a href="#一句话结论-13" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>ZGC（Java 11+）&#x3D; 超低延迟的收集器（STW &lt; 10ms），核心是「并发压缩」+「染色指针」+「内存多重映射」。</strong></p>
+<h3 id="第-14-题：ZGC-的工作原理？"><a href="#第-14-题：ZGC-的工作原理？" class="headerlink" title="第 14 题：ZGC 的工作原理？"></a>第 14 题：ZGC 的工作原理？</h3><h4 id="一句话结论-14"><a href="#一句话结论-14" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>ZGC（JDK 11 引入，JDK 15 转正为生产可用，JDK 21 引入分代 ZGC 并成为默认模式）&#x3D; 超低延迟的收集器（STW &lt; 10ms），核心是「并发压缩」+「染色指针」+「内存多重映射」。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-13"><a href="#深度解析-13" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>ZGC 的设计目标：</strong></p>
+<h4 id="深度解析-14"><a href="#深度解析-14" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>ZGC 的设计目标：</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 超低延迟：STW 时间 &lt; 10ms（不管堆多大！）</span><br><span class="hljs-comment">// 2. 停顿时间不随堆大小增加而增加</span><br><span class="hljs-comment">//    → 1GB 的堆，STW &lt; 10ms</span><br><span class="hljs-comment">//    → 1TB 的堆，STW 仍然 &lt; 10ms</span><br><span class="hljs-comment">// 3. 对吞吐量影响 &lt; 15%</span><br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -919,15 +1031,15 @@
 <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-variable">ZGC</span> 的 <span class="hljs-variable">GC</span> 周期：<br>    ┌─────────────────────────────────────────────┐<br>    │ 阶段 <span class="hljs-number">1</span>：初始标记（<span class="hljs-variable">STW</span>，很短 <span class="hljs-operator">&lt;</span> <span class="hljs-number">1</span><span class="hljs-variable">ms</span>）       │<br>    │   → 标记 <span class="hljs-variable">GC</span> <span class="hljs-built_in">Roots</span> 直接关联的对象            │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">2</span>：并发标记（并发）                    │<br>    │   → 遍历对象图，标记存活对象                │<br>    │   → 通过「染色指针」实现并发                │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">3</span>：再标记（<span class="hljs-variable">STW</span>，很短）                │<br>    │   → 处理并发标记期间的引用变化              │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">4</span>：并发转移准备（并发）                │<br>    │   → 选择需要回收的 <span class="hljs-built_in">Region</span>                  │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">5</span>：初始转移（<span class="hljs-variable">STW</span>，很短 <span class="hljs-operator">&lt;</span> <span class="hljs-number">1</span><span class="hljs-variable">ms</span>）       │<br>    │   → 转移 <span class="hljs-variable">GC</span> <span class="hljs-built_in">Roots</span> 直接关联的对象            │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">6</span>：并发转移（并发）                    │<br>    │   → 转移剩余存活对象                        │<br>    │   → 通过「转发指针」实现并发                │<br>    └─────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-13"><a href="#面试加分回答-13" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「ZGC 的 <strong>转发指针（Forwarding Pointer）</strong> 是并发转移的关键：当对象被移动到新地址后，ZGC 在原对象地址放一个「转发指针」，指向新地址。这样，如果有其他线程访问旧地址，会通过转发指针自动跳转到新地址（不需要 STW 修改所有引用）。这个技术让 ZGC 的 STW 时间极低（&lt; 10ms）。另外，ZGC 在 Java 21 已经<strong>正式生产可用</strong>（不再是实验特性），推荐大内存、低延迟场景使用。」</p>
+<h4 id="面试加分回答-14"><a href="#面试加分回答-14" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「ZGC 的 <strong>转发指针（Forwarding Pointer）</strong> 是并发转移的关键：当对象被移动到新地址后，ZGC 在原对象地址放一个「转发指针」，指向新地址。这样，如果有其他线程访问旧地址，会通过转发指针自动跳转到新地址（不需要 STW 修改所有引用）。这个技术让 ZGC 的 STW 时间极低（&lt; 10ms）。另外，ZGC 的版本演进要记清楚：<strong>JDK 11 引入（实验特性）→ JDK 15 转正为生产可用 → JDK 21 引入分代 ZGC（Generational ZGC）并成为默认模式</strong>，推荐大内存、低延迟场景使用。」</p>
 </blockquote>
 <hr>
-<h3 id="第-15-题：三色标记算法？"><a href="#第-15-题：三色标记算法？" class="headerlink" title="第 15 题：三色标记算法？"></a>第 15 题：三色标记算法？</h3><h4 id="一句话结论-14"><a href="#一句话结论-14" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-15-题：三色标记算法？"><a href="#第-15-题：三色标记算法？" class="headerlink" title="第 15 题：三色标记算法？"></a>第 15 题：三色标记算法？</h3><h4 id="一句话结论-15"><a href="#一句话结论-15" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>三色标记 &#x3D; 白色（未标记）、灰色（自身标记，引用未标记）、黑色（自身和引用都已标记）。CMS 使用「增量更新」，G1 使用「原始快照（SATB）」来解决漏标问题。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-14"><a href="#深度解析-14" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>三色标记的定义：</strong></p>
+<h4 id="深度解析-15"><a href="#深度解析-15" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>三色标记的定义：</strong></p>
 <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">白色（<span class="hljs-built_in">White</span>）：<br>    → 尚未被标记的对象（<span class="hljs-variable">GC</span> 开始时，所有对象都是白色）<br><br>灰色（<span class="hljs-built_in">Gray</span>）：<br>    → 已经被标记，但它的引用（字段）还没有被扫描<br><br>黑色（<span class="hljs-built_in">Black</span>）：<br>    → 已经被标记，且它的所有引用也都已经扫描过了<br>    → 黑色对象是「安全」的，不会被回收<br></code></pre></td></tr></table></figure>
 
 <p><strong>标记过程：</strong></p>
@@ -947,15 +1059,15 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 原理：当灰色对象的引用被删除时，记录下这个引用（理解为：默认引用还存在）</span><br><span class="hljs-comment">//   → B.field = null 时，记录下「B 曾经引用过 C」</span><br><span class="hljs-comment">//   → 继续把 C 标记为灰色（即使实际已经没有引用）</span><br><br><span class="hljs-comment">// 优点：不需要重新扫描黑色对象</span><br><span class="hljs-comment">// 缺点：可能「过度标记」（实际上已经不再引用的对象，仍然被标记为存活）</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-14"><a href="#面试加分回答-14" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-15"><a href="#面试加分回答-15" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「三色标记是并发 GC 的基础理论。面试时可能会追问：<strong>为什么 G1 用 SATB 而不是增量更新？</strong> 答案是：SATB 的<strong>写屏障（Write Barrier）开销更小</strong>（只需要记录删除的引用，不需要重新扫描黑色对象）。另外，ZGC 使用的是<strong>染色指针</strong>，不需要写屏障，所以 ZGC 的性能更好（对应用吞吐量的影响 &lt; 15%，而 G1 可能影响 20%~30%）。」</p>
 </blockquote>
 <hr>
-<h3 id="第-16-题：记忆集（Remembered-Set）和卡表（Card-Table）？"><a href="#第-16-题：记忆集（Remembered-Set）和卡表（Card-Table）？" class="headerlink" title="第 16 题：记忆集（Remembered Set）和卡表（Card Table）？"></a>第 16 题：记忆集（Remembered Set）和卡表（Card Table）？</h3><h4 id="一句话结论-15"><a href="#一句话结论-15" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-16-题：记忆集（Remembered-Set）和卡表（Card-Table）？"><a href="#第-16-题：记忆集（Remembered-Set）和卡表（Card-Table）？" class="headerlink" title="第 16 题：记忆集（Remembered Set）和卡表（Card Table）？"></a>第 16 题：记忆集（Remembered Set）和卡表（Card Table）？</h3><h4 id="一句话结论-16"><a href="#一句话结论-16" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>记忆集（RSet）&#x3D; 记录「其他 Region&#x2F;代 中哪些对象引用了本 Region&#x2F;代 的对象」。卡表（Card Table）&#x3D; 记忆集的实现方式，把内存划分为卡页，标记哪些卡页中有跨代&#x2F;跨 Region 引用。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-15"><a href="#深度解析-15" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>问题背景（分代收集）：</strong></p>
+<h4 id="深度解析-16"><a href="#深度解析-16" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>问题背景（分代收集）：</strong></p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell">Young <span class="hljs-built_in">GC</span> 需要扫描：<br>    → 新生代（必然要扫描）<br>    → 老年代（因为老年代对象可能引用新生代对象！）<br>    <br>问题：如果每次 Young <span class="hljs-built_in">GC</span> 都扫描整个老年代 → 太慢了！<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -973,17 +1085,61 @@
 <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-built_in">Region</span> <span class="hljs-variable">A</span> 的 <span class="hljs-variable">RSet</span>：<br>    → 记录了：<span class="hljs-built_in">Region</span> <span class="hljs-variable">B</span>、<span class="hljs-built_in">Region</span> <span class="hljs-built_in">C</span>、<span class="hljs-built_in">Region</span> <span class="hljs-built_in">D</span> 中有对象引用了 <span class="hljs-built_in">Region</span> <span class="hljs-variable">A</span> 的对象<br>    <br><span class="hljs-variable">GC</span> 时：<br>    → 只需要扫描 <span class="hljs-built_in">Region</span> <span class="hljs-variable">B</span>、<span class="hljs-built_in">C</span>、<span class="hljs-built_in">D</span> 中的对应对象<br>    → 不需要扫描整个堆！<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-15"><a href="#面试加分回答-15" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-16"><a href="#面试加分回答-16" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「卡表和 RSet 是 JVM 性能优化的的重要技术。面试时可能会追问：<strong>写屏障（Write Barrier）是什么？</strong> 答案是：当程序修改对象引用时（如 <code>obj.field = newObj</code>），JVM 会执行一段额外的代码（写屏障），用来<strong>标记卡表</strong>（如果是跨代引用）或<strong>更新 RSet</strong>（如果是跨 Region 引用）。写屏障会有一定的性能开销，但比起扫描整个老年代&#x2F;整个堆，这个开销是值得的。」</p>
 </blockquote>
 <hr>
-<h3 id="第-17-题：并发标记的问题（漏标、误标）？"><a href="#第-17-题：并发标记的问题（漏标、误标）？" class="headerlink" title="第 17 题：并发标记的问题（漏标、误标）？"></a>第 17 题：并发标记的问题（漏标、误标）？</h3><h4 id="一句话结论-16"><a href="#一句话结论-16" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-17-题：并发标记的问题（漏标、误标）？"><a href="#第-17-题：并发标记的问题（漏标、误标）？" class="headerlink" title="第 17 题：并发标记的问题（漏标、误标）？"></a>第 17 题：并发标记的问题（漏标、误标）？</h3><h4 id="一句话结论-17"><a href="#一句话结论-17" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>并发标记的核心问题：1. 漏标（对象应该存活但被回收了，严重！）→ 用增量更新或 SATB 解决；2. 误标（对象应该被回收但仍然存活，无害）→ 下次 GC 会回收。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-16"><a href="#深度解析-16" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>漏标（Missing Mark，严重问题）：</strong></p>
+<h4 id="深度解析-17"><a href="#深度解析-17" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>漏标（Missing Mark，严重问题）：</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 场景：</span><br>初始状态（并发标记期间）：<br>    A（已标记，黑色） → B（已标记，灰色） → C（未标记，白色）<br>    <br>用户线程执行：<br>    A.x = C;      <span class="hljs-comment">// 黑色对象 A 引用了白色对象 C</span><br>    B.x = <span class="hljs-literal">null</span>;    <span class="hljs-comment">// 灰色对象 B 取消对 C 的引用</span><br>    <br>标记线程继续：<br>    → B 扫描完成，标记为黑色<br>    → C 仍然是白色（A 是黑色，不会扫描 A 的引用）<br>    → C 被回收！<br>    <br>问题：A.x 仍然引用着 C，但 C 已经被回收了 → 程序崩溃！<br></code></pre></td></tr></table></figure>
 
+<p><strong>漏标是一个”时序问题”，光看文字很难建立直觉，下面用三个时间点拆解同一个场景：</strong></p>
+<pre><code class=" mermaid">flowchart TB
+    subgraph t0[&quot;t0：并发标记开始前&quot;]
+        direction LR
+        A0[&quot;A（黑色）\n已标记，已扫描完引用&quot;] --&gt;|引用| B0[&quot;B（灰色）\n已标记，引用还没扫描完&quot;]
+        B0 --&gt;|引用| C0[&quot;C（白色）\n尚未标记&quot;]
+    end
+
+    subgraph t1[&quot;t1：并发标记进行中，用户线程并发修改引用&quot;]
+        direction LR
+        A1[&quot;A（黑色）&quot;] --&gt;|&quot;新增引用 A.field = C&quot;| C1[&quot;C（白色）&quot;]
+        B1[&quot;B（灰色）&quot;] -.-&gt;|&quot;引用被置空 B.field = null&quot;| C1
+    end
+
+    subgraph t2[&quot;t2：标记结束，若没有屏障介入&quot;]
+        direction LR
+        A2[&quot;A（黑色，不会再被扫描）&quot;] --&gt;|&quot;引用仍指向 C&quot;| C2[&quot;C（依然是白色 = 未标记）&quot;]
+        C2 --&gt;|&quot;清除阶段&quot;| GONE[&quot;❌ 被当作垃圾误回收\n但 A 仍在引用 C → 悬挂指针 / 崩溃&quot;]
+    end
+
+    t0 --&gt; t1 --&gt; t2
+</code></pre>
+
+<p><strong>漏标发生需要同时满足两个条件（缺一不可）：</strong></p>
+<ul>
+<li><strong>条件 1</strong>：至少有一个<strong>黑色对象</strong>新增了对<strong>白色对象</strong>的引用（如上图 A.field &#x3D; C）</li>
+<li><strong>条件 2</strong>：至少有一个<strong>灰色对象</strong>删除了对该<strong>白色对象</strong>的引用（如上图 B.field &#x3D; null）</li>
+</ul>
+<p><strong>两种解决方案，分别”堵”住上面两个条件之一：</strong></p>
+<pre><code class=" mermaid">flowchart LR
+    subgraph SATB[&quot;SATB（原始快照，G1 使用）&quot;]
+        direction TB
+        S1[&quot;拦住条件 2：\n灰色对象删除引用时&quot;] --&gt; S2[&quot;写前屏障记录\n被删除的旧引用&quot;] --&gt; S3[&quot;旧引用指向的对象\n本轮当作存活处理\n（哪怕已经不可达）&quot;]
+    end
+
+    subgraph INC[&quot;增量更新（CMS 使用）&quot;]
+        direction TB
+        I1[&quot;拦住条件 1：\n黑色对象新增引用时&quot;] --&gt; I2[&quot;写后屏障把该\n黑色对象重新标记为灰色&quot;] --&gt; I3[&quot;灰色对象会被\n重新扫描一遍引用&quot;]
+    end
+</code></pre>
+
+<blockquote>
+<p>一句话区分：<strong>SATB 记录的是”删除前”的旧引用</strong>（保证开始并发标记那一刻的对象图快照里可达的对象都不会被漏掉）；<strong>增量更新记录的是”新增”的引用</strong>（让黑色对象重新变灰、重新扫描）。</p>
+</blockquote>
 <p><strong>解决方案（见第 15 题）：</strong></p>
 <ul>
 <li><strong>增量更新（CMS）</strong>：黑色对象新增引用时，重新标记为灰色</li>
@@ -997,43 +1153,55 @@
 <p><strong>误标是无害的</strong>，因为垃圾只是「晚一点回收」，不会导致程序错误。<br><strong>漏标是有害的</strong>，会导致程序访问已回收的对象（悬挂指针），造成崩溃或数据错误。</p>
 </blockquote>
 <hr>
-<h4 id="面试加分回答-16"><a href="#面试加分回答-16" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-17"><a href="#面试加分回答-17" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「并发标记的<strong>漏标问题</strong>是设计并发 GC 时的核心挑战。CMS 和 G1 用了不同的方案：CMS 用<strong>增量更新</strong>（记录新增的引用），G1 用<strong>SATB</strong>（记录删除的引用）。这两种方案各有优劣：增量更新可能导致<strong>重复扫描</strong>（黑色对象被重新标记为灰色，需要重新扫描）；SATB 可能导致<strong>过度标记</strong>（实际上已经不再引用的对象，仍然被标记为存活）。G1 选择 SATB 的原因是：SATB 的写屏障开销更小，更适合<strong>大堆</strong>场景。」</p>
 </blockquote>
 <hr>
 <h2 id="四、类加载机制（18-21）"><a href="#四、类加载机制（18-21）" class="headerlink" title="四、类加载机制（18-21）"></a>四、类加载机制（18-21）</h2><hr>
-<h3 id="第-18-题：类加载的过程？"><a href="#第-18-题：类加载的过程？" class="headerlink" title="第 18 题：类加载的过程？"></a>第 18 题：类加载的过程？</h3><h4 id="一句话结论-17"><a href="#一句话结论-17" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-18-题：类加载的过程？"><a href="#第-18-题：类加载的过程？" class="headerlink" title="第 18 题：类加载的过程？"></a>第 18 题：类加载的过程？</h3><h4 id="一句话结论-18"><a href="#一句话结论-18" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>类加载 &#x3D; 加载（Loading）→ 验证（Verification）→ 准备（Preparation）→ 解析（Resolution）→ 初始化（Initialization）。其中验证、准备、解析合称「连接（Linking）」。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-17"><a href="#深度解析-17" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>完整流程：</strong></p>
+<h4 id="深度解析-18"><a href="#深度解析-18" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>完整流程：</strong></p>
 <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs gradle">类加载的全过程（<span class="hljs-number">5</span> 个阶段）：<br>    ┌─────────────────────────────────────────────┐<br>    │ 阶段 <span class="hljs-number">1</span>：加载（Loading）                    │<br>    │   → 通过类的全限定名获取 .<span class="hljs-keyword">class</span> 文件的二进制│<br>    │     字节流                                 │<br>    │   → 将字节流所代表的静态存储结构转化为方法│<br>    │     区的运行时数据结构                      │<br>    │   → 在内存中生成一个 java.lang.<span class="hljs-keyword">Class</span> 对象 │<br>    │     （作为方法区这个类的各种数据的访问入口）│<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">2</span>：验证（Verification）                │<br>    │   → 确保 .<span class="hljs-keyword">class</span> 文件的字节流符合 JVM 规范│<br>    │   → 防止恶意字节码攻击                    │<br>    │   → 包括：文件格式验证、元数据验证、字节码│<br>    │     验证、符号引用验证                      │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">3</span>：准备（Preparation）                │<br>    │   → 为类变量（<span class="hljs-keyword">static</span> 变量）分配内存      │<br>    │   → 并设置初始值（零值）                  │<br>    │   → 注意：不是代码中赋的值！              │<br>    │   → 如：<span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> a = <span class="hljs-number">10</span>;              │<br>    │         准备阶段：a = <span class="hljs-number">0</span>（零值）           │<br>    │         初始化阶段：a = <span class="hljs-number">10</span>（代码中赋的值）│<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">4</span>：解析（Resolution）                 │<br>    │   → 将常量池中的符号引用替换为直接引用    │<br>    │   → 符号引用：<span class="hljs-string">&quot;java.lang.Object&quot;</span>           │<br>    │   → 直接引用：指向对象的指针              │<br>    ├─────────────────────────────────────────────┤<br>    │ 阶段 <span class="hljs-number">5</span>：初始化（Initialization）            │<br>    │   → 执行类构造器 &lt;clinit&gt;() 方法          │<br>    │   → &lt;clinit&gt;() 方法是编译器自动收集类中  │<br>    │     所有类变量的赋值动作和静态代码块合并  │<br>    │     产生的                                 │<br>    │   → 什么时候执行初始化？                  │<br>    │         * 遇到 <span class="hljs-keyword">new</span>、getstatic、putstatic、│<br>    │           invokestatic 指令时             │<br>    │         * 使用反射调用时                   │<br>    │         * 初始化子类时，父类要先初始化     │<br>    │         * 主类（main 方法所在类）          │<br>    └─────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<p><strong>用图直观看”准备”和”初始化”两个阶段对同一个静态变量做了什么（这是高频考点，一定要记住 <code>a</code> 经历了两次赋值）：</strong></p>
+<pre><code class=" mermaid">flowchart LR
+    L[&quot;① 加载 Loading\n读取 .class 字节流\n生成 Class 对象&quot;] --&gt; V[&quot;② 验证 Verification\n校验字节码合法性&quot;]
+    V --&gt; P[&quot;③ 准备 Preparation\nstatic int a = 10;\n此时 a = 0（赋零值）\n（static final 常量除外，直接赋真值）&quot;]
+    P --&gt; R[&quot;④ 解析 Resolution\n符号引用 → 直接引用\n如 \&quot;java.lang.Object\&quot; → 指针&quot;]
+    R --&gt; I[&quot;⑤ 初始化 Initialization\n执行 &lt;clinit&gt;() 方法\n此时 a = 10（赋代码中的真实值）&quot;]
+</code></pre>
 
 <hr>
 <p><strong>准备阶段 vs 初始化阶段（重要！）：</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br>    <span class="hljs-comment">// 准备阶段：value = 0（零值）</span><br>    <span class="hljs-comment">// 初始化阶段：value = 10（代码中赋的值）</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span> <span class="hljs-number">10</span>;<br>    <br>    <span class="hljs-comment">// 准备阶段：obj = null（引用类型的零值是 null）</span><br>    <span class="hljs-comment">// 初始化阶段：obj = new Object()</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>    <br>    <span class="hljs-comment">// 特殊情况：常量（static final）在准备阶段就赋值！</span><br>    <span class="hljs-comment">// 准备阶段：CONST = 20（因为常量在编译时就已经确定了）</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">CONST</span> <span class="hljs-operator">=</span> <span class="hljs-number">20</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-17"><a href="#面试加分回答-17" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-18"><a href="#面试加分回答-18" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「类加载的<strong>初始化阶段</strong>是面试高频追问点。需要注意：<strong><clinit>() 方法是线程安全的</strong>（JVM 会保证多线程环境下，只有一个线程能执行 <clinit>() 方法，其他线程会阻塞等待）。这也是<strong>静态内部类实现单例模式</strong>的线程安全保证：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Holder</span> &#123;<br>        <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Singleton</span> <span class="hljs-variable">INSTANCE</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>();<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> Holder.INSTANCE;  <span class="hljs-comment">// 首次调用时，触发 Holder 类的初始化</span><br>    &#125;<br>&#125;<br>```」<br><br>---<br><br>### 第 <span class="hljs-number">19</span> 题：双亲委派模型？<br><br>#### 一句话结论<br><br>**双亲委派模型 = 类加载器收到加载请求时，先委托父加载器加载，父加载器无法加载时才自己加载。防止核心类被篡改（如自定义 java.lang.Object）。**<br><br>---<br><br>#### 深度解析<br><br>**类加载器的层次结构：**<br><br></code></pre></td></tr></table></figure><p>双亲委派模型（Parent Delegation Model）：<br>    ┌─────────────────────────────────────────────┐<br>    │ 启动类加载器（Bootstrap ClassLoader）        │<br>    │   → C++ 实现，是 JVM 的一部分             │<br>    │   → 加载 <JAVA_HOME>&#x2F;jre&#x2F;lib 下的核心类库│<br>    │   → 如：java.lang.<em>、java.util.</em>          │<br>    └─────────────────┬───────────────────────────┘<br>                      │ 子加载器<br>    ┌─────────────────┴───────────────────────────┐<br>    │ 扩展类加载器（Extension ClassLoader，Java 8）│<br>    │   → Java 实现，sun.misc.Launcher$ExtClassLoader│<br>    │   → 加载 <JAVA_HOME>&#x2F;jre&#x2F;lib&#x2F;ext 下的扩展类│<br>    └─────────────────┬───────────────────────────┘<br>                      │ 子加载器<br>    ┌─────────────────┴───────────────────────────┐<br>    │ 应用程序类加载器（Application ClassLoader）    │<br>    │   → Java 实现，sun.misc.Launcher$AppClassLoader│<br>    │   → 加载用户类路径（ClassPath）上的类        │<br>    │   → 是程序中默认的类加载器                  │<br>    └─────────────────┬───────────────────────────┘<br>                      │ 子加载器<br>    ┌─────────────────┴───────────────────────────┐<br>    │ 自定义类加载器（Custom ClassLoader）          │<br>    │   → 继承 java.lang.ClassLoader              │<br>    │   → 可以重写 loadClass() 或 findClass()     │<br>    └─────────────────────────────────────────────┘</p>
 </blockquote>
-<figure class="highlight wren"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs wren"><br><span class="hljs-operator">-</span><span class="hljs-operator">-</span><span class="hljs-operator">-</span><br><br><span class="hljs-operator">*</span><span class="hljs-operator">*</span>双亲委派的工作流程：<span class="hljs-operator">*</span><span class="hljs-operator">*</span><br><br>```<span class="hljs-variable">java</span><br><span class="hljs-comment">// 伪代码：</span><br><span class="hljs-variable">protected</span> <span class="hljs-title class_">Class</span><span class="hljs-operator">&lt;</span>?<span class="hljs-operator">&gt;</span> <span class="hljs-title function_">loadClass</span>(<span class="hljs-params">String</span> <span class="hljs-params">name</span>, <span class="hljs-params">boolean</span> <span class="hljs-params">resolve</span>) &#123;<br>    <span class="hljs-comment">// 1. 检查类是否已经被加载</span><br>    <span class="hljs-title class_">Class</span><span class="hljs-operator">&lt;</span>?<span class="hljs-operator">&gt;</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> <span class="hljs-title function_">findLoadedClass</span>(<span class="hljs-variable">name</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-variable">c</span> <span class="hljs-operator">==</span> <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-title function_">try</span> &#123;<br>            <span class="hljs-keyword">if</span> (<span class="hljs-variable">parent</span> <span class="hljs-operator">!=</span> <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-comment">// 2. 先委托父加载器加载</span><br>                <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> <span class="hljs-variable">parent</span>.<span class="hljs-property">loadClass</span>(<span class="hljs-variable">name</span>, <span class="hljs-literal">false</span>);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// 3. 如果没有父加载器，使用启动类加载器</span><br>                <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> <span class="hljs-title function_">findBootstrapClassOrNull</span>(<span class="hljs-variable">name</span>);<br>            &#125;<br>        &#125; <span class="hljs-title function_">catch</span> (<span class="hljs-title class_">ClassNotFoundException</span> <span class="hljs-variable">e</span>) &#123;<br>            <span class="hljs-comment">// 父加载器无法加载</span><br>        &#125;<br>        <br>        <span class="hljs-keyword">if</span> (<span class="hljs-variable">c</span> <span class="hljs-operator">==</span> <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">// 4. 父加载器无法加载，自己加载</span><br>            <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> <span class="hljs-title function_">findClass</span>(<span class="hljs-variable">name</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-variable">c</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs lsl"><br>**用图区分「向上委托」（实线，先问父加载器）和「向下回退」（虚线，父加载器失败后自己加载）这两条路径，并标出打破双亲委派的例外路径：**<br><br>```mermaid<br>flowchart TB<br>    Boot[<span class="hljs-string">&quot;启动类加载器<span class="hljs-subst">\n</span>Bootstrap ClassLoader&quot;</span>]<br>    Ext[<span class="hljs-string">&quot;扩展/平台类加载器<span class="hljs-subst">\n</span>Extension / Platform ClassLoader&quot;</span>]<br>    App[<span class="hljs-string">&quot;应用程序类加载器<span class="hljs-subst">\n</span>Application ClassLoader&quot;</span>]<br>    Custom[<span class="hljs-string">&quot;自定义类加载器<span class="hljs-subst">\n</span>Custom ClassLoader&quot;</span>]<br><br>    Custom -- <span class="hljs-string">&quot;① 向上委托：先问父加载器&quot;</span> --&gt; App<br>    App -- <span class="hljs-string">&quot;① 向上委托：先问父加载器&quot;</span> --&gt; Ext<br>    Ext -- <span class="hljs-string">&quot;① 向上委托：先问父加载器&quot;</span> --&gt; Boot<br><br>    Boot -. <span class="hljs-string">&quot;② 父加载器加载失败<span class="hljs-subst">\n</span>→ 向下回退，自己加载&quot;</span> .-&gt; Ext<br>    Ext -. <span class="hljs-string">&quot;② 父加载器加载失败<span class="hljs-subst">\n</span>→ 向下回退，自己加载&quot;</span> .-&gt; App<br>    App -. <span class="hljs-string">&quot;② 父加载器加载失败<span class="hljs-subst">\n</span>→ 向下回退，自己加载&quot;</span> .-&gt; Custom<br><br>    SPI[<span class="hljs-string">&quot;线程上下文类加载器<span class="hljs-subst">\n</span>Thread Context ClassLoader<span class="hljs-subst">\n</span>（SPI，如 JDBC Driver）&quot;</span>]<br>    Tomcat[<span class="hljs-string">&quot;Web 容器自定义加载器<span class="hljs-subst">\n</span>（如 Tomcat WebAppClassLoader）<span class="hljs-subst">\n</span>每个 Web 应用独立、优先自己加载&quot;</span>]<br><br>    App -. <span class="hljs-string">&quot;打破双亲委派例外路径&quot;</span> .-&gt; SPI<br>    Custom -. <span class="hljs-string">&quot;打破双亲委派例外路径<span class="hljs-subst">\n</span>不先问父加载器&quot;</span> .-&gt; Tomcat<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>双亲委派的工作流程：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 伪代码：</span><br><span class="hljs-keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="hljs-type">boolean</span> resolve) &#123;<br>    <span class="hljs-comment">// 1. 检查类是否已经被加载</span><br>    Class&lt;?&gt; c = findLoadedClass(name);<br>    <span class="hljs-keyword">if</span> (c == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">if</span> (parent != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-comment">// 2. 先委托父加载器加载</span><br>                c = parent.loadClass(name, <span class="hljs-literal">false</span>);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// 3. 如果没有父加载器，使用启动类加载器</span><br>                c = findBootstrapClassOrNull(name);<br>            &#125;<br>        &#125; <span class="hljs-keyword">catch</span> (ClassNotFoundException e) &#123;<br>            <span class="hljs-comment">// 父加载器无法加载</span><br>        &#125;<br>        <br>        <span class="hljs-keyword">if</span> (c == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">// 4. 父加载器无法加载，自己加载</span><br>            c = findClass(name);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> c;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
 <p><strong>双亲委派的好处：</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 好处 1：防止核心类被篡改</span><br><span class="hljs-comment">//   如果自定义一个 java.lang.Object 类：</span><br><span class="hljs-comment">//   → 双亲委派会先委托父加载器（启动类加载器）加载</span><br><span class="hljs-comment">//   → 启动类加载器已经加载了真正的 java.lang.Object</span><br><span class="hljs-comment">//   → 自定义的 java.lang.Object 不会被加载！</span><br><span class="hljs-comment">//   → 防止核心 API 被篡改</span><br><br><span class="hljs-comment">// 好处 2：避免类的重复加载</span><br><span class="hljs-comment">//   → 父加载器加载过的类，子加载器不需要再加载</span><br><span class="hljs-comment">//   → 保证类的唯一性</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-18"><a href="#面试加分回答-18" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-19"><a href="#面试加分回答-19" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「双亲委派模型不是强制约束，而是一个<strong>推荐的最佳实践</strong>。Java 中有些场景就打破了双亲委派：1. <strong>SPI（Service Provider Interface）</strong>：如 <code>java.sql.Driver</code>（JDBC 驱动），核心接口由启动类加载器加载，但实现类由应用程序类加载器加载，启动类加载器无法加载应用程序类路径上的类 → 使用<strong>线程上下文类加载器（Thread Context ClassLoader）</strong> 来解决；2. <strong>OSGi</strong>：为了实现模块化，每个模块有自己的类加载器，不再遵循双亲委派。」</p>
 </blockquote>
 <hr>
-<h3 id="第-20-题：如何打破双亲委派模型？"><a href="#第-20-题：如何打破双亲委派模型？" class="headerlink" title="第 20 题：如何打破双亲委派模型？"></a>第 20 题：如何打破双亲委派模型？</h3><h4 id="一句话结论-18"><a href="#一句话结论-18" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-20-题：如何打破双亲委派模型？"><a href="#第-20-题：如何打破双亲委派模型？" class="headerlink" title="第 20 题：如何打破双亲委派模型？"></a>第 20 题：如何打破双亲委派模型？</h3><h4 id="一句话结论-19"><a href="#一句话结论-19" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>打破双亲委派 &#x3D; 重写 <code>loadClass()</code> 方法（不推荐）或重写 <code>findClass()</code> 方法（推荐）。典型场景：Tomcat 的 WebAppClassLoader、SPI 机制、OSGi。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-18"><a href="#深度解析-18" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>方式 ①：重写 <code>loadClass()</code>（不推荐，会破坏双亲委派）</strong></p>
+<h4 id="深度解析-19"><a href="#深度解析-19" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>方式 ①：重写 <code>loadClass()</code>（不推荐，会破坏双亲委派）</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomClassLoader</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">ClassLoader</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Class&lt;?&gt; loadClass(String name) <span class="hljs-keyword">throws</span> ClassNotFoundException &#123;<br>        <span class="hljs-comment">// 不委托父加载器，自己先加载</span><br>        Class&lt;?&gt; c = findClass(name);<br>        <span class="hljs-keyword">if</span> (c == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">// 自己加载不了，再委托父加载器</span><br>            c = <span class="hljs-built_in">super</span>.loadClass(name);<br>        &#125;<br>        <span class="hljs-keyword">return</span> c;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
@@ -1048,15 +1216,15 @@
 <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-variable">Tomcat</span> 的类加载器结构（打破了双亲委派）：<br>    ┌─────────────────────────────────────────────┐<br>    │ 启动类加载器（<span class="hljs-variable">Bootstrap</span>）                   │<br>    ├─────────────────────────────────────────────┤<br>    │ 扩展类加载器（<span class="hljs-built_in">Extension</span>）                    │<br>    ├─────────────────────────────────────────────┤<br>    │ 应用程序类加载器（<span class="hljs-built_in">Application</span>）               │<br>    ├─────────────────────────────────────────────┤<br>    │  <span class="hljs-variable">WebAppClassLoader</span>（每个 <span class="hljs-variable">Web</span> 应用一个）      │<br>    │   → 先加载自己 <span class="hljs-variable">Web</span> 应用下的类              │<br>    │   → 加载不了，再委托父加载器              │<br>    │   → 这样，不同 <span class="hljs-variable">Web</span> 应用可以使用不同版本的  │<br>    │     依赖库（如 <span class="hljs-variable">Spring</span>）                     │<br>    └─────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-19"><a href="#面试加分回答-19" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-20"><a href="#面试加分回答-20" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「打破双亲委派的经典场景是 <strong>Tomcat 的 WebAppClassLoader</strong>。如果每个 Web 应用都遵循双亲委派，那么所有 Web 应用都只能使用<strong>同一个版本的库</strong>（在 ClassPath 上的版本）。但实际情况是：不同 Web 应用可能依赖同一个库的不同版本。Tomcat 的解决方案是：每个 Web 应用有自己的 WebAppClassLoader，<strong>先加载自己应用下的类，加载不了再委托父加载器</strong>，从而打破了双亲委派。」</p>
 </blockquote>
 <hr>
-<h3 id="第-21-题：自定义类加载器的场景？"><a href="#第-21-题：自定义类加载器的场景？" class="headerlink" title="第 21 题：自定义类加载器的场景？"></a>第 21 题：自定义类加载器的场景？</h3><h4 id="一句话结论-19"><a href="#一句话结论-19" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-21-题：自定义类加载器的场景？"><a href="#第-21-题：自定义类加载器的场景？" class="headerlink" title="第 21 题：自定义类加载器的场景？"></a>第 21 题：自定义类加载器的场景？</h3><h4 id="一句话结论-20"><a href="#一句话结论-20" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>自定义类加载器的典型场景：热部署（Hot Swap）、模块化（如 OSGi）、字节码加密&#x2F;解密、从非标准位置加载类（如网络、数据库）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-19"><a href="#深度解析-19" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>场景 ①：热部署（Hot Swap）</strong></p>
+<h4 id="深度解析-20"><a href="#深度解析-20" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>场景 ①：热部署（Hot Swap）</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 场景：线上服务不重启，更新代码</span><br><span class="hljs-comment">// 实现：自定义类加载器，每次热部署时，创建一个新的类加载器加载新的类</span><br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HotSwapClassLoader</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">ClassLoader</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> Class&lt;?&gt; findClass(String name) &#123;<br>        <span class="hljs-comment">// 从指定路径读取最新的 .class 文件</span><br>        <span class="hljs-type">byte</span>[] classData = loadClassData(name);<br>        <span class="hljs-keyword">return</span> defineClass(name, classData, <span class="hljs-number">0</span>, classData.length);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 使用：</span><br><span class="hljs-comment">// 1. 第一次加载</span><br><span class="hljs-type">ClassLoader</span> <span class="hljs-variable">loader1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HotSwapClassLoader</span>();<br>Class&lt;?&gt; clazz1 = loader1.loadClass(<span class="hljs-string">&quot;com.example.MyService&quot;</span>);<br><span class="hljs-type">Object</span> <span class="hljs-variable">service1</span> <span class="hljs-operator">=</span> clazz1.newInstance();<br><br><span class="hljs-comment">// 2. 代码更新后，创建新的类加载器（旧的类加载器可以被 GC 回收）</span><br><span class="hljs-type">ClassLoader</span> <span class="hljs-variable">loader2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HotSwapClassLoader</span>();<br>Class&lt;?&gt; clazz2 = loader2.loadClass(<span class="hljs-string">&quot;com.example.MyService&quot;</span>);<br><span class="hljs-type">Object</span> <span class="hljs-variable">service2</span> <span class="hljs-operator">=</span> clazz2.newInstance();<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1068,32 +1236,32 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 场景：Java Card、Java Web Start（已废弃）等</span><br><span class="hljs-comment">// 实现：从网络下载 .class 字节码，或者在数据库中存储字节码</span><br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">NetworkClassLoader</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">ClassLoader</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> Class&lt;?&gt; findClass(String name) &#123;<br>        <span class="hljs-comment">// 从网络下载 .class 文件的字节码</span><br>        <span class="hljs-type">byte</span>[] classData = downloadClassData(name);<br>        <span class="hljs-keyword">return</span> defineClass(name, classData, <span class="hljs-number">0</span>, classData.length);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-20"><a href="#面试加分回答-20" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-21"><a href="#面试加分回答-21" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「自定义类加载器的一个重要细节：<strong>同一个类，被不同的类加载器加载，JVM 会认为它们是不同的类</strong>。即使类的全限定名相同，如果类加载器不同，它们也是不兼容的（赋值时会报 <code>ClassCastException</code>）。这也是为什么在<strong>热部署</strong>时，需要创建一个新的类加载器来加载新版本的类，而不能直接使用旧的类加载器。」</p>
 </blockquote>
 <hr>
 <h2 id="五、JVM-调优（22-26）"><a href="#五、JVM-调优（22-26）" class="headerlink" title="五、JVM 调优（22-26）"></a>五、JVM 调优（22-26）</h2><hr>
-<h3 id="第-22-题：常见的-JVM-调优参数？"><a href="#第-22-题：常见的-JVM-调优参数？" class="headerlink" title="第 22 题：常见的 JVM 调优参数？"></a>第 22 题：常见的 JVM 调优参数？</h3><h4 id="一句话结论-20"><a href="#一句话结论-20" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-22-题：常见的-JVM-调优参数？"><a href="#第-22-题：常见的-JVM-调优参数？" class="headerlink" title="第 22 题：常见的 JVM 调优参数？"></a>第 22 题：常见的 JVM 调优参数？</h3><h4 id="一句话结论-21"><a href="#一句话结论-21" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><em><em>JVM 调优参数 &#x3D; 堆内存设置（-Xms、-Xmx）+ 垃圾收集器选择（-XX:+UseG1GC 等）+ gc 日志（-Xlog:gc</em>）+ 溢出时转储（-XX:+HeapDumpOnOutOfMemoryError）。</em>*</p>
 </blockquote>
 <hr>
-<h4 id="深度解析-20"><a href="#深度解析-20" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>① 堆内存设置（最常用）：</strong></p>
+<h4 id="深度解析-21"><a href="#深度解析-21" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>① 堆内存设置（最常用）：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 初始堆大小（建议和 -Xmx 设置成一样，避免动态扩容）</span><br>-Xms4g<br><br><span class="hljs-comment"># 最大堆大小</span><br>-Xmx4g<br><br><span class="hljs-comment"># 新生代大小（推荐设置为堆的 1/3 ~ 1/2）</span><br>-Xmn2g<br><br><span class="hljs-comment"># 元空间初始大小</span><br>-XX:MetaspaceSize=128m<br><br><span class="hljs-comment"># 元空间最大大小</span><br>-XX:MaxMetaspaceSize=512m<br><br><span class="hljs-comment"># 直接内存大小</span><br>-XX:MaxDirectMemorySize=1g<br></code></pre></td></tr></table></figure>
 
 <hr>
 <p><strong>② 垃圾收集器选择：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Serial 收集器（客户端模式）</span><br>-XX:+UseSerialGC<br><br><span class="hljs-comment"># Parallel 收集器（吞吐量优先，Java 8 默认）</span><br>-XX:+UseParallelGC<br><br><span class="hljs-comment"># CMS 收集器（低延迟，Java 8 常用，Java 14 移除）</span><br>-XX:+UseConcMarkSweepGC<br><br><span class="hljs-comment"># G1 收集器（Java 8+ 推荐，Java 9+ 默认）</span><br>-XX:+UseG1GC<br>-XX:MaxGCPauseMillis=200     <span class="hljs-comment"># 目标停顿时间</span><br><br><span class="hljs-comment"># ZGC（Java 11+，超低延迟）</span><br>-XX:+UseZGC<br><br><span class="hljs-comment"># Shenandoah（Java 12+，类似 ZGC）</span><br>-XX:+UseShenandoahGC<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Serial 收集器（客户端模式）</span><br>-XX:+UseSerialGC<br><br><span class="hljs-comment"># Parallel 收集器（吞吐量优先，Java 8 默认）</span><br>-XX:+UseParallelGC<br><br><span class="hljs-comment"># CMS 收集器（低延迟，Java 8 常用，Java 14 移除）</span><br>-XX:+UseConcMarkSweepGC<br><br><span class="hljs-comment"># G1 收集器（Java 8+ 推荐，Java 9+ 默认）</span><br>-XX:+UseG1GC<br>-XX:MaxGCPauseMillis=200     <span class="hljs-comment"># 目标停顿时间</span><br><br><span class="hljs-comment"># ZGC（JDK 11 引入，JDK 15+ 生产可用，超低延迟）</span><br>-XX:+UseZGC<br><br><span class="hljs-comment"># Shenandoah（Java 12+，类似 ZGC）</span><br>-XX:+UseShenandoahGC<br></code></pre></td></tr></table></figure>
 
 <hr>
 <p><strong>③ GC 日志（调优必备）：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Java 8 及之前：</span><br>-Xlog:gc*                    <span class="hljs-comment"># Java 9+ 的写法</span><br>-verbose:gc<br>-XX:+PrintGCDetails<br>-XX:+PrintGCDateStamps<br>-Xloggc:/path/to/gc.log<br><br><span class="hljs-comment"># Java 9+：</span><br>-Xlog:gc*:file=/path/to/gc.log:<span class="hljs-keyword">time</span>,<span class="hljs-built_in">uptime</span>,level,tags<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Java 8 及之前：</span><br>-verbose:gc<br>-XX:+PrintGCDetails<br>-XX:+PrintGCDateStamps<br>-Xloggc:/path/to/gc.log<br><br><span class="hljs-comment"># Java 9+（统一日志框架，JEP 158）：</span><br>-Xlog:gc*<br>-Xlog:gc*:file=/path/to/gc.log:<span class="hljs-keyword">time</span>,<span class="hljs-built_in">uptime</span>,level,tags<br></code></pre></td></tr></table></figure>
 
 <hr>
 <p><strong>④ OOM 时转储堆内存（生产环境必备）：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># OOM 时自动转储堆内存到文件</span><br>-XX:+HeapDumpOnOutOfMemoryError<br><br><span class="hljs-comment"># 转储文件路径</span><br>-XX:HeapDumpPath=/path/to/heapdump.hprof<br><br><span class="hljs-comment"># OOM 时执行脚本（如发送告警）</span><br>-XX:OnOutOfMemoryError=<span class="hljs-string">&quot;sh /path/to/alert.sh&quot;</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-21"><a href="#面试加分回答-21" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-22"><a href="#面试加分回答-22" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「JVM 调优参数的设置需要结合<strong>应用场景</strong>。面试时可能会问：<strong>你们的生产环境用的什么参数？</strong> 典型回答（Java 8 + G1）：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs ruby">-<span class="hljs-title class_">Xms4g</span> -<span class="hljs-title class_">Xmx4g</span><br>-<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:+UseG1GC</span><br>-<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:MaxGCPauseMillis=</span><span class="hljs-number">200</span><br>-<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:+PrintGCDetails</span><br>-<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:+PrintGCDateStamps</span><br>-<span class="hljs-title class_">Xloggc</span><span class="hljs-symbol">:/var/log/app/gc</span>.log<br>-<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:+HeapDumpOnOutOfMemoryError</span><br>-<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:HeapDumpPath=/var/log/app/heapdump</span>.hprof<br><span class="hljs-string">``</span><span class="hljs-string">`」</span><br><span class="hljs-string"></span><br><span class="hljs-string">---</span><br><span class="hljs-string"></span><br><span class="hljs-string">### 第 23 题：如何排查 CPU 飙高问题？</span><br><span class="hljs-string"></span><br><span class="hljs-string">#### 一句话结论</span><br><span class="hljs-string"></span><br><span class="hljs-string">**CPU 飙高排查流程 = `</span>top<span class="hljs-string">` 找 CPU 高的进程 → `</span>top -<span class="hljs-title class_">Hp</span> pid<span class="hljs-string">` 找 CPU 高的线程 → `</span>jstack pid |<span class="hljs-params"> grep 线程 ID（16 进制）` 找对应的线程栈 → 分析线程栈找出问题代码。**</span><br><span class="hljs-params"></span><br><span class="hljs-params">---</span><br><span class="hljs-params"></span><br><span class="hljs-params">#### 深度解析</span><br><span class="hljs-params"></span><br><span class="hljs-params">**完整排查步骤：**</span><br><span class="hljs-params"></span><br><span class="hljs-params">```bash</span><br><span class="hljs-params"># 步骤 1：找出 CPU 使用率高的 Java 进程</span><br><span class="hljs-params">top</span><br><span class="hljs-params"># 找到 PID（如：12345）</span><br><span class="hljs-params"></span><br><span class="hljs-params"># 步骤 2：找出该进程中 CPU 使用率高的线程</span><br><span class="hljs-params">top -Hp 12345</span><br><span class="hljs-params"># 找到线程 ID（如：12367）</span><br><span class="hljs-params"></span><br><span class="hljs-params"># 步骤 3：把线程 ID 转换成 16 进制（因为 jstack 中的线程 ID 是 16 进制）</span><br><span class="hljs-params">printf &quot;%x\n&quot; 12367</span><br><span class="hljs-params"># 输出：304f</span><br><span class="hljs-params"></span><br><span class="hljs-params"># 步骤 4：用 jstack 导出线程栈，并查找该线程</span><br><span class="hljs-params">jstack 12345 </span>| grep -A <span class="hljs-number">20</span> <span class="hljs-string">&quot;304f&quot;</span><br><span class="hljs-comment"># -A 20：显示匹配行之后的 20 行（完整的线程栈）</span><br><br><span class="hljs-comment"># 步骤 5：分析线程栈</span><br><span class="hljs-comment">#   → 如果是自己的业务代码：检查是否有死循环、密集计算</span><br><span class="hljs-comment">#   → 如果是 GC 线程：可能是频繁 GC（内存不足、内存泄漏）</span><br><span class="hljs-comment">#   → 如果是某个第三方库的代码：检查使用方式是否正确</span><br></code></pre></td></tr></table></figure></blockquote>
 <hr>
@@ -1101,17 +1269,17 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 原因 1：死循环</span><br><span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>    <span class="hljs-comment">// 没有 sleep、没有 break → CPU 100%</span><br>&#125;<br><br><span class="hljs-comment">// 原因 2：密集计算（如：大循环、复杂算法）</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100_000_000</span>; i++) &#123;<br>    Math.sqrt(i);  <span class="hljs-comment">// 密集计算 → CPU 高</span><br>&#125;<br><br><span class="hljs-comment">// 原因 3：频繁 GC</span><br><span class="hljs-comment">//   → 内存不足，频繁 Full GC → GC 线程 CPU 高</span><br><span class="hljs-comment">//   → 解决：调大堆内存、检查内存泄漏</span><br><br><span class="hljs-comment">// 原因 4：自旋锁</span><br><span class="hljs-comment">//   → 无限 CAS 自旋 → CPU 高</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-22"><a href="#面试加分回答-22" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-23"><a href="#面试加分回答-23" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「CPU 飙高问题排查是 Java 工程师的必备技能。除了 <code>top + jstack</code>，还可以用 <strong>arthas</strong>（阿里开源的 Java 诊断工具）来排查：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 启动 arthas</span><br>java -jar arthas-boot.jar<br><span class="hljs-comment"># 查看 CPU 最高的线程</span><br>thread -n 5<br><span class="hljs-comment"># 反编译有问题的类</span><br>jad com.example.MyService<br><span class="hljs-comment"># 查看方法执行耗时</span><br>trace com.example.MyService methodName<br></code></pre></td></tr></table></figure>
 <p>arthas 比 jstack 更强大，生产环境必备！」</p>
 </blockquote>
 <hr>
-<h3 id="第-24-题：如何排查内存泄漏？"><a href="#第-24-题：如何排查内存泄漏？" class="headerlink" title="第 24 题：如何排查内存泄漏？"></a>第 24 题：如何排查内存泄漏？</h3><h4 id="一句话结论-21"><a href="#一句话结论-21" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-24-题：如何排查内存泄漏？"><a href="#第-24-题：如何排查内存泄漏？" class="headerlink" title="第 24 题：如何排查内存泄漏？"></a>第 24 题：如何排查内存泄漏？</h3><h4 id="一句话结论-22"><a href="#一句话结论-22" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>内存泄漏排查 &#x3D; <code>jmap -histo:live pid</code> 查看堆中对象分布 → 找到异常多的类 → <code>jmap -dump:format=b,file=heap.hprof pid</code> 导出堆转储 → 用 MAT（Memory Analyzer Tool）分析泄漏点。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-21"><a href="#深度解析-21" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>完整排查步骤：</strong></p>
+<h4 id="深度解析-22"><a href="#深度解析-22" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>完整排查步骤：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 步骤 1：查看堆中对象分布（不需要 dump，快速查看）</span><br>jmap -histo:live 12345 | <span class="hljs-built_in">head</span> -50<br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># num     #instances    #bytes  class name</span><br><span class="hljs-comment"># ----------------------------------------------</span><br><span class="hljs-comment">#   1:       1000000    80000000  java.lang.String</span><br><span class="hljs-comment">#   2:        500000    40000000  java.util.HashMap$Node</span><br><span class="hljs-comment">#   3:        200000    16000000  com.example.MyObject  ← 异常！</span><br><br><span class="hljs-comment"># 如果某个自定义类的实例数异常多 → 可能内存泄漏</span><br><br><span class="hljs-comment"># 步骤 2：导出堆转储文件（用于详细分析）</span><br>jmap -dump:format=b,file=heap.hprof 12345<br><br><span class="hljs-comment"># 步骤 3：用 MAT 打开 heap.hprof</span><br><span class="hljs-comment">#   → MAT 会自动分析泄漏点（Leak Suspects Report）</span><br><span class="hljs-comment">#   → 查看 Dominator Tree（支配树），找到占用内存最多的对象</span><br><span class="hljs-comment">#   → 查看 GC Roots Path，找到为什么这些对象无法被回收</span><br><br><span class="hljs-comment"># 步骤 4：根据 MAT 的分析结果，修复代码</span><br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1119,15 +1287,15 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 场景 1：集合中的对象没有及时清理</span><br><span class="hljs-keyword">static</span> List&lt;Object&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">add</span><span class="hljs-params">(Object obj)</span> &#123;<br>    list.add(obj);  <span class="hljs-comment">// 对象不断加入，但从不移除 → 内存泄漏</span><br>&#125;<br><br><span class="hljs-comment">// 场景 2：监听器没有注销</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyListener</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">SomeListener</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MyListener</span><span class="hljs-params">()</span> &#123;<br>        SomeEventSource.addListener(<span class="hljs-built_in">this</span>);  <span class="hljs-comment">// 注册监听器</span><br>        <span class="hljs-comment">// 但忘记注销！→ 监听器对象无法被回收</span><br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 场景 3：ThreadLocal 没有 remove()</span><br><span class="hljs-comment">//   → 见第 9 题的 ThreadLocal 内存泄漏问题</span><br><br><span class="hljs-comment">// 场景 4：连接没有关闭（数据库连接、网络连接）</span><br><span class="hljs-comment">//   → 应该用 try-with-resources 或 finally 中关闭</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-23"><a href="#面试加分回答-23" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-24"><a href="#面试加分回答-24" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「内存泄漏的排查，除了 <code>jmap + MAT</code>，也可以用 <strong>arthas</strong> 的 <code>dashboard</code> 命令实时监控堆内存使用情况，用 <code>heapdump</code> 命令在线导出堆转储。另外，<strong>Java 8 的 <code>jmap</code> 命令在执行时会导致 JVM 停顿（STW）</strong>，如果堆很大（如 32GB），停顿时间可能很长（几十秒）。解决方式：使用 <strong>G1 的 <code>-XX:+G1HeapDumpBeforeFullGC</code></strong>，在 Full GC 之前自动 dump 堆，不需要手动执行 <code>jmap</code>。」</p>
 </blockquote>
 <hr>
-<h3 id="第-25-题：JVM-调优的思路？"><a href="#第-25-题：JVM-调优的思路？" class="headerlink" title="第 25 题：JVM 调优的思路？"></a>第 25 题：JVM 调优的思路？</h3><h4 id="一句话结论-22"><a href="#一句话结论-22" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-25-题：JVM-调优的思路？"><a href="#第-25-题：JVM-调优的思路？" class="headerlink" title="第 25 题：JVM 调优的思路？"></a>第 25 题：JVM 调优的思路？</h3><h4 id="一句话结论-23"><a href="#一句话结论-23" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>JVM 调优 &#x3D; 明确目标（吞吐量 vs 延迟） → 收集 GC 日志 → 分析 GC 日志（用 GCViewer 或 GCEasy） → 调整参数 → 验证效果。没有银弹，需要结合应用场景。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-22"><a href="#深度解析-22" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>调优步骤：</strong></p>
+<h4 id="深度解析-23"><a href="#深度解析-23" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>调优步骤：</strong></p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs powershell">JVM 调优的完整流程：<br>    ┌─────────────────────────────────────────────┐<br>    │ 步骤 <span class="hljs-number">1</span>：明确调优目标                        │<br>    │   → 吞吐量优先？（后台计算、批处理）        │<br>    │   → 延迟优先？（Web 服务、API 服务）       │<br>    ├─────────────────────────────────────────────┤<br>    │ 步骤 <span class="hljs-number">2</span>：收集 <span class="hljs-built_in">GC</span> 日志                       │<br>    │   → <span class="hljs-literal">-Xlog</span>:<span class="hljs-built_in">gc</span>* 开启 <span class="hljs-built_in">GC</span> 日志               │<br>    │   → 让程序运行一段时间（如 <span class="hljs-number">24</span> 小时）      │<br>    ├─────────────────────────────────────────────┤<br>    │ 步骤 <span class="hljs-number">3</span>：分析 <span class="hljs-built_in">GC</span> 日志                       │<br>    │   → 使用工具：GCViewer、GCEasy（在线）    │<br>    │   → 关注指标：                            │<br>    │       * <span class="hljs-built_in">GC</span> 总耗时                          │<br>    │       * 单次 <span class="hljs-built_in">GC</span> 最大停顿时间               │<br>    │       * <span class="hljs-built_in">GC</span> 频率                            │<br>    │       * 堆内存使用情况                     │<br>    ├─────────────────────────────────────────────┤<br>    │ 步骤 <span class="hljs-number">4</span>：调整参数                           │<br>    │   → 如果 Full <span class="hljs-built_in">GC</span> 频繁：调大堆内存          │<br>    │   → 如果 Young <span class="hljs-built_in">GC</span> 频繁：调大新生代        │<br>    │   → 如果停顿时间长：换低延迟收集器（G1、ZGC）│<br>    ├─────────────────────────────────────────────┤<br>    │ 步骤 <span class="hljs-number">5</span>：验证效果                           │<br>    │   → 重新收集 <span class="hljs-built_in">GC</span> 日志                       │<br>    │   → 对比调优前后的指标                     │<br>    └─────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1135,15 +1303,15 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 案例 1：Full GC 频繁</span><br><span class="hljs-comment"># 现象：应用程序运行一段时间后，频繁 Full GC</span><br><span class="hljs-comment"># 原因：堆内存不足，或内存泄漏</span><br><span class="hljs-comment"># 解决：</span><br>-Xms8g -Xmx8g               <span class="hljs-comment"># 调大堆内存</span><br>-XX:+HeapDumpOnOutOfMemoryError  <span class="hljs-comment"># 如果发生 OOM，dump 堆用于分析</span><br><br><span class="hljs-comment"># 案例 2：Young GC 频繁，但单次停顿短</span><br><span class="hljs-comment"># 现象：Young GC 每秒一次，但每次只停顿 10ms</span><br><span class="hljs-comment"># 原因：新生代太小，对象很快填满 Eden 区</span><br><span class="hljs-comment"># 解决：</span><br>-Xmn4g                        <span class="hljs-comment"># 调大新生代（从 1g → 4g）</span><br><br><span class="hljs-comment"># 案例 3：GC 停顿时间长（如 &gt; 500ms）</span><br><span class="hljs-comment"># 现象：GC 日志中，[Full GC ...] 停顿时间很长</span><br><span class="hljs-comment"># 原因：使用了 Serial Old 或 Parallel Old（标记-整理算法，STW 时间长）</span><br><span class="hljs-comment"># 解决：换低延迟收集器</span><br>-XX:+UseG1GC<br>-XX:MaxGCPauseMillis=200<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-24"><a href="#面试加分回答-24" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-25"><a href="#面试加分回答-25" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「JVM 调优的<strong>最重要原则</strong>：<strong>不要过早优化</strong>（Premature Optimization）。在调优之前，先确认：1. 是否是代码问题（如内存泄漏、死循环）；2. 是否是数据库问题（如慢查询）。很多所谓的「JVM 调优」，实际上应该是「代码优化」或「数据库优化」。另外，<strong>GCEasy</strong>（<a target="_blank" rel="noopener" href="https://gceasy.io/%EF%BC%89%E6%98%AF%E5%9C%A8%E7%BA%BF%E7%9A%84">https://gceasy.io/）是在线的</a> GC 日志分析工具，上传 GC 日志后，会自动生成分析报告（包括 GC 频率、停顿时间、内存使用情况等），非常方便。」</p>
 </blockquote>
 <hr>
-<h3 id="第-26-题：逃逸分析？"><a href="#第-26-题：逃逸分析？" class="headerlink" title="第 26 题：逃逸分析？"></a>第 26 题：逃逸分析？</h3><h4 id="一句话结论-23"><a href="#一句话结论-23" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-26-题：逃逸分析？"><a href="#第-26-题：逃逸分析？" class="headerlink" title="第 26 题：逃逸分析？"></a>第 26 题：逃逸分析？</h3><h4 id="一句话结论-24"><a href="#一句话结论-24" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>逃逸分析（Escape Analysis）&#x3D; JVM 的一种分析技术，判断对象是否「逃逸」出方法（即是否被其他线程或外部方法访问）。如果没有逃逸，JVM 可以做标量替换、栈上分配、锁消除等优化。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-23"><a href="#深度解析-23" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>什么是「逃逸」？</strong></p>
+<h4 id="深度解析-24"><a href="#深度解析-24" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>什么是「逃逸」？</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 对象逃逸了（不能被优化）：</span><br><span class="hljs-keyword">public</span> Object <span class="hljs-title function_">escape1</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>    <span class="hljs-keyword">return</span> obj;  <span class="hljs-comment">// obj 被返回 → 逃逸出方法</span><br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">escape2</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>    someMethod(obj);  <span class="hljs-comment">// obj 被传入其他方法 → 可能逃逸</span><br>&#125;<br><br><span class="hljs-comment">// 对象没有逃逸（可以被优化）：</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">noEscape</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>    System.out.println(obj);  <span class="hljs-comment">// obj 只在方法内部使用</span><br>    <span class="hljs-comment">// 方法结束后，obj 可以被安全回收</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1160,16 +1328,16 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 开启锁消除后（-XX:+EliminateLocks，默认开启）：</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">method</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>()) &#123;  <span class="hljs-comment">// 锁对象没有逃逸 → 可以消除锁！</span><br>        <span class="hljs-comment">// 同步块</span><br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// JVM 会发现：锁对象（new Object()）没有逃逸出方法</span><br><span class="hljs-comment">// → 其他线程无法访问这个锁</span><br><span class="hljs-comment">// → 同步是没有意义的 → 消除锁（不需要加锁）</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-25"><a href="#面试加分回答-25" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-26"><a href="#面试加分回答-26" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「逃逸分析是 JVM 的<strong>很致优化</strong>之一。但需要注意的是：<strong>逃逸分析本身是有成本的</strong>（需要分析对象是否逃逸）。对于<strong>短方法</strong>（如 getter&#x2F;setter），逃逸分析的成本可能高于优化带来的收益。另外，<strong>标量替换</strong> 和 <strong>栈上分配</strong> 在 HotSpot 中并没有完全实现（主要是标量替换），因为实现栈上分配需要修改垃圾收集器，成本很高。面试时可能会追问：<strong>Java 中的对象一定在堆上分配吗？</strong> 答案是：理论上可以栈上分配，但 HotSpot 目前主要使用标量替换。」</p>
 </blockquote>
 <hr>
 <h2 id="六、实战问题（27-30）"><a href="#六、实战问题（27-30）" class="headerlink" title="六、实战问题（27-30）"></a>六、实战问题（27-30）</h2><hr>
-<h3 id="第-27-题：方法区、栈、堆分别存什么？"><a href="#第-27-题：方法区、栈、堆分别存什么？" class="headerlink" title="第 27 题：方法区、栈、堆分别存什么？"></a>第 27 题：方法区、栈、堆分别存什么？</h3><h4 id="一句话结论-24"><a href="#一句话结论-24" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-27-题：方法区、栈、堆分别存什么？"><a href="#第-27-题：方法区、栈、堆分别存什么？" class="headerlink" title="第 27 题：方法区、栈、堆分别存什么？"></a>第 27 题：方法区、栈、堆分别存什么？</h3><h4 id="一句话结论-25"><a href="#一句话结论-25" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>方法区（元空间）存：类元数据、常量、静态变量、JIT 缓存；栈存：局部变量、方法参数、引用（对象地址）；堆存：对象实例、数组。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-24"><a href="#深度解析-24" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>各区域存储内容的详细对比：</strong></p>
+<h4 id="深度解析-25"><a href="#深度解析-25" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>各区域存储内容的详细对比：</strong></p>
 <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs gradle">┌─────────────────────────────────────────────────────────────┐<br>│ 区域          │ 存储的内容                                   │<br>├─────────────────────────────────────────────────────────────┤<br>│ 元空间        │ <span class="hljs-number">1</span>. 类的元数据（<span class="hljs-keyword">Class</span> 对象、字段、方法）     │<br>│ (Metaspace)  │ <span class="hljs-number">2</span>. 运行时常量池（<span class="hljs-keyword">Runtime</span> Constant Pool）    │<br>│               │ <span class="hljs-number">3</span>. 静态变量（<span class="hljs-keyword">static</span> 变量）                 │<br>│               │ <span class="hljs-number">4</span>. 常量（<span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span>）                    │<br>│               │ <span class="hljs-number">5</span>. JIT 编译后的本地代码缓存                │<br>├─────────────────────────────────────────────────────────────┤<br>│ 虚拟机栈       │ <span class="hljs-number">1</span>. 局部变量（基本类型的值、引用类型的地址）│<br>│ (Stack)      │ <span class="hljs-number">2</span>. 方法参数                                 │<br>│               │ <span class="hljs-number">3</span>. 操作数栈                                 │<br>│               │ <span class="hljs-number">4</span>. 动态链接                                 │<br>│               │ <span class="hljs-number">5</span>. 方法返回地址                             │<br>├─────────────────────────────────────────────────────────────┤<br>│ 堆            │ <span class="hljs-number">1</span>. 对象实例（<span class="hljs-keyword">new</span> 出来的对象）               │<br>│ (Heap)       │ <span class="hljs-number">2</span>. 数组                                     │<br>│               │ <span class="hljs-number">3</span>. 字符串常量池（Java <span class="hljs-number">7</span>+ 移到堆中）        │<br>└─────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1177,15 +1345,15 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-variable">staticVar</span> <span class="hljs-operator">=</span> <span class="hljs-number">10</span>;   <span class="hljs-comment">// staticVar → 元空间</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">CONST</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hello&quot;</span>;  <span class="hljs-comment">// CONST → 元空间（运行时常量池）</span><br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">method</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">localVar</span> <span class="hljs-operator">=</span> <span class="hljs-number">20</span>;              <span class="hljs-comment">// localVar → 栈（局部变量表）</span><br>        <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();       <span class="hljs-comment">// obj（引用）→ 栈</span><br>                                          <span class="hljs-comment">// new Object()（对象实例）→ 堆</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;world&quot;</span>;             <span class="hljs-comment">// s（引用）→ 栈</span><br>                                          <span class="hljs-comment">// &quot;world&quot;（字符串常量）→ 堆（字符串常量池）</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-26"><a href="#面试加分回答-26" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「方法区（元空间）中存储的内容，面试时经常追问：<strong>字符串常量池在哪里？</strong> 答案是：Java 7 之前在永久代（方法区），Java 7 开始移到堆中。<strong>静态变量在哪里？</strong> 答案是：Java 7 之前在永久代，Java 7 开始移到堆中（Class 对象在元空间，但静态变量引用的对象在堆中）。这些细节反映了 JVM 内存模型的演进。」</p>
+<h4 id="面试加分回答-27"><a href="#面试加分回答-27" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「方法区（元空间）中存储的内容，面试时经常追问：<strong>字符串常量池在哪里？</strong> 答案是：Java 7 之前在永久代（方法区），Java 7 开始移到堆中。<strong>静态变量在哪里？</strong> 这里要小心，很多人会答错：<strong>静态变量本身（变量槽）从未搬迁过</strong>，一直随 Class 元数据存放在方法区&#x2F;元空间，与字符串常量池的迁移无关；只有当静态变量是<strong>引用类型</strong>时，它指向的<strong>对象实例</strong>才存放在堆中——这一点在任何版本都成立，不要和”字符串常量池 Java 7 后移到堆”混为一谈。这些细节反映了 JVM 内存模型的演进。」</p>
 </blockquote>
 <hr>
-<h3 id="第-28-题：synchronized-的锁升级过程？"><a href="#第-28-题：synchronized-的锁升级过程？" class="headerlink" title="第 28 题：synchronized 的锁升级过程？"></a>第 28 题：synchronized 的锁升级过程？</h3><h4 id="一句话结论-25"><a href="#一句话结论-25" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-28-题：synchronized-的锁升级过程？"><a href="#第-28-题：synchronized-的锁升级过程？" class="headerlink" title="第 28 题：synchronized 的锁升级过程？"></a>第 28 题：synchronized 的锁升级过程？</h3><h4 id="一句话结论-26"><a href="#一句话结论-26" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>synchronized 的锁升级 &#x3D; 无锁 → 偏向锁（单线程访问）→ 轻量级锁（多线程交替访问）→ 重量级锁（多线程同时访问）。锁升级后不能降级（但偏向锁可以撤销）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-25"><a href="#深度解析-25" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>锁的状态（存储在对象头的 Mark Word 中）：</strong></p>
+<h4 id="深度解析-26"><a href="#深度解析-26" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>锁的状态（存储在对象头的 Mark Word 中）：</strong></p>
 <figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">synchronized 的锁升级过程：<br>    ┌─────────────────────────────────────────────┐<br>    │ 状态 <span class="hljs-number">1</span>：无锁（<span class="hljs-keyword">No</span> <span class="hljs-keyword">Lock</span>）                    │<br>    │   → 对象没有被任何线程锁定                  │<br>    ├─────────────────────────────────────────────┤<br>    │ 状态 <span class="hljs-number">2</span>：偏向锁（Biased <span class="hljs-keyword">Lock</span>）               │<br>    │   → 假设：只有一个线程会访问同步块          │<br>    │   → 原理：在对象头中记录「偏向线程 ID」    │<br>    │   → 这个线程再次进入同步块时，不需要加锁！│<br>    │   → 只需要检查对象头中的线程 ID 是否是自己│<br>    │   → 性能接近无锁！                          │<br>    ├─────────────────────────────────────────────┤<br>    │ 状态 <span class="hljs-number">3</span>：轻量级锁（Lightweight <span class="hljs-keyword">Lock</span>）         │<br>    │   → 假设：多线程交替访问同步块（没有竞争）  │<br>    │   → 原理：在栈帧中创建「锁记录」（<span class="hljs-keyword">Lock</span> <span class="hljs-type">Record</span>）│<br>    │   → 用 CAS 把对象头的 Mark Word 替换为指向│<br>    │     锁记录的指针                            │<br>    │   → 如果 CAS 成功 → 获取轻量级锁          │<br>    │   → 如果 CAS 失败（有竞争）→ 升级为重量级锁│<br>    ├─────────────────────────────────────────────┤<br>    │ 状态 <span class="hljs-number">4</span>：重量级锁（Heavyweight <span class="hljs-keyword">Lock</span>）         │<br>    │   → 假设：多线程同时访问同步块（有竞争）    │<br>    │   → 原理：使用操作系统的 Mutex <span class="hljs-keyword">Lock</span>（互斥锁）│<br>    │   → 获取锁失败的线程会被阻塞（挂起）        │<br>    │   → 唤醒阻塞的线程需要上下文切换（成本高）  │<br>    └─────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1197,15 +1365,15 @@
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs markdown">性能排序（从快到慢）：<br><span class="hljs-code">    无锁 &gt; 偏向锁 &gt; 轻量级锁 &gt; 重量级锁</span><br><span class="hljs-code"></span><br>偏向锁：<br><span class="hljs-code">    → 只有一个线程访问同步块时，性能接近无锁</span><br><span class="hljs-code">    → 适合单线程场景</span><br><span class="hljs-code"></span><br>轻量级锁：<br><span class="hljs-code">    → 多线程交替访问时，用 CAS 竞争锁（自旋锁）</span><br><span class="hljs-code">    → 适合线程交替执行同步块的场景</span><br><span class="hljs-code"></span><br>重量级锁：<br><span class="hljs-code">    → 多线程同时竞争锁时，线程会被阻塞（挂起）</span><br><span class="hljs-code">    → 上下文切换成本高，性能最差</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-27"><a href="#面试加分回答-27" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-28"><a href="#面试加分回答-28" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「锁升级是 JVM 对 <code>synchronized</code> 的重要优化（Java 6 引入）。面试时可能会追问：<strong>为什么有了 synchronized，还需要 java.util.concurrent.locks.Lock（如 ReentrantLock）？</strong> 答案是：1. <code>ReentrantLock</code> 可以尝试获取锁（<code>tryLock()</code>），而 <code>synchronized</code> 会一直阻塞；2. <code>ReentrantLock</code> 可以中断（<code>lockInterruptibly()</code>），而 <code>synchronized</code> 不支持中断；3. <code>ReentrantLock</code> 可以绑定多个条件变量（<code>Condition</code>），而 <code>synchronized</code> 只有一个等待队列。但 Java 6 之后，<code>synchronized</code> 的性能已经和 <code>ReentrantLock</code> 接近，优先使用 <code>synchronized</code>（更简洁）。」</p>
 </blockquote>
 <hr>
-<h3 id="第-29-题：JVM-有哪些命令行工具？"><a href="#第-29-题：JVM-有哪些命令行工具？" class="headerlink" title="第 29 题：JVM 有哪些命令行工具？"></a>第 29 题：JVM 有哪些命令行工具？</h3><h4 id="一句话结论-26"><a href="#一句话结论-26" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-29-题：JVM-有哪些命令行工具？"><a href="#第-29-题：JVM-有哪些命令行工具？" class="headerlink" title="第 29 题：JVM 有哪些命令行工具？"></a>第 29 题：JVM 有哪些命令行工具？</h3><h4 id="一句话结论-27"><a href="#一句话结论-27" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>JVM 命令行工具 &#x3D; jps（查看 Java 进程）、jstat（查看 GC 情况）、jmap（查看堆内存）、jstack（查看线程栈）、jinfo（查看 JVM 参数）、jcmd（全能工具）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-26"><a href="#深度解析-26" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>常用工具详解：</strong></p>
+<h4 id="深度解析-27"><a href="#深度解析-27" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>常用工具详解：</strong></p>
 <p><strong>① jps（JVM Process Status）：查看 Java 进程</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">jps<br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># 12345 MyApp</span><br><span class="hljs-comment"># 23456 Jps</span><br><br>jps -v   <span class="hljs-comment"># 显示 JVM 参数</span><br>jps -l   <span class="hljs-comment"># 显示全限定类名</span><br></code></pre></td></tr></table></figure>
 
@@ -1230,15 +1398,15 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 Java 进程</span><br>jcmd -l<br><br><span class="hljs-comment"># 查看 JVM 参数</span><br>jcmd 12345 VM.flags<br><br><span class="hljs-comment"># 导出堆转储</span><br>jcmd 12345 GC.heap_dump /path/to/heap.hprof<br><br><span class="hljs-comment"># 执行 GC</span><br>jcmd 12345 GC.run_finalization<br>jcmd 12345 GC.run<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-28"><a href="#面试加分回答-28" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-29"><a href="#面试加分回答-29" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「JVM 命令行工具是排查问题的基础。但生产环境中，这些工具可能<strong>无法正常使用</strong>（如目标进程没有响应）。这时可以用 <strong>jcmd</strong> 或 <strong>JMX</strong>（Java Management Extensions）。另外，<strong>arthas</strong>（阿里开源）是比这些命令行工具更强大的诊断工具，支持在线反编译、查看方法执行耗时、监控 JVM 状态等，生产环境必备！」</p>
 </blockquote>
 <hr>
-<h3 id="第-30-题：线上-OOM-如何快速止损？"><a href="#第-30-题：线上-OOM-如何快速止损？" class="headerlink" title="第 30 题：线上 OOM 如何快速止损？"></a>第 30 题：线上 OOM 如何快速止损？</h3><h4 id="一句话结论-27"><a href="#一句话结论-27" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-30-题：线上-OOM-如何快速止损？"><a href="#第-30-题：线上-OOM-如何快速止损？" class="headerlink" title="第 30 题：线上 OOM 如何快速止损？"></a>第 30 题：线上 OOM 如何快速止损？</h3><h4 id="一句话结论-28"><a href="#一句话结论-28" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>线上 OOM 快速止损 &#x3D; 保留现场（dump 堆、保存 GC 日志）→ 快速重启（恢复服务）→ 分析现场（用 MAT 分析 heap dump）→ 修复代码 → 验证。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-27"><a href="#深度解析-27" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>完整止损流程：</strong></p>
+<h4 id="深度解析-28"><a href="#深度解析-28" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>完整止损流程：</strong></p>
 <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs stata">线上 OOM 快速止损：<br>    ┌─────────────────────────────────────────────┐<br>    │ 步骤 1：保留现场（最重要！）                │<br>    │   → 如果配置了 -XX:+HeapDumpOnOutOfMemory │<br>    │     <span class="hljs-keyword">Error</span>，OOM 时会自动 dump 堆            │<br>    │   → 如果没有配置，手动 dump：              │<br>    │       jmap -dump:<span class="hljs-keyword">format</span>=b,<span class="hljs-keyword">file</span>=heap.hprof │<br>    │       pid                                 │<br>    │   → 保存 GC 日志、应用日志                │<br>    ├─────────────────────────────────────────────┤<br>    │ 步骤 2：快速重启（恢复服务）                │<br>    │   → 如果是集群部署，先重启一台机器        │<br>    │   → 观察重启后是否正常                    │<br>    │   → 如果正常，滚动重启所有机器            │<br>    ├─────────────────────────────────────────────┤<br>    │ 步骤 3：分析现场                           │<br>    │   → 用 <span class="hljs-keyword">MAT</span> 打开 heap.hprof                │<br>    │   → 查看 Leak Suspects <span class="hljs-keyword">Report</span>             │<br>    │   → 找到内存泄漏的点                      │<br>    ├─────────────────────────────────────────────┤<br>    │ 步骤 4：修复代码                           │<br>    │   → 根据 <span class="hljs-keyword">MAT</span> 的分析结果，修复代码          │<br>    │   → 如：及时清理集合、关闭连接、           │<br>    │         ThreadLocal.remove() 等             │<br>    ├─────────────────────────────────────────────┤<br>    │ 步骤 5：验证                               │<br>    │   → 本地复现问题                          │<br>    │   → 修复后，压测验证                      │<br>    │   → 发布上线                              │<br>    └─────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1246,7 +1414,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 原因 1：堆内存不足（java.lang.OutOfMemoryError: Java heap space）</span><br><span class="hljs-comment">//   → 解决：调大堆内存（-Xmx），或修复内存泄漏</span><br><br><span class="hljs-comment">// 原因 2：元空间不足（java.lang.OutOfMemoryError: Metaspace）</span><br><span class="hljs-comment">//   → 解决：调大元空间（-XX:MaxMetaspaceSize），或检查是否加载了太多类</span><br><br><span class="hljs-comment">// 原因 3：直接内存不足（java.lang.OutOfMemoryError: Direct buffer memory）</span><br><span class="hljs-comment">//   → 解决：调大直接内存（-XX:MaxDirectMemorySize），或及时释放 DirectByteBuffer</span><br><br><span class="hljs-comment">// 原因 4：GC 开销过大（java.lang.OutOfMemoryError: GC overhead limit exceeded）</span><br><span class="hljs-comment">//   → 解决：检查内存泄漏，或调大堆内存</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-29"><a href="#面试加分回答-29" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-30"><a href="#面试加分回答-30" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「线上 OOM 的<strong>最重要原则</strong>：<strong>先恢复服务，再排查问题</strong>。很多新手会先在线上排查问题（如用 jmap dump 堆），但这可能导致服务长时间不可用。正确的做法：1. 如果配置了自动 dump，直接重启；2. 如果没有自动 dump，在重启之前手动 dump（如果 dump 时间不影响服务可用性的话）；3. 重启后，在测试环境复现问题，用 dump 文件分析。另外，<strong>-XX:+HeapDumpOnOutOfMemoryError 一定要开启</strong>（性能影响极小），这是线上排查 OOM 的唯一依据！」</p>
 </blockquote>
 <hr>
@@ -1328,14 +1496,14 @@
 <p>“HotSpot 用直接指针访问，主要是性能考虑（少一次寻址）。但很多人不知道：这个设计导致 GC 做标记时，除了标记堆里的对象，还要扫描栈里的 reference——如果栈很深（如几千层递归），GC  roots 扫描会非常慢。这也是为什么大栈（如 -Xss 设太大）会影响 GC 性能。”</p>
 </blockquote>
 <hr>
-<h3 id="第-34-题：ZGC-有哪些改进？和-G1-比有什么优势？"><a href="#第-34-题：ZGC-有哪些改进？和-G1-比有什么优势？" class="headerlink" title="第 34 题：ZGC 有哪些改进？和 G1 比有什么优势？"></a>第 34 题：ZGC 有哪些改进？和 G1 比有什么优势？</h3><p><strong>一句话总结</strong>：ZGC 是 JDK 11+ 的低延迟 GC（STW &lt; 10ms），核心改进是<strong>染色指针 + 内存多重映射 + 读屏障</strong>，停顿时间和堆大小基本无关。</p>
+<h3 id="第-34-题：ZGC-有哪些改进？和-G1-比有什么优势？"><a href="#第-34-题：ZGC-有哪些改进？和-G1-比有什么优势？" class="headerlink" title="第 34 题：ZGC 有哪些改进？和 G1 比有什么优势？"></a>第 34 题：ZGC 有哪些改进？和 G1 比有什么优势？</h3><p><strong>一句话总结</strong>：ZGC 于 JDK 11 引入（实验特性），JDK 15 转正为生产可用，JDK 21 引入分代 ZGC 并成为默认模式；核心改进是<strong>染色指针 + 内存多重映射 + 读屏障</strong>，停顿时间和堆大小基本无关。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
 <tr>
 <th>对比项</th>
 <th>G1</th>
-<th>ZGC（JDK 17+ 生产可用）</th>
+<th>ZGC（JDK 11 实验，JDK 15+ 生产可用）</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -1361,7 +1529,7 @@
 <tr>
 <td>JDK 版本</td>
 <td>JDK 7+</td>
-<td>JDK 17+（生产推荐）</td>
+<td>JDK 11 引入，JDK 15+ 生产推荐，JDK 21 起默认分代 ZGC</td>
 </tr>
 </tbody></table>
 <p><strong>ZGC 的三大黑科技</strong>：</p>
@@ -1435,7 +1603,10 @@
 <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">为什么需要 <span class="hljs-keyword">JIT？</span><br><span class="hljs-keyword"></span>  → 解释执行：<span class="hljs-keyword">JVM </span>读字节码 → 逐条解释成机器码 → 慢<br>  → <span class="hljs-keyword">JIT </span>编译：热点代码 → 直接编译成机器码（存在 CodeCache）→ 快（接近 C++）<br><br>热点代码 detection（热点探测）：<br>  → 方法调用计数器（Invocation Counter）：方法被调用多次<br>  → 回边计数器（<span class="hljs-keyword">BackEdge </span>Counter）：循环执行多次<br><br>C1 vs C2：<br>  C1（Client Compiler）：<br>    → 编译快，优化少（简单优化）<br>    → 适合客户端应用（启动要快）<br>  <br>  C2（Server Compiler）：<br>    → 编译慢，优化多（逃逸分析、锁消除、标量替换等）<br>    → 适合服务端应用（峰值性能重要）<br></code></pre></td></tr></table></figure>
 
 <p><strong>分层编译（Tiered Compilation，JDK 7+ 默认开启）</strong>：</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">Level</span> <span class="hljs-number">0</span>：解释执行<br><span class="hljs-symbol">Level</span> <span class="hljs-number">1</span>：<span class="hljs-built_in">C1</span> 编译（简单优化）<br><span class="hljs-symbol">Level</span> <span class="hljs-number">2</span>：<span class="hljs-built_in">C1</span> 编译（更多优化）<br><span class="hljs-symbol">Level</span> <span class="hljs-number">3</span>：<span class="hljs-built_in">C1</span> 编译（全量优化）<br><span class="hljs-symbol">Level</span> <span class="hljs-number">4</span>：<span class="hljs-built_in">C2</span> 编译（极致优化）<br><br>→ 先让 <span class="hljs-built_in">C1</span> 快速编译，跑起来<br>→ 热点代码再让 <span class="hljs-built_in">C2</span> 重新编译（极致优化）<br>→ 兼顾启动速度和峰值性能！<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>五个 Level 的区别<strong>不是优化程度递增</strong>，而是<strong>是否携带 profiling（性能监控）信息</strong>——这是最容易答错的点。</p>
+</blockquote>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">Level</span> <span class="hljs-number">0</span>：解释执行<br><span class="hljs-symbol">Level</span> <span class="hljs-number">1</span>：<span class="hljs-built_in">C1</span> 编译，全部优化但不带 profiling<br>  → 用于简单方法：<span class="hljs-built_in">C1</span>、<span class="hljs-built_in">C2</span> 编译结果差不多时，直接用 <span class="hljs-built_in">C1</span> 结果，省去 profiling 开销<br><span class="hljs-symbol">Level</span> <span class="hljs-number">2</span>：<span class="hljs-built_in">C1</span> 编译，带有限 profiling<br>  → 只统计方法调用计数器、回边计数器<br><span class="hljs-symbol">Level</span> <span class="hljs-number">3</span>：<span class="hljs-built_in">C1</span> 编译，带完整 profiling<br>  → 为 <span class="hljs-built_in">C2</span> 收集详细的类型、分支等运行时数据，运行时开销比 Level <span class="hljs-number">1</span> 反而更大<br><span class="hljs-symbol">Level</span> <span class="hljs-number">4</span>：<span class="hljs-built_in">C2</span> 编译，最高级别优化（逃逸分析、内联等），不带 profiling<br><br>→ 典型路径：解释执行(<span class="hljs-number">0</span>) → <span class="hljs-built_in">C1</span>+完整profiling(<span class="hljs-number">3</span>) 收集数据 → 热点方法交给 <span class="hljs-built_in">C2</span>(<span class="hljs-number">4</span>) 做最高优化<br>→ 简单方法可能直接走 <span class="hljs-number">0</span> → <span class="hljs-number">1</span>，不需要 <span class="hljs-built_in">C2</span> 介入<br>→ 兼顾启动速度和峰值性能！<br></code></pre></td></tr></table></figure>
 
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
@@ -1459,11 +1630,11 @@
 </blockquote>
 <hr>
 <h2 id="补充篇（续）：BAT-高频遗漏题（39-45题）"><a href="#补充篇（续）：BAT-高频遗漏题（39-45题）" class="headerlink" title="补充篇（续）：BAT 高频遗漏题（39-45题）"></a>补充篇（续）：BAT 高频遗漏题（39-45题）</h2><hr>
-<h3 id="第-39-题：Compact-String（Java-9-字符串优化）是什么？"><a href="#第-39-题：Compact-String（Java-9-字符串优化）是什么？" class="headerlink" title="第 39 题：Compact String（Java 9+ 字符串优化）是什么？"></a>第 39 题：Compact String（Java 9+ 字符串优化）是什么？</h3><h4 id="一句话结论-28"><a href="#一句话结论-28" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-39-题：Compact-String（Java-9-字符串优化）是什么？"><a href="#第-39-题：Compact-String（Java-9-字符串优化）是什么？" class="headerlink" title="第 39 题：Compact String（Java 9+ 字符串优化）是什么？"></a>第 39 题：Compact String（Java 9+ 字符串优化）是什么？</h3><h4 id="一句话结论-29"><a href="#一句话结论-29" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Java 9 引入了 Compact String，将 <code>String</code> 的内部存储从 <code>char[]</code>（每个字符 2 字节）改为 <code>byte[]</code>（根据编码用 1 或 2 字节），节省约 50% 内存。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-28"><a href="#深度解析-28" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Java 8 及之前的 String 存储：</strong></p>
+<h4 id="深度解析-29"><a href="#深度解析-29" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Java 8 及之前的 String 存储：</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java 8 及之前</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">String</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">char</span>[] value;  <span class="hljs-comment">// char 是 UTF-16，每个字符 2 字节</span><br>&#125;<br><br><span class="hljs-comment">// 问题：</span><br><span class="hljs-comment">// ① 如果是纯英文（ASCII），每个字符只需要 1 字节，但 char[] 用 2 字节存储 → 浪费 50% 内存！</span><br><span class="hljs-comment">// ② 如果是中文，UTF-16 确实需要 2 字节/字符 → 没问题</span><br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1501,15 +1672,15 @@
 </tr>
 </tbody></table>
 <hr>
-<h4 id="面试加分回答-30"><a href="#面试加分回答-30" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-31"><a href="#面试加分回答-31" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「Compact String 是 Java 9 的一个重要优化。在生产环境中，如果应用有大量纯英文的字符串（如 JSON、XML、日志），升级到 Java 9+ 可以<strong>节省约 30%~50% 的堆内存</strong>（字符串通常占堆的很大比例）。另外，Compact String 是<strong>默认开启</strong>的，不需要任何参数配置。如果想禁用（调试时），可以用 <code>-XX:-CompactStrings</code>。」</p>
 </blockquote>
 <hr>
-<h3 id="第-40-题：安全点（Safepoint）和安全区域（Safe-Region）？"><a href="#第-40-题：安全点（Safepoint）和安全区域（Safe-Region）？" class="headerlink" title="第 40 题：安全点（Safepoint）和安全区域（Safe Region）？"></a>第 40 题：安全点（Safepoint）和安全区域（Safe Region）？</h3><h4 id="一句话结论-29"><a href="#一句话结论-29" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-40-题：安全点（Safepoint）和安全区域（Safe-Region）？"><a href="#第-40-题：安全点（Safepoint）和安全区域（Safe-Region）？" class="headerlink" title="第 40 题：安全点（Safepoint）和安全区域（Safe Region）？"></a>第 40 题：安全点（Safepoint）和安全区域（Safe Region）？</h3><h4 id="一句话结论-30"><a href="#一句话结论-30" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>安全点（Safepoint）&#x3D; 线程可以安全暂停的位置（如方法调用、循环跳转）；安全区域（Safe Region）&#x3D; 一段代码内，线程可以随时暂停。GC、锁降级等需要所有线程到达安全点才能执行。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-29"><a href="#深度解析-29" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>为什么需要安全点？</strong></p>
+<h4 id="深度解析-30"><a href="#深度解析-30" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>为什么需要安全点？</strong></p>
 <figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">场景：JVM 要执行 GC（需要 Stop-The-World）<br>  → 如果线程正在执行 native 代码，JVM 无法中断<br>  → 所以需要「安全点」：线程执行到某个位置时，检查是否需要暂停<br><br>安全点的选择：<br>  ① 方法调用（<span class="hljs-keyword">Method</span> <span class="hljs-title function_">Call</span>）<br>  ② 循环跳转（<span class="hljs-title function_">Loop</span> <span class="hljs-title function_">Back</span> <span class="hljs-title function_">Edge</span>）<br>  ③ 异常抛出（<span class="hljs-title function_">Exception</span> <span class="hljs-title function_">Throw</span>）<br>  → 这些位置，<span class="hljs-title function_">JVM</span> 会插入「安全点检查」的代码<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1521,15 +1692,15 @@
 <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">问题：如果线程在等锁（<span class="hljs-keyword">synchronized），它一直在 </span>native 代码（mutex lock）<br>  → <span class="hljs-keyword">JVM </span>无法插入安全点检查<br>  → 线程永远到不了安全点 → GC 无法执行（一直等）<br><br>解决：安全区域<br>  → 线程进入「安全区域」时，标记自己<br>  → <span class="hljs-keyword">JVM </span>执行 GC 时，不需要等「安全区域」内的线程（它们已经标记了）<br>  → 线程离开「安全区域」时，检查是否 GC 完成，没完成就继续等<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-31"><a href="#面试加分回答-31" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-32"><a href="#面试加分回答-32" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「安全点是 JVM 实现 Stop-The-World 的基础。面试时可能会追问：<strong>为什么安全点不选在每条字节码指令后面？</strong> 答案是：如果每条指令都检查安全点，性能开销太大！所以只选在「方法调用」和「循环跳转」这些「不那么频繁」的位置。另外，<strong>JVM 参数 <code>-XX:+UseCountedLoopSafepoints</code></strong> 可以让「计数循环」（如 <code>for (int i = 0; i &lt; 1000000; i++)</code>）也在每次循环结束时检查安全点，避免大循环导致 GC 停顿时间过长。」</p>
 </blockquote>
 <hr>
-<h3 id="第-41-题：写屏障（Write-Barrier）和读屏障（Read-Barrier）？"><a href="#第-41-题：写屏障（Write-Barrier）和读屏障（Read-Barrier）？" class="headerlink" title="第 41 题：写屏障（Write Barrier）和读屏障（Read Barrier）？"></a>第 41 题：写屏障（Write Barrier）和读屏障（Read Barrier）？</h3><h4 id="一句话结论-30"><a href="#一句话结论-30" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-41-题：写屏障（Write-Barrier）和读屏障（Read-Barrier）？"><a href="#第-41-题：写屏障（Write-Barrier）和读屏障（Read-Barrier）？" class="headerlink" title="第 41 题：写屏障（Write Barrier）和读屏障（Read Barrier）？"></a>第 41 题：写屏障（Write Barrier）和读屏障（Read Barrier）？</h3><h4 id="一句话结论-31"><a href="#一句话结论-31" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>写屏障（Write Barrier）&#x3D; 当程序修改对象引用时，JVM 插入一段额外代码（用来更新卡表、Remember Set 等）；读屏障（Read Barrier）&#x3D; 当程序读取对象引用时，JVM 插入一段额外代码（用来支持并发 GC，如 ZGC）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-30"><a href="#深度解析-30" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>写屏障（Write Barrier）：</strong></p>
+<h4 id="深度解析-31"><a href="#深度解析-31" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>写屏障（Write Barrier）：</strong></p>
 <figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs gams">场景：CMS 的并发标记、G1 的 Remember <span class="hljs-keyword">Set</span> 维护<br>  → 当程序修改对象引用时（如 obj.field <span class="hljs-comment">= newObj</span>）<br>  → JVM 需要记录这个变化（用于 <span class="hljs-comment">GC</span>）<br><br>写屏障的类型：<br>  ① 写前屏障（Pre-Write <span class="hljs-comment">Barrier</span>）<br>    → 在修改引用之前执行<br>    → G1 的 <span class="hljs-comment">SATB</span>（<span class="hljs-comment">Snapshot-At-The-Beginning</span>）用到<br>  <br>  ② 写后屏障（Post-Write <span class="hljs-comment">Barrier</span>）<br>    → 在修改引用之后执行<br>    → CMS 的卡表更新、<span class="hljs-comment">G1</span> 的 <span class="hljs-comment">Remember Set</span> 更新用到<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1545,15 +1716,15 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 程序代码：</span><br><span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> obj.field;<br><br><span class="hljs-comment">// JVM 实际执行的（伪代码）：</span><br><span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> ReadBarrier(obj, <span class="hljs-string">&quot;field&quot;</span>) &#123;<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> obj.field;<br>    <br>    <span class="hljs-comment">// 检查：result 是否指向「已转移的对象」？</span><br>    <span class="hljs-keyword">if</span> (isForwarded(result)) &#123;<br>        <span class="hljs-keyword">return</span> getForwardingPointer(result);  <span class="hljs-comment">// 返回新地址</span><br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-32"><a href="#面试加分回答-32" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-33"><a href="#面试加分回答-33" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「写屏障是<strong>分代 GC</strong>和<strong>分区 GC</strong>的基础（需要记录跨代&#x2F;跨 Region 引用）。读屏障是<strong>并发转移 GC</strong>（如 ZGC、Shenandoah）的基础（需要修正旧引用）。面试时可能会追问：<strong>写屏障的性能开销有多大？</strong> 答案是：写屏障会有一定的性能开销（每次修改引用都要执行额外代码），但比起扫描整个老年代&#x2F;整个堆，这个开销是值得的。ZGC 的读屏障开销更大（每次读取引用都要检查），但 ZGC 通过<strong>染色指针</strong>（把标记信息存在指针里）来减少读屏障的开销。」</p>
 </blockquote>
 <hr>
-<h3 id="第-42-题：Code-Cache（代码缓存）是什么？如何调优？"><a href="#第-42-题：Code-Cache（代码缓存）是什么？如何调优？" class="headerlink" title="第 42 题：Code Cache（代码缓存）是什么？如何调优？"></a>第 42 题：Code Cache（代码缓存）是什么？如何调优？</h3><h4 id="一句话结论-31"><a href="#一句话结论-31" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-42-题：Code-Cache（代码缓存）是什么？如何调优？"><a href="#第-42-题：Code-Cache（代码缓存）是什么？如何调优？" class="headerlink" title="第 42 题：Code Cache（代码缓存）是什么？如何调优？"></a>第 42 题：Code Cache（代码缓存）是什么？如何调优？</h3><h4 id="一句话结论-32"><a href="#一句话结论-32" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Code Cache &#x3D; JIT 编译器生成的本地代码（机器码）的存储区域。如果 Code Cache 满了，JIT 编译会停止，导致性能下降。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-31"><a href="#深度解析-31" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Code Cache 的作用：</strong></p>
+<h4 id="深度解析-32"><a href="#深度解析-32" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Code Cache 的作用：</strong></p>
 <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-keyword">JVM </span>执行字节码的方式：<br>  ① 解释执行（Interpreter）：逐条解释字节码 → 慢<br>  ② <span class="hljs-keyword">JIT </span>编译（<span class="hljs-keyword">Just-In-Time）：热点代码编译成机器码 </span>→ 快<br>  <br>Code <span class="hljs-keyword">Cache：</span><br><span class="hljs-keyword"></span>  → 存储 <span class="hljs-keyword">JIT </span>编译后的机器码<br>  → 当方法被调用「足够多次」（如 <span class="hljs-number">10000</span> 次），<span class="hljs-keyword">JIT </span>会把它编译成机器码，存入 Code <span class="hljs-keyword">Cache</span><br><span class="hljs-keyword"></span>  → 之后调用这个方法，直接执行机器码（不需要解释）→ 快！<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1569,15 +1740,15 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 初始大小</span><br>-XX:InitialCodeCacheSize=32m<br><br><span class="hljs-comment"># 2. 最大大小（重要！）</span><br>-XX:ReservedCodeCacheSize=512m<br><br><span class="hljs-comment"># 3. Code Cache 的清理（Java 9+）</span><br>-XX:+UseCodeCacheFlushing  <span class="hljs-comment"># 允许清理不再用的机器码（默认开启）</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-33"><a href="#面试加分回答-33" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-34"><a href="#面试加分回答-34" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「Code Cache 是 JIT 编译器的「工作区」。在生产环境中，如果应用有很多热点方法（如大型电商系统的商品搜索、订单提交等），Code Cache 可能会满。建议：<strong>监控 Code Cache 的使用率</strong>（可以用 JConsole 或 VisualVM 查看），如果使用率 &gt; 80%，就调大 <code>-XX:ReservedCodeCacheSize</code>。另外，Java 9+ 引入了 <strong>AOT 编译</strong>（Ahead-Of-Time），可以在启动前就编译好机器码，减少启动后的 JIT 编译压力。」</p>
 </blockquote>
 <hr>
-<h3 id="第-43-题：压缩指针（Compressed-Oops）的详细原理？"><a href="#第-43-题：压缩指针（Compressed-Oops）的详细原理？" class="headerlink" title="第 43 题：压缩指针（Compressed Oops）的详细原理？"></a>第 43 题：压缩指针（Compressed Oops）的详细原理？</h3><h4 id="一句话结论-32"><a href="#一句话结论-32" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-43-题：压缩指针（Compressed-Oops）的详细原理？"><a href="#第-43-题：压缩指针（Compressed-Oops）的详细原理？" class="headerlink" title="第 43 题：压缩指针（Compressed Oops）的详细原理？"></a>第 43 题：压缩指针（Compressed Oops）的详细原理？</h3><h4 id="一句话结论-33"><a href="#一句话结论-33" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>压缩指针（Compressed Oops）&#x3D; 在 64 位 JVM 上，用 32 位存储对象指针（而不是 64 位），节省约 50% 的内存（对象引用占的空间）。前提是堆内存 &lt; 32GB。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-32"><a href="#深度解析-32" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>为什么需要压缩指针？</strong></p>
+<h4 id="深度解析-33"><a href="#深度解析-33" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>为什么需要压缩指针？</strong></p>
 <figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs tap">64 位 JVM 的问题：<br>  → 对象指针（Oop，Ordinary Object Pointer）占<span class="hljs-number"> 8 </span>字节（64 位）<br>  → 如果堆中有<span class="hljs-number"> 10 </span>亿元素的对象数组，每个元素是一个指针（8 字节）<br>  → 光是指针就占了 8GB 内存！<br><br>压缩指针：<br>  → 用<span class="hljs-number"> 32 </span>位存储对象指针<br>  → 但<span class="hljs-number"> 32 </span>位只能表示 4GB 内存 → 不够用？<br><br>解决：对齐（Alignment）<br>  → JVM 要求对象地址是<span class="hljs-number"> 8 </span>的倍数（因为对象头是<span class="hljs-number"> 8 </span>字节对齐）<br>  → 所以指针的「低<span class="hljs-number"> 3 </span>位」永远是<span class="hljs-number"> 0 </span>→ 可以存 2^35 字节 = 32GB！<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1620,15 +1791,15 @@
 </tr>
 </tbody></table>
 <hr>
-<h4 id="面试加分回答-34"><a href="#面试加分回答-34" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「压缩指针是 JVM 内存优化的重要手段。在生产环境中，<strong>如果堆内存 &lt; 32GB，一定要开启压缩指针**（<code>-XX:+UseCompressedOops</code>，默认开启），可以节省约 30%~50% 的内存（对象引用占的空间）。但如果堆内存 &gt;&#x3D; 32GB，压缩指针会自动关闭（因为 32 位最多表示 32GB），这时可以考虑</strong>升级到 64GB 堆**（虽然指针占更多内存，但总内存更多，可能性能更好）。另外，Java 15+ 引入了 <strong>Compressed Class Pointers</strong>（压缩类指针），可以进一步节省元空间的内存。」</p>
+<h4 id="面试加分回答-35"><a href="#面试加分回答-35" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「压缩指针是 JVM 内存优化的重要手段。在生产环境中，<strong>如果堆内存 &lt; 32GB，一定要开启压缩指针**（<code>-XX:+UseCompressedOops</code>，默认开启），可以节省约 30%~50% 的内存（对象引用占的空间）。但如果堆内存 &gt;&#x3D; 32GB，压缩指针会自动关闭（因为 32 位最多表示 32GB），这时可以考虑</strong>升级到 64GB 堆**（虽然指针占更多内存，但总内存更多，可能性能更好）。另外，<strong>Compressed Class Pointers</strong>（压缩类指针，<code>-XX:+UseCompressedClassPointers</code>）自 <strong>JDK 8</strong> 引入元空间时就已经存在并默认开启，用来压缩指向元空间中类元数据的指针，可以进一步节省内存，和 <code>-XX:+UseCompressedOops</code> 是两个独立的开关。」</p>
 </blockquote>
 <hr>
-<h3 id="第-44-题：On-Stack-Replacement（OSR，栈上替换）是什么？"><a href="#第-44-题：On-Stack-Replacement（OSR，栈上替换）是什么？" class="headerlink" title="第 44 题：On-Stack Replacement（OSR，栈上替换）是什么？"></a>第 44 题：On-Stack Replacement（OSR，栈上替换）是什么？</h3><h4 id="一句话结论-33"><a href="#一句话结论-33" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-44-题：On-Stack-Replacement（OSR，栈上替换）是什么？"><a href="#第-44-题：On-Stack-Replacement（OSR，栈上替换）是什么？" class="headerlink" title="第 44 题：On-Stack Replacement（OSR，栈上替换）是什么？"></a>第 44 题：On-Stack Replacement（OSR，栈上替换）是什么？</h3><h4 id="一句话结论-34"><a href="#一句话结论-34" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>OSR（On-Stack Replacement）&#x3D; JIT 编译器可以在方法执行过程中，把「解释执行」的热循环替换成「编译后的机器码」，不需要等方法调用结束。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-33"><a href="#深度解析-33" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>为什么需要 OSR？</strong></p>
+<h4 id="深度解析-34"><a href="#深度解析-34" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>为什么需要 OSR？</strong></p>
 <figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">场景：一个长时间运行的循环<br>  <span class="hljs-keyword">public</span> void <span class="hljs-keyword">method</span><span class="hljs-params">()</span> <span class="hljs-comment">&#123;</span><br><span class="hljs-comment">      for (int i = 0; i &lt; 100_000_000; i++) &#123;</span><br><span class="hljs-comment">          // 这个循环会执行 1 亿次！</span><br><span class="hljs-comment">          // 但 JIT 通常只在「方法调用」时编译</span><br><span class="hljs-comment">          //  → 这个方法不会被编译（因为方法只调用一次）</span><br><span class="hljs-comment">          //  → 循环只能用解释执行 → 很慢！</span><br><span class="hljs-comment">      &#125;</span><br>  &#125;<br><br><span class="hljs-title function_">OSR</span> 的作用：<br>  → <span class="hljs-title function_">JIT</span> 发现「循环」是热代码（执行了很多次）<br>  → 在循环执行过程中，把「解释执行的循环」替换成「编译后的机器码」<br>  → 不需要等方法调用结束 → 提升性能！<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1640,15 +1811,15 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 场景 1：大循环（最典型）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">process</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100_000_000</span>; i++) &#123;<br>        <span class="hljs-comment">// 这个循环会被 OSR 编译</span><br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 场景 2：服务器启动时的初始化代码（长时间运行的循环）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>        <span class="hljs-comment">// 这个循环也会被 OSR 编译</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-35"><a href="#面试加分回答-35" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-36"><a href="#面试加分回答-36" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「OSR 是 JIT 编译器的「黑科技」之一。在没有 OSR 之前，如果热代码在一个「大循环」里，JIT 无法编译它（因为 JIT 通常只在「方法调用」时编译）。有了 OSR 之后，即使热代码在循环里，JIT 也能编译它。面试时可能会追问：<strong>OSR 和普通的 JIT 编译有什么区别？</strong> 答案是：普通的 JIT 编译是在「方法调用」时替换（从解释执行换成机器码执行）；OSR 是在「循环执行过程中」替换（不需要等方法调用结束）。另外，<strong>OSR 编译后的代码和普通的 JIT 编译代码是分开存储的</strong>（因为栈帧布局不同）。」</p>
 </blockquote>
 <hr>
-<h3 id="第-45-题：JVM-调优实战案例（高频！）"><a href="#第-45-题：JVM-调优实战案例（高频！）" class="headerlink" title="第 45 题：JVM 调优实战案例（高频！）"></a>第 45 题：JVM 调优实战案例（高频！）</h3><h4 id="一句话结论-34"><a href="#一句话结论-34" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-45-题：JVM-调优实战案例（高频！）"><a href="#第-45-题：JVM-调优实战案例（高频！）" class="headerlink" title="第 45 题：JVM 调优实战案例（高频！）"></a>第 45 题：JVM 调优实战案例（高频！）</h3><h4 id="一句话结论-35"><a href="#一句话结论-35" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>JVM 调优实战 &#x3D; 明确目标（吞吐量 vs 延迟） → 收集 GC 日志 → 分析 GC 日志（用 GCViewer 或 GCeasy） → 调整参数 → 验证效果。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-34"><a href="#深度解析-34" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>案例 1：Full GC 频繁（最常见）</strong></p>
+<h4 id="深度解析-35"><a href="#深度解析-35" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>案例 1：Full GC 频繁（最常见）</strong></p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs ruby">现象：<br>  → 应用程序运行一段时间后，频繁 <span class="hljs-title class_">Full</span> <span class="hljs-variable constant_">GC</span><br>  → <span class="hljs-variable constant_">GC</span> 日志里有很多 [<span class="hljs-title class_">Full</span> <span class="hljs-variable constant_">GC</span> (<span class="hljs-title class_">Ergonomics</span>)] 或 [<span class="hljs-title class_">Full</span> <span class="hljs-variable constant_">GC</span> (<span class="hljs-title class_">Allocation</span> <span class="hljs-title class_">Failure</span>)]<br>  → 应用响应变慢<br><br>原因：<br>  ① 堆内存不足（可能是内存泄漏）<br>  ② 元空间不足（加载了太多类）<br>  ③ 老年代太小（对象提前晋升）<br><br>解决：<br>  <span class="hljs-comment"># 1. 调大堆内存</span><br>  -<span class="hljs-title class_">Xms8g</span> -<span class="hljs-title class_">Xmx8g</span><br>  <br>  <span class="hljs-comment"># 2. 调大元空间</span><br>  -<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:MetaspaceSize=</span>256m<br>  -<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:MaxMetaspaceSize=</span>512m<br>  <br>  <span class="hljs-comment"># 3. 调大新生代（减少提前晋升）</span><br>  -<span class="hljs-title class_">Xmn4g</span><br>  <br>  <span class="hljs-comment"># 4. 如果是内存泄漏，用 jmap + MAT 分析</span><br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1664,16 +1835,16 @@
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs ruby">现象：<br>  → 应用抛出 java.lang.<span class="hljs-title class_">OutOfMemoryError</span>: <span class="hljs-title class_">Java</span> heap space<br>  → 应用崩溃<br><br>原因：<br>  ① 堆内存真的不足（需要调大）<br>  ② 内存泄漏（对象无法被回收）<br><br>解决：<br>  <span class="hljs-comment"># 1. 调大堆内存</span><br>  -<span class="hljs-title class_">Xms8g</span> -<span class="hljs-title class_">Xmx8g</span><br>  <br>  <span class="hljs-comment"># 2. 开启 OOM 时自动 dump 堆</span><br>  -<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:+HeapDumpOnOutOfMemoryError</span><br>  -<span class="hljs-variable constant_">XX</span><span class="hljs-symbol">:HeapDumpPath=/var/log/app/heapdump</span>.hprof<br>  <br>  <span class="hljs-comment"># 3. 用 MAT 分析 heapdump.hprof，找到内存泄漏点</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-36"><a href="#面试加分回答-36" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-37"><a href="#面试加分回答-37" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「JVM 调优的<strong>最重要原则</strong>：<strong>不要过早优化</strong>（Premature Optimization）。在调优之前，先确认：1. 是否是代码问题（如内存泄漏、死循环）；2. 是否是数据库问题（如慢查询）。很多所谓的『JVM 调优』，实际上应该是『代码优化』或『数据库优化』。另外，<strong>GC 日志分析</strong>是调优的基础，推荐用 <strong>GCeasy</strong>（<a target="_blank" rel="noopener" href="https://gceasy.io/%EF%BC%89%E5%9C%A8%E7%BA%BF%E5%88%86%E6%9E%90">https://gceasy.io/）在线分析</a> GC 日志，会自动生成分析报告（包括 GC 频率、停顿时间、内存使用情况等），非常方便。」</p>
 </blockquote>
 <hr>
 <hr>
-<h3 id="第-46-题：JVM-类加载的详细过程是什么？"><a href="#第-46-题：JVM-类加载的详细过程是什么？" class="headerlink" title="第 46 题：JVM 类加载的详细过程是什么？"></a>第 46 题：JVM 类加载的详细过程是什么？</h3><h4 id="一句话结论-35"><a href="#一句话结论-35" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-46-题：JVM-类加载的详细过程是什么？"><a href="#第-46-题：JVM-类加载的详细过程是什么？" class="headerlink" title="第 46 题：JVM 类加载的详细过程是什么？"></a>第 46 题：JVM 类加载的详细过程是什么？</h3><h4 id="一句话结论-36"><a href="#一句话结论-36" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>JVM 类加载 &#x3D; 加载（Load）→ 连接（Link）→ 初始化（Initialize）。连接又分验证（Verify）、准备（Prepare）、解析（Resolve）三步。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-35"><a href="#深度解析-35" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>类加载的三个阶段</strong>：</p>
+<h4 id="深度解析-36"><a href="#深度解析-36" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>类加载的三个阶段</strong>：</p>
 <figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs nix"><span class="hljs-number">1</span>. 加载（Load）<br>   ↓<br>   ① 通过类的全限定名获取定义此类的二进制字节流<br>   ② 将字节流所代表的静态存储结构转为方法区的运行时数据结构<br>   ③ 在内存中生成一个 java.lang.Class 对象（作为方法区这个类的各种数据的访问入口）<br><br><span class="hljs-number">2</span>. 连接（Link）<br>   ├── <span class="hljs-number">2.1</span> 验证（Verify）：确保字节码格式正确（魔数 CAFEBABE、语义合法）<br>   ├── <span class="hljs-number">2.2</span> 准备（Prepare）：为类变量（static 变量）分配内存并初始化默认值（<span class="hljs-number">0</span> <span class="hljs-symbol">/</span> <span class="hljs-literal">false</span> <span class="hljs-symbol">/</span> <span class="hljs-literal">null</span>）<br>   └── <span class="hljs-number">2.3</span> 解析（Resolve）：将常量池中的符号引用转为直接引用（可选，可延迟）<br><br><span class="hljs-number">3</span>. 初始化（Initialize）<br>   ↓<br>   执行类构造器 <span class="hljs-symbol">&lt;clinit&gt;</span>() 方法（由编译器自动收集所有类变量的赋值动作和静态代码块合并产生）<br></code></pre></td></tr></table></figure>
 
 <p><strong>示例</strong>：</p>
@@ -1716,15 +1887,15 @@
 <p><strong>注意</strong>：访问 <code>static final</code> 常量（如 <code>B = 20</code>）<strong>不会</strong>触发类初始化（常量在编译阶段已经放入常量池）。</p>
 </blockquote>
 <hr>
-<h4 id="面试加分回答-37"><a href="#面试加分回答-37" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-38"><a href="#面试加分回答-38" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>类加载的<strong>核心是初始化阶段</strong>（<code>&lt;clinit&gt;()</code> 方法）。这个方法由编译器自动收集所有<strong>类变量的赋值动作</strong>和<strong>静态代码块</strong>合并产生。JVM 会保证在多线程环境下，<code>&lt;clinit&gt;()</code> 方法会被正确地加锁、同步（所以静态代码块在多线程环境下是线程安全的）。另外，<strong>类加载是懒惰的</strong>（Lazy Initialization）：只有在第一次使用类时才会初始化，这也是为什么第一次调用某个类的方法时会稍微慢一点的原因。</p>
 </blockquote>
 <hr>
-<h3 id="第-47-题：双亲委派模型是什么？如何打破双亲委派？"><a href="#第-47-题：双亲委派模型是什么？如何打破双亲委派？" class="headerlink" title="第 47 题：双亲委派模型是什么？如何打破双亲委派？"></a>第 47 题：双亲委派模型是什么？如何打破双亲委派？</h3><h4 id="一句话结论-36"><a href="#一句话结论-36" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-47-题：双亲委派模型是什么？如何打破双亲委派？"><a href="#第-47-题：双亲委派模型是什么？如何打破双亲委派？" class="headerlink" title="第 47 题：双亲委派模型是什么？如何打破双亲委派？"></a>第 47 题：双亲委派模型是什么？如何打破双亲委派？</h3><h4 id="一句话结论-37"><a href="#一句话结论-37" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>双亲委派</strong>：子类加载器先委托父加载器加载，<strong>父加载器加载不了时才自己加载</strong>。打破双亲委派的典型场景：<strong>Tomcat（Web 应用隔离）、SPI（JDBC 驱动加载）、OSGi</strong>。</p>
 </blockquote>
 <hr>
-<h4 id="深度解析-36"><a href="#深度解析-36" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>双亲委派模型的工作流程</strong>：</p>
+<h4 id="深度解析-37"><a href="#深度解析-37" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>双亲委派模型的工作流程</strong>：</p>
 <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">自定义 ClassLoader<br>      ↓ 自己不加载，先委托父加载器<br>应用类加载器（AppClassLoader）<br>      ↓ 自己不加载，先委托父加载器<br>扩展类加载器（<span class="hljs-keyword">ExtClassLoader）</span><br><span class="hljs-keyword"></span>      ↓ 自己不加载，先委托父加载器<br>启动类加载器（<span class="hljs-keyword">BootstrapClassLoader）</span><br><span class="hljs-keyword"></span>      ↓ 没有父加载器了，自己尝试加载<br>      ↓ 加载不了，退回给子加载器<br>扩展类加载器尝试加载<br>      ↓ 加载不了，退回给子加载器<br>应用类加载器尝试加载<br>      ↓ 加载不了，抛 ClassNotFoundException<br></code></pre></td></tr></table></figure>
 
 <p><strong>双亲委派的好处</strong>：</p>
@@ -1757,15 +1928,15 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClassLoader</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">ClassLoader</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="hljs-type">boolean</span> resolve) <span class="hljs-keyword">throws</span> ClassNotFoundException &#123;<br>        <span class="hljs-comment">// ① 先检查是否已经加载过</span><br>        Class&lt;?&gt; c = findLoadedClass(name);<br>        <span class="hljs-keyword">if</span> (c == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">// ② 不委托父加载器，直接自己加载（打破双亲委派！）</span><br>            c = findClass(name);  <span class="hljs-comment">// 从自定义路径加载</span><br>        &#125;<br>        <span class="hljs-keyword">if</span> (c == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassNotFoundException</span>(name);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (resolve) &#123;<br>            resolveClass(c);<br>        &#125;<br>        <span class="hljs-keyword">return</span> c;<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> Class&lt;?&gt; findClass(String name) &#123;<br>        <span class="hljs-comment">// 从自定义路径读取 .class 文件</span><br>        <span class="hljs-type">byte</span>[] bytes = loadClassBytes(name);<br>        <span class="hljs-keyword">return</span> defineClass(name, bytes, <span class="hljs-number">0</span>, bytes.length);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-38"><a href="#面试加分回答-38" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-39"><a href="#面试加分回答-39" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>双亲委派模型是 JVM 类加载的<strong>默认机制</strong>，但不是强制的。打破双亲委派的<strong>核心原因</strong>是<strong>隔离需求</strong>（Tomcat 的每个 Web 应用需要隔离）和<strong>SPI 机制</strong>（核心库需要加载用户代码）。实际项目中，如果你需要<strong>热加载</strong>（如开发时的热部署），也需要自定义 ClassLoader 打破双亲委派。另外，Java 9 引入的**模块化系统（JPMS）**对类加载机制做了重构，不再是传统的双亲委派模型，但这是进阶话题，面试中很少问到。</p>
 </blockquote>
 <hr>
-<h3 id="第-48-题：方法内联（JIT-优化）是什么？"><a href="#第-48-题：方法内联（JIT-优化）是什么？" class="headerlink" title="第 48 题：方法内联（JIT 优化）是什么？"></a>第 48 题：方法内联（JIT 优化）是什么？</h3><h4 id="一句话结论-37"><a href="#一句话结论-37" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-48-题：方法内联（JIT-优化）是什么？"><a href="#第-48-题：方法内联（JIT-优化）是什么？" class="headerlink" title="第 48 题：方法内联（JIT 优化）是什么？"></a>第 48 题：方法内联（JIT 优化）是什么？</h3><h4 id="一句话结论-38"><a href="#一句话结论-38" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>方法内联</strong>是 JIT 的<strong>最重要的优化</strong>之一：把<strong>频繁调用的小方法</strong>的字节码直接复制到调用方，减少方法调用的开销（压栈、跳转、返回）。</p>
 </blockquote>
 <hr>
-<h4 id="深度解析-37"><a href="#深度解析-37" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>方法调用的开销</strong>：</p>
+<h4 id="深度解析-38"><a href="#深度解析-38" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>方法调用的开销</strong>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 没有内联：每次调用 getX() 都要压栈、跳转、返回（开销大）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">InlineTest</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">x</span> <span class="hljs-operator">=</span> <span class="hljs-number">10</span>;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getX</span><span class="hljs-params">()</span> &#123;  <span class="hljs-comment">// 小方法（只有一行代码）</span><br>        <span class="hljs-keyword">return</span> x;<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">test</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">sum</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000000</span>; i++) &#123;<br>            sum += getX();  <span class="hljs-comment">// 100 万次方法调用（开销很大！）</span><br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>方法内联后（JIT 自动优化）</strong>：</p>
@@ -1800,15 +1971,15 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 打印方法内联的日志</span><br>java -XX:+UnlockDiagnosticVMOptions -XX:+PrintInlining MyApp<br><br><span class="hljs-comment"># 输出示例：</span><br><span class="hljs-comment"># @ 1   java.lang.String::length (5 bytes)   inline (hot)</span><br><span class="hljs-comment"># @ 2   com.example.MyClass::getX (2 bytes)   inline (hot)</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-39"><a href="#面试加分回答-39" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-40"><a href="#面试加分回答-40" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>方法内联是 JIT 优化的<strong>核心</strong>，它不仅能减少方法调用的开销，还能<strong>触发其他优化</strong>（如死代码消除、逃逸分析）。实际项目中，写代码时可以把<strong>频繁调用的小方法</strong>拆出来（提高代码可读性），JIT 会自动帮你内联（不会影响性能）。但如果你用<strong>反射调用方法</strong>，JIT 就无法内联（反射调用开销大），这也是为什么反射性能差的原因之一。</p>
 </blockquote>
 <hr>
-<h3 id="第-49-题：逃逸分析（JIT-优化）是什么？有哪些优化？"><a href="#第-49-题：逃逸分析（JIT-优化）是什么？有哪些优化？" class="headerlink" title="第 49 题：逃逸分析（JIT 优化）是什么？有哪些优化？"></a>第 49 题：逃逸分析（JIT 优化）是什么？有哪些优化？</h3><h4 id="一句话结论-38"><a href="#一句话结论-38" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-49-题：逃逸分析（JIT-优化）是什么？有哪些优化？"><a href="#第-49-题：逃逸分析（JIT-优化）是什么？有哪些优化？" class="headerlink" title="第 49 题：逃逸分析（JIT 优化）是什么？有哪些优化？"></a>第 49 题：逃逸分析（JIT 优化）是什么？有哪些优化？</h3><h4 id="一句话结论-39"><a href="#一句话结论-39" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>逃逸分析</strong>是 JIT 的<strong>高级优化</strong>：分析对象的作用域，如果对象<strong>没有逃逸出方法</strong>（即没有被人引用），就可以做<strong>栈上分配、锁消除、标量替换</strong>等优化。</p>
 </blockquote>
 <hr>
-<h4 id="深度解析-38"><a href="#深度解析-38" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>什么是「对象逃逸」？</strong></p>
+<h4 id="深度解析-39"><a href="#深度解析-39" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>什么是「对象逃逸」？</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">EscapeAnalysis</span> &#123;<br>    <span class="hljs-comment">// 场景一：对象逃逸（不能被优化）</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">escape</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();  <span class="hljs-comment">// user 对象逃逸了（作为返回值被人引用）</span><br>        <span class="hljs-keyword">return</span> user;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 场景二：对象未逃逸（可以被优化）</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">noEscape</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();  <span class="hljs-comment">// user 对象未逃逸（只在方法内部使用）</span><br>        System.out.println(user.getName());<br>    &#125;  <span class="hljs-comment">// 方法结束后，user 对象不再被引用 → 可以优化！</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>逃逸分析的三大优化</strong>：</p>
@@ -1825,15 +1996,15 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 开启逃逸分析（Java 8+ 默认开启）</span><br>-XX:+DoEscapeAnalysis<br><br><span class="hljs-comment"># 关闭逃逸分析</span><br>-XX:-DoEscapeAnalysis<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-40"><a href="#面试加分回答-40" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-41"><a href="#面试加分回答-41" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>逃逸分析是 JIT 的<strong>高级优化</strong>，它能做的优化（栈上分配、锁消除、标量替换）都能显著减少 GC 压力和同步开销。但要注意：<strong>逃逸分析本身也有开销</strong>（需要分析对象的作用域），对于<strong>短生命周期的小对象</strong>，逃逸分析带来的收益可能抵不过分析的开销。另外，<strong>逃逸分析在 C2 编译器（Server Compiler）中才生效</strong>，C1 编译器（Client Compiler）不做逃逸分析。这也是为什么服务器端的 Java 应用性能比客户端好的原因之一。</p>
 </blockquote>
 <hr>
-<h3 id="第-50-题：JVM-的线程模型是怎样的？和用户线程、内核线程的关系？"><a href="#第-50-题：JVM-的线程模型是怎样的？和用户线程、内核线程的关系？" class="headerlink" title="第 50 题：JVM 的线程模型是怎样的？和用户线程、内核线程的关系？"></a>第 50 题：JVM 的线程模型是怎样的？和用户线程、内核线程的关系？</h3><h4 id="一句话结论-39"><a href="#一句话结论-39" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h3 id="第-50-题：JVM-的线程模型是怎样的？和用户线程、内核线程的关系？"><a href="#第-50-题：JVM-的线程模型是怎样的？和用户线程、内核线程的关系？" class="headerlink" title="第 50 题：JVM 的线程模型是怎样的？和用户线程、内核线程的关系？"></a>第 50 题：JVM 的线程模型是怎样的？和用户线程、内核线程的关系？</h3><h4 id="一句话结论-40"><a href="#一句话结论-40" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>HotSpot JVM 的线程模型是 1:1 模型</strong>：一个 Java 线程直接映射到一个操作系统内核线程（由 OS 调度）。Java 没有自己实现的用户线程（Green Threads），线程的创建、调度、销毁都由操作系统完成。</p>
 </blockquote>
 <hr>
-<h4 id="深度解析-39"><a href="#深度解析-39" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>三种线程模型</strong>：</p>
+<h4 id="深度解析-40"><a href="#深度解析-40" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>三种线程模型</strong>：</p>
 <table>
 <thead>
 <tr>
@@ -1879,7 +2050,7 @@
 <p>虚拟线程（Virtual Thread）&#x3D; M:N 模型：多个虚拟线程映射到少量平台线程（内核线程），兼顾了切换速度和并行能力。</p>
 </blockquote>
 <hr>
-<h4 id="面试加分回答-41"><a href="#面试加分回答-41" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-42"><a href="#面试加分回答-42" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>JVM 的线程模型是<strong>1:1 模型</strong>（一个 Java 线程对应一个 OS 内核线程），这是 Java 能利用多核 CPU 的根本原因。但这也带来了<strong>线程创建&#x2F;切换开销大</strong>的问题（每个线程占 1MB 栈空间，线程切换需要系统调用）。Java 19 引入的<strong>虚拟线程（Project Loom）<strong>就是为了解决这个问题：虚拟线程是</strong>轻量级线程</strong>（占用极少内存），由 JVM 调度，底层映射到少量平台线程（内核线程），可以创建数百万个虚拟线程而不会耗尽内存。这是 Java 并发编程的重大突破，未来可能取代线程池成为主流的并发模型。</p>
 </blockquote>
 <hr>
@@ -1920,9 +2091,9 @@
       
         <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
       
-        <a href="/tags/JVM/" class="print-no-link">#JVM</a>
-      
         <a href="/tags/Java/" class="print-no-link">#Java</a>
+      
+        <a href="/tags/JVM/" class="print-no-link">#JVM</a>
       
     </div>
   
@@ -1979,9 +2150,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-knowflow-interview-qa/" title="KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）">
+                      <a href="/2026/06/07/2026-06-07-java-concurrency-interview-deep/" title="Java 并发编程面试八股文30条（深度详解版）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）</span>
+                        <span class="hidden-mobile">Java 并发编程面试八股文30条（深度详解版）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -1989,8 +2160,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-java-concurrency-interview-deep/" title="Java 并发编程面试八股文30条（深度详解版）">
-                        <span class="hidden-mobile">Java 并发编程面试八股文30条（深度详解版）</span>
+                      <a href="/2026/06/07/2026-06-07-mysql-50-interview/" title="MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）">
+                        <span class="hidden-mobile">MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -2054,6 +2225,21 @@
 
 
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 

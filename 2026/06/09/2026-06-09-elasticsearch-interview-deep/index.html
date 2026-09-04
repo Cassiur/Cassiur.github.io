@@ -27,7 +27,7 @@
 <meta property="og:description" content="title: Elasticsearch 面试八股文（50 题）date: 2026-06-09 14:30:00tags:  - 面试  - Elasticsearch  - 搜索  - 分布式categories: 面试八股文Elasticsearch 面试八股文（50 题） 📚 面试高频：本文覆盖 Elasticsearch 核心知识点，从基础概念到高级优化，帮你系统掌握 ES 面试要点">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-09T06:30:00.000Z">
-<meta property="article:modified_time" content="2026-06-09T06:44:58.924Z">
+<meta property="article:modified_time" content="2026-09-04T09:38:47.051Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Elasticsearch">
 <meta property="article:tag" content="分布式">
@@ -226,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          18k 字
+          24k 字
         
       </span>
     
@@ -237,7 +237,7 @@
         
         
         
-          153 分钟
+          198 分钟
         
       </span>
     
@@ -547,17 +547,45 @@
 </ul>
 <p><strong>倒排索引的组成</strong>：</p>
 <ol>
-<li><strong>词项字典（Term Dictionary）</strong>：存储所有词项，按字典序排列（用 FST 压缩存储）</li>
-<li><strong>倒排列表（Posting List）</strong>：存储包含该词项的文档 ID 列表（用 Roaring Bitmap 压缩存储）</li>
+<li><strong>词项字典（Term Dictionary）</strong>：存储所有词项，按字典序排列（用 <strong>FST，有限状态转换机</strong> 压缩存储，用很小的内存前缀共享大量词项，支持快速前缀&#x2F;范围查找）</li>
+<li><strong>倒排列表（Posting List）</strong>：存储包含该词项的文档 ID 列表，以及词频、位置等信息（用<strong>增量编码（delta encoding）+ Frame of Reference（FOR）位压缩</strong>存储，并附带**跳表（Skip List）**加速文档 ID 的跳跃查找）</li>
 </ol>
 <p><strong>示例</strong>：</p>
 <figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs prolog">文档 <span class="hljs-number">1</span>: <span class="hljs-string">&quot;I love Elasticsearch&quot;</span><br>文档 <span class="hljs-number">2</span>: <span class="hljs-string">&quot;Elasticsearch is fast&quot;</span><br>文档 <span class="hljs-number">3</span>: <span class="hljs-string">&quot;I love fast search&quot;</span><br><br>倒排索引：<br><span class="hljs-string">&quot;I&quot;</span> → [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>]<br><span class="hljs-string">&quot;love&quot;</span> → [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>]<br><span class="hljs-string">&quot;Elasticsearch&quot;</span> → [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>]<br><span class="hljs-string">&quot;fast&quot;</span> → [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>]<br></code></pre></td></tr></table></figure>
 
+<p><strong>倒排索引 vs 正排（doc values）的分工</strong>（面试常问，容易和上面的”正排索引”名词混淆）：</p>
+<ul>
+<li><strong>倒排索引</strong>：负责”<strong>词 → 文档</strong>“的检索，即全文搜索、词项匹配走的是它</li>
+<li><strong>正排（doc values）</strong>：ES 为 text 之外的字段默认额外维护一份”<strong>文档 → 字段值</strong>“的列式存储（doc values），专门服务于<strong>排序、聚合、脚本计算</strong>这类需要按文档遍历字段值的场景；倒排索引结构上不适合做这类操作，所以两者是互补关系，不是替代关系</li>
+<li><code>text</code> 字段默认<strong>不生成</strong> doc values（因为分词后的词项排序意义不大），所以 text 字段不能直接排序&#x2F;聚合，需要用 <code>keyword</code> 类型或 <code>fielddata</code>（不推荐，占堆内存）</li>
+</ul>
+<pre><code class=" mermaid">flowchart LR
+    D1[&quot;文档1: I love Elasticsearch&quot;]
+    D2[&quot;文档2: Elasticsearch is fast&quot;]
+    D3[&quot;文档3: I love fast search&quot;]
+
+    D1 --&gt; T[&quot;分词 Analyzer&quot;]
+    D2 --&gt; T
+    D3 --&gt; T
+
+    T --&gt; TD[&quot;词项字典 Term Dictionary（FST 压缩，按字典序）&quot;]
+
+    TD --&gt;|&quot;I&quot;| P1[&quot;Posting List: [doc1, doc3]&quot;]
+    TD --&gt;|&quot;love&quot;| P2[&quot;Posting List: [doc1, doc3]&quot;]
+    TD --&gt;|&quot;elasticsearch&quot;| P3[&quot;Posting List: [doc1, doc2]&quot;]
+    TD --&gt;|&quot;fast&quot;| P4[&quot;Posting List: [doc2, doc3]&quot;]
+
+    P1 --&gt; SK[&quot;每个 Posting List 内: 文档ID 增量编码 + 跳表加速遍历&quot;]
+    P2 --&gt; SK
+    P3 --&gt; SK
+    P4 --&gt; SK
+</code></pre>
+
 <p><strong>面试加分回答</strong>：</p>
 <ul>
 <li>可以讲讲 <strong>FST（Finite State Transducer）</strong> 如何压缩词项字典</li>
-<li>可以讲讲 <strong>Roaring Bitmap</strong> 如何压缩倒排列表</li>
-<li>可以讲讲实际项目中的优化（比如禁用倒排索引的字段）</li>
+<li>可以讲讲倒排列表如何用 <strong>Frame of Reference + 跳表</strong> 压缩和加速遍历（注意：Roaring Bitmap 在 Lucene&#x2F;ES 中主要用于<strong>缓存的 filter 结果位图</strong>等场景，不是倒排列表本身的主要压缩方式，面试时不要说反）</li>
+<li>可以讲讲实际项目中的优化（比如禁用不需要检索字段的索引，用 <code>&quot;index&quot;: false</code>；给不需要排序聚合的字段关闭 doc_values，用 <code>&quot;doc_values&quot;: false</code>）</li>
 </ul>
 <hr>
 <h3 id="Q4：Elasticsearch-的文档-CRUD-操作有哪些？"><a href="#Q4：Elasticsearch-的文档-CRUD-操作有哪些？" class="headerlink" title="Q4：Elasticsearch 的文档 CRUD 操作有哪些？"></a>Q4：Elasticsearch 的文档 CRUD 操作有哪些？</h3><p><strong>一句话总结</strong>：ES 的文档 CRUD 操作包括：<strong>索引（Index）</strong>、<strong>创建（Create）</strong>、<strong>读取（Get）</strong>、<strong>更新（Update）</strong>、<strong>删除（Delete）</strong>。</p>
@@ -612,11 +640,15 @@
 <p><strong>示例</strong>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建索引时定义 mapping</span><br>PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,               <span class="hljs-comment"># 全文搜索</span><br>        <span class="hljs-string">&quot;analyzer&quot;</span>: <span class="hljs-string">&quot;ik_max_word&quot;</span>      <span class="hljs-comment"># 中文分词器</span><br>      &#125;,<br>      <span class="hljs-string">&quot;author&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;keyword&quot;</span>             <span class="hljs-comment"># 精确匹配</span><br>      &#125;,<br>      <span class="hljs-string">&quot;price&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;float&quot;</span>                <span class="hljs-comment"># 数值类型</span><br>      &#125;,<br>      <span class="hljs-string">&quot;publish_date&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;date&quot;</span>                 <span class="hljs-comment"># 日期类型</span><br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<p><strong>多字段（Multi-field）</strong>：同一个字段经常既要能全文搜索、又要能精确匹配&#x2F;排序&#x2F;聚合，这时用 <code>fields</code> 给它挂一个 <code>.keyword</code> 子字段，两份倒排+正排各存一份，互不影响：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash">PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,<br>        <span class="hljs-string">&quot;analyzer&quot;</span>: <span class="hljs-string">&quot;ik_max_word&quot;</span>,<br>        <span class="hljs-string">&quot;fields&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;keyword&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;keyword&quot;</span>,         <span class="hljs-comment"># title.keyword 用于精确匹配、排序、聚合</span><br>            <span class="hljs-string">&quot;ignore_above&quot;</span>: 256<br>          &#125;<br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
 <p><strong>面试加分回答</strong>：</p>
 <ul>
 <li>可以讲讲 <strong>text vs keyword</strong> 的区别（<code>text</code> 会分词，用于全文搜索；<code>keyword</code> 不会分词，用于精确匹配）</li>
+<li>可以讲讲 <strong>多字段（multi-field）</strong>：一个字段用 <code>text</code> 做全文搜索，同时用 <code>.keyword</code> 子字段做精确匹配&#x2F;排序&#x2F;聚合，是搜索场景里最常见的字段设计</li>
 <li>可以讲讲 <strong>动态映射的风险</strong>（比如数字被推断为 <code>long</code>，导致无法精确匹配）</li>
-<li>可以讲讲实际项目中的最佳实践（** always 使用静态映射**）</li>
+<li>可以讲讲实际项目中的最佳实践（<strong>建议使用静态映射</strong>）</li>
 </ul>
 <hr>
 <h3 id="Q7：Elasticsearch-的分词器（Analyzer）是什么？"><a href="#Q7：Elasticsearch-的分词器（Analyzer）是什么？" class="headerlink" title="Q7：Elasticsearch 的分词器（Analyzer）是什么？"></a>Q7：Elasticsearch 的分词器（Analyzer）是什么？</h3><p><strong>一句话总结</strong>：分词器是 ES 用于处理<strong>文本字段</strong>的组件，包括：<strong>字符过滤器（Character Filter）</strong>、<strong>分词器（Tokenizer）</strong>、<strong>词项过滤器（Token Filter）</strong>。</p>
@@ -632,8 +664,21 @@
 <li><strong>Standard Analyzer</strong>：默认分词器，按词切分，转小写</li>
 <li><strong>Simple Analyzer</strong>：按非字母字符切分，转小写</li>
 <li><strong>Whitespace Analyzer</strong>：按空格切分</li>
-<li><strong>IK Analyzer</strong>：中文分词器（需要安装插件）</li>
+<li><strong>IK Analyzer</strong>：中文分词器（需要单独安装插件，ES 官方不内置）</li>
 </ul>
+<p><strong>IK 分词器的两种模式（面试高频细节，容易混）</strong>：</p>
+<ul>
+<li><strong>ik_max_word</strong>：<strong>最细粒度拆分</strong>，穷举所有可能的词语组合。比如”中华人民共和国”会拆成”中华人民共和国&#x2F;中华人民&#x2F;中华&#x2F;华人&#x2F;人民共和国&#x2F;人民&#x2F;共和国&#x2F;共和&#x2F;国”等。<strong>通常用于 index time（建索引时）</strong>，让文档能被尽量多的词命中，召回率更高</li>
+<li><strong>ik_smart</strong>：<strong>最粗粒度拆分</strong>，只切出最可能的一种组合，比如”中华人民共和国”只切成”中华人民共和国”。<strong>通常用于 search time（查询时）</strong>，避免查询词被拆得过细导致检索结果发散、精度下降</li>
+</ul>
+<p><strong>Index Time 分词 vs Search Time 分词</strong>（面试常问，很多人分不清）：</p>
+<ul>
+<li><strong>Index Time（索引时）</strong>：文档写入时，<code>analyzer</code>（或未单独配置时的 <code>search_analyzer</code>&#x2F;<code>analyzer</code>）对字段内容分词，生成写入倒排索引的词项——这一步决定了”这份文档能被哪些词命中”</li>
+<li><strong>Search Time（查询时）</strong>：查询语句（如 <code>match</code> 的查询文本）也要经过分词，才能拿分词后的词项去匹配倒排索引——这一步决定了”这次查询会用哪些词去查”</li>
+<li>默认情况下 <code>analyzer</code> 同时作用于 index time 和 search time；如果需要不同策略，可以单独指定 <code>search_analyzer</code>，最典型的场景就是<strong>索引时用 <code>ik_max_word</code> 提高召回，搜索时用 <code>ik_smart</code> 提高精度</strong>：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,<br>        <span class="hljs-string">&quot;analyzer&quot;</span>: <span class="hljs-string">&quot;ik_max_word&quot;</span>,         <span class="hljs-comment"># index time：细粒度，尽量多命中</span><br>        <span class="hljs-string">&quot;search_analyzer&quot;</span>: <span class="hljs-string">&quot;ik_smart&quot;</span>      <span class="hljs-comment"># search time：粗粒度，减少噪音</span><br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
 <p><strong>示例</strong>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 测试分词器</span><br>POST /_analyze<br>&#123;<br>  <span class="hljs-string">&quot;analyzer&quot;</span>: <span class="hljs-string">&quot;standard&quot;</span>,<br>  <span class="hljs-string">&quot;text&quot;</span>: <span class="hljs-string">&quot;I love Elasticsearch&quot;</span><br>&#125;<br><br><span class="hljs-comment"># 返回：</span><br>&#123;<br>  <span class="hljs-string">&quot;tokens&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;token&quot;</span>: <span class="hljs-string">&quot;i&quot;</span>, <span class="hljs-string">&quot;position&quot;</span>: 0 &#125;,<br>    &#123; <span class="hljs-string">&quot;token&quot;</span>: <span class="hljs-string">&quot;love&quot;</span>, <span class="hljs-string">&quot;position&quot;</span>: 1 &#125;,<br>    &#123; <span class="hljs-string">&quot;token&quot;</span>: <span class="hljs-string">&quot;elasticsearch&quot;</span>, <span class="hljs-string">&quot;position&quot;</span>: 2 &#125;<br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -648,21 +693,31 @@
 <p><strong>深度解析</strong>：</p>
 <p><strong>BM25 算法</strong>：</p>
 <ul>
-<li>是 <strong>TF-IDF</strong> 的改进版</li>
+<li>是 <strong>TF-IDF</strong> 的改进版，<strong>ES 5.0 版本起默认相关性算法从经典的 TF-IDF（Classic Similarity）切换为 BM25</strong>（在此之前，ES 2.x 及更早版本默认用的是 TF-IDF）</li>
 <li>考虑<strong>词频（TF）</strong> 和 <strong>逆文档频率（IDF）</strong></li>
-<li>但会对<strong>词频</strong>进行饱和处理（避免高频词主导评分）</li>
+<li>会对<strong>词频</strong>做<strong>饱和处理</strong>：词出现次数越多贡献越大，但增速递减，不会线性无限加分（避免高频词&#x2F;关键词堆砌主导评分）</li>
 </ul>
-<p><strong>评分公式</strong>（简化版）：</p>
-<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-variable">score</span> <span class="hljs-operator">=</span> <span class="hljs-variable">TF</span> <span class="hljs-operator">*</span> <span class="hljs-variable">IDF</span> <span class="hljs-operator">*</span> <span class="hljs-variable">Field</span><span class="hljs-operator">-</span><span class="hljs-built_in">Length</span><span class="hljs-operator">-</span><span class="hljs-built_in">Norm</span><br><br>其中：<br><span class="hljs-operator">-</span> <span class="hljs-variable">TF</span>（词频）：词项在文档中出现的次数（经过饱和处理）<br><span class="hljs-operator">-</span> <span class="hljs-variable">IDF</span>（逆文档频率）：<span class="hljs-number">1</span> <span class="hljs-operator">/</span> <span class="hljs-punctuation">(</span>包含该词项的文档数<span class="hljs-punctuation">)</span><br><span class="hljs-operator">-</span> <span class="hljs-variable">Field</span><span class="hljs-operator">-</span><span class="hljs-built_in">Length</span><span class="hljs-operator">-</span><span class="hljs-built_in">Norm</span>（字段长度归一化）：<span class="hljs-number">1</span> <span class="hljs-operator">/</span> <span class="hljs-variable">sqrt</span><span class="hljs-punctuation">(</span>字段长度<span class="hljs-punctuation">)</span><br></code></pre></td></tr></table></figure>
+<p><strong>评分公式</strong>（简化版，忽略多词项求和）：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs erlang"><span class="hljs-function"><span class="hljs-title">score</span><span class="hljs-params">(D, Q)</span> = Σ IDF<span class="hljs-params">(qi)</span> · [ <span class="hljs-title">f</span><span class="hljs-params">(qi, D)</span> · <span class="hljs-params">(k1 + <span class="hljs-number">1</span>)</span> ] / [ <span class="hljs-title">f</span><span class="hljs-params">(qi, D)</span> + <span class="hljs-title">k1</span> · <span class="hljs-params">(<span class="hljs-number">1</span> − b + b · |D| / avgdl)</span> ]</span><br><span class="hljs-function"></span><br><span class="hljs-function">其中：</span><br><span class="hljs-function">- <span class="hljs-title">f</span><span class="hljs-params">(qi, D)</span>：词项 <span class="hljs-title">qi</span> 在文档 D 中出现的词频（TF）</span><br><span class="hljs-function">- |D|：文档 D 的字段长度，<span class="hljs-title">avgdl</span>：所有文档该字段的平均长度</span><br><span class="hljs-function">- IDF<span class="hljs-params">(qi)</span> ≈ <span class="hljs-title">ln</span><span class="hljs-params">(<span class="hljs-number">1</span> + (N − n(qi) + <span class="hljs-number">0.5</span>)</span> / <span class="hljs-params">(n(qi) + <span class="hljs-number">0.5</span>)</span>)</span><br><span class="hljs-function">  N：文档总数，<span class="hljs-title">n</span><span class="hljs-params">(qi)</span>：包含词项 <span class="hljs-title">qi</span> 的文档数（注意不是简单的 1/文档数，而是对数形式，防止极端值）</span><br></code></pre></td></tr></table></figure>
 
+<p><strong>BM25 的两个可调参数</strong>（面试高频，容易被追问）：</p>
+<ul>
+<li><strong>k1</strong>（默认 <code>1.2</code>）：控制词频饱和度。k1 越大，词频对评分的影响越持久（饱和得越慢）；k1 越小，词频很快就饱和，重复出现的词边际收益迅速下降</li>
+<li><strong>b</strong>（默认 <code>0.75</code>）：控制字段长度归一化的强度。b&#x3D;1 表示完全按字段长度归一化（长文档会被压低分数）；b&#x3D;0 表示完全不考虑字段长度</li>
+<li>可以在 mapping 里给字段自定义 similarity 来调这两个参数：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash">PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;settings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;similarity&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;my_bm25&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;BM25&quot;</span>,<br>          <span class="hljs-string">&quot;k1&quot;</span>: 1.5,<br>          <span class="hljs-string">&quot;b&quot;</span>: 0.6<br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;,<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: &#123; <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;similarity&quot;</span>: <span class="hljs-string">&quot;my_bm25&quot;</span> &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>如何关闭算分</strong>：不需要相关性排序、只需要”是否匹配”的场景（比如权限过滤、状态过滤），应该把条件放进 <strong>filter context</strong>（<code>bool.filter</code>、<code>constant_score</code> 的 <code>filter</code>）而不是 <code>must</code>——filter context 下不计算 <code>_score</code>（统一记为 1），且结果可以被缓存，比 query context 更快。</p>
 <p><strong>示例</strong>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看文档的评分详情</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;explain&quot;</span>: <span class="hljs-literal">true</span>,<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;match&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;title&quot;</span>: <span class="hljs-string">&quot;Elasticsearch&quot;</span><br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>面试加分回答</strong>：</p>
 <ul>
+<li>可以讲讲 <strong>query context vs filter context</strong>（<code>filter</code> 不算分、可缓存，权限过滤这类”是否满足条件”的场景应该用 <code>filter</code>）</li>
 <li>可以讲讲 <strong>如何自定义评分</strong>（使用 <code>function_score</code> 查询）</li>
 <li>可以讲讲 <strong>如何影响评分</strong>（比如给新发布的文档加权）</li>
-<li>可以讲讲实际项目中的优化（比如<strong>取消评分</strong> <code>_score</code> 以提高性能）</li>
+<li>可以讲讲实际项目中的优化：比如在 KNN 向量召回后，用 <code>rescore</code> 对召回窗口内的候选做 BM25 二次重打分——这是”重打分”而不是”融合两个独立排行榜”（RRF），细节见后面的向量检索小节</li>
 </ul>
 <hr>
 <h3 id="Q9：Elasticsearch-的分布式架构是什么？"><a href="#Q9：Elasticsearch-的分布式架构是什么？" class="headerlink" title="Q9：Elasticsearch 的分布式架构是什么？"></a>Q9：Elasticsearch 的分布式架构是什么？</h3><p><strong>一句话总结</strong>：ES 是<strong>分布式系统</strong>，通过<strong>分片（Shard）</strong> 实现水平扩展，通过<strong>副本（Replica）</strong> 实现高可用。</p>
@@ -682,10 +737,43 @@
 <li>主分片写入成功后，并行转发到<strong>所有副本分片</strong></li>
 <li>所有副本分片写入成功后，返回成功给客户端</li>
 </ol>
+<p><strong>ES 的查询流程（Query Then Fetch）</strong>：搜索默认分两个阶段，为的是避免”每个分片都把完整文档传给协调节点再排序”造成的巨大网络和内存开销：</p>
+<ol>
+<li><strong>Query 阶段</strong>：协调节点把查询广播给相关分片（主或副本二选一），每个分片<strong>在本地</strong>执行查询并打分，只返回<strong>轻量的 <code>doc_id + score</code></strong>（并不返回完整文档），协调节点收集所有分片的结果后做<strong>全局排序</strong>，截出最终需要的 <code>from~from+size</code> 那一段</li>
+<li><strong>Fetch 阶段</strong>：协调节点只向<strong>排序后确实要返回的那几条</strong>结果所在的分片，按需请求这些 <code>doc_id</code> 对应的<strong>完整文档内容</strong>，取回后拼装成最终响应</li>
+</ol>
+<pre><code class=" mermaid">sequenceDiagram
+    participant C as 客户端
+    participant Co as 协调节点
+    participant S1 as 分片1
+    participant S2 as 分片2
+    participant S3 as 分片3
+
+    C-&gt;&gt;Co: 发起搜索请求
+    Note over Co,S3: Query 阶段
+    Co-&gt;&gt;S1: 转发查询
+    Co-&gt;&gt;S2: 转发查询
+    Co-&gt;&gt;S3: 转发查询
+    S1--&gt;&gt;Co: 返回本地 Top-N 的 doc_id + score
+    S2--&gt;&gt;Co: 返回本地 Top-N 的 doc_id + score
+    S3--&gt;&gt;Co: 返回本地 Top-N 的 doc_id + score
+    Co-&gt;&gt;Co: 合并所有分片结果并全局排序，截取 from~size
+    Note over Co,S3: Fetch 阶段
+    Co-&gt;&gt;S1: 按 doc_id 请求完整文档
+    Co-&gt;&gt;S3: 按 doc_id 请求完整文档
+    S1--&gt;&gt;Co: 返回完整文档内容
+    S3--&gt;&gt;Co: 返回完整文档内容
+    Co--&gt;&gt;C: 返回最终结果
+</code></pre>
+
+<ul>
+<li>这也是为什么<strong>深分页代价大</strong>：<code>from+size</code> 越大，每个分片在 Query 阶段都要在本地排出 <code>from+size</code> 条，协调节点要合并 <code>分片数 ×(from+size)</code> 条结果再排序，from 越大开销越大</li>
+</ul>
 <p><strong>面试加分回答</strong>：</p>
 <ul>
 <li>可以讲讲 <strong>如何规划节点角色</strong>（小规模集群可以混合部署，大规模集群应该分离角色）</li>
-<li>可以讲讲 <strong>如何避免脑裂问题</strong>（设置 <code>discovery.zen.minimum_master_nodes</code>）</li>
+<li>可以讲讲 <strong>为什么要 Query Then Fetch 两阶段</strong>（避免每个分片把完整文档都传回协调节点，Query 阶段只传轻量的 doc_id+score，只有最终会返回的那几条才在 Fetch 阶段取完整内容）</li>
+<li>可以讲讲 <strong>如何避免脑裂问题</strong>（ES 7.0 之前用 <code>discovery.zen.minimum_master_nodes</code> 手动配置候选主节点法定人数；<strong>ES 7.0 起该参数已被移除</strong>，改为集群内置的选主机制&#x2F;**投票配置（voting configuration）**自动管理，不再需要手动设置）</li>
 <li>可以讲讲实际项目中的部署方案（比如 3 个主节点 + 多个数据节点）</li>
 </ul>
 <hr>
@@ -693,24 +781,44 @@
 <p><strong>深度解析</strong>：</p>
 <p><strong>为什么不是实时？</strong></p>
 <ul>
-<li>Lucene 的<strong>倒排索引</strong>是不可变的（Immutable）</li>
-<li>新的文档首先写入<strong>内存缓冲区</strong>（In-memory Buffer）</li>
-<li>然后定期（默认 1 秒）<strong>刷新（Refresh）</strong> 到<strong>文件系统缓存</strong>（File System Cache）</li>
-<li>只有刷新后，文档才能被搜索到</li>
+<li>Lucene 的**段（Segment）**一旦写完就是不可变的（Immutable）</li>
+<li>新写入的文档首先进入<strong>内存缓冲区</strong>（In-memory Indexing Buffer），此时<strong>还不可搜索</strong></li>
+<li>默认每隔 <strong>1 秒</strong>执行一次 <strong>刷新（Refresh）</strong>：把缓冲区中的文档写成一个新的、驻留在<strong>文件系统缓存</strong>（File System Cache）里的 Lucene 段（这一步很轻量，不需要 fsync 到磁盘）</li>
+<li><strong>只有 refresh 完成、段对外可见之后，这批文档才能被搜索到</strong>——“近实时”这个说法的来源正是这个默认 1 秒的 refresh 间隔，而不是数据已经落盘</li>
 </ul>
-<p><strong>刷新（Refresh）vs 刷写（Flush）</strong>：</p>
+<p><strong>数据不丢失靠的是 Translog（事务日志），不是 refresh</strong>：</p>
 <ul>
-<li><strong>刷新（Refresh）</strong>：将内存缓冲区写入文件系统缓存（<strong>轻量级</strong>，不保证持久化）</li>
-<li><strong>刷写（Flush）</strong>：将文件系统缓存写入磁盘（<strong>重量级</strong>，保证持久化）</li>
+<li>refresh 只是让内存里的数据变得<strong>可搜索</strong>，并不保证<strong>持久化</strong>——如果这时候进程崩溃、缓冲区里的数据会丢</li>
+<li>所以每次写操作在写入内存缓冲区的<strong>同时</strong>，也会追加写入 <strong>translog</strong>（默认每个请求都 fsync，<code>index.translog.durability</code> 可调为 <code>async</code> 定期 fsync 以换取更高吞吐）</li>
+<li>节点重启恢复时，ES 会重放 translog 中尚未落盘的操作，从而保证不丢数据——<strong>refresh 保证”近实时可搜索”，translog 保证”数据不丢失”，两者各管一段，不要混为一谈</strong></li>
 </ul>
+<p><strong>刷新（Refresh）vs 刷写（Flush）vs 段合并（Merge）</strong>：</p>
+<ul>
+<li><strong>刷新（Refresh）</strong>：内存缓冲区 → 生成新的、可搜索的 Lucene 段（<strong>轻量级</strong>，默认 1 秒一次，不保证持久化到磁盘，也不清空 translog）</li>
+<li><strong>刷写（Flush）</strong>：把文件系统缓存中的段 <code>fsync</code> 到磁盘，生成新的 <strong>commit point</strong>，并清空&#x2F;截断已经落盘的 translog（<strong>重量级</strong>，保证持久化；默认由 translog 大小&#x2F;时间等条件触发，也可手动调用）</li>
+<li><strong>段合并（Merge）</strong>：refresh 越频繁，小段越多，查询要遍历的段也越多，删除的文档也需要靠合并才能真正清理；ES 后台会定期把多个小段<strong>合并成更大的段</strong>，同时物理删除标记为已删除的文档，减少段数量、提升查询效率（这一步会消耗 CPU 和 IO，是写入性能调优时经常要控制的点）</li>
+</ul>
+<pre><code class=" mermaid">flowchart LR
+    W[&quot;写请求&quot;] --&gt; B[&quot;内存缓冲区 In-memory Buffer（尚不可搜索）&quot;]
+    W --&gt; TL[&quot;Translog（追加写，默认每请求 fsync）&quot;]
+
+    B --&gt;|&quot;默认每 1s，refresh&quot;| SEG[&quot;新 Segment 生成，进入文件系统缓存（此时可被搜索——近实时的由来）&quot;]
+    SEG --&gt;|&quot;持续写入产生更多小 Segment&quot;| MERGE[&quot;Segment Merge：合并小段、物理清理已删除文档&quot;]
+
+    TL --&gt;|&quot;节点重启时重放，保证数据不丢&quot;| RECOVER[&quot;崩溃恢复&quot;]
+
+    SEG --&gt;|&quot;达到阈值/定期，flush&quot;| FLUSH[&quot;fsync 到磁盘 + 生成新 Commit Point&quot;]
+    FLUSH --&gt;|&quot;已落盘的操作可以清空&quot;| TL
+</code></pre>
+
 <p><strong>示例</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 手动触发刷新</span><br>POST /my_index/_refresh<br><br><span class="hljs-comment"># 修改刷新间隔（默认 1 秒）</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;refresh_interval&quot;</span>: <span class="hljs-string">&quot;30s&quot;</span>   <span class="hljs-comment"># 30 秒刷新一次</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 手动触发刷新</span><br>POST /my_index/_refresh<br><br><span class="hljs-comment"># 修改刷新间隔（默认 1 秒）</span><br>PUT /my_index/_settings<br>&#123;<br>  <span class="hljs-string">&quot;index&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;refresh_interval&quot;</span>: <span class="hljs-string">&quot;30s&quot;</span>   <span class="hljs-comment"># 30 秒刷新一次</span><br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 手动触发 flush（fsync 到磁盘并清空已落盘部分的 translog）</span><br>POST /my_index/_flush<br></code></pre></td></tr></table></figure>
 
 <p><strong>面试加分回答</strong>：</p>
 <ul>
 <li>可以讲讲 <strong>如何优化刷新间隔</strong>（提高写入性能 vs 提高搜索实时性）</li>
-<li>可以讲讲 <strong>为什么文件系统缓存很重要</strong>（Linux 会自动缓存文件，提高搜索性能）</li>
-<li>可以讲讲实际项目中的调优（比如批量导入时禁用刷新）</li>
+<li>可以讲讲 <strong>refresh、flush、translog、merge 各自解决什么问题</strong>（refresh 管可搜索性，translog 管不丢数据，flush 管持久化，merge 管段数量和查询效率），这是这道题最容易被追问混淆的地方</li>
+<li>可以讲讲实际项目中的调优（比如批量导入时临时禁用刷新、调大 translog flush 阈值以降低 IO）</li>
 </ul>
 <hr>
 <h2 id="第二部分：Elasticsearch-索引和映射（Q11-Q20）"><a href="#第二部分：Elasticsearch-索引和映射（Q11-Q20）" class="headerlink" title="第二部分：Elasticsearch 索引和映射（Q11-Q20）"></a>第二部分：Elasticsearch 索引和映射（Q11-Q20）</h2><h3 id="Q11：Elasticsearch-的索引模板（Index-Template）是什么？"><a href="#Q11：Elasticsearch-的索引模板（Index-Template）是什么？" class="headerlink" title="Q11：Elasticsearch 的索引模板（Index Template）是什么？"></a>Q11：Elasticsearch 的索引模板（Index Template）是什么？</h3><p><strong>一句话总结</strong>：索引模板是 ES 的<strong>自动应用 mapping 和 settings</strong> 的机制，当创建新索引时，如果匹配模板模式，则自动应用模板中的配置。</p>
@@ -990,8 +1098,16 @@
 <p><strong>示例</strong>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 按作者分组，统计每本书的平均价格、最高价格、不同价格区间的文档数</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;size&quot;</span>: 0,                                      <span class="hljs-comment"># 不返回文档，只返回聚合结果</span><br>  <span class="hljs-string">&quot;aggs&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;by_author&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;terms&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;author.keyword&quot;</span><br>      &#125;,<br>      <span class="hljs-string">&quot;aggs&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;avg_price&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;avg&quot;</span>: &#123; <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;price&quot;</span> &#125;<br>        &#125;,<br>        <span class="hljs-string">&quot;max_price&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;max&quot;</span>: &#123; <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;price&quot;</span> &#125;<br>        &#125;,<br>        <span class="hljs-string">&quot;price_ranges&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;range&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;price&quot;</span>,<br>            <span class="hljs-string">&quot;ranges&quot;</span>: [<br>              &#123; <span class="hljs-string">&quot;to&quot;</span>: 50 &#125;,<br>              &#123; <span class="hljs-string">&quot;from&quot;</span>: 50, <span class="hljs-string">&quot;to&quot;</span>: 100 &#125;,<br>              &#123; <span class="hljs-string">&quot;from&quot;</span>: 100 &#125;<br>            ]<br>          &#125;<br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<p><strong><code>terms</code> 聚合的精度问题（面试高频，很多人不知道）</strong>：</p>
+<ul>
+<li><code>terms</code> 聚合默认是<strong>分片级近似计算</strong>：每个分片先各自算出本分片 Top-N 的 buckets，再汇总到协调节点合并——<strong>不是把所有分片的全量数据拉到协调节点精确统计</strong>，所以分布式场景下 <code>terms</code> 聚合的计数<strong>可能不精确</strong></li>
+<li>返回结果里的 <code>doc_count_error_upper_bound</code>（该次聚合可能的最大计数误差）和 <code>sum_other_doc_count</code>（没有进入返回 buckets 的其它文档数）就是用来暴露这个误差的</li>
+<li>典型场景：某个词项在大多数分片里排不进前几名、但在个别分片里数量不小，如果每个分片只上报 Top-N，这个词项可能被漏掉或算少</li>
+<li><strong>缓解方式</strong>：调大 <code>shard_size</code>（每个分片参与预聚合的候选桶数，默认是 <code>size</code> 的一个放大值），用更大的候选集换更高精度，但会增加内存和网络开销；如果字段基数不大，也可以考虑不分片聚合或用 <code>cardinality</code>（基于 HyperLogLog++ 近似算法，本身也是近似值，不追求精确去重计数时用它换性能）</li>
+</ul>
 <p><strong>面试加分回答</strong>：</p>
 <ul>
+<li>可以讲讲 <strong><code>terms</code> 聚合为什么不精确</strong>（分片级近似 Top-N，<code>doc_count_error_upper_bound</code> 就是用来衡量误差的）、如何用 <code>shard_size</code> 提高精度</li>
 <li>可以讲讲 <strong>聚合的性能优化</strong>（比如 <code>size: 0</code>、使用 <code>execution_hint</code>）</li>
 <li>可以讲讲 <strong>聚合的内存限制</strong>（比如 <code>circuit_breaker</code>）</li>
 <li>可以讲讲实际项目中的应用（比如用户画像分析、日志统计分析）</li>
@@ -1019,9 +1135,9 @@
 <p><strong>深度解析</strong>：</p>
 <p><strong>分页的类型</strong>：</p>
 <ol>
-<li><strong>From&#x2F;Size</strong>：<strong>浅分页</strong>（适合前 1000 条结果）</li>
-<li><strong>Scroll</strong>：<strong>深分页</strong>（适合导出大量数据）</li>
-<li><strong>Search After</strong>：<strong>深分页</strong>（适合实时分页）</li>
+<li><strong>From&#x2F;Size</strong>：<strong>浅分页</strong>（适合前 1000 条左右结果，ES 默认限制 <code>from + size</code> 不超过 <code>index.max_result_window</code>，默认 10000）</li>
+<li><strong>Scroll</strong>：<strong>深分页</strong>，但<strong>已不推荐用于”用户实时翻页”场景</strong>，官方定位是给<strong>导出大量数据 &#x2F; reindex 这类一次性批量遍历</strong>用的——它会保持一个快照视图，长时间占用资源，且不支持”跳页”</li>
+<li><strong>Search After（配合 Point in Time，推荐）</strong>：<strong>深分页首选方案</strong>，无状态、代价与 <code>from/size</code> 无关，只能”翻下一页”不能跳页，适合无限滚动等实时分页场景</li>
 </ol>
 <p><strong>From&#x2F;Size 的问题</strong>：</p>
 <ul>
@@ -1029,13 +1145,13 @@
 <li><strong>性能很差</strong>（占用大量内存和 CPU）</li>
 </ul>
 <p><strong>示例</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># From/Size 分页（浅分页）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;from&quot;</span>: 0,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10<br>&#125;<br><br><span class="hljs-comment"># Scroll 分页（深分页，适合导出数据）</span><br>POST /my_index/_search?scroll=1m<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;size&quot;</span>: 100<br>&#125;<br><br><span class="hljs-comment"># 获取下一页</span><br>POST /_search/scroll<br>&#123;<br>  <span class="hljs-string">&quot;scroll&quot;</span>: <span class="hljs-string">&quot;1m&quot;</span>,<br>  <span class="hljs-string">&quot;scroll_id&quot;</span>: <span class="hljs-string">&quot;XXXXXXXXXX&quot;</span><br>&#125;<br><br><span class="hljs-comment"># Search After 分页（深分页，适合实时分页）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10,<br>  <span class="hljs-string">&quot;sort&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;asc&quot;</span> &#125;                         <span class="hljs-comment"># 必须包含唯一值字段</span><br>  ]<br>&#125;<br><br><span class="hljs-comment"># 下一页（使用上一页最后一条文档的 sort 值）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10,<br>  <span class="hljs-string">&quot;sort&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;asc&quot;</span> &#125;<br>  ],<br>  <span class="hljs-string">&quot;search_after&quot;</span>: [<span class="hljs-string">&quot;doc_id_10&quot;</span>]              <span class="hljs-comment"># 上一页最后一条文档的 _id 值</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># From/Size 分页（浅分页）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;from&quot;</span>: 0,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10<br>&#125;<br><br><span class="hljs-comment"># Scroll 分页（深分页，适合导出数据）</span><br>POST /my_index/_search?scroll=1m<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;size&quot;</span>: 100<br>&#125;<br><br><span class="hljs-comment"># 获取下一页</span><br>POST /_search/scroll<br>&#123;<br>  <span class="hljs-string">&quot;scroll&quot;</span>: <span class="hljs-string">&quot;1m&quot;</span>,<br>  <span class="hljs-string">&quot;scroll_id&quot;</span>: <span class="hljs-string">&quot;XXXXXXXXXX&quot;</span><br>&#125;<br><br><span class="hljs-comment"># Search After 分页（深分页，适合实时分页），排序字段要能唯一确定文档顺序</span><br><span class="hljs-comment"># 通常在业务排序字段之外，再加一个 _shard_doc（或 _id）做 tiebreaker</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10,<br>  <span class="hljs-string">&quot;sort&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;asc&quot;</span> &#125;                         <span class="hljs-comment"># 必须包含唯一值字段，保证排序稳定</span><br>  ]<br>&#125;<br><br><span class="hljs-comment"># 下一页（使用上一页最后一条文档的 sort 值）</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10,<br>  <span class="hljs-string">&quot;sort&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;asc&quot;</span> &#125;<br>  ],<br>  <span class="hljs-string">&quot;search_after&quot;</span>: [<span class="hljs-string">&quot;doc_id_10&quot;</span>]              <span class="hljs-comment"># 上一页最后一条文档的 _id 值</span><br>&#125;<br><br><span class="hljs-comment"># Point in Time（PIT，ES 7.10+）：search_after 单独使用时，如果分页过程中有文档增删、</span><br><span class="hljs-comment"># 排序基准可能&quot;漂移&quot;；配合 PIT 可以固定住这段时间的数据视图，分页结果更稳定</span><br>POST /my_index/_pit?keep_alive=1m<br><span class="hljs-comment"># 返回一个 pit_id</span><br><br>GET /_search<br>&#123;<br>  <span class="hljs-string">&quot;size&quot;</span>: 10,<br>  <span class="hljs-string">&quot;query&quot;</span>: &#123; <span class="hljs-string">&quot;match_all&quot;</span>: &#123;&#125; &#125;,<br>  <span class="hljs-string">&quot;pit&quot;</span>: &#123; <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;PIT_ID_XXXX&quot;</span>, <span class="hljs-string">&quot;keep_alive&quot;</span>: <span class="hljs-string">&quot;1m&quot;</span> &#125;,<br>  <span class="hljs-string">&quot;sort&quot;</span>: [ &#123; <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-string">&quot;asc&quot;</span> &#125; ]<br>  <span class="hljs-comment"># 后续翻页同样带上 search_after，不再需要指定索引名，索引信息已经绑定在 pit 里</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>面试加分回答</strong>：</p>
 <ul>
-<li>可以讲讲 <strong>为什么 From&#x2F;Size 不适合深分页</strong></li>
-<li>可以讲讲 <strong>Scroll vs Search After</strong> 的区别（<code>scroll</code> 适合导出数据，<code>search_after</code> 适合实时分页）</li>
-<li>可以讲讲实际项目中的分页方案（比如<strong>无限滚动分页</strong>，使用 <code>search_after</code>）</li>
+<li>可以讲讲 <strong>为什么 From&#x2F;Size 不适合深分页</strong>（每个分片都要在本地排出 <code>from+size</code> 条，from 越大协调节点要合并排序的数据量越大，是 Query Then Fetch 两阶段查询里 Query 阶段的开销）</li>
+<li>可以讲讲 <strong>Scroll vs Search After</strong> 的区别（<code>scroll</code> 保持时间点快照，适合一次性导出数据；<code>search_after</code> 无状态、只能往后翻页，是<strong>当前官方推荐</strong>的深分页&#x2F;实时分页方案，通常配合 <strong>Point in Time</strong> 使用以获得稳定的一致性视图）</li>
+<li>可以讲讲实际项目中的分页方案（比如<strong>无限滚动分页</strong>，使用 <code>search_after</code> + PIT）</li>
 </ul>
 <hr>
 <h3 id="Q26：Elasticsearch-的高亮（Highlighting）是什么？"><a href="#Q26：Elasticsearch-的高亮（Highlighting）是什么？" class="headerlink" title="Q26：Elasticsearch 的高亮（Highlighting）是什么？"></a>Q26：Elasticsearch 的高亮（Highlighting）是什么？</h3><p><strong>一句话总结</strong>：高亮是 ES 的<strong>在搜索结果中标记关键词</strong>的功能，通常用于<strong>全文搜索</strong>。</p>
@@ -1527,13 +1643,106 @@
 <li><strong>审计日志</strong>：记录用户操作**</li>
 </ol>
 <p><strong>示例</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建用户</span><br>POST /_security/user/john<br>&#123;<br>  <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">&quot;password&quot;</span>,<br>  <span class="hljs-string">&quot;roles&quot;</span>: [<span class="hljs-string">&quot;admin&quot;</span>]<br>&#125;<br><br><span class="hljs-comment"># 创建角色</span><br>POST /_security/role/devops<br>&#123;<br>  <span class="hljs-string">&quot;indices&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;names&quot;</span>: [<span class="hljs-string">&quot;*&quot;</span>], <span class="hljs-string">&quot;privileges&quot;</span>: [<span class="hljs-string">&quot;all&quot;</span>] &#125;<br>  ]<br>&#125;<br><br><span class="hljs-comment"># 启用 TLS/SSL</span><br><span class="hljs-comment"># 修改 config/elasticsearch.yml</span><br>xpack.security.enabled: <span class="hljs-literal">true</span><br>xpack.security.transport.ll.enabled: <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建用户</span><br>POST /_security/user/john<br>&#123;<br>  <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">&quot;password&quot;</span>,<br>  <span class="hljs-string">&quot;roles&quot;</span>: [<span class="hljs-string">&quot;admin&quot;</span>]<br>&#125;<br><br><span class="hljs-comment"># 创建角色</span><br>POST /_security/role/devops<br>&#123;<br>  <span class="hljs-string">&quot;indices&quot;</span>: [<br>    &#123; <span class="hljs-string">&quot;names&quot;</span>: [<span class="hljs-string">&quot;*&quot;</span>], <span class="hljs-string">&quot;privileges&quot;</span>: [<span class="hljs-string">&quot;all&quot;</span>] &#125;<br>  ]<br>&#125;<br><br><span class="hljs-comment"># 启用 TLS/SSL</span><br><span class="hljs-comment"># 修改 config/elasticsearch.yml</span><br>xpack.security.enabled: <span class="hljs-literal">true</span><br>xpack.security.transport.ssl.enabled: <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
 
 <p><strong>面试加分回答</strong>：</p>
 <ul>
 <li>可以讲讲 <strong>为什么需要启用安全机制</strong>（防止未授权访问、保护敏感数据）</li>
 <li>可以讲讲 <strong>如何集成 LDAP&#x2F;AD</strong>（使用 LDAP Realm）</li>
 <li>可以讲讲实际项目中的安全方案（比如<strong>启用身份认证和权限控制</strong>）</li>
+</ul>
+<hr>
+<h2 id="🎯-加餐：向量检索与-KNN-BM25-rescore-混合检索"><a href="#🎯-加餐：向量检索与-KNN-BM25-rescore-混合检索" class="headerlink" title="🎯 加餐：向量检索与 KNN + BM25 rescore 混合检索"></a>🎯 加餐：向量检索与 KNN + BM25 rescore 混合检索</h2><blockquote>
+<p>这一节是我在项目里<strong>真正用到</strong>的部分，也是简历上写了向量检索之后最容易被面试官深挖的地方，务必吃透——尤其是要分清楚 <strong>rescore（重打分）</strong> 和 <strong>RRF（倒数排名融合）</strong> 是两种完全不同的混合检索思路，不要在面试里说混。</p>
+</blockquote>
+<h3 id="Q51：Elasticsearch-的-dense-vector-和-kNN-搜索是什么？"><a href="#Q51：Elasticsearch-的-dense-vector-和-kNN-搜索是什么？" class="headerlink" title="Q51：Elasticsearch 的 dense_vector 和 kNN 搜索是什么？"></a>Q51：Elasticsearch 的 <code>dense_vector</code> 和 kNN 搜索是什么？</h3><p><strong>一句话总结</strong>：<code>dense_vector</code> 是 ES 用来存储向量的字段类型，kNN 搜索基于 <strong>HNSW（分层可导航小世界图）</strong> 做<strong>近似最近邻</strong>检索，用向量相似度而不是关键词匹配来召回文档。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>dense_vector 字段定义</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">PUT /my_index<br>&#123;<br>  <span class="hljs-string">&quot;mappings&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;properties&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;content_vector&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;dense_vector&quot;</span>,<br>        <span class="hljs-string">&quot;dims&quot;</span>: 768,                     <span class="hljs-comment"># 向量维度，需要和向量模型输出一致</span><br>        <span class="hljs-string">&quot;index&quot;</span>: <span class="hljs-literal">true</span>,                   <span class="hljs-comment"># 开启索引才能用 knn 检索（而不仅是存储用于脚本打分）</span><br>        <span class="hljs-string">&quot;similarity&quot;</span>: <span class="hljs-string">&quot;cosine&quot;</span>,          <span class="hljs-comment"># 相似度度量：cosine / dot_product / l2_norm</span><br>        <span class="hljs-string">&quot;index_options&quot;</span>: &#123;<br>          <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;hnsw&quot;</span>,<br>          <span class="hljs-string">&quot;m&quot;</span>: 16,                       <span class="hljs-comment"># 每个节点的最大连接数，越大召回率越高、越占内存</span><br>          <span class="hljs-string">&quot;ef_construction&quot;</span>: 100         <span class="hljs-comment"># 建图时的候选队列大小，越大建图越慢但图质量越高</span><br>        &#125;<br>      &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>kNN 搜索请求（近似最近邻）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;knn&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;content_vector&quot;</span>,<br>    <span class="hljs-string">&quot;query_vector&quot;</span>: [0.12, -0.03, ...],  <span class="hljs-comment"># 查询文本经过同一个向量模型编码后的向量</span><br>    <span class="hljs-string">&quot;k&quot;</span>: 10,                              <span class="hljs-comment"># 最终每个分片要返回给协调节点合并的近邻数</span><br>    <span class="hljs-string">&quot;num_candidates&quot;</span>: 100                 <span class="hljs-comment"># 每个分片内部搜索时实际探索的候选数量</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>num_candidates 与 k 的关系</strong>（面试常问）：</p>
+<ul>
+<li><code>num_candidates</code> <strong>必须 ≥ k</strong>：它是 HNSW 图在<strong>单个分片内部</strong>探索、比较的候选数量，最终只从这些候选里选出 Top-k 返回给协调节点做全局合并</li>
+<li><code>num_candidates</code> 越大，越接近<strong>精确</strong>（brute-force）最近邻的召回效果，但查询延迟和 CPU 开销也越大；越小则越快，但可能漏掉真正的近邻（这就是”近似”最近邻的近似之处）</li>
+<li>经验做法：<code>num_candidates</code> 取 <code>k</code> 的几倍到十几倍（比如 k&#x3D;10 时 num_candidates 取 50~100），根据召回率要求和延迟预算去调</li>
+</ul>
+<hr>
+<h3 id="Q52：如何把-kNN-向量召回和-BM25-关键词检索结合起来做混合检索？（rescore-方案，本项目实际用法）"><a href="#Q52：如何把-kNN-向量召回和-BM25-关键词检索结合起来做混合检索？（rescore-方案，本项目实际用法）" class="headerlink" title="Q52：如何把 kNN 向量召回和 BM25 关键词检索结合起来做混合检索？（rescore 方案，本项目实际用法）"></a>Q52：如何把 kNN 向量召回和 BM25 关键词检索结合起来做混合检索？（rescore 方案，本项目实际用法）</h3><p><strong>一句话总结</strong>：本项目的做法是 <strong>KNN 召回候选集 → 把权限过滤下推进 kNN 查询本身 → 用 BM25 对候选窗口内的文档做 rescore 重打分</strong>，用 <code>query_weight</code> &#x2F; <code>rescore_query_weight</code> 线性加权得到最终排序——这是”<strong>在同一批候选里重新打分</strong>“，<strong>不是 RRF</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>第一步：权限过滤下推到 kNN 查询里</strong>（而不是召回之后再过滤）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;knn&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;content_vector&quot;</span>,<br>    <span class="hljs-string">&quot;query_vector&quot;</span>: [0.12, -0.03, ...],<br>    <span class="hljs-string">&quot;k&quot;</span>: 50,<br>    <span class="hljs-string">&quot;num_candidates&quot;</span>: 200,<br>    <span class="hljs-string">&quot;filter&quot;</span>: &#123;                                <span class="hljs-comment"># 过滤条件下推进 kNN 查询本身</span><br>      <span class="hljs-string">&quot;term&quot;</span>: &#123; <span class="hljs-string">&quot;visible_to_group&quot;</span>: <span class="hljs-string">&quot;user_123_dept&quot;</span> &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>把权限条件写进 <code>knn.filter</code>，是让 ES 在做近似最近邻搜索时就把”不该被这个用户看到的文档”排除掉，而不是先召回 k 条再在应用层过滤——后者会导致召回数量不足 k 条（因为召回的 k 条里可能一部分被过滤掉了却补不回来），前者能保证最终返回的近邻始终是”用户有权限看到的文档里最相似的那些”</li>
+</ul>
+<p><strong>第二步：在候选窗口内用 BM25 做 rescore 重打分</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash">GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;knn&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;content_vector&quot;</span>,<br>    <span class="hljs-string">&quot;query_vector&quot;</span>: [0.12, -0.03, ...],<br>    <span class="hljs-string">&quot;k&quot;</span>: 50,<br>    <span class="hljs-string">&quot;num_candidates&quot;</span>: 200,<br>    <span class="hljs-string">&quot;filter&quot;</span>: &#123; <span class="hljs-string">&quot;term&quot;</span>: &#123; <span class="hljs-string">&quot;visible_to_group&quot;</span>: <span class="hljs-string">&quot;user_123_dept&quot;</span> &#125; &#125;<br>  &#125;,<br>  <span class="hljs-string">&quot;rescore&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;window_size&quot;</span>: 50,                          <span class="hljs-comment"># 只对本次召回的这 50 条候选重新打分，不扩大候选范围</span><br>    <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;rescore_query&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;用户输入的原始查询文本&quot;</span> &#125;<br>      &#125;,<br>      <span class="hljs-string">&quot;query_weight&quot;</span>: 0.3,                       <span class="hljs-comment"># 原始（向量召回）分数的权重</span><br>      <span class="hljs-string">&quot;rescore_query_weight&quot;</span>: 0.7                 <span class="hljs-comment"># BM25 rescore 分数的权重</span><br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>rescore</code> 的语义是：<strong>先拿到一份已经排好序的候选列表</strong>（这里是 kNN 按向量相似度排好序的 <code>window_size</code> 条），<strong>只对这个候选窗口内的文档</strong>执行第二个（通常更贵、更精细的）查询重新打分，最终分数 &#x3D; <code>原始分数 × query_weight + rescore查询分数 × rescore_query_weight</code>（线性加权），再按新分数重新排序这个窗口</li>
+<li>好处是<strong>只对候选窗口内的少量文档</strong>做代价较高的第二次打分，而不是对全量索引跑一遍，性能可控；代价是需要人工调 <code>query_weight</code> &#x2F; <code>rescore_query_weight</code> 这两个权重，而且向量相似度分数和 BM25 分数<strong>量纲不同</strong>，权重不好调准</li>
+</ul>
+<p><strong>为什么这不是 RRF（很容易被面试官追问的对比点）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>rescore（本项目用的方案）</th>
+<th>RRF（Reciprocal Rank Fusion）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>输入</td>
+<td><strong>一份</strong>已排序的候选列表（kNN 召回的 window_size 条）</td>
+<td><strong>两份独立</strong>的、各自完整排序的结果列表（比如一份 kNN 排行榜 + 一份 BM25 排行榜）</td>
+</tr>
+<tr>
+<td>计算方式</td>
+<td>用第二个查询对同一批候选<strong>重新计算分数</strong>，和原始分数<strong>线性加权求和</strong></td>
+<td>不看原始分数，只看<strong>排名位置</strong>，按 <code>score = Σ 1/(k_rrf + rank_i)</code> 把两份排行榜的名次融合成一份新排行榜</td>
+</tr>
+<tr>
+<td>是否需要分数同量纲</td>
+<td><strong>需要</strong>：两个分数直接加权求和，量纲&#x2F;分布不一致会导致权重难调</td>
+<td><strong>不需要</strong>：只用排名（rank），天然规避了向量分数和 BM25 分数量纲不同的问题</td>
+</tr>
+<tr>
+<td>候选范围</td>
+<td>只在<strong>已召回的候选窗口</strong>内重排序</td>
+<td>两份列表各自<strong>独立召回</strong>，融合时可以覆盖两边各自的头部结果</td>
+</tr>
+<tr>
+<td>ES 支持形式</td>
+<td><code>rescore</code> 参数（GA 已久，成熟稳定）</td>
+<td><code>retriever: rrf</code>（ES 8.8+ 引入，早期版本是技术预览特性）</td>
+</tr>
+</tbody></table>
+<pre><code class=" mermaid">flowchart TD
+    Q[&quot;用户查询文本&quot;] --&gt; EMB[&quot;向量化 Embedding&quot;]
+    Q --&gt; BM[&quot;原始查询文本（供 rescore 用）&quot;]
+
+    EMB --&gt; KNN[&quot;KNN 近似最近邻召回&lt;br/&gt;k=50, num_candidates=200&quot;]
+    PERM[&quot;用户权限条件&quot;] --&gt;|&quot;filter 下推进 knn 查询&quot;| KNN
+
+    KNN --&gt; WIN[&quot;候选窗口 window_size=50&lt;br/&gt;（已按向量相似度排好序）&quot;]
+
+    BM --&gt; RESCORE[&quot;BM25 rescore：只对候选窗口内的文档重新打分&quot;]
+    WIN --&gt; RESCORE
+
+    RESCORE --&gt; COMBINE[&quot;最终分数 = 原始分×query_weight + BM25分×rescore_query_weight（线性加权）&quot;]
+    COMBINE --&gt; RESULT[&quot;返回给用户的最终排序结果&quot;]
+</code></pre>
+
+<blockquote>
+<p><strong>这不是 RRF</strong>：上面全程只有<strong>一份</strong>候选列表在被处理（KNN 召回出来的候选窗口），BM25 只是对这份候选<strong>重新打分</strong>、和原分数<strong>线性加权</strong>；RRF 则是分别拿到 kNN 和 BM25 <strong>两份独立、各自完整</strong>的排行榜，再按 <code>1/(k+排名)</code> 把两份名次融合成一份——两者输入结构和融合逻辑都不同，不要在面试里说成一回事。</p>
+</blockquote>
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>为什么权限过滤要下推到 knn.filter 而不是召回后再过滤</strong>（避免召回数量被过滤掉一部分、结果不足 k 条）</li>
+<li>可以讲讲 <strong>rescore 和 RRF 的本质区别</strong>（重打分候选窗口 + 线性加权 vs 融合两个独立排行榜的名次）</li>
+<li>可以讲讲 <strong>query_weight &#x2F; rescore_query_weight 怎么调</strong>（结合实际项目里做过的 A&#x2F;B 或离线评估：向量召回权重更看重语义相关性，BM25 权重更看重关键词精确命中，具体权重需要结合业务查询的关键词密集程度反复调优，不是拍脑袋定的固定值）</li>
+<li>可以讲讲 <strong>num_candidates 和 window_size 的取舍</strong>（num_candidates 决定 kNN 阶段召回质量，window_size 决定 rescore 阶段重排的候选范围，两者都是”用更多计算换更高精度”的旋钮，需要结合延迟预算调）</li>
 </ul>
 <hr>
 <h2 id="💪-实战演练（真实面试场景）"><a href="#💪-实战演练（真实面试场景）" class="headerlink" title="💪 实战演练（真实面试场景）"></a>💪 实战演练（真实面试场景）</h2><blockquote>
@@ -1850,6 +2059,21 @@
 
 
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 

@@ -692,9 +692,9 @@
       
         <a href="/tags/Redis/" class="print-no-link">#Redis</a>
       
-        <a href="/tags/Java/" class="print-no-link">#Java</a>
-      
         <a href="/tags/%E7%BC%93%E5%AD%98/" class="print-no-link">#缓存</a>
+      
+        <a href="/tags/Java/" class="print-no-link">#Java</a>
       
         <a href="/tags/Pipeline/" class="print-no-link">#Pipeline</a>
       
@@ -832,6 +832,21 @@
 
 
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 

@@ -27,7 +27,7 @@
 <meta property="og:description" content="MySQL 面试八股文 30 道｜深度详解版 写给准备面试的你：这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。配有大量比喻和场景化解释，目标是让没有数据库基础的人也能看懂。建议配合实际 SQL 练习，理解效果翻倍。   一、存储引擎与架构（1-4） 第 1 题：InnoDB 和 MyISAM 到底有什么区别？我该选哪个？一句话结论 99% 的场景用 InnoDB；">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T17:51:16.759Z">
+<meta property="article:modified_time" content="2026-09-04T09:38:40.018Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="MySQL">
 <meta property="article:tag" content="八股文">
@@ -226,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          22k 字
+          24k 字
         
       </span>
     
@@ -237,7 +237,7 @@
         
         
         
-          185 分钟
+          197 分钟
         
       </span>
     
@@ -561,6 +561,30 @@
 <p><strong>正确的流程（两阶段提交）：</strong></p>
 <figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs mel">事务提交：<br>    <br>    阶段 <span class="hljs-number">1</span>：写 <span class="hljs-keyword">redo</span> <span class="hljs-keyword">log</span>（处于 PREPARE 状态）<br>              ↓<br>    阶段 <span class="hljs-number">2</span>：写 binlog<br>              ↓<br>    阶段 <span class="hljs-number">3</span>：提交 <span class="hljs-keyword">redo</span> <span class="hljs-keyword">log</span>（处于 COMMIT 状态）<br>              ↓<br>    完成！<br></code></pre></td></tr></table></figure>
 
+<p><strong>一条 UPDATE 语句的完整执行流程（Server 层 + InnoDB 引擎层，突出两阶段提交）：</strong></p>
+<pre><code class=" mermaid">sequenceDiagram
+    participant C as 客户端
+    participant Conn as 连接器
+    participant Ana as 分析器
+    participant Opt as 优化器
+    participant Exec as 执行器
+    participant Inno as InnoDB 引擎
+
+    C-&gt;&gt;Conn: 发送 UPDATE 语句
+    Conn-&gt;&gt;Ana: 词法分析 + 语法分析
+    Ana-&gt;&gt;Opt: 生成执行计划、选择索引
+    Opt-&gt;&gt;Exec: 确定用主键索引执行更新
+    Exec-&gt;&gt;Inno: 调用引擎接口执行更新
+    Inno-&gt;&gt;Inno: ① 写 undo log（记录旧值）
+    Inno-&gt;&gt;Inno: ② 修改 Buffer Pool 中的数据页
+    Inno-&gt;&gt;Inno: ③ 写 redo log，标记为 prepare 状态
+    Inno--&gt;&gt;Exec: 引擎层执行完成
+    Exec-&gt;&gt;Exec: ④ 写 binlog
+    Exec-&gt;&gt;Inno: 通知提交
+    Inno-&gt;&gt;Inno: ⑤ 将 redo log 标记为 commit 状态
+    Inno--&gt;&gt;C: 返回执行成功
+</code></pre>
+
 <p><strong>崩溃恢复时的判断逻辑：</strong></p>
 <ul>
 <li>如果 redo log 处于 <code>PREPARE</code> 状态，检查对应的 binlog 是否完整：<ul>
@@ -626,7 +650,7 @@
 </blockquote>
 <hr>
 <h3 id="第-6-题：MySQL-的四种隔离级别分别解决了什么问题？"><a href="#第-6-题：MySQL-的四种隔离级别分别解决了什么问题？" class="headerlink" title="第 6 题：MySQL 的四种隔离级别分别解决了什么问题？"></a>第 6 题：MySQL 的四种隔离级别分别解决了什么问题？</h3><h4 id="一句话结论-5"><a href="#一句话结论-5" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>READ UNCOMMITTED &#x3D; 啥问题都没解决；READ COMMITTED &#x3D; 解决脏读；REPEATABLE READ &#x3D; 解决脏读 + 不可重复读（InnoDB 还额外解决了幻读）；SERIALIZABLE &#x3D; 全解决但性能极差。</strong></p>
+<p><strong>READ UNCOMMITTED &#x3D; 啥问题都没解决；READ COMMITTED &#x3D; 解决脏读；REPEATABLE READ &#x3D; 解决脏读 + 不可重复读（InnoDB 在 RR 下还通过间隙锁&#x2F;Next-Key Lock + MVCC 在很大程度上避免了幻读，但不是所有场景都能完全杜绝）；SERIALIZABLE &#x3D; 全解决但性能极差。</strong></p>
 </blockquote>
 <hr>
 <h4 id="深度解析-5"><a href="#深度解析-5" class="headerlink" title="深度解析"></a>深度解析</h4><p>在讲隔离级别之前，<strong>必须先搞懂三个「读异常」是什么</strong>，否则隔离级别就是死记硬背。</p>
@@ -656,7 +680,7 @@
 <p>场景演示：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 事务 A</span><br><span class="hljs-keyword">BEGIN</span>;<br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> age <span class="hljs-operator">&gt;</span> <span class="hljs-number">20</span>;  <span class="hljs-comment">-- 得到 5 行（第一次）</span><br><span class="hljs-comment">-- 此时事务 A 还没提交</span><br><br><span class="hljs-comment">-- 事务 B</span><br><span class="hljs-keyword">BEGIN</span>;<br><span class="hljs-keyword">INSERT INTO</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">VALUES</span> (<span class="hljs-number">6</span>, <span class="hljs-string">&#x27;小明&#x27;</span>, <span class="hljs-number">25</span>);<br><span class="hljs-keyword">COMMIT</span>;<br><br><span class="hljs-comment">-- 事务 A 再次用同样条件搜索</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> age <span class="hljs-operator">&gt;</span> <span class="hljs-number">20</span>;  <span class="hljs-comment">-- 得到 6 行（第二次，多了一行！）</span><br><span class="hljs-comment">-- 好像出现了「幻觉」，多了一行 → 幻读</span><br></code></pre></td></tr></table></figure>
 
-<p><strong>解决方式：</strong> InnoDB 的 RR 级别通过 <strong>Next-Key Lock（临键锁）</strong> 解决了当前读的幻读，通过 <strong>MVCC</strong> 解决了快照读的幻读。</p>
+<p><strong>解决方式：</strong> InnoDB 的 RR 级别通过 <strong>Next-Key Lock（临键锁）</strong> 在当前读时锁住范围和间隙，通过 <strong>MVCC</strong> 让快照读始终读同一个快照，这两者结合在很大程度上避免了幻读，但并不是在所有场景下都能完全杜绝（比如先做一次快照读、再做当前读，中间提交的新行在当前读时仍可能被看到，见下一题的例子）。</p>
 <hr>
 <p><strong>四种隔离级别逐一解析：</strong></p>
 <table>
@@ -684,7 +708,7 @@
 <td>REPEATABLE READ（可重复读）★MySQL 默认</td>
 <td>✅ 解决</td>
 <td>✅ 解决</td>
-<td>⚠️ InnoDB 已解决</td>
+<td>⚠️ InnoDB 很大程度上避免（非绝对）</td>
 </tr>
 <tr>
 <td>SERIALIZABLE（串行化）</td>
@@ -694,11 +718,39 @@
 </tr>
 </tbody></table>
 <blockquote>
-<p><strong>重点：</strong> InnoDB 在 RR 隔离级别下，通过 <strong>MVCC + Next-Key Lock</strong> 的组合，实际上已经完全解决了幻读。这也是为什么 RR 是 MySQL 默认隔离级别的原因——它达到了 Serializable 的隔离效果，但性能比 Serializable 好得多。</p>
+<p><strong>重点：</strong> InnoDB 在 RR 隔离级别下，通过 <strong>MVCC + Next-Key Lock</strong> 的组合，在绝大多数场景下都能避免幻读，但这不等于「完全解决」——当事务先做快照读、再做当前读（如 <code>SELECT ... FOR UPDATE</code>）时，当前读会读到其他事务中间提交的新行，仍然可能出现幻读（下一题有具体例子）。只有 SERIALIZABLE 才能在语义上完全杜绝幻读。RR 之所以是 MySQL 默认隔离级别，是因为它在绝大多数业务场景下已经「够用」，同时性能比 SERIALIZABLE 好得多。</p>
 </blockquote>
 <hr>
+<p><strong>四种隔离级别与并发问题对照图：</strong></p>
+<pre><code class=" mermaid">flowchart LR
+    subgraph L0[&quot;READ UNCOMMITTED&quot;]
+        direction TB
+        P0[&quot;不阻止任何问题&quot;]
+    end
+    subgraph L1[&quot;READ COMMITTED&quot;]
+        direction TB
+        P1a[&quot;阻止脏读&quot;]
+        P1b[&quot;不可重复读仍可能发生&quot;]
+        P1c[&quot;幻读仍可能发生&quot;]
+    end
+    subgraph L2[&quot;REPEATABLE READ（InnoDB 默认）&quot;]
+        direction TB
+        P2a[&quot;阻止脏读&quot;]
+        P2b[&quot;阻止不可重复读&quot;]
+        P2c[&quot;MVCC + 间隙锁，很大程度上避免幻读（非绝对）&quot;]
+    end
+    subgraph L3[&quot;SERIALIZABLE&quot;]
+        direction TB
+        P3a[&quot;阻止脏读&quot;]
+        P3b[&quot;阻止不可重复读&quot;]
+        P3c[&quot;彻底阻止幻读&quot;]
+    end
+    L0 --&gt; L1 --&gt; L2 --&gt; L3
+</code></pre>
+
+<hr>
 <h4 id="面试加分回答-5"><a href="#面试加分回答-5" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「MySQL 默认的 RR 隔离级别，在大多数其他数据库（如 Oracle、PostgreSQL）中是不能完全解决幻读的，但 InnoDB 通过 <strong>Next-Key Lock</strong> 这个设计，在 RR 级别就已经完全解决了幻读，这是 InnoDB 的独家优势。这也是为什么 MySQL 敢把 RR 作为默认隔离级别的原因。」</p>
+<p>「MySQL 默认的 RR 隔离级别，在大多数其他数据库（如 Oracle、PostgreSQL 的 RR&#x2F;可重复读实现）中是无法避免幻读的，但 InnoDB 通过 <strong>Next-Key Lock + MVCC</strong> 的组合，在 RR 级别下已经能在绝大多数场景避免幻读，这是 InnoDB 的一个独家优势。但严谨地说这不是「完全解决」——面试时如果被追问，一定要提到「快照读之后接当前读」这个仍会出现幻读的例外场景，这也是 MySQL 官方手册里明确写到的边界情况。」</p>
 </blockquote>
 <hr>
 <h3 id="第-7-题：MVCC-的实现原理到底是什么？"><a href="#第-7-题：MVCC-的实现原理到底是什么？" class="headerlink" title="第 7 题：MVCC 的实现原理到底是什么？"></a>第 7 题：MVCC 的实现原理到底是什么？</h3><h4 id="一句话结论-6"><a href="#一句话结论-6" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
@@ -778,6 +830,25 @@
 <figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs abnf">第 <span class="hljs-number">1</span> 步：如果 trx_id <span class="hljs-operator">=</span><span class="hljs-operator">=</span> creator_trx_id<br>         → 可见！（我自己改的，当然看得见）<br><br>第 <span class="hljs-number">2</span> 步：如果 trx_id &lt; min_trx_id<br>         → 可见！（这个版本在当前事务开始之前就已经提交了）<br><br>第 <span class="hljs-number">3</span> 步：如果 trx_id &gt;<span class="hljs-operator">=</span> max_trx_id<br>         → 不可见！（这个版本是未来的事务创建的，不可能看得见）<br><br>第 <span class="hljs-number">4</span> 步：如果 min_trx_id &lt;<span class="hljs-operator">=</span> trx_id &lt; max_trx_id：<br>           - 如果 trx_id 在 m_ids 列表中<br>               → 不可见！（这个事务还没提交，不能看）<br>           - 如果 trx_id 不在 m_ids 列表中<br>               → 可见！（这个事务已经提交了）<br></code></pre></td></tr></table></figure>
 
 <p>沿着版本链<strong>从新到旧</strong>依次判断，第一个「可见」的版本就是要返回的结果。</p>
+<hr>
+<p><strong>undo log 版本链 + ReadView 可见性判断（完整流程图）：</strong></p>
+<pre><code class=" mermaid">flowchart TD
+    A[&quot;当前最新版本（Buffer Pool 中）&lt;br&gt;DB_TRX_ID=100&quot;] --&gt;|&quot;DB_ROLL_PTR 指向&quot;| B[&quot;undo log 版本 1&lt;br&gt;DB_TRX_ID=90&quot;]
+    B --&gt;|&quot;DB_ROLL_PTR 指向&quot;| C[&quot;undo log 版本 2&lt;br&gt;DB_TRX_ID=80&quot;]
+    C --&gt;|&quot;DB_ROLL_PTR = NULL&quot;| D[&quot;没有更早版本&quot;]
+
+    A -. &quot;沿版本链从新到旧，逐个用 ReadView 判断可见性&quot; .-&gt; J1
+    R[&quot;ReadView 四要素：m_ids / min_trx_id / max_trx_id / creator_trx_id&quot;] --&gt; J1&#123;&quot;trx_id == creator_trx_id？&quot;&#125;
+    J1 -- 是 --&gt; V1[&quot;可见：自己改的&quot;]
+    J1 -- 否 --&gt; J2&#123;&quot;trx_id &lt; min_trx_id？&quot;&#125;
+    J2 -- 是 --&gt; V2[&quot;可见：早于当前活跃事务，已提交&quot;]
+    J2 -- 否 --&gt; J3&#123;&quot;trx_id ≥ max_trx_id？&quot;&#125;
+    J3 -- 是 --&gt; V3[&quot;不可见：未来事务产生的版本&quot;]
+    J3 -- 否 --&gt; J4&#123;&quot;trx_id 在 m_ids 中？&quot;&#125;
+    J4 -- 是 --&gt; V4[&quot;不可见：事务还未提交&quot;]
+    J4 -- 否 --&gt; V5[&quot;可见：事务已提交&quot;]
+</code></pre>
+
 <hr>
 <p><strong>RC 和 RR 的根本区别就在这里：</strong></p>
 <table>
@@ -1011,6 +1082,21 @@
 <blockquote>
 <p>这也是为什么 <code>SELECT *</code> 在大结果集下性能很差的原因 —— 二级索引无法覆盖所有列，必须回表。</p>
 </blockquote>
+<hr>
+<p><strong>聚簇索引 + 二级索引 + 回表过程图解：</strong></p>
+<pre><code class=" mermaid">flowchart TD
+    subgraph SEC[&quot;二级索引 B+ 树（name 列）&quot;]
+        SR[&quot;非叶子节点：只存 name 键值&quot;] --&gt; SL1[&quot;叶子节点：name=Alice, id=5&quot;]
+        SR --&gt; SL2[&quot;叶子节点：name=Bob, id=10&quot;]
+    end
+    subgraph PRI[&quot;聚簇索引 B+ 树（主键 id，叶子存整行数据）&quot;]
+        CR[&quot;非叶子节点：只存 id 键值&quot;] --&gt; CL1[&quot;叶子节点：id=5，整行数据&quot;]
+        CR --&gt; CL2[&quot;叶子节点：id=10，整行数据&quot;]
+    end
+    SL1 -- &quot;① 在二级索引里查到主键 id=5&quot; --&gt; CL1
+    CL1 -- &quot;② 回表：拿 id=5 去聚簇索引取整行&quot; --&gt; RES[&quot;返回完整行给客户端&quot;]
+</code></pre>
+
 <hr>
 <p><strong>如何避免回表？—— 覆盖索引（Covering Index）</strong></p>
 <p>如果查询的字段<strong>全部在二级索引中</strong>，就不需要回表：</p>
@@ -1498,7 +1584,7 @@
 <p>但 <strong>InnoDB 不支持这个优化</strong>（因为 MVCC 的存在，不同事务能看到的数据行数不同，无法用一个计数器表示）。</p>
 <hr>
 <p><strong>InnoDB 如何优化 COUNT(*)？</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 如果有一个独立的索引，COUNT(*) 可以走覆盖索引</span><br><span class="hljs-comment">-- 因为二级索引的叶子节点比聚簇索引小，扫描更快</span><br><span class="hljs-comment">-- 这就是为什么有时候建议建立一个无意义的联合索引来加速 COUNT(*)</span><br><span class="hljs-keyword">ALTER TABLE</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">ADD</span> INDEX idx_count (id, <span class="hljs-number">1</span>);  <span class="hljs-comment">-- 技巧：利用二级索引加速 COUNT(*)</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 优化器在执行 COUNT(*) 时，会自动选择占用空间最小的一个索引去扫描</span><br><span class="hljs-comment">-- 因为二级索引不存整行数据，叶子节点比聚簇索引小，扫描更快</span><br><span class="hljs-comment">-- 所以如果表上一个二级索引都没有，建一个体积小的单列索引，也能加速 COUNT(*)</span><br><span class="hljs-keyword">ALTER TABLE</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">ADD</span> INDEX idx_status (status);  <span class="hljs-comment">-- 技巧：给某个窄列建二级索引，间接加速 COUNT(*)</span><br></code></pre></td></tr></table></figure>
 
 <hr>
 <h4 id="面试加分回答-20"><a href="#面试加分回答-20" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
@@ -1574,7 +1660,7 @@
 
 <hr>
 <h4 id="面试加分回答-23"><a href="#面试加分回答-23" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「JOIN 优化有一个重要的点：<strong>MySQL 的 JOIN 缓冲区（join_buffer_size）</strong>。如果联表条件没有索引，MySQL 会使用 Block Nested Loop Join 算法，把驱动表的数据放到 join buffer 中，再批量去被驱动表匹配。这时 <code>join_buffer_size</code> 的设置就很重要，太小会导致多次扫描，太大则会浪费内存。另外，MySQL 8.0 引入了<strong>哈希 JOIN（Hash Join）</strong>，对于大表 JOIN 无索引的场景，性能比 Nested Loop Join 好得多。」</p>
+<p>「JOIN 优化有一个重要的点：<strong>MySQL 的 JOIN 缓冲区（join_buffer_size）</strong>。在 MySQL 8.0.18 之前，如果联表条件没有索引，MySQL 会使用 Block Nested Loop Join 算法，把驱动表的数据放到 join buffer 中，再批量去被驱动表匹配，这时 <code>join_buffer_size</code> 的设置很重要，太小会导致多次扫描，太大则会浪费内存。但从 <strong>MySQL 8.0.18</strong> 开始，等值 JOIN 在无法使用索引时改用<strong>哈希 JOIN（Hash Join）</strong>，到 <strong>8.0.20</strong> 起 Block Nested Loop 已经被完全取代，性能比老的 BNL 好得多——所以现在再遇到无索引的等值 JOIN，应该按 Hash Join 的思路去分析，而不是 BNL。」</p>
 </blockquote>
 <hr>
 <h3 id="第-25-题：MySQL-的主从复制原理是什么？"><a href="#第-25-题：MySQL-的主从复制原理是什么？" class="headerlink" title="第 25 题：MySQL 的主从复制原理是什么？"></a>第 25 题：MySQL 的主从复制原理是什么？</h3><h4 id="一句话结论-24"><a href="#一句话结论-24" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
@@ -1684,7 +1770,7 @@
 
 <hr>
 <h4 id="面试加分回答-25"><a href="#面试加分回答-25" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「VARCHAR 和 CHAR 的选择，核心看<strong>长度是否固定</strong>。但有一个细节：InnoDB 的存储格式是面向页的，VARCHAR 的变长特性可能导致页分裂（Page Split），影响性能。如果某个列的更新很频繁，且长度变化大，CHAR 反而可能更好（不会产生碎片）。另外，MySQL 8.0 支持 <strong>VARCHAR 到 CHAR 的在线转换</strong>（ALGORITHM&#x3D;INPLACE），不需要锁表，这对大表的字段类型调整很有帮助。」</p>
+<p>「VARCHAR 和 CHAR 的选择，核心看<strong>长度是否固定</strong>。但有一个细节：InnoDB 的存储格式是面向页的，VARCHAR 的变长特性可能导致页分裂（Page Split），影响性能。如果某个列的更新很频繁，且长度变化大，CHAR 反而可能更好（不会产生碎片）。另外要注意一个坑：<strong>VARCHAR 和 CHAR 之间的类型转换属于改变列的数据类型，通常只能用 <code>ALGORITHM=COPY</code></strong>（会重建整张表、期间阻塞写入），并不支持 <code>ALGORITHM=INPLACE</code>；只有像扩大 VARCHAR 长度且不跨字节长度类别（1 字节 ↔ 2 字节前缀）这类不改变物理格式的操作，才可能用 INPLACE 在线完成。大表做这种类型调整前一定要先用 <code>pt-online-schema-change</code> 之类的工具评估影响。」</p>
 </blockquote>
 <hr>
 <h3 id="第-27-题：MySQL-的连接池应该设置多大？"><a href="#第-27-题：MySQL-的连接池应该设置多大？" class="headerlink" title="第 27 题：MySQL 的连接池应该设置多大？"></a>第 27 题：MySQL 的连接池应该设置多大？</h3><h4 id="一句话结论-26"><a href="#一句话结论-26" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
@@ -1695,7 +1781,7 @@
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">MySQL</span> <span class="hljs-string">处理每个连接都需要一个线程。</span><br><span class="hljs-string">如果连接池有</span> <span class="hljs-number">1000</span> <span class="hljs-string">个连接，MySQL</span> <span class="hljs-string">就有</span> <span class="hljs-number">1000</span> <span class="hljs-string">个线程在切换。</span><br><span class="hljs-string">线程切换是有开销的（上下文切换），连接数太多反而导致性能下降。</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<p><strong>经验公式（来自 MySQL 官方和 Percona 的建议）：</strong></p>
+<p><strong>经验公式（源自 PostgreSQL 社区，后被 HikariCP 官方 wiki 引用推广，并非 MySQL 官方公式，仅供参考）：</strong></p>
 <figure class="highlight fix"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs fix"><span class="hljs-attr">连接池大小 </span>=<span class="hljs-string"> CPU_cores × 2 + disk_count</span><br></code></pre></td></tr></table></figure>
 
 <p>例如：4 核 CPU，1 块磁盘 → 连接池大小 ≈ 4×2+1 &#x3D; 9（可以设 20~50）</p>
@@ -1735,7 +1821,7 @@
 </blockquote>
 <hr>
 <h3 id="第-29-题：MySQL-中-datetime-和-timestamp-的区别？怎么选？"><a href="#第-29-题：MySQL-中-datetime-和-timestamp-的区别？怎么选？" class="headerlink" title="第 29 题：MySQL 中 datetime 和 timestamp 的区别？怎么选？"></a>第 29 题：MySQL 中 datetime 和 timestamp 的区别？怎么选？</h3><h4 id="一句话结论-28"><a href="#一句话结论-28" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>timestamp 存 UTC 时间（4 字节，范围 1970<del>2038 年）；datetime 存本地时间（8 字节，范围 1000</del>9999 年）。新项目推荐用 datetime 或 MySQL 8.0 的 timestamp（已支持到 2038 年以后）。</strong></p>
+<p><strong>timestamp 存 UTC 时间（4 字节，范围 1970<del>2038 年，MySQL 8.0 仍未解决 2038 年问题）；datetime 存”本地”时间（不做时区转换，MySQL 5.6.4 起为 5 字节，范围 1000</del>9999 年）。新项目如果可能用到 2038 年以后的时间，只能用 datetime。</strong></p>
 </blockquote>
 <hr>
 <h4 id="深度解析-28"><a href="#深度解析-28" class="headerlink" title="深度解析"></a>深度解析</h4><table>
@@ -1748,13 +1834,13 @@
 </thead>
 <tbody><tr>
 <td>存储空间</td>
-<td>8 字节</td>
-<td>4 字节（MySQL 8.0 改为 7 字节）</td>
+<td>5 字节（MySQL 5.6.4 起，不含小数秒；此前为 8 字节）</td>
+<td>4 字节（不含小数秒；精度到微秒即 <code>TIMESTAMP(6)</code> 时最多占 7 字节，但这只是多存了小数秒，不影响下面的年份范围）</td>
 </tr>
 <tr>
 <td>时间范围</td>
 <td>1000-01-01 ~ 9999-12-31</td>
-<td>1970-01-01 ~ 2038-01-19（32 位限制）</td>
+<td>1970-01-01 ~ 2038-01-19（32 位有符号整数限制，MySQL 8.0 仍未突破）</td>
 </tr>
 <tr>
 <td>时区处理</td>
@@ -1778,7 +1864,7 @@
 
 <hr>
 <h4 id="面试加分回答-28"><a href="#面试加分回答-28" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「datetime 和 timestamp 的选择，还有一个重要的考虑：<strong>timestamp 有 2038 年问题</strong>（类似 Unix 的 Y2K38 问题，32 位时间戳在 2038-01-19 溢出）。MySQL 8.0 已经把 timestamp 的内部存储改成了 7 字节，支持了更大的时间范围，但如果是老版本 MySQL，建议用 datetime。另外，MySQL 8.0 还支持 <strong>datetime(6)</strong>（微秒精度）和 <strong>timestamp(6)</strong>，对于需要高精度时间的场景（如金融交易）很有用。」</p>
+<p>「datetime 和 timestamp 的选择，还有一个重要的考虑：<strong>timestamp 有 2038 年问题</strong>（类似 Unix 的 Y2K38 问题，32 位有符号时间戳在 2038-01-19 03:14:07 UTC 溢出）。这里有个常见误区：很多人以为 MySQL 8.0 已经修复了这个问题，其实<strong>没有</strong>——<code>TIMESTAMP(6)</code> 占到 7 字节，只是因为额外存了微秒级的小数秒，秒数部分依然是 32 位，年份范围没有变。所以只要业务可能涉及 2038 年以后的时间，就必须用 datetime，不能指望 timestamp。另外，MySQL 5.6.4 起（含 8.0）支持 <strong>datetime(6)</strong> 和 <strong>timestamp(6)</strong> 微秒精度，对于需要高精度时间的场景（如金融交易）很有用。」</p>
 </blockquote>
 <hr>
 <h3 id="第-30-题：如何设计一个高并发的订单表？"><a href="#第-30-题：如何设计一个高并发的订单表？" class="headerlink" title="第 30 题：如何设计一个高并发的订单表？"></a>第 30 题：如何设计一个高并发的订单表？</h3><h4 id="一句话结论-29"><a href="#一句话结论-29" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
@@ -1867,7 +1953,7 @@
 <p>“VARCHAR(255) 是常用值。不要贪大，VARCHAR(500) 和 VARCHAR(50) 虽然存储实际长度一样，但内存临时表会按定义长度分配内存，太大影响性能。”</p>
 </blockquote>
 <hr>
-<h3 id="第-32-题：DATETIME-和-TIMESTAMP-的区别？"><a href="#第-32-题：DATETIME-和-TIMESTAMP-的区别？" class="headerlink" title="第 32 题：DATETIME 和 TIMESTAMP 的区别？"></a>第 32 题：DATETIME 和 TIMESTAMP 的区别？</h3><p><strong>一句话总结</strong>：DATETIME 范围大（1000-9999年）与时区无关；TIMESTAMP 范围小（1970-2038年），自动转换时区。</p>
+<h3 id="第-32-题：DATETIME-和-TIMESTAMP-的区别？"><a href="#第-32-题：DATETIME-和-TIMESTAMP-的区别？" class="headerlink" title="第 32 题：DATETIME 和 TIMESTAMP 的区别？"></a>第 32 题：DATETIME 和 TIMESTAMP 的区别？</h3><p><strong>一句话总结</strong>：DATETIME 范围大（1000-9999年）与时区无关；TIMESTAMP 范围小（1970-2038年），自动转换时区，且这个范围限制在 MySQL 8.0 中依然存在。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -1879,8 +1965,8 @@
 </thead>
 <tbody><tr>
 <td>存储空间</td>
-<td>8 字节</td>
-<td>4 字节（MySQL 8.0 前）</td>
+<td>5 字节（MySQL 5.6.4 起，不含小数秒；此前为 8 字节）</td>
+<td>4 字节（不含小数秒）</td>
 </tr>
 <tr>
 <td>时间范围</td>
@@ -1893,10 +1979,10 @@
 <td>存储时转 UTC，取出时转当前时区</td>
 </tr>
 </tbody></table>
-<p><strong>2038 年问题</strong>：TIMESTAMP 用 4 字节存储，最大值对应 2038-01-19，超过会溢出！MySQL 8.0+ 扩展到了 7 字节（支持到 9999 年）。</p>
+<p><strong>2038 年问题</strong>：TIMESTAMP 的秒数部分用 32 位有符号整数存储，最大值对应 2038-01-19 03:14:07 UTC，超过会溢出报错！<strong>MySQL 8.0 并没有修复这个问题</strong>——<code>TIMESTAMP(6)</code> 会多占用 3 字节（共 7 字节）存微秒级小数秒，但秒数范围仍是 1970~2038，不支持 9999 年。</p>
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
-<p>“新项目建议直接用 DATETIME，避免 2038 年问题。涉及时区转换的场景，数据库存 UTC 时间，展示时再转用户时区。”</p>
+<p>“新项目建议直接用 DATETIME，避免 2038 年问题——这个问题在 MySQL 8.0 里依然没解决，别被’8.0 存储改成了 7 字节’这种说法误导，那只是多存了微秒精度，不是扩大了年份范围。涉及时区转换的场景，数据库存 UTC 时间，展示时再转用户时区。”</p>
 </blockquote>
 <hr>
 <h3 id="第-33-题：当前读和快照读的区别？"><a href="#第-33-题：当前读和快照读的区别？" class="headerlink" title="第 33 题：当前读和快照读的区别？"></a>第 33 题：当前读和快照读的区别？</h3><p><strong>一句话总结</strong>：快照读（普通 SELECT）不加锁，读事务开始时的快照；当前读（SELECT … FOR UPDATE）加锁，读最新数据，防止幻读。</p>
@@ -2155,7 +2241,7 @@
 </blockquote>
 <hr>
 <h3 id="第-47-题：自增锁（AUTO-INC-Lock）的-3-种模式是什么？"><a href="#第-47-题：自增锁（AUTO-INC-Lock）的-3-种模式是什么？" class="headerlink" title="第 47 题：自增锁（AUTO-INC Lock）的 3 种模式是什么？"></a>第 47 题：自增锁（AUTO-INC Lock）的 3 种模式是什么？</h3><h4 id="一句话结论-31"><a href="#一句话结论-31" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>自增锁有 3 种模式（innodb_autoinc_lock_mode）：0&#x3D;传统模式（表锁，安全但性能差）、1&#x3D;连续模式（默认，性能和安全平衡）、2&#x3D;交错模式（性能最好，但主从可能有问题）。</strong></p>
+<p><strong>自增锁有 3 种模式（innodb_autoinc_lock_mode）：0&#x3D;传统模式（表锁，安全但性能差）、1&#x3D;连续模式（MySQL 8.0 之前的默认值，性能和安全平衡）、2&#x3D;交错模式（MySQL 8.0 起的默认值，性能最好，但 STATEMENT 格式 binlog 下主从可能有问题）。</strong></p>
 </blockquote>
 <hr>
 <h4 id="深度解析-31"><a href="#深度解析-31" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>自增锁是什么？</strong></p>
@@ -2183,14 +2269,14 @@
 <td>性能差，并发低</td>
 </tr>
 <tr>
-<td><strong>连续模式（默认）</strong></td>
+<td><strong>连续模式（8.0 前默认）</strong></td>
 <td>1</td>
 <td>简单 INSERT 马上释放，批量 INSERT 等语句结束才释放</td>
 <td>性能和安全平衡</td>
 <td>批量 INSERT 会锁表较长时间</td>
 </tr>
 <tr>
-<td><strong>交错模式</strong></td>
+<td><strong>交错模式（8.0 起默认）</strong></td>
 <td>2</td>
 <td>完全无锁，生成自增 ID 后立即释放</td>
 <td>性能最好</td>
@@ -2452,9 +2538,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-java-concurrency-interview-deep/" title="Java 并发编程面试八股文30条（深度详解版）">
+                      <a href="/2026/06/07/2026-06-07-jvm-interview-deep/" title="JVM 面试八股文30条（深度详解版）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Java 并发编程面试八股文30条（深度详解版）</span>
+                        <span class="hidden-mobile">JVM 面试八股文30条（深度详解版）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -2527,6 +2613,21 @@
 
 
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 

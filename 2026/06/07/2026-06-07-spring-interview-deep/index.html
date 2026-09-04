@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="📖 学习指南 🎯 学习目标：通过本文，你将系统掌握 Spring 的核心知识，能够自信地应对任何相关面试问题。  适合人群 🔰 初学者：想系统学习 Spring 的开发者 🚀 有经验者：想深入理解 Spring 原理的高级开发者 💼 面试准备者：想刷 Spring 面试题的求职者  学习建议 先理解概念，再深入原理：先搞懂”是什么”，再搞懂”为什么” 结合实战场景：不要死记硬背，要理解实">
+    <meta name="description" content="Spring 面试八股文 50 道｜深度详解版 写给准备面试的你：这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。配有大量比喻和场景化解释，目标是让没有 Spring 基础的人也能看懂。建议配合实际代码练习，理解效果翻倍。   📖 学习指南 🎯 学习目标：真正理解 Spring 的核心原理，而不仅仅是背答案 📖 适用人群：Java 初学者、准备面试的同学、想深">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-spring-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="📖 学习指南 🎯 学习目标：通过本文，你将系统掌握 Spring 的核心知识，能够自信地应对任何相关面试问题。  适合人群 🔰 初学者：想系统学习 Spring 的开发者 🚀 有经验者：想深入理解 Spring 原理的高级开发者 💼 面试准备者：想刷 Spring 面试题的求职者  学习建议 先理解概念，再深入原理：先搞懂”是什么”，再搞懂”为什么” 结合实战场景：不要死记硬背，要理解实">
+<meta property="og:description" content="Spring 面试八股文 50 道｜深度详解版 写给准备面试的你：这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。配有大量比喻和场景化解释，目标是让没有 Spring 基础的人也能看懂。建议配合实际代码练习，理解效果翻倍。   📖 学习指南 🎯 学习目标：真正理解 Spring 的核心原理，而不仅仅是背答案 📖 适用人群：Java 初学者、准备面试的同学、想深">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-09T06:44:58.917Z">
+<meta property="article:modified_time" content="2026-09-03T16:48:08.359Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="Spring">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          25k 字
+          26k 字
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          209 分钟
+          218 分钟
         
       </span>
     
@@ -280,120 +280,21 @@
             
               <div class="markdown-body">
                 
-                <h2 id="📖-学习指南"><a href="#📖-学习指南" class="headerlink" title="📖 学习指南"></a>📖 学习指南</h2><blockquote>
-<p>🎯 <strong>学习目标</strong>：通过本文，你将系统掌握 Spring 的核心知识，能够自信地应对任何相关面试问题。</p>
+                <h1 id="Spring-面试八股文-50-道｜深度详解版"><a href="#Spring-面试八股文-50-道｜深度详解版" class="headerlink" title="Spring 面试八股文 50 道｜深度详解版"></a>Spring 面试八股文 50 道｜深度详解版</h1><blockquote>
+<p><strong>写给准备面试的你：</strong><br>这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。<br>配有大量比喻和场景化解释，目标是让没有 Spring 基础的人也能看懂。<br>建议配合实际代码练习，理解效果翻倍。</p>
 </blockquote>
-<h3 id="适合人群"><a href="#适合人群" class="headerlink" title="适合人群"></a>适合人群</h3><ul>
-<li>🔰 <strong>初学者</strong>：想系统学习 Spring 的开发者</li>
-<li>🚀 <strong>有经验者</strong>：想深入理解 Spring 原理的高级开发者</li>
-<li>💼 <strong>面试准备者</strong>：想刷 Spring 面试题的求职者</li>
-</ul>
-<h3 id="学习建议"><a href="#学习建议" class="headerlink" title="学习建议"></a>学习建议</h3><ol>
-<li><strong>先理解概念，再深入原理</strong>：先搞懂”是什么”，再搞懂”为什么”</li>
-<li><strong>结合实战场景</strong>：不要死记硬背，要理解实际应用场景</li>
-<li><strong>动手实践</strong>：在自己电脑上安装环境，执行本文的示例代码</li>
-<li><strong>反复复习</strong>：面试前一周，每天复习 10 个问题</li>
-</ol>
-<h3 id="学习时间估算"><a href="#学习时间估算" class="headerlink" title="学习时间估算"></a>学习时间估算</h3><ul>
-<li>⏱️ <strong>快速复习</strong>（只看一句话总结）：2 小时</li>
-<li>📚 <strong>系统学习</strong>（看深度解析）：1-2 天</li>
-<li>💪 <strong>深入理解</strong>（研究源码）：1 周+</li>
-</ul>
 <hr>
-<h2 id="🗺️-知识图谱"><a href="#🗺️-知识图谱" class="headerlink" title="🗺️ 知识图谱"></a>🗺️ 知识图谱</h2><pre><code class=" mermaid">mindmap
-  root((Spring))
-    基础概念
-      核心概念1
-      核心概念2
-      核心概念3
-    高级特性
-      特性1
-      特性2
-    实战应用
-      应用场景1
-      应用场景2
-    性能优化
-      优化技巧1
-      优化技巧2
-</code></pre>
-
-<hr>
-<h2 id="⚠️-常见陷阱与误区"><a href="#⚠️-常见陷阱与误区" class="headerlink" title="⚠️ 常见陷阱与误区"></a>⚠️ 常见陷阱与误区</h2><h3 id="陷阱-1：概念理解错误"><a href="#陷阱-1：概念理解错误" class="headerlink" title="陷阱 1：概念理解错误"></a>陷阱 1：概念理解错误</h3><p>❌ <strong>错误示例</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 错误的理解或用法</span><br></code></pre></td></tr></table></figure>
-<p>✅ <strong>正确做法</strong>：</p>
-<ul>
-<li>正确理解概念</li>
-<li>避免常见误区</li>
-</ul>
-<h3 id="陷阱-2：忽略边界条件"><a href="#陷阱-2：忽略边界条件" class="headerlink" title="陷阱 2：忽略边界条件"></a>陷阱 2：忽略边界条件</h3><p>❌ <strong>错误做法</strong>：</p>
-<ul>
-<li>不考虑特殊情况</li>
-<li>忽略异常处理</li>
-</ul>
-<p>✅ <strong>正确做法</strong>：</p>
-<ul>
-<li>总是考虑边界条件</li>
-<li>添加异常处理</li>
-</ul>
-<hr>
-<h2 id="💡-面试技巧"><a href="#💡-面试技巧" class="headerlink" title="💡 面试技巧"></a>💡 面试技巧</h2><h3 id="技巧-1：结构化回答"><a href="#技巧-1：结构化回答" class="headerlink" title="技巧 1：结构化回答"></a>技巧 1：结构化回答</h3><p>不要只回答”是什么”，要按照以下结构回答：</p>
-<ol>
-<li><strong>一句话总结</strong>（概念）</li>
-<li><strong>深度解析</strong>（原理、实现、优缺点）</li>
-<li><strong>面试加分回答</strong>（实际项目经验、源码理解、行业最佳实践）</li>
-</ol>
-<h3 id="技巧-2：结合实战场景"><a href="#技巧-2：结合实战场景" class="headerlink" title="技巧 2：结合实战场景"></a>技巧 2：结合实战场景</h3><p>不要只背概念，要结合实际项目经验回答。</p>
-<h3 id="技巧-3：引导到你会的方向"><a href="#技巧-3：引导到你会的方向" class="headerlink" title="技巧 3：引导到你会的方向"></a>技巧 3：引导到你会的方向</h3><p>如果遇到不会的问题，不要慌，可以引导到你会的方向。</p>
-<hr>
-<h2 id="🎯-实战演练（真实面试场景）"><a href="#🎯-实战演练（真实面试场景）" class="headerlink" title="🎯 实战演练（真实面试场景）"></a>🎯 实战演练（真实面试场景）</h2><h3 id="场景-1：请你设计一个系统？"><a href="#场景-1：请你设计一个系统？" class="headerlink" title="场景 1：请你设计一个系统？"></a>场景 1：请你设计一个系统？</h3><p><strong>回答思路</strong>：</p>
-<ol>
-<li><strong>需求分析</strong>：明确系统需求</li>
-<li><strong>技术选型</strong>：选择合适的技术栈</li>
-<li><strong>架构设计</strong>：设计系统架构</li>
-<li><strong>性能优化</strong>：考虑性能瓶颈和优化方案</li>
-</ol>
-<hr>
-<h2 id="🚀-学习路径总结"><a href="#🚀-学习路径总结" class="headerlink" title="🚀 学习路径总结"></a>🚀 学习路径总结</h2><h3 id="第一阶段：基础概念（1-2-天）"><a href="#第一阶段：基础概念（1-2-天）" class="headerlink" title="第一阶段：基础概念（1-2 天）"></a>第一阶段：基础概念（1-2 天）</h3><ul>
-<li><input disabled="" type="checkbox"> 理解核心概念</li>
-<li><input disabled="" type="checkbox"> 掌握基本操作</li>
-<li><input disabled="" type="checkbox"> 完成入门教程</li>
-</ul>
-<h3 id="第二阶段：高级特性（2-3-天）"><a href="#第二阶段：高级特性（2-3-天）" class="headerlink" title="第二阶段：高级特性（2-3 天）"></a>第二阶段：高级特性（2-3 天）</h3><ul>
-<li><input disabled="" type="checkbox"> 掌握高级特性</li>
-<li><input disabled="" type="checkbox"> 理解实现原理</li>
-<li><input disabled="" type="checkbox"> 完成进阶教程</li>
-</ul>
-<h3 id="第三阶段：实战应用（1-周-）"><a href="#第三阶段：实战应用（1-周-）" class="headerlink" title="第三阶段：实战应用（1 周+）"></a>第三阶段：实战应用（1 周+）</h3><ul>
-<li><input disabled="" type="checkbox"> 搭建实际项目</li>
-<li><input disabled="" type="checkbox"> 解决实战问题</li>
-<li><input disabled="" type="checkbox"> 阅读源码（可选）</li>
-</ul>
-<h3 id="第四阶段：面试准备（1-周）"><a href="#第四阶段：面试准备（1-周）" class="headerlink" title="第四阶段：面试准备（1 周）"></a>第四阶段：面试准备（1 周）</h3><ul>
-<li><input disabled="" type="checkbox"> 刷完本文的所有问题</li>
-<li><input disabled="" type="checkbox"> 复习相关知识点</li>
-<li><input disabled="" type="checkbox"> 准备项目经验</li>
-<li><input disabled="" type="checkbox"> 模拟面试</li>
-</ul>
-<hr>
-<h2 id="📚-扩展学习资源"><a href="#📚-扩展学习资源" class="headerlink" title="📚 扩展学习资源"></a>📚 扩展学习资源</h2><h3 id="官方资源"><a href="#官方资源" class="headerlink" title="官方资源"></a>官方资源</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">官方文档</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">官方教程</a></li>
-</ul>
-<h3 id="书籍推荐"><a href="#书籍推荐" class="headerlink" title="书籍推荐"></a>书籍推荐</h3><ul>
-<li>《Spring 实战》</li>
-<li>《Spring 权威指南》</li>
-</ul>
-<h3 id="博客推荐"><a href="#博客推荐" class="headerlink" title="博客推荐"></a>博客推荐</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">官方博客</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">技术社区</a></li>
-</ul>
-<hr>
-<h1 id="Spring-面试八股文-学习指南"><a href="#Spring-面试八股文-学习指南" class="headerlink" title="Spring 面试八股文 - 学习指南"></a>Spring 面试八股文 - 学习指南</h1><blockquote>
+<h2 id="📖-学习指南"><a href="#📖-学习指南" class="headerlink" title="📖 学习指南"></a>📖 学习指南</h2><blockquote>
 <p>🎯 <strong>学习目标</strong>：真正理解 Spring 的核心原理，而不仅仅是背答案</p>
 <p>📖 <strong>适用人群</strong>：Java 初学者、准备面试的同学、想深入理解 Spring 的开发者</p>
 <p>⏰ <strong>预计学习时间</strong>：2-3 天（每天 2-3 小时）</p>
 <p>🏆 <strong>学习成果</strong>：能够自信地回答任何 Spring 面试问题，并理解背后的原理</p>
 </blockquote>
+<h3 id="学习时间估算"><a href="#学习时间估算" class="headerlink" title="学习时间估算"></a>学习时间估算</h3><ul>
+<li>⏱️ <strong>快速复习</strong>（只看一句话总结）：2 小时</li>
+<li>📚 <strong>系统学习</strong>（看深度解析）：1-2 天</li>
+<li>💪 <strong>深入理解</strong>（研究源码）：1 周+</li>
+</ul>
 <hr>
 <h2 id="📚-学习路线（从易到难）"><a href="#📚-学习路线（从易到难）" class="headerlink" title="📚 学习路线（从易到难）"></a>📚 学习路线（从易到难）</h2><h3 id="第一阶段：Spring-基础（Day-1）"><a href="#第一阶段：Spring-基础（Day-1）" class="headerlink" title="第一阶段：Spring 基础（Day 1）"></a>第一阶段：Spring 基础（Day 1）</h3><ol>
 <li><strong>IOC（控制反转）和 DI（依赖注入）</strong> - 理解 Spring 的核心思想</li>
@@ -540,10 +441,6 @@
 </ol>
 <hr>
 <p><strong>现在，让我们开始学习 Spring 吧！🚀</strong></p>
-<hr>
-<h1 id="Spring-面试八股文-50-道｜深度详解版"><a href="#Spring-面试八股文-50-道｜深度详解版" class="headerlink" title="Spring 面试八股文 50 道｜深度详解版"></a>Spring 面试八股文 50 道｜深度详解版</h1><blockquote>
-<p><strong>写给准备面试的你：</strong><br>这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。<br>配有大量比喻和场景化解释，目标是让没有 Spring 基础的人也能看懂。<br>建议配合实际代码练习，理解效果翻倍。</p>
-</blockquote>
 <hr>
 <h2 id="一、Spring-Core-基础（1-10）"><a href="#一、Spring-Core-基础（1-10）" class="headerlink" title="一、Spring Core 基础（1-10）"></a>一、Spring Core 基础（1-10）</h2><hr>
 <h3 id="Q1：什么是-Spring？它的核心思想是什么？"><a href="#Q1：什么是-Spring？它的核心思想是什么？" class="headerlink" title="Q1：什么是 Spring？它的核心思想是什么？"></a>Q1：什么是 Spring？它的核心思想是什么？</h3><h4 id="一句话结论"><a href="#一句话结论" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
@@ -862,9 +759,32 @@
 <h4 id="深度解析-6"><a href="#深度解析-6" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. Bean 生命周期流程图</strong></p>
 <figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">实例化（createBeanInstance）<br>   ↓<br>属性赋值（populateBean）<br>   ↓<br>Aware 接口回调（BeanNameAware、BeanFactoryAware...）<br>   ↓<br>BeanPostProcessor.postProcessBeforeInitialization<br>   ↓<br>初始化（@PostConstruct、InitializingBean、init-<span class="hljs-keyword">method</span>）<br>   ↓<br><span class="hljs-title function_">BeanPostProcessor</span>.<span class="hljs-title function_">postProcessAfterInitialization</span><br>   ↓<br><span class="hljs-title function_">Bean</span> 就绪（可以使用了）<br>   ↓<br>销毁（@<span class="hljs-title function_">PreDestroy</span>、<span class="hljs-title function_">DisposableBean</span>、<span class="hljs-title function_">destroy</span>-<span class="hljs-title function_">method</span>）<br></code></pre></td></tr></table></figure>
 
-<p><strong>2. 代码示例</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyBean</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">BeanNameAware</span>, InitializingBean, DisposableBean &#123;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MyBean</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;1. 实例化（构造器）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setBeanName</span><span class="hljs-params">(String name)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;2. Aware 接口回调（setBeanName）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@PostConstruct</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;3. 初始化（@PostConstruct）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">afterPropertiesSet</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;4. 初始化（InitializingBean）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">use</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;5. Bean 使用中...&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@PreDestroy</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">destroy</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;6. 销毁（@PreDestroy）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">destroy</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;7. 销毁（DisposableBean）&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<pre><code class=" mermaid">flowchart TD
+    A[实例化 Instantiation] --&gt; B[属性填充 Populate]
+    B --&gt; C1[BeanNameAware]
+    B --&gt; C2[BeanClassLoaderAware]
+    B --&gt; C3[BeanFactoryAware]
+    C1 --&gt; D[BeanPostProcessor.postProcessBeforeInitialization]
+    C2 --&gt; D
+    C3 --&gt; D
+    D --&gt; E1[&quot;@PostConstruct&quot;]
+    D --&gt; E2[&quot;InitializingBean.afterPropertiesSet&quot;]
+    D --&gt; E3[自定义 init-method]
+    E1 --&gt; F[&quot;BeanPostProcessor.postProcessAfterInitialization&lt;br/&gt;（AOP 代理在这一步生成）&quot;]
+    E2 --&gt; F
+    E3 --&gt; F
+    F --&gt; G[Bean 就绪，可以使用]
+    G --&gt; H1[&quot;@PreDestroy&quot;]
+    G --&gt; H2[&quot;DisposableBean.destroy()&quot;]
+    G --&gt; H3[自定义 destroy-method]
+</code></pre>
 
+<p><strong>2. 代码示例</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyBean</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">BeanNameAware</span>, InitializingBean, DisposableBean &#123;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MyBean</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;1. 实例化（构造器）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setBeanName</span><span class="hljs-params">(String name)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;2. Aware 接口回调（setBeanName）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@PostConstruct</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;3. 初始化（@PostConstruct）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">afterPropertiesSet</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;4. 初始化（InitializingBean）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">use</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;5. Bean 使用中...&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@PreDestroy</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">preDestroy</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;6. 销毁（@PreDestroy）&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">destroy</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;7. 销毁（DisposableBean）&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>⚠️ <strong>注意</strong>：<code>@PreDestroy</code> 标注的方法不能叫 <code>destroy()</code>——本例中 <code>DisposableBean</code> 接口已经占用了这个方法名，两个签名相同的 <code>destroy()</code> 会导致 <code>destroy() is already defined</code> 编译错误，所以上面把它改名为 <code>preDestroy()</code>。销毁阶段的真实执行顺序是：<strong><code>@PreDestroy</code> → <code>DisposableBean.destroy()</code> → 自定义的 <code>destroy-method</code></strong>（三者都配置时才会全部触发，实际项目通常只用其中一种）。</p>
+</blockquote>
 <p><strong>3. 面试常问：三级缓存解决循环依赖</strong></p>
 <p>Spring 用<strong>三级缓存</strong>解决循环依赖（A 依赖 B，B 依赖 A）：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Spring 三级缓存</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Object&gt; singletonObjects = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConcurrentHashMap</span>&lt;&gt;();  <span class="hljs-comment">// 一级缓存：成品 Bean</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Object&gt; earlySingletonObjects = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();  <span class="hljs-comment">// 二级缓存：半成品 Bean（已实例化，未初始化）</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, ObjectFactory&lt;?&gt;&gt; singletonFactories = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();  <span class="hljs-comment">// 三级缓存：Bean 工厂（可以创建代理对象）</span><br></code></pre></td></tr></table></figure>
@@ -895,6 +815,44 @@
 </blockquote>
 <p><strong>3. 三级缓存详解</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Spring 源码中的三级缓存</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Object&gt; singletonObjects = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConcurrentHashMap</span>&lt;&gt;();  <span class="hljs-comment">// 一级缓存：成品 Bean（完全初始化好的）</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Object&gt; earlySingletonObjects = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();  <span class="hljs-comment">// 二级缓存：半成品 Bean（已实例化，未初始化）</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, ObjectFactory&lt;?&gt;&gt; singletonFactories = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();  <span class="hljs-comment">// 三级缓存：Bean 工厂（可以创建代理对象）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么一定要三级缓存？两级不够吗？</strong></p>
+<p>这是面试官最爱追问的深水区。答案：<strong>如果 A 上有 <code>@Transactional</code>、<code>@Async</code> 这类需要 AOP 代理的注解，两级缓存会导致同一个 Bean 出现两个不同实例。</strong></p>
+<p>假设只有两级缓存（<code>singletonObjects</code> + <code>earlySingletonObjects</code>）：</p>
+<ul>
+<li>A 实例化后，直接把<strong>原始对象</strong>放进二级缓存（此时还没经过 <code>BeanPostProcessor.postProcessAfterInitialization</code>，代理还没生成）</li>
+<li>B 循环依赖时从二级缓存拿到的就是 A 的<strong>原始对象</strong>，而不是代理对象——B 持有的 A 没有事务增强</li>
+<li>但最终 A 走完生命周期、真正放进容器（一级缓存）的，是经过 <code>postProcessAfterInitialization</code> 生成的<strong>代理对象</strong></li>
+<li>结果：容器里是代理后的 A，B 手里却是没有被代理的 A，<strong>同一个 Bean 出现了两个不同的实例</strong>，B 调用 A 的方法时事务&#x2F;异步完全不生效</li>
+</ul>
+<p>三级缓存存的不是对象，而是 <code>ObjectFactory&lt;?&gt;</code>（一个工厂&#x2F;函数）。只有在<strong>真正发生循环依赖、被取用的那一刻</strong>，才会调用这个工厂去生成对象（如果需要代理，就在这一刻提前生成代理对象），并且只生成一次，结果立刻缓存进二级缓存、同时删除三级缓存里的工厂。这样无论后面谁再来取，拿到的都是同一个（可能已代理的）早期引用，从而保证全局唯一、并且最终形态与放进一级缓存的对象一致。</p>
+<pre><code class=" mermaid">sequenceDiagram
+    participant Container as容器
+    participant L1 as 一级缓存singletonObjects
+    participant L2 as 二级缓存earlySingletonObjects
+    participant L3 as 三级缓存singletonFactories
+
+    Container-&gt;&gt;Container: 创建 A
+    Container-&gt;&gt;Container: A 实例化
+    Container-&gt;&gt;L3: A 实例化后，放入 ObjectFactory
+    Container-&gt;&gt;Container: A 填充属性，发现需要 B
+    Container-&gt;&gt;Container: 创建 B
+    Container-&gt;&gt;Container: B 实例化
+    Container-&gt;&gt;L3: B 实例化后，放入 ObjectFactory
+    Container-&gt;&gt;Container: B 填充属性，发现需要 A
+    Container-&gt;&gt;L1: 查一级缓存（没有）
+    Container-&gt;&gt;L2: 查二级缓存（没有）
+    Container-&gt;&gt;L3: 查三级缓存，取出 A 的 ObjectFactory 并调用
+    Note over L3: 若 A 需要 AOP 代理，此时生成代理对象
+    L3-&gt;&gt;L2: 生成的早期引用放入二级缓存
+    L3-&gt;&gt;L3: 删除三级缓存中的条目
+    L2--&gt;&gt;Container: 把 A 的早期引用注入 B
+    Container-&gt;&gt;Container: B 属性填充完成，执行初始化
+    Container-&gt;&gt;L1: B 初始化完成，放入一级缓存（并清理二、三级）
+    Container--&gt;&gt;Container: 回到 A，用 B 完成属性填充
+    Container-&gt;&gt;Container: A 执行初始化（AOP 代理已在早期引用阶段生成）
+    Container-&gt;&gt;L1: A 初始化完成，放入一级缓存（并清理二、三级）
+</code></pre>
 
 <p><strong>4. 什么情况无法解决循环依赖？</strong></p>
 <ul>
@@ -1247,7 +1205,7 @@
 </blockquote>
 <hr>
 <h3 id="Q17：Spring-Boot-的自动配置原理是什么？"><a href="#Q17：Spring-Boot-的自动配置原理是什么？" class="headerlink" title="Q17：Spring Boot 的自动配置原理是什么？"></a>Q17：Spring Boot 的自动配置原理是什么？</h3><h4 id="一句话结论-16"><a href="#一句话结论-16" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>Spring Boot 自动配置通过 @EnableAutoConfiguration 实现，核心是 SpringFactoriesLoader 加载 META-INF&#x2F;spring.factories 中的自动配置类。</strong></p>
+<p><strong>Spring Boot 自动配置通过 @EnableAutoConfiguration 实现：Spring Boot 2.7 之前，核心是 SpringFactoriesLoader 加载 META-INF&#x2F;spring.factories 中的自动配置类；2.7 及以后（含 3.x），改为读取 META-INF&#x2F;spring&#x2F;org.springframework.boot.autoconfigure.AutoConfiguration.imports 文件，每行一个自动配置类的全限定名。</strong></p>
 </blockquote>
 <hr>
 <h4 id="深度解析-16"><a href="#深度解析-16" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 自动配置流程</strong></p>
@@ -1288,9 +1246,28 @@
 <td>是 Web 应用才生效</td>
 </tr>
 </tbody></table>
+<p><strong>5. 版本演进：加载方式变了</strong></p>
+<p>Spring Boot 2.7 是一个分水岭：</p>
+<table>
+<thead>
+<tr>
+<th>Spring Boot 版本</th>
+<th>自动配置类的加载方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2.7 之前</td>
+<td><code>META-INF/spring.factories</code> 文件，<code>org.springframework.boot.autoconfigure.EnableAutoConfiguration=</code> 这个 key 后面列出所有自动配置类</td>
+</tr>
+<tr>
+<td>2.7 及以后（含 3.x）</td>
+<td><code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 文件，每行一个自动配置类的全限定名，不再需要 key，<code>spring.factories</code> 中这个 key 已废弃</td>
+</tr>
+</tbody></table>
+<p>新机制文件更小、加载更快（不用再解析 Properties 格式、不用和其他 <code>spring.factories</code> 内容混在一起），<code>SpringFactoriesLoader</code> 依然存在，但自动配置类的加载已经切换到专门的 <code>ImportCandidates</code> 机制读取 <code>.imports</code> 文件。</p>
 <hr>
 <h4 id="面试加分回答-16"><a href="#面试加分回答-16" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「Spring Boot 自动配置的核心是 @EnableAutoConfiguration，它会通过 SpringFactoriesLoader 加载所有 jar 包中的 META-INF&#x2F;spring.factories 文件，读取其中的自动配置类（XxxAutoConfiguration），然后根据条件注解（@ConditionalOnClass、@ConditionalOnMissingBean 等）决定是否生效。如果你想自定义配置，只需要自己定义一个 Bean，因为 @ConditionalOnMissingBean 会让你定义的 Bean 优先。」</p>
+<p>「Spring Boot 自动配置的核心是 @EnableAutoConfiguration，它会加载所有 jar 包中登记的自动配置类（XxxAutoConfiguration），然后根据条件注解（@ConditionalOnClass、@ConditionalOnMissingBean 等）决定是否生效。加载方式上，2.7 之前是 SpringFactoriesLoader 读取 META-INF&#x2F;spring.factories；2.7 及以后（含 3.x）改成读取 META-INF&#x2F;spring&#x2F;org.springframework.boot.autoconfigure.AutoConfiguration.imports，每行一个全限定类名，这也是现在新建 Starter 时该用的方式。如果你想自定义配置，只需要自己定义一个 Bean，因为 @ConditionalOnMissingBean 会让你定义的 Bean 优先。」</p>
 </blockquote>
 <hr>
 <h3 id="Q18：Spring-Boot-的启动流程是怎样的？"><a href="#Q18：Spring-Boot-的启动流程是怎样的？" class="headerlink" title="Q18：Spring Boot 的启动流程是怎样的？"></a>Q18：Spring Boot 的启动流程是怎样的？</h3><h4 id="一句话结论-17"><a href="#一句话结论-17" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
@@ -1391,7 +1368,7 @@
 </tr>
 <tr>
 <td>类型安全</td>
-<td>✅ 类型安全（编译期检查）</td>
+<td>✅ 类型安全（字段是强类型 Java 对象，省去手工类型转换；配合 spring-boot-configuration-processor 可获得 IDE 提示，但绑定本身是运行期完成，不是编译期检查）</td>
 <td>❌ 类型不安全（运行期才报错）</td>
 </tr>
 <tr>
@@ -1626,6 +1603,20 @@
 <h4 id="深度解析-24"><a href="#深度解析-24" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 自调用（最常见）</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">saveUser</span><span class="hljs-params">(User user)</span> &#123;<br>        saveUserInner(user);  <span class="hljs-comment">// ❌ 自调用，事务失效</span><br>    &#125;<br>    <br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">saveUserInner</span><span class="hljs-params">(User user)</span> &#123;<br>        userDao.save(user);<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;保存失败&quot;</span>);<br>        <span class="hljs-comment">// 事务不会回滚！因为自调用绕过了代理对象</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<p>关键是理解：<strong>代理对象和目标对象是两个不同的 Java 对象</strong>，容器里注入给别人用的是代理对象，而 <code>this</code> 永远指向目标对象本身。</p>
+<pre><code class=" mermaid">flowchart LR
+    subgraph 外部调用（事务生效）
+        Caller[调用方 Caller] --&gt; Proxy[代理对象 Proxy]
+        Proxy --&gt; Interceptor[事务拦截器：开启事务]
+        Interceptor --&gt; TargetA[目标对象.saveUserInner]
+    end
+
+    subgraph 内部 this 调用（事务失效）
+        TargetB[目标对象.saveUser] --&gt;|this.saveUserInner 直接调用| TargetC[目标对象.saveUserInner]
+    end
+</code></pre>
+
+<p>左边经过代理对象，事务拦截器有机会介入；右边用 <code>this</code> 直接调用，方法调用完全发生在目标对象内部，绕过了代理对象，事务注解自然不生效。</p>
 <p><strong>2. 非 public 方法</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <br>    <span class="hljs-meta">@Transactional</span>  <span class="hljs-comment">// ❌ 非 public 方法，事务失效</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">saveUser</span><span class="hljs-params">(User user)</span> &#123;<br>        userDao.save(user);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -1711,11 +1702,14 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomAuthenticationFailureHandler</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">AuthenticationFailureHandler</span> &#123;<br>    <br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> ObjectMapper objectMapper;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onAuthenticationFailure</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)</span> <span class="hljs-keyword">throws</span> IOException, ServletException &#123;<br>        <span class="hljs-comment">// 登录失败，返回 JSON</span><br>        response.setContentType(<span class="hljs-string">&quot;application/json;charset=UTF-8&quot;</span>);<br>        <span class="hljs-type">Result</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> Result.error(<span class="hljs-number">401</span>, exception.getMessage());<br>        response.getWriter().write(objectMapper.writeValueAsString(result));<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>3. 在 SecurityConfig 中配置</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@EnableWebSecurity</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">WebSecurityConfigurerAdapter</span> &#123;<br>    <br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> CustomAuthenticationSuccessHandler successHandler;<br>    <br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> CustomAuthenticationFailureHandler failureHandler;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        http<br>            .formLogin()<br>                .loginProcessingUrl(<span class="hljs-string">&quot;/login&quot;</span>)  <span class="hljs-comment">// 登录 URL</span><br>                .successHandler(successHandler)  <span class="hljs-comment">// 登录成功处理</span><br>                .failureHandler(failureHandler)  <span class="hljs-comment">// 登录失败处理</span><br>                .permitAll()<br>            .and()<br>            .authorizeRequests()<br>                .antMatchers(<span class="hljs-string">&quot;/login&quot;</span>, <span class="hljs-string">&quot;/register&quot;</span>).permitAll()  <span class="hljs-comment">// 放行登录、注册</span><br>                .anyRequest().authenticated()  <span class="hljs-comment">// 其他请求需要认证</span><br>            .and()<br>            .csrf().disable();  <span class="hljs-comment">// 关闭 CSRF（前后端分离不需要）</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>⚠️ <strong>版本提醒</strong>：<code>WebSecurityConfigurerAdapter</code> 在 Spring Security 5.7 已被标记废弃，<strong>6.x（随 Spring Boot 3.x 一起发布）已经彻底删除</strong>，继承它的代码在近几年的 Spring Boot 版本上直接编译不过。5.7 之前用 Adapter 继承式写法；5.7 及以后推荐基于 <code>SecurityFilterChain</code> Bean 的写法；6.0 起 Adapter 被删除，<code>SecurityFilterChain</code> 成为唯一方式。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@EnableWebSecurity</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;<br>    <br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> CustomAuthenticationSuccessHandler successHandler;<br>    <br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> CustomAuthenticationFailureHandler failureHandler;<br>    <br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> SecurityFilterChain <span class="hljs-title function_">filterChain</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        http.formLogin(form -&gt; form<br>                .loginProcessingUrl(<span class="hljs-string">&quot;/login&quot;</span>)  <span class="hljs-comment">// 登录 URL</span><br>                .successHandler(successHandler)  <span class="hljs-comment">// 登录成功处理</span><br>                .failureHandler(failureHandler))  <span class="hljs-comment">// 登录失败处理</span><br>            .authorizeHttpRequests(auth -&gt; auth<br>                .requestMatchers(<span class="hljs-string">&quot;/login&quot;</span>, <span class="hljs-string">&quot;/register&quot;</span>).permitAll()  <span class="hljs-comment">// 放行登录、注册</span><br>                .anyRequest().authenticated())  <span class="hljs-comment">// 其他请求需要认证</span><br>            .csrf(AbstractHttpConfigurer::disable);  <span class="hljs-comment">// 关闭 CSRF（前后端分离不需要）</span><br>        <span class="hljs-keyword">return</span> http.build();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
 <h4 id="面试加分回答-27"><a href="#面试加分回答-27" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「自定义登录成功&#x2F;失败处理需要实现 AuthenticationSuccessHandler&#x2F;AuthenticationFailureHandler，然后在 SecurityConfig 中配置。实际项目中，前后端分离一般用 JSON 返回（而不是跳转页面），所以需要自定义成功&#x2F;失败处理。另外，Spring Security 默认登录成功会跳转，前后端分离需要返回 JSON。」</p>
+<p>「自定义登录成功&#x2F;失败处理需要实现 AuthenticationSuccessHandler&#x2F;AuthenticationFailureHandler，然后注册到 SecurityFilterChain 里。实际项目中，前后端分离一般用 JSON 返回（而不是跳转页面），所以需要自定义成功&#x2F;失败处理。另外要注意版本：Spring Security 5.7 之前是继承 WebSecurityConfigurerAdapter、重写 configure(HttpSecurity)；5.7 开始推荐用 SecurityFilterChain Bean（避免继承、更灵活、可以定义多条过滤链）；6.0（对应 Spring Boot 3.x）直接删除了 Adapter，所以新项目只能用 SecurityFilterChain 写法。Spring Security 默认登录成功会跳转，前后端分离需要返回 JSON。」</p>
 </blockquote>
 <hr>
 <h3 id="Q29：Spring-Security-中如何自定义权限校验？"><a href="#Q29：Spring-Security-中如何自定义权限校验？" class="headerlink" title="Q29：Spring Security 中如何自定义权限校验？"></a>Q29：Spring Security 中如何自定义权限校验？</h3><h4 id="一句话结论-28"><a href="#一句话结论-28" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
@@ -2412,8 +2406,11 @@
 </blockquote>
 <hr>
 <h4 id="深度解析-43"><a href="#深度解析-43" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. BeanFactory（基础版）</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// BeanFactory（延迟加载，用的时候才创建 Bean）</span><br><span class="hljs-type">BeanFactory</span> <span class="hljs-variable">beanFactory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">XmlBeanFactory</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassPathResource</span>(<span class="hljs-string">&quot;applicationContext.xml&quot;</span>));<br><span class="hljs-type">UserService</span> <span class="hljs-variable">userService</span> <span class="hljs-operator">=</span> beanFactory.getBean(UserService.class);  <span class="hljs-comment">// 这里才创建 Bean</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// BeanFactory（延迟加载，用的时候才创建 Bean）</span><br><span class="hljs-comment">// 注意：XmlBeanFactory 自 Spring 3.1 起废弃，5.0 已彻底移除，不能再这样写</span><br><span class="hljs-type">DefaultListableBeanFactory</span> <span class="hljs-variable">beanFactory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultListableBeanFactory</span>();<br><span class="hljs-keyword">new</span> <span class="hljs-title class_">XmlBeanDefinitionReader</span>(beanFactory).loadBeanDefinitions(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassPathResource</span>(<span class="hljs-string">&quot;applicationContext.xml&quot;</span>));<br><span class="hljs-type">UserService</span> <span class="hljs-variable">userService</span> <span class="hljs-operator">=</span> beanFactory.getBean(UserService.class);  <span class="hljs-comment">// 这里才创建 Bean</span><br></code></pre></td></tr></table></figure>
 
+<blockquote>
+<p>⚠️ <strong><code>XmlBeanFactory</code> 已经不存在了</strong>：它自 Spring 3.1 被标记废弃、5.0 彻底移除，近 8 年的 Spring 版本里都编译不过。上面用 <code>DefaultListableBeanFactory</code> + <code>XmlBeanDefinitionReader</code> 组合实现同样的效果（两步：先建一个空的 BeanFactory，再用 Reader 把 XML 里的 BeanDefinition 加载进去）。但要强调的是：<strong>实践中根本不会手动创建 BeanFactory</strong>，这里纯粹是为了跟 ApplicationContext 做概念对比——生产代码里入口永远是 ApplicationContext（或者更现代地，直接用 Spring Boot 的 <code>SpringApplication.run()</code>，根本不会碰到这两个类）。</p>
+</blockquote>
 <p><strong>2. ApplicationContext（增强版，推荐）</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ApplicationContext（启动时加载所有 Bean）</span><br><span class="hljs-type">ApplicationContext</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassPathXmlApplicationContext</span>(<span class="hljs-string">&quot;applicationContext.xml&quot;</span>);<br><span class="hljs-type">UserService</span> <span class="hljs-variable">userService</span> <span class="hljs-operator">=</span> context.getBean(UserService.class);  <span class="hljs-comment">// Bean 已经创建好了</span><br></code></pre></td></tr></table></figure>
 
@@ -2767,7 +2764,7 @@
 <p><strong>面试加分回答</strong>：</p>
 <ul>
 <li>可以讲讲 <code>@Around</code> 的强大之处（可以控制是否执行目标方法、可以修改参数和返回值）</li>
-<li>可以讲讲通知的执行顺序（<code>@Around</code> 前部分 → <code>@Before</code> → 目标方法 → <code>@Around</code> 后部分 → <code>@After</code> → <code>@AfterReturning</code>&#x2F;<code>@AfterThrowing</code>）</li>
+<li>可以讲讲通知的执行顺序（<code>@Around</code> 前部分 → <code>@Before</code> → 目标方法 → <code>@AfterReturning</code>&#x2F;<code>@AfterThrowing</code> → <code>@After</code> → <code>@Around</code> 后部分）——<strong><code>@Around</code> 是最外层的”洋葱皮”，<code>proceed()</code> 之后的代码必须最后才执行</strong>，而不是紧跟在目标方法后面就执行；这题面试常要求手写打印结果，顺序搞反是最容易丢分的地方</li>
 <li>可以讲讲实际应用场景（日志、事务、权限校验、接口耗时统计）</li>
 </ul>
 <hr>
@@ -3302,6 +3299,21 @@
 
 
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 

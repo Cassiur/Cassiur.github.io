@@ -27,7 +27,7 @@
 <meta property="og:description" content="系统设计面试八股文（20 题） 📚 面试高频：本文覆盖系统设计核心知识点，从基础架构到高级设计，帮你系统掌握系统设计面试要点。 🎯 面试加分：每个问题都包含深度解析和面试加分回答，让你在面试中脱颖而出。 ⚡ 快速掌握：所有问题都附有通俗易懂的解释和实战经验分享。   📖 学习指南 🎯 学习目标：通过本文，你将系统掌握系统设计的核心概念、设计思路和实战技巧，能够自信地应对任何系统设计相关的面">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-15T09:30:00.000Z">
-<meta property="article:modified_time" content="2026-06-17T04:58:20.861Z">
+<meta property="article:modified_time" content="2026-09-04T09:38:52.044Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="八股文">
 <meta property="article:tag" content="系统设计">
@@ -225,7 +225,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          15k 字
+          23k 字
         
       </span>
     
@@ -236,7 +236,7 @@
         
         
         
-          130 分钟
+          194 分钟
         
       </span>
     
@@ -350,16 +350,41 @@
 <li><strong>缓存击穿</strong>：使用互斥锁或逻辑过期时间</li>
 <li><strong>缓存雪崩</strong>：使用过期时间随机化或集群部署</li>
 </ul>
-<h3 id="陷阱-3：混淆-CAP-定理的三个特性"><a href="#陷阱-3：混淆-CAP-定理的三个特性" class="headerlink" title="陷阱 3：混淆 CAP 定理的三个特性"></a>陷阱 3：混淆 CAP 定理的三个特性</h3><p>❌ <strong>错误理解</strong>：</p>
+<h3 id="陷阱-3：混淆-CAP-定理的三个特性，以及把-CAP-的-C-和-ACID-的-C-当成一回事"><a href="#陷阱-3：混淆-CAP-定理的三个特性，以及把-CAP-的-C-和-ACID-的-C-当成一回事" class="headerlink" title="陷阱 3：混淆 CAP 定理的三个特性，以及把 CAP 的 C 和 ACID 的 C 当成一回事"></a>陷阱 3：混淆 CAP 定理的三个特性，以及把 CAP 的 C 和 ACID 的 C 当成一回事</h3><p>❌ <strong>错误理解</strong>：</p>
 <ul>
-<li>以为 CAP 可以同时保证 C、A、P</li>
+<li>以为 CAP 是”三选二”，C、A、P 可以任意选两个，P 也能不要</li>
 </ul>
 <p>✅ <strong>正确认知</strong>：</p>
 <ul>
-<li><strong>C（Consistency）一致性</strong>：所有节点在同一时间看到相同的数据</li>
-<li><strong>A（Availability）可用性</strong>：每个请求都能收到响应（不保证最新数据）</li>
-<li><strong>P（Partition tolerance）分区容错性</strong>：系统在网络分区时仍能正常运行</li>
-<li><strong>CAP 定理</strong>：分布式系统最多只能同时满足其中两个特性</li>
+<li><strong>C（Consistency）一致性</strong>：这里特指<strong>线性一致性</strong>——所有节点在同一时刻看到的都是最新数据，读到的一定是最近一次写入的结果。这和 <strong>ACID 的 C</strong>（数据库的完整性约束，如唯一键、外键、触发器不被破坏）完全是两个概念，不能混用</li>
+<li><strong>A（Availability）可用性</strong>：每个请求都能在有限时间内得到（非错误的）响应，但不保证是最新数据</li>
+<li><strong>P（Partition tolerance）分区容错性</strong>：节点间网络出现分区（消息丢失或严重延迟）时，系统仍要继续对外提供服务</li>
+<li><strong>CAP 定理的正确理解</strong>：在分布式系统中，网络分区是必然会发生的客观情况，<strong>P 不是可以放弃的选项</strong>——一个完全不能容忍分区的系统根本不能算分布式系统。所以 CAP 不是”三选二随便选”，而是<strong>一旦分区真的发生，系统只能在 C 和 A 之间二选一</strong>：要么继续响应但可能返回旧数据（放弃 C，选择 AP，如大多数 NoSQL），要么为了保证数据最新而拒绝响应或等待（放弃 A，选择 CP，如 ZooKeeper、etcd）。没有分区时，C 和 A 可以同时满足</li>
+</ul>
+<h3 id="陷阱-4：把”最终一致”当成唯一的一致性模型"><a href="#陷阱-4：把”最终一致”当成唯一的一致性模型" class="headerlink" title="陷阱 4：把”最终一致”当成唯一的一致性模型"></a>陷阱 4：把”最终一致”当成唯一的一致性模型</h3><p>❌ <strong>错误理解</strong>：</p>
+<ul>
+<li>以为分布式系统的一致性只有”强一致”和”最终一致”两种</li>
+</ul>
+<p>✅ <strong>正确认知</strong>（按一致性由强到弱排列）：</p>
+<ul>
+<li><strong>强一致性（线性一致）</strong>：写入后，任何节点上的任何后续读操作都能立刻读到最新值，效果上如同只有一份数据。代价最高，通常需要类似 Paxos&#x2F;Raft 的共识协议或牺牲部分可用性（如 ZooKeeper、etcd、单主同步复制的数据库）</li>
+<li><strong>顺序一致性</strong>：不要求”实时看到最新写入”，但要求<strong>所有节点看到的操作顺序是一致的</strong>，且这个顺序要和每个客户端自己发出操作的顺序相符（不同客户端之间的相对顺序可以不同，但不能乱序）。比强一致弱，比最终一致强，常见于某些分布式协调、消息系统的顺序保证场景</li>
+<li><strong>最终一致性</strong>：不保证任何时刻都能读到最新值，但保证<strong>如果没有新的写入，经过一段时间后所有节点最终会收敛到同一个值</strong>。代价最低、可用性最高，是大多数缓存、多数 NoSQL 数据库、DNS 这类系统的默认选择</li>
+<li><strong>面试要点</strong>：讲一致性模型时，要说清楚”牺牲的是什么、换来的是什么”——强一致性牺牲的是可用性&#x2F;延迟，最终一致性牺牲的是”读到最新数据”的保证，选型要结合具体业务能否容忍”读到旧数据”</li>
+</ul>
+<h3 id="陷阱-5：以为分布式事务只有”要不要用”，不知道每种方案的代价"><a href="#陷阱-5：以为分布式事务只有”要不要用”，不知道每种方案的代价" class="headerlink" title="陷阱 5：以为分布式事务只有”要不要用”，不知道每种方案的代价"></a>陷阱 5：以为分布式事务只有”要不要用”，不知道每种方案的代价</h3><p>❌ <strong>错误理解</strong>：</p>
+<ul>
+<li>以为只要引入分布式事务框架（如 Seata），就能像单机事务一样”无脑”保证跨服务&#x2F;跨库的强一致</li>
+</ul>
+<p>✅ <strong>正确认知</strong>（按一致性强弱和代价排列）：</p>
+<ul>
+<li><strong>2PC（两阶段提交）</strong>：协调者先问所有参与者”能不能提交”（prepare，参与者锁资源并写日志），都同意后再统一发送 commit。<strong>代价</strong>：参与者在 prepare 后要一直持有锁直到 commit 完成，是<strong>同步阻塞</strong>协议，吞吐量差；协调者是单点，协调者在第二阶段崩溃会导致参与者长时间阻塞（不知道该提交还是回滚）；只保证协调者和参与者不同时失败，不能很好应对网络分区</li>
+<li><strong>3PC（三阶段提交）</strong>：在 2PC 前面加一个 CanCommit 阶段，并给参与者引入超时自动提交机制，缓解协调者单点阻塞的问题。<strong>代价</strong>：多了一轮网络交互，延迟更高；在网络分区下超时自动提交仍可能导致数据不一致，工程上很少真正落地使用</li>
+<li><strong>TCC（Try-Confirm-Cancel）</strong>：业务层面把一个操作拆成 Try（预留资源，如冻结库存）、Confirm（真正扣减）、Cancel（释放预留）三个接口，由业务代码自己实现幂等和补偿。<strong>代价</strong>：对业务侵入性极强，每个参与方都要写三套接口，且要保证 Try&#x2F;Confirm&#x2F;Cancel 的幂等性和空补偿（Cancel 先于 Try 到达）处理；换来的是不长期占用数据库锁，性能比 2PC 好很多，适合对性能要求高的核心链路（如支付、库存）</li>
+<li><strong>Saga</strong>：把一个长事务拆成一串本地事务，每个本地事务对应一个补偿操作，某一步失败就依次调用前面步骤的补偿操作回滚。<strong>代价</strong>：只能保证”最终一致”，中间过程其他请求可能读到部分完成的中间状态（缺乏隔离性）；补偿逻辑要业务自己实现，且要求每一步都可补偿；优点是没有全局锁，吞吐量最高，适合流程长、跨多个服务的业务（如电商下单跨多个域）</li>
+<li><strong>本地消息表</strong>：业务操作和”发消息”记录写在同一个本地数据库事务里（把消息先记到本地表），再用定时任务轮询本地消息表把消息投递到 MQ，成功后标记已发送。<strong>代价</strong>：多了一张表和一个轮询任务，消息投递有延迟（取决于轮询间隔）；换来的是不依赖 MQ 的事务消息特性，实现简单、和本地事务强绑定，最终一致性有保障</li>
+<li><strong>最大努力通知</strong>：发起方尽量把消息通知给下游（重试若干次），但不保证下游一定能收到，下游需要提供接口让发起方能主动查询&#x2F;补偿（对账）。<strong>代价</strong>：一致性保证最弱，需要下游配合做对账和幂等处理；换来的是发起方实现成本最低，常用于跨公司边界的通知场景（如支付回调）</li>
+<li><strong>面试要点</strong>：不要笼统地说”用分布式事务”，要能讲清楚候选方案在<strong>性能、隔离性、业务侵入性、最终能保证到什么程度的一致性</strong>上的取舍，并结合具体场景（如秒杀库存 vs 支付跨行转账）给出选择理由</li>
 </ul>
 <hr>
 <h2 id="💡-面试技巧"><a href="#💡-面试技巧" class="headerlink" title="💡 面试技巧"></a>💡 面试技巧</h2><blockquote>
@@ -432,6 +457,20 @@
 </ul>
 </li>
 </ul>
+<p><strong>问题 3：重定向用 301 还是 302？</strong></p>
+<ul>
+<li><strong>301（永久重定向）</strong>：浏览器和中间代理&#x2F;CDN 会<strong>缓存</strong>这次跳转结果，之后同一个短链接<strong>不再请求短链接服务器</strong>，直接跳到长链接<ul>
+<li>优点：减轻服务器压力，用户访问更快</li>
+<li>缺点：<strong>统计不到真实的点击量&#x2F;UV</strong>（后续访问都被浏览器缓存拦截了，服务端拿不到访问日志）；如果长链接后续需要变更，客户端本地缓存不会失效，用户可能一直跳到旧地址</li>
+</ul>
+</li>
+<li><strong>302（临时重定向）</strong>：明确告诉浏览器”这只是临时的”，浏览器<strong>不缓存</strong>，每次访问都会重新请求短链接服务器再跳转<ul>
+<li>优点：每次访问都能拿到统计数据（点击量、来源、设备等），也方便后台随时修改或下线映射关系</li>
+<li>缺点：每次跳转都要多打一次短链接服务器，多一次网络往返，对服务器的可用性和性能要求更高</li>
+</ul>
+</li>
+<li><strong>业界主流选择 302</strong>：因为短链接系统通常需要统计点击数据、需要支持链接过期&#x2F;失效&#x2F;替换，这些都要求每次跳转经过服务端，所以<strong>几乎所有短链接产品默认用 302</strong>，只有明确不需要统计、且长链接保证永不改变的场景才考虑 301</li>
+</ul>
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
 <p>“在实际项目中，短链接系统需要考虑：</p>
@@ -454,16 +493,53 @@
 <p><strong>2. 限流算法</strong>：</p>
 <p><strong>算法 1：固定窗口（Fixed Window）</strong></p>
 <ul>
-<li><strong>原理</strong>：将时间分成固定大小的窗口，每个窗口内最多允许 N 个请求</li>
-<li><strong>优点</strong>：实现简单</li>
-<li><strong>缺点</strong>：无法应对突发流量（如窗口边界处，可能有 2N 个请求）</li>
+<li><strong>原理</strong>：将时间分成固定大小的窗口，每个窗口内最多允许 N 个请求，窗口结束后计数器清零</li>
+<li><strong>优点</strong>：实现简单，只需一个计数器</li>
+<li><strong>缺点</strong>：<strong>临界问题</strong>——如果请求集中在两个窗口的交界处（如第 1 个窗口的最后 1ms 和第 2 个窗口的最前 1ms 各打满 N 个请求），2ms 内实际通过了 2N 个请求，远超预期速率</li>
 </ul>
-<p><strong>算法 2：令牌桶（Token Bucket）</strong></p>
+<p><strong>算法 2：滑动窗口（Sliding Window）</strong></p>
 <ul>
-<li><strong>原理</strong>：以固定速率生成令牌，放入桶中；请求到来时，从桶中获取令牌；如果桶中没有令牌，拒绝请求</li>
-<li><strong>优点</strong>：允许突发流量（桶中有令牌时，可以一次性处理多个请求）</li>
-<li><strong>缺点</strong>：实现复杂</li>
+<li><strong>原理</strong>：把窗口切成更细的时间格子（或直接记录每个请求的时间戳），统计”当前时刻往前推一个窗口长度”内的请求数，而不是按固定的自然窗口切分</li>
+<li><strong>优点</strong>：统计更精确，缓解了固定窗口的临界问题</li>
+<li><strong>缺点</strong>：需要保存更细粒度的计数（或每个请求的时间戳），内存和计算开销比固定窗口高</li>
 </ul>
+<p><strong>算法 3：漏桶（Leaky Bucket）</strong></p>
+<ul>
+<li><strong>原理</strong>：请求先进入一个桶，桶以<strong>固定速率</strong>向外”漏水”（处理请求），桶满了就拒绝新请求</li>
+<li><strong>优点</strong>：无论请求到来得多突然，处理速率都是恒定的，输出流量非常平滑</li>
+<li><strong>缺点</strong>：<strong>不允许突发流量</strong>——即使桶是空的，也不能瞬间处理一大批积压的请求，只能按固定速率慢慢处理，对于允许短时突发的场景不够灵活</li>
+</ul>
+<p><strong>算法 4：令牌桶（Token Bucket）</strong></p>
+<ul>
+<li><strong>原理</strong>：系统以固定速率往桶里放令牌（令牌数有上限），请求到来时先从桶里拿一个令牌，拿到才放行；桶里没令牌则拒绝或排队</li>
+<li><strong>优点</strong>：<strong>允许突发流量</strong>——只要桶里积攒了令牌（比如系统空闲了一段时间），瞬间到来的一批请求可以一次性用掉这些令牌被处理，突发之后再恢复到平均速率</li>
+<li><strong>缺点</strong>：实现比固定窗口复杂，需要维护令牌生成和消耗的状态</li>
+</ul>
+<blockquote>
+<p><strong>令牌桶 vs 漏桶的关键区别</strong>：两者平均速率可以设成一样，但<strong>令牌桶允许攒下的令牌应对突发请求</strong>（允许超过平均速率的短时高峰），<strong>漏桶则严格按固定速率”匀速”处理，不管请求多突然，输出永远是恒定的</strong>，因此不允许突发。</p>
+</blockquote>
+<p><strong>四种限流算法对比</strong>：</p>
+<pre><code class=" mermaid">flowchart TB
+    Q[&quot;请求到达，怎么限流？&quot;] --&gt; A[&quot;固定窗口&quot;]
+    Q --&gt; B[&quot;滑动窗口&quot;]
+    Q --&gt; C[&quot;漏桶 Leaky Bucket&quot;]
+    Q --&gt; D[&quot;令牌桶 Token Bucket&quot;]
+
+    A --&gt; A1[&quot;按固定时间片计数，窗口结束后清零&quot;]
+    A1 --&gt; A2[&quot;缺点：临界问题——两个窗口交界处瞬间可能通过 2N 个请求&quot;]
+
+    B --&gt; B1[&quot;用更细粒度的时间格子，统计滑动的最近一个窗口内的请求数&quot;]
+    B1 --&gt; B2[&quot;优点：统计更平滑，缓解临界问题；代价：内存和计算开销更高&quot;]
+
+    C --&gt; C1[&quot;请求先进桶排队，桶以恒定速率向外处理&quot;]
+    C1 --&gt; C2[&quot;无论桶是空的还是瞬间涌入一堆请求，输出速率永远恒定&quot;]
+    C2 --&gt; C3[&quot;结论：不允许突发，强制把流量整形成匀速&quot;]
+
+    D --&gt; D1[&quot;系统以恒定速率生产令牌，攒在桶里（数量有上限）&quot;]
+    D1 --&gt; D2[&quot;请求需要拿到一个令牌才能通过，拿不到就拒绝&quot;]
+    D2 --&gt; D3[&quot;结论：允许突发——桶里攒的令牌可以一次性用掉，短时处理量可以超过平均速率&quot;]
+</code></pre>
+
 <p><strong>3. 限流架构</strong>：</p>
 <ul>
 <li><strong>单机限流</strong>：使用内存计数器（如 Guava 的 <code>RateLimiter</code>）</li>
@@ -508,18 +584,33 @@
 </ul>
 </li>
 </ul>
+<p><strong>方案 2：数据库自增 ID &#x2F; 号段模式</strong></p>
+<ul>
+<li><strong>数据库自增 ID</strong>：<ul>
+<li><strong>原理</strong>：直接用 MySQL 的 <code>AUTO_INCREMENT</code> 生成 ID</li>
+<li><strong>优点</strong>：实现简单，天然有序</li>
+<li><strong>缺点</strong>：强依赖数据库，单机自增有性能瓶颈（每次生成 ID 都要访问数据库），多实例场景需要设置不同的起始值和步长（如奇偶分段）来避免冲突，扩容时步长调整复杂</li>
+</ul>
+</li>
+<li><strong>号段模式（Leaf-segment 等采用的方式）</strong>：<ul>
+<li><strong>原理</strong>：不再每次都访问数据库拿一个 ID，而是每次从数据库批量取一段 ID 区间（如 [1, 1000)）缓存在 ID 生成服务的内存里，业务发号时直接从内存区间分配，用完再去数据库申请下一段</li>
+<li><strong>优点</strong>：把对数据库的访问频率从”每次发号一次”降到”每消耗完一个号段一次”，大幅降低数据库压力；可以双 Buffer 预取下一段，避免号段用尽时的等待</li>
+<li><strong>缺点</strong>：ID 不是严格连续递增（服务重启会浪费未用完的号段），仍然依赖数据库的可用性</li>
+</ul>
+</li>
+</ul>
 <p><strong>方案 3：雪花算法（Snowflake）</strong></p>
 <ul>
 <li><strong>原理</strong>：64 位 ID，由**时间戳（41 位）+ 机器 ID（10 位）+ 序列号（12 位）**组成</li>
 <li><strong>优点</strong>：<ul>
 <li>有序（时间戳在高位，ID 按时间递增）</li>
-<li>高性能（每秒可生成 4096 * 2^10 &#x3D; 419 万个 ID）</li>
-<li>高可用（不依赖外部服务）</li>
+<li>高性能（单机每毫秒可生成 2^12 &#x3D; 4096 个序列号，即每秒约 409.6 万个 ID；具体上限取决于时钟精度和实现，不同厂商的改进版本数值会有差异）</li>
+<li>高可用（不依赖外部服务，本地内存生成）</li>
 </ul>
 </li>
 <li><strong>缺点</strong>：<ul>
-<li>时钟回拨问题（如果系统时钟回拨，可能生成重复 ID）</li>
-<li>机器 ID 需要手动配置（或使用时服务分配）</li>
+<li><strong>时钟回拨问题</strong>：机器时钟如果因 NTP 校时等原因往回跳，可能生成比之前更小甚至重复的 ID。常见应对方式：发现回拨后短暂拒绝发号并等待时钟追上；用回拨的时间差换取备用序列位；或引入其他时间标识位，牺牲一定的 ID 长度换取容错</li>
+<li>机器 ID 需要手动配置（或使用时服务分配，避免机器 ID 冲突）</li>
 </ul>
 </li>
 </ul>
@@ -527,9 +618,10 @@
 <blockquote>
 <p>“在实际项目中，分布式唯一 ID 生成系统的设计需要考虑：</p>
 <ol>
-<li><strong>有序性要求</strong>：如果用作数据库主键，推荐使用雪花算法或 Leaf（有序，避免索引碎片化）</li>
-<li><strong>性能要求</strong>：如果 QPS 很高，推荐使用雪花算法或 Redis</li>
-<li><strong>可用性要求</strong>：如果要求高可用，推荐使用雪花算法或 Leaf”</li>
+<li><strong>有序性要求</strong>：如果用作数据库主键，推荐使用雪花算法或号段模式（有序或趋势递增，避免索引碎片化）</li>
+<li><strong>性能要求</strong>：如果 QPS 很高，推荐使用雪花算法（本地生成，无网络开销）</li>
+<li><strong>可用性要求</strong>：如果要求不依赖外部服务，推荐使用雪花算法；如果能接受依赖数据库，号段模式实现更简单</li>
+<li><strong>时钟回拨要重点防范</strong>：面试官很喜欢追问这个点，一定要能讲清楚检测和应对方案”</li>
 </ol>
 </blockquote>
 <hr>
@@ -573,8 +665,8 @@
 <li><strong>MQ 异步下单</strong>：削峰填谷，防止数据库被打垮”</li>
 </ol>
 </blockquote>
-<p>—### Q5：如何设计一个分布式锁？</p>
-<p><strong>一句话总结</strong>：分布式锁的核心是<strong>互斥性、可重入、防死锁、高可用</strong>，实现方案有 <strong>Redis、Zookeeper、etcd</strong>。</p>
+<hr>
+<h3 id="Q5：如何设计一个分布式锁？"><a href="#Q5：如何设计一个分布式锁？" class="headerlink" title="Q5：如何设计一个分布式锁？"></a>Q5：如何设计一个分布式锁？</h3><p><strong>一句话总结</strong>：分布式锁的核心是<strong>互斥性、可重入、防死锁、高可用</strong>，实现方案有 <strong>Redis、Zookeeper、etcd</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 分布式锁的要求</strong>：</p>
 <ul>
@@ -586,12 +678,18 @@
 <p><strong>2. 分布式锁实现方案</strong>：</p>
 <p><strong>方案 1：Redis 实现分布式锁</strong></p>
 <ul>
-<li><strong>获取锁</strong>：<code>SET lock_key unique_value NX EX 10</code>（NX：不存在才设置，EX：10 秒过期）</li>
-<li><strong>释放锁</strong>：使用 Lua 脚本保证原子性<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs lua"><span class="hljs-keyword">if</span> redis.call(<span class="hljs-string">&#x27;get&#x27;</span>, KEYS[<span class="hljs-number">1</span>]) == ARGV[<span class="hljs-number">1</span>] <span class="hljs-keyword">then</span><br>    <span class="hljs-keyword">return</span> redis.call(<span class="hljs-string">&#x27;del&#x27;</span>, KEYS[<span class="hljs-number">1</span>])<br><span class="hljs-keyword">else</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span><br><span class="hljs-keyword">end</span><br></code></pre></td></tr></table></figure></li>
+<li><strong>获取锁</strong>：<code>SET lock_key unique_value NX EX 10</code>（NX：不存在才设置，保证互斥；EX：10 秒过期，防止客户端崩溃后锁永远不释放；<code>unique_value</code> 通常用 UUID 或请求唯一标识，标记这把锁是”谁”加的）</li>
+<li><strong>释放锁</strong>：<strong>必须</strong>用 Lua 脚本保证”检查是不是自己加的锁 + 删除”这两步的原子性<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs lua"><span class="hljs-keyword">if</span> redis.call(<span class="hljs-string">&#x27;get&#x27;</span>, KEYS[<span class="hljs-number">1</span>]) == ARGV[<span class="hljs-number">1</span>] <span class="hljs-keyword">then</span><br>    <span class="hljs-keyword">return</span> redis.call(<span class="hljs-string">&#x27;del&#x27;</span>, KEYS[<span class="hljs-number">1</span>])<br><span class="hljs-keyword">else</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span><br><span class="hljs-keyword">end</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>为什么一定要用 Lua，而不能先 GET 判断、再 DEL</strong>：如果用两条独立命令（先 <code>GET</code> 判断 value 是不是自己的 unique_value，再 <code>DEL</code>），这两步之间不是原子的——假设客户端 A 的锁在 GET 判断完之后、DEL 执行之前，恰好因为业务超时而<strong>过期自动释放</strong>了，此时客户端 B 抢到了锁；接着 A 的 DEL 命令执行，把 B 刚加的锁<strong>误删</strong>了，导致锁提前失效、其他客户端 C 也能进来，互斥性被破坏。Lua 脚本在 Redis 里是单线程原子执行的，把”比较 value + 删除”合并成一条不可分割的命令，就不存在这个竞态窗口</li>
+<li><strong>可重入 &#x2F; 续期</strong>：原生的 <code>SET NX EX</code> 不支持重入，也没有自动续期，实际项目里通常用 <strong>Redisson</strong> 这类客户端库：它用 Hash 结构记录”锁名 → 持有线程 → 重入次数”支持可重入；并且内置<strong>看门狗（Watchdog）机制</strong>——加锁成功后台启动一个定时任务，每隔一段时间（默认约每 10 秒，取锁默认 30 秒 TTL 的三分之一）检查客户端是否还持有锁、业务是否还在执行，如果是就把过期时间重新续到 30 秒，避免业务没执行完锁却先过期；只要客户端进程存活，锁就不会因为业务时间不确定而提前失效，客户端异常宕机后看门狗线程也随之停止，锁会按最后一次续期的 TTL 正常过期</li>
+</ul>
+</li>
 <li><strong>优点</strong>：性能高，实现简单</li>
 <li><strong>缺点</strong>：<ul>
-<li>时钟漂移问题（主从切换时可能丢失锁）</li>
-<li>锁过期时间难以估算（业务执行时间可能超过锁过期时间）</li>
+<li><strong>主从异步复制导致的锁失效</strong>：客户端 A 在主节点加锁成功，还没来得及同步给从节点，主节点就宕机了；哨兵&#x2F;Cluster 把从节点提升为新主节点后，新主节点上并没有这把锁，于是客户端 B 也能加锁成功——两个客户端同时认为自己持有锁，互斥性被打破。这本质上是主从复制的最终一致性代价，不是”时钟”问题</li>
+<li>锁过期时间难以精确估算（业务执行时间不确定，因此才需要看门狗自动续期来兜底）</li>
+<li><strong>RedLock 及其争议</strong>：为了解决单实例主从切换的问题，Redis 官方提出了 RedLock 算法——向多个（如 5 个）相互独立的 Redis 实例分别加锁，超过半数（如 3 个）成功才算加锁成功。但该算法在学术界存在争议：分布式系统专家 Martin Kleppmann 撰文指出，RedLock 既没有像 Zookeeper 那样提供严格的 fencing token（隔离令牌）机制防止”锁过期后旧持有者仍在操作共享资源”的问题，其正确性又依赖于对系统时钟和 GC 停顿等因素做出的强假设（例如某个节点的时钟发生跳变，或客户端因为 GC&#x2F;网络阻塞导致锁在其不知情的情况下已过期），在这些假设不成立时无法保证互斥性；因此对<strong>正确性要求极高</strong>的场景（如金融资金操作），更推荐使用 Zookeeper&#x2F;etcd 这类基于共识协议、天然支持 fencing token 的方案，而不是仅仅依赖 RedLock</li>
 </ul>
 </li>
 </ul>
@@ -653,8 +751,9 @@
 </ol>
 <p>实际面试中，可以深入讲解 <strong>Redis 分布式锁的缺陷</strong>：</p>
 <ul>
-<li><strong>时钟漂移</strong>：主节点时钟跳变，导致锁提前过期</li>
-<li><strong>主从切换</strong>：主节点加锁成功，还没同步到从节点，主节点宕机，从节点升级为主节点，另一个客户端也能加锁成功（锁失效）”</li>
+<li><strong>释放锁必须用 Lua 脚本</strong>：把”校验是不是自己的锁”和”删除”合并成原子操作，避免误删别人的锁</li>
+<li><strong>看门狗续期</strong>：业务时间不确定时，用 Redisson 的看门狗自动续期，而不是一开始就设一个很长但不精确的过期时间</li>
+<li><strong>主从切换导致的锁失效</strong>：主节点加锁成功，还没同步到从节点，主节点宕机，从节点升级为主节点后没有这把锁，另一个客户端也能加锁成功（锁失效）——想根治这个问题需要用 RedLock 或直接换成 Zookeeper&#x2F;etcd，同时注意 RedLock 本身在正确性上也有争议”</li>
 </ul>
 </blockquote>
 <hr>
@@ -885,8 +984,8 @@
 <li>实现方式：根据消息 ID 拉取消息（每个设备维护自己的消息 ID）”</li>
 </ul>
 </blockquote>
-<p>—### Q11：如何设计一个视频网站（如 YouTube、B站）？</p>
-<p><strong>一句话总结</strong>：视频网站的核心是<strong>视频上传、转码、存储、分发、播放</strong>。</p>
+<hr>
+<h3 id="Q11：如何设计一个视频网站（如-YouTube、B站）？"><a href="#Q11：如何设计一个视频网站（如-YouTube、B站）？" class="headerlink" title="Q11：如何设计一个视频网站（如 YouTube、B站）？"></a>Q11：如何设计一个视频网站（如 YouTube、B站）？</h3><p><strong>一句话总结</strong>：视频网站的核心是<strong>视频上传、转码、存储、分发、播放</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 需求分析</strong>：</p>
 <ul>
@@ -1509,24 +1608,79 @@
 <figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs scss">┌─────────────────────────────────────────────────────────────┐<br>│                    高并发系统架构                            │<br>├─────────────────────────────────────────────────────────────┤<br>│                                                             │<br>│  ┌─────────┐    ┌─────────┐    ┌─────────┐              │<br>│  │  User    │───▶│  CDN     │───▶│  LB      │            │<br>│  │  (用户)  │    │  (静态资源)│    │  (负载均衡)│            │<br>│  └─────────┘    └─────────┘    └─────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  API Gateway      │              │<br>│                          │  (限流、鉴权)     │              │<br>│                          └─────────────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  Service         │              │<br>│                          │  (业务逻辑)       │              │<br>│                          └─────────────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│              ┌────────────────────────────────────┐        │<br>│              │  缓存层 │ 消息队列 │ 数据库层      │        │<br>│              └────────────────────────────────────┘        │<br>└─────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
 <p><strong>4. 缓存设计</strong></p>
-<p><strong>缓存层次</strong>：</p>
+<p><strong>缓存层次</strong>（数据库不是”缓存”，是最终的数据源和一致性基准，这里列出只是为了说明请求逐级兜底的路径）：</p>
 <ol>
-<li><strong>本地缓存</strong>（一级缓存）：HashMap、Guava Cache、Caffeine（纳秒级）</li>
-<li><strong>分布式缓存</strong>（二级缓存）：Redis、Memcached（毫秒级）</li>
-<li><strong>数据库</strong>（三级缓存）：MySQL、PostgreSQL（毫秒级）</li>
+<li><strong>本地缓存</strong>（一级）：HashMap、Guava Cache、Caffeine（读写在进程内存中完成，纳秒级）</li>
+<li><strong>分布式缓存</strong>（二级）：Redis、Memcached（一次网络往返，通常是毫秒级，具体延迟依赖网络和负载）</li>
+<li><strong>数据库</strong>（最终数据源，非缓存）：MySQL、PostgreSQL（前两级都未命中时才会查询，也是数据一致性的最终依据）</li>
 </ol>
 <p><strong>缓存策略</strong>：</p>
 <ul>
-<li><strong>Cache-Aside</strong>（旁路缓存）：优先读缓存，缓存没有则读数据库</li>
-<li><strong>Read-Through</strong>（读穿透）：缓存层负责读数据库</li>
-<li><strong>Write-Through</strong>（写穿透）：缓存层负责写数据库</li>
+<li><strong>Cache-Aside</strong>（旁路缓存，最常用）：应用代码自己维护缓存和数据库的读写，缓存和数据库不直接打交道<ul>
+<li><strong>读</strong>：先读缓存，命中直接返回；未命中则读数据库，再把结果写回缓存</li>
+<li><strong>写</strong>：<strong>先更新数据库，再删除缓存</strong>（不是更新缓存），下一次读请求 miss 后会从数据库重新加载最新值</li>
+<li><strong>为什么是删除缓存而不是更新缓存</strong>：① 更新缓存的开销可能被浪费——如果这个值后续没人读，白算了；而删除缓存是懒加载，只有真正被读到时才会重新计算&#x2F;查询；② 并发写场景下，两个写请求 A、B 同时更新数据库和缓存，网络延迟可能导致后完成数据库写入的请求（A，写入更早的值）却后完成缓存写入，缓存里最终留下的是旧值，造成数据库和缓存长期不一致；而”删缓存”即使并发下出现问题，缓存最多是变成空的，下次读会重新从数据库拿最新值，不会永久停留在错误的旧值上</li>
+<li><strong>为什么是先更新数据库再删缓存，而不是先删缓存再更新数据库</strong>：如果先删缓存、再更新数据库，中间有个空窗期——另一个并发的读请求发现缓存为空，去数据库读到了<strong>还没更新的旧值</strong>，然后把这个旧值写回缓存；等原来的写请求把数据库更新完，缓存里留下的却是旧值，且不会再被更新，造成脏数据长期存在</li>
+<li><strong>延迟双删的局限</strong>：为了缓解”先更新数据库再删缓存”这一步和某个并发读请求的时间窗里插入的脏写（读请求在删除动作和数据库更新之间读到旧值又写回缓存），有一种做法是”删缓存 → 更新数据库 → sleep 一段时间 → 再删一次缓存”。但这只是<strong>降低脏数据出现的概率，不是从根本上消除</strong>：sleep 的时长很难精确设定（要大于一次读请求”读数据库 + 写缓存”的最长耗时，但这个耗时在高负载下并不确定），设短了没用，设长了又拖慢写请求或占用线程；更彻底的方案是让写请求侵入较小的锁&#x2F;版本号机制，或采用<strong>订阅数据库 binlog（如 Canal）异步删除缓存</strong>，把删缓存和业务写请求解耦，避免在业务线程里做不确定时长的 sleep</li>
 </ul>
+</li>
+<li><strong>Read-Through</strong>（读穿透）：应用只和缓存打交道，缓存内部负责读数据库并填充自己（对应用透明）</li>
+<li><strong>Write-Through</strong>（写穿透）：应用只写缓存，缓存同步写数据库后再返回</li>
+</ul>
+<p><strong>Cache Aside 读写流程，以及并发下不一致是怎么产生的</strong>：</p>
+<pre><code class=" mermaid">sequenceDiagram
+    participant W as 写请求 W
+    participant R as 并发读请求 R
+    participant Cache as 缓存
+    participant DB as 数据库
+
+    Note over W,DB: 正常读路径：缓存未命中则查库并回填
+    R-&gt;&gt;Cache: GET key
+    Cache--&gt;&gt;R: 未命中
+    R-&gt;&gt;DB: 查询 key
+    DB--&gt;&gt;R: 返回旧值 v1
+    R-&gt;&gt;Cache: SET key = v1
+
+    Note over W,DB: 正常写路径：先更新数据库，再删除缓存（不是更新缓存）
+    W-&gt;&gt;DB: UPDATE key = v2
+    W-&gt;&gt;Cache: DEL key
+
+    Note over W,DB: 反例：如果改成&quot;先删缓存、再更新数据库&quot;，并发下会产生脏数据
+    W-&gt;&gt;Cache: DEL key
+    R-&gt;&gt;Cache: GET key
+    Cache--&gt;&gt;R: 未命中
+    R-&gt;&gt;DB: 查询 key（此时 W 还没写库，读到的是旧值）
+    DB--&gt;&gt;R: 返回旧值 v1
+    W-&gt;&gt;DB: UPDATE key = v2
+    R-&gt;&gt;Cache: SET key = v1
+    Note over Cache: 缓存被写回了旧值 v1，&lt;br/&gt;数据库已经是 v2，脏数据从此固化，&lt;br/&gt;直到 key 再次被更新或过期
+</code></pre>
+
 <p><strong>缓存问题</strong>：</p>
 <ul>
-<li><strong>缓存穿透</strong>：查询不存在的数据（解决方案：布隆过滤器、缓存空值）</li>
-<li><strong>缓存击穿</strong>：热点 Key 过期（解决方案：互斥锁、逻辑过期时间）</li>
-<li><strong>缓存雪崩</strong>：大量 Key 同时过期（解决方案：过期时间随机化、集群部署）</li>
+<li><strong>缓存穿透</strong>：查询的数据在缓存和数据库中都不存在（如恶意查询不存在的 ID），请求穿过缓存直接打到数据库（解决方案：布隆过滤器提前拦截一定不存在的 key、对空结果也缓存一个短过期时间的空值）</li>
+<li><strong>缓存击穿</strong>：某个<strong>热点 Key</strong>恰好过期的瞬间，大量并发请求同时穿透到数据库上（解决方案：互斥锁&#x2F;分布式锁保证只有一个请求去数据库加载并重建缓存、逻辑过期——缓存本身不设 TTL，用异步线程在值快过期前主动刷新）</li>
+<li><strong>缓存雪崩</strong>：<strong>大量不同的 Key</strong>在同一时间集中过期，或者缓存服务本身宕机，导致瞬间大量请求全部打到数据库（解决方案：给过期时间加上随机偏移量打散、缓存集群高可用部署、结合本地缓存等多级缓存兜底）</li>
 </ul>
+<p><strong>缓存三大问题的成因与对策</strong>：</p>
+<pre><code class=" mermaid">flowchart TD
+    A[&quot;数据库压力异常升高 / 大量请求绕过缓存&quot;] --&gt; B&#123;&quot;请求的 key 在数据库里是否存在？&quot;&#125;
+    B --&gt;|&quot;不存在（无效或恶意查询）&quot;| C[&quot;缓存穿透&quot;]
+    B --&gt;|&quot;存在&quot;| D&#123;&quot;是集中在少数热点 key，还是大批不同 key？&quot;&#125;
+    D --&gt;|&quot;少数热点 key 恰好同时过期&quot;| F[&quot;缓存击穿&quot;]
+    D --&gt;|&quot;大批不同 key 同时过期，或缓存整体宕机&quot;| E[&quot;缓存雪崩&quot;]
+
+    C --&gt; C1[&quot;布隆过滤器：提前拦截一定不存在的 key&quot;]
+    C --&gt; C2[&quot;空值缓存：查询结果为空也缓存一个较短的 TTL&quot;]
+
+    F --&gt; F1[&quot;互斥锁：只放一个请求去数据库重建缓存，其余等待或返回旧值&quot;]
+    F --&gt; F2[&quot;逻辑过期：缓存永不物理过期，用后台线程在临近过期前异步刷新&quot;]
+
+    E --&gt; E1[&quot;过期时间加随机偏移，避免大批 key 同一时刻失效&quot;]
+    E --&gt; E2[&quot;缓存服务高可用集群部署，避免单点整体宕机&quot;]
+    E --&gt; E3[&quot;本地缓存兜底，作为分布式缓存失效时的多级缓存&quot;]
+</code></pre>
+
 <p><strong>5. 异步处理（消息队列）</strong></p>
 <p><strong>适用场景</strong>：</p>
 <ul>
@@ -1578,9 +1732,16 @@
 <p><strong>Guava RateLimiter（令牌桶）</strong>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.google.common.util.concurrent.RateLimiter;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RateLimitController</span> &#123;<br>    <br>    <span class="hljs-comment">// 每秒生成 100 个令牌（允许 100 QPS）</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">RateLimiter</span> <span class="hljs-variable">rateLimiter</span> <span class="hljs-operator">=</span> RateLimiter.create(<span class="hljs-number">100.0</span>);<br>    <br>    <span class="hljs-meta">@GetMapping(&quot;/api/users&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getUsers</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span> (!rateLimiter.tryAcquire()) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;系统繁忙，请稍后再试&quot;</span>;  <span class="hljs-comment">// 限流</span><br>        &#125;<br>        <br>        <span class="hljs-comment">// 业务逻辑</span><br>        <span class="hljs-keyword">return</span> userService.getUsers();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><strong>7. 服务降级和熔断</strong></p>
+<p><strong>7. 限流、降级、熔断的区别</strong></p>
+<p>三者经常被放在一起说，但触发的原因和处理方式不同，面试容易被追问区分：</p>
+<ul>
+<li><strong>限流</strong>：主动<strong>提前</strong>控制请求的进入速率，无论下游是否健康都按预设阈值放行（如令牌桶&#x2F;漏桶），目的是保护自己不被超出承载能力的流量打垮，是一种”事前预防”</li>
+<li><strong>降级</strong>：某个非核心依赖不可用或性能下降时，<strong>主动</strong>放弃这部分功能，返回默认值&#x2F;缓存数据&#x2F;空数据，保住核心链路可用，是一种”有损服务但保命”的策略，可以是人工开关触发，也可以自动触发</li>
+<li><strong>熔断</strong>：针对某个依赖调用的错误率&#x2F;超时率<strong>被动</strong>监测到超过阈值后，在一段时间内<strong>直接不再发起对该依赖的调用</strong>（类似电路”跳闸”），避免线程&#x2F;连接持续阻塞在一个大概率会失败的调用上导致自己也被拖垮（服务雪崩），是一种”事后止损”，熔断期结束后会放行少量请求试探依赖是否恢复（半开状态）</li>
+<li><strong>三者常配合使用</strong>：限流挡住多余流量 → 少量依赖调用失败率升高时触发熔断，避免级联故障 → 熔断期间对外表现为降级（返回兜底数据），形成一套完整的高并发防护链路</li>
+</ul>
 <p><strong>降级</strong>：服务不可用时，返回默认值（如返回缓存数据、返回空数据）</p>
-<p><strong>熔断</strong>：服务错误率超过阈值时，直接拒绝请求（防止服务雪崩）</p>
+<p><strong>熔断</strong>：服务错误率超过阈值时，直接拒绝对该依赖的调用（防止服务雪崩）</p>
 <p><strong>Hystrix 熔断规则</strong>：</p>
 <ol>
 <li>请求数达到阈值（如 20 个请求）</li>
@@ -1603,11 +1764,15 @@
 <p><strong>面试高频追问</strong>：</p>
 <ul>
 <li><strong>Q</strong>: 如何预估系统需要支持多少 QPS？<ul>
-<li><strong>A</strong>: 根据业务场景预估（如日活用户 100 万，每人平均请求 10 次，集中在 4 小时，则 QPS &#x3D; 100 万 * 10 &#x2F; (4 * 3600) ≈ 700 QPS）。</li>
+<li><strong>A</strong>: 通用方法是**”日活&#x2F;日请求量 → 平均 QPS → 峰值 QPS”<strong>三步走：① 先估算每天的总请求数（日活用户数 × 人均请求次数）；② 假设流量不是全天 24 小时均匀分布，而是集中在某几个小时内，用”总请求数 &#x2F; 集中时段秒数”得到</strong>平均 QPS**（如日活 100 万，人均请求 10 次，主要集中在 4 小时内，则平均 QPS &#x3D; 100 万 × 10 &#x2F; (4 × 3600) ≈ 700）；③ 再乘以一个<strong>峰值系数</strong>（经验值通常取 2~5 倍，具体看业务的流量集中程度，秒杀等场景峰值系数会更高）估算<strong>峰值 QPS</strong>，系统容量要按峰值而不是平均值设计，如 700 × 3 ≈ 2100 QPS。这只是数量级估算，用于确定架构选型（要不要分库分表、要不要加缓存），不是精确值。</li>
+</ul>
+</li>
+<li><strong>Q</strong>: 如何预估系统需要多少存储空间？<ul>
+<li><strong>A</strong>: 通用方法是**”单条数据大小 × 数据总量，再加副本和索引开销”**：① 先估算一条记录的平均大小（各字段类型大小之和，如短链接记录：短码 10 字节 + 长链接 500 字节 + 若干时间戳字段 ≈ 每条 1KB 量级）；② 乘以预计的数据总条数（如 1 亿条），得到原始数据量（1 亿 × 1KB ≈ 100GB 量级）；③ 再考虑索引、多副本（如 3 副本）、以及预留的增长空间（通常按未来 1-3 年的增速再放大几倍）做加成，最终得到需要规划的存储容量。这个估算能帮你判断该用单机数据库还是要做分库分表、该用本地磁盘还是对象存储，同样只需要数量级正确即可，不用追求精确到字节。</li>
 </ul>
 </li>
 <li><strong>Q</strong>: 缓存和数据库一致性如何保证？<ul>
-<li><strong>A</strong>: 先更新数据库，再删除缓存（Cache-Aside 策略）；或者使用消息队列异步更新缓存。</li>
+<li><strong>A</strong>: 先更新数据库，再删除缓存（Cache-Aside 策略，不是更新缓存）；如果担心业务线程里”删缓存”这一步因为异常没有执行成功，可以订阅数据库 binlog（如 Canal）异步兜底删除缓存，而不是异步”更新”缓存，避免并发场景下把旧值又写回去。</li>
 </ul>
 </li>
 </ul>
@@ -1672,11 +1837,25 @@
 <li>下单请求放入消息队列，异步处理</li>
 <li>数据库批量插入订单（减少数据库连接）</li>
 </ul>
+<p><strong>秒杀系统分层削峰架构</strong>：</p>
+<pre><code class=" mermaid">flowchart LR
+    U[&quot;用户请求&quot;] --&gt; CDN[&quot;CDN / 页面静态化&lt;br/&gt;拦截图片、CSS、JS 等静态资源请求&quot;]
+    CDN --&gt; GW[&quot;网关限流&lt;br/&gt;Nginx / API Gateway 按 IP、按用户做限流和鉴权&quot;]
+    GW --&gt; LC[&quot;本地缓存&lt;br/&gt;商品信息、活动状态等只读数据，减少远程调用&quot;]
+    LC --&gt; RD[&quot;Redis 预扣库存&lt;br/&gt;原子操作校验库存与购买资格&quot;]
+    RD --&gt;|&quot;扣减成功&quot;| MQ[&quot;MQ 异步下单&lt;br/&gt;削峰填谷，订单消息排队等待消费&quot;]
+    RD --&gt;|&quot;库存不足 / 已抢过&quot;| REJ[&quot;直接拒绝：库存不足或已参与&quot;]
+    MQ --&gt; DB[&quot;数据库&lt;br/&gt;消费端幂等消费，批量落库，最终一致&quot;]
+</code></pre>
+
 <p><strong>4. 库存预扣减（Redis 原子操作）</strong></p>
 <p><strong>问题</strong>：100 万人抢 100 件商品，如何防止超卖？</p>
 <p><strong>解决方案</strong>：使用 Redis 的 <code>DECR</code> 原子操作预扣减库存</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> redis.clients.jedis.Jedis;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SeckillService</span> &#123;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Jedis</span> <span class="hljs-variable">jedis</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Jedis</span>(<span class="hljs-string">&quot;localhost&quot;</span>, <span class="hljs-number">6379</span>);<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">seckill</span><span class="hljs-params">(String userId, String productId)</span> &#123;<br>        <span class="hljs-comment">// 1. 校验用户是否已经抢过（Redis Set）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">userKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;seckill:users:&quot;</span> + productId;<br>        <span class="hljs-keyword">if</span> (jedis.sismember(userKey, userId)) &#123;<br>            System.out.println(<span class="hljs-string">&quot;您已经抢过啦！&quot;</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <br>        <span class="hljs-comment">// 2. 预扣减库存（Redis 原子操作 DECR）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">stockKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;seckill:stock:&quot;</span> + productId;<br>        <span class="hljs-type">Long</span> <span class="hljs-variable">remaining</span> <span class="hljs-operator">=</span> jedis.decr(stockKey);  <span class="hljs-comment">// 原子操作</span><br>        <br>        <span class="hljs-keyword">if</span> (remaining &lt; <span class="hljs-number">0</span>) &#123;<br>            System.out.println(<span class="hljs-string">&quot;库存不足！&quot;</span>);<br>            jedis.incr(stockKey);  <span class="hljs-comment">// 库存加回去</span><br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <br>        <span class="hljs-comment">// 3. 记录用户已经抢过</span><br>        jedis.sadd(userKey, userId);<br>        <br>        <span class="hljs-comment">// 4. 异步下单（放入消息队列）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">orderInfo</span> <span class="hljs-operator">=</span> userId + <span class="hljs-string">&quot;:&quot;</span> + productId;<br>        jedis.lpush(<span class="hljs-string">&quot;seckill:orders&quot;</span>, orderInfo);<br>        <br>        System.out.println(<span class="hljs-string">&quot;抢购成功！&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> redis.clients.jedis.Jedis;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SeckillService</span> &#123;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Jedis</span> <span class="hljs-variable">jedis</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Jedis</span>(<span class="hljs-string">&quot;localhost&quot;</span>, <span class="hljs-number">6379</span>);<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">seckill</span><span class="hljs-params">(String userId, String productId)</span> &#123;<br>        <span class="hljs-comment">// 1. 校验并&quot;占用&quot;用户抢购资格：用 SADD 的返回值做原子判断，</span><br>        <span class="hljs-comment">//    而不是先 SISMEMBER 判断、再单独 SADD——</span><br>        <span class="hljs-comment">//    如果拆成两步，同一用户并发发起的多个请求可能同时通过 SISMEMBER 检查</span><br>        <span class="hljs-comment">//    （此时谁都还没执行 SADD），导致一个用户抢到多件商品，</span><br>        <span class="hljs-comment">//    SADD 返回 0 表示已存在（未真正添加），返回 1 表示添加成功，</span><br>        <span class="hljs-comment">//    这一步本身是原子的，用它的返回值当&quot;检查+占用&quot;合并操作</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">userKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;seckill:users:&quot;</span> + productId;<br>        <span class="hljs-keyword">if</span> (jedis.sadd(userKey, userId) == <span class="hljs-number">0</span>) &#123;<br>            System.out.println(<span class="hljs-string">&quot;您已经抢过啦！&quot;</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <br>        <span class="hljs-comment">// 2. 预扣减库存（Redis 原子操作 DECR）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">stockKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;seckill:stock:&quot;</span> + productId;<br>        <span class="hljs-type">Long</span> <span class="hljs-variable">remaining</span> <span class="hljs-operator">=</span> jedis.decr(stockKey);  <span class="hljs-comment">// 原子操作</span><br>        <br>        <span class="hljs-keyword">if</span> (remaining &lt; <span class="hljs-number">0</span>) &#123;<br>            System.out.println(<span class="hljs-string">&quot;库存不足！&quot;</span>);<br>            jedis.incr(stockKey);        <span class="hljs-comment">// 库存加回去</span><br>            jedis.srem(userKey, userId); <span class="hljs-comment">// 抢购资格也要回滚，否则用户下次重试会被误判为&quot;已抢过&quot;</span><br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <br>        <span class="hljs-comment">// 3. 异步下单（放入消息队列）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">orderInfo</span> <span class="hljs-operator">=</span> userId + <span class="hljs-string">&quot;:&quot;</span> + productId;<br>        jedis.lpush(<span class="hljs-string">&quot;seckill:orders&quot;</span>, orderInfo);<br>        <br>        System.out.println(<span class="hljs-string">&quot;抢购成功！&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<blockquote>
+<p><strong>原代码的问题</strong>：很多版本的秒杀示例代码会先用 <code>SISMEMBER</code> 单独判断用户是否抢过，再用 <code>SADD</code> 记录，这两步之间不是原子的——同一用户短时间内发出的多个并发请求（如重复点击、脚本刷单）可能同时通过 <code>SISMEMBER</code> 检查，都进入到扣库存的流程，造成一个用户抢到多份、破坏”每人限购一件”的业务规则。把”检查是否抢过”和”标记为已抢”合并成一次 <code>SADD</code> 调用、直接用其原子返回值判断，才能真正避免这个竞态。</p>
+</blockquote>
 <p><strong>5. 异步下单（消息队列）</strong></p>
 <p><strong>问题</strong>：100 万下单请求同时打到数据库，数据库会挂！</p>
 <p><strong>解决方案</strong>：下单请求放入消息队列，异步处理</p>
@@ -1709,8 +1888,8 @@
 <li><strong>A</strong>: Redis 集群部署（主从 + 哨兵），主节点挂了自动切换到从节点。</li>
 </ul>
 </li>
-<li><strong>Q</strong>: 如何防止库存扣减成功但下单失败？<ul>
-<li><strong>A</strong>: 使用分布式事务（如 Seata），保证库存扣减和下单要么同时成功，要么同时失败。</li>
+<li><strong>Q</strong>: 如何防止库存扣减成功（Redis）但下单失败（数据库&#x2F;消费端异常）？<ul>
+<li><strong>A</strong>: 秒杀场景 QPS 很高，一般<strong>不会</strong>用 2PC&#x2F;Seata 这类需要跨库加锁、同步阻塞的强分布式事务方案（性能代价太大，和”异步削峰”的设计初衷矛盾）。更常见的做法是接受”最终一致”：Redis 预扣库存成功后先返回用户”排队中&#x2F;抢购成功”，下单消息用可靠投递（生产者确认 + Broker 持久化）写入 MQ；消费端幂等处理（按订单唯一键去重），消费失败则重试或进死信队列人工介入；再加一个定时对账任务，比对 Redis 扣减记录和数据库最终生成的订单，发现长期未成单的记录做库存回补或人工核实。本质上是用<strong>消息可靠性 + 幂等 + 对账补偿</strong>替代同步的分布式事务。</li>
 </ul>
 </li>
 </ul>
@@ -1765,7 +1944,7 @@
 <ol>
 <li><strong>文件上传</strong>：前端上传文件到后端，后端转发到 MinIO</li>
 <li><strong>文件访问</strong>：MinIO 生成文件 URL，返回给前端</li>
-<li><strong>文件备份</strong>：MinIO 使用纠删码（Erasure Code），允许最多 4 个节点挂掉</li>
+<li><strong>文件备份</strong>：MinIO 使用纠删码（Erasure Code），一个纠删集内允许损坏的节点&#x2F;磁盘数取决于配置的校验块（parity）数量——校验块数为 M 就最多允许 M 个块同时损坏，具体数值要按部署时的纠删码配置（如常见的 EC:4 表示 4 个校验块）来定，不是固定值</li>
 <li><strong>文件权限</strong>：MinIO 支持预签名 URL（过期时间 1 小时），防止文件被盗链</li>
 </ol>
 <p>对比 <strong>FastDFS</strong>：FastDFS 适合小文件存储（&lt; 1MB），MinIO 适合任意大小文件存储（兼容 S3 API）。”</p>
@@ -1862,7 +2041,18 @@
 <li><strong>加缓存</strong>：Redis 集群部署（主从 + 分片）</li>
 <li><strong>加机器</strong>：API Service 水平扩展（无状态设计）</li>
 <li><strong>数据库读写分离</strong>：写主库，读从库</li>
-<li><strong>分库分表</strong>：按 <code>short_key</code> 进行一致性哈希分片</li>
+<li><strong>分库分表</strong>：按 <code>short_key</code> 做一致性哈希分片，分散写入压力</li>
+</ol>
+<p><strong>面试官</strong>：分库分表之后，主键 ID 和分页查询要怎么处理？</p>
+<p><strong>你</strong>：这是分库分表最容易被追问的两个坑：</p>
+<ol>
+<li><strong>全局唯一 ID</strong>：分库分表后不能再依赖单库的 <code>AUTO_INCREMENT</code>——不同分库各自从 1 开始自增会导致 ID 冲突，而且业务上通常还希望 ID 能大致按时间有序、能反解出一些路由信息。所以这里要换成<strong>独立于任何单个分库的全局 ID 生成方案</strong>，如雪花算法（本地生成、不依赖数据库、趋势递增）或号段模式（数据库统一发号，业务再按 ID 做分片路由）</li>
+<li><strong>跨分片分页</strong>：单库场景下 <code>LIMIT offset, size</code> 很简单，但分库分表后数据分散在多个库表里，没有一个数据库能替你把全局数据排好序：<ul>
+<li><strong>简单但代价高的做法</strong>：把每个分片都查一遍 <code>LIMIT 0, offset+size</code>，在应用层做归并排序后再取需要的那一页——<code>offset</code> 越大，每个分片要扫描和传输的数据越多，深分页时性能急剧下降</li>
+<li><strong>更常见的做法是禁止跳页，只支持”下一页”</strong>：用上一页最后一条记录的排序字段值（如短链接的 <code>id</code> 或 <code>created_at</code>）做<strong>游标（cursor）</strong>，改写成 <code>WHERE sort_key &gt; 上次最后一个值 ORDER BY sort_key LIMIT size</code>，这样每个分片都能利用索引直接定位起点，不需要像 offset 那样把前面的数据都扫一遍，代价是不能像传统分页一样直接跳到第 N 页</li>
+<li>如果业务确实需要”跳到第 N 页”这种全局精确分页，通常会退化成把排序、分页所需的字段异构一份到 Elasticsearch 等专门支持高效分页&#x2F;聚合的存储中，由它来做查询，而不是在分库分表的 MySQL 上硬做</li>
+</ul>
+</li>
 </ol>
 <p><strong>面试官</strong>：如何保证高可用？</p>
 <p><strong>你</strong>：</p>
@@ -1905,7 +2095,7 @@
 <li><strong>限流器</strong>：令牌桶算法（允许突发流量）</li>
 <li><strong>唯一 ID 生成</strong>：雪花算法（趋势递增、不依赖数据库）</li>
 <li><strong>秒杀系统</strong>：流量分层过滤、库存预扣减、异步下单</li>
-<li><strong>分布式锁</strong>：Redis <code>SETNX</code> + 过期时间 + Redlock</li>
+<li><strong>分布式锁</strong>：Redis <code>SETNX</code> + 过期时间 + Lua 原子释放 + 看门狗续期（RedLock 存在争议，强一致场景优先考虑 Zookeeper&#x2F;etcd）</li>
 <li><strong>分布式事务</strong>：2PC、3PC、TCC、Saga 的优缺点</li>
 <li><strong>高并发系统</strong>：缓存优先、异步处理、限流降级</li>
 </ol>
@@ -2110,6 +2300,21 @@
 
 
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 

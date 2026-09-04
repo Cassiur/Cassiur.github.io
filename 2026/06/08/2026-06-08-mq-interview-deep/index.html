@@ -27,7 +27,7 @@
 <meta property="og:description" content="写在前面：本文用最通俗的语言 + 生活化比喻，把消息队列的每个核心知识点讲透。读完后，你不仅能应对面试，还能真正理解 MQ 的设计思想。   一、为什么要用消息队列？（三板斧：解耦、异步、削峰）第1题：你们项目为什么要用消息队列？一句话总结：消息队列解决的是系统耦合、响应慢、扛不住峰值三大问题，核心能力是解耦、异步、削峰。 深度解析： 用生活场景来理解。假设你开了一家餐厅： 没有消息队列（灾难现">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T10:58:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T18:32:03.748Z">
+<meta property="article:modified_time" content="2026-09-04T09:38:41.863Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Kafka">
 <meta property="article:tag" content="RabbitMQ">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          19k 字
+          21k 字
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          156 分钟
+          173 分钟
         
       </span>
     
@@ -396,9 +396,12 @@
 <p><strong>④ 数据压缩</strong>（LZ4、Snappy、Zstd）</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">消息压缩后体积大幅缩小，网络传输更快<br></code></pre></td></tr></table></figure>
 
+<p><strong>⑤ 页缓存（Page Cache）</strong>（读写都绕开 JVM 堆，交给操作系统管理）</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">Kafka 不在 <span class="hljs-keyword">JVM </span>堆里维护消息缓存，而是依赖操作系统的 Page <span class="hljs-keyword">Cache：</span><br><span class="hljs-keyword"></span>  写入：消息先写入 Page <span class="hljs-keyword">Cache，由操作系统异步刷盘（不是每条消息都立刻 </span>fsync）<br>  读取：只要数据还在 Page <span class="hljs-keyword">Cache </span>里，读请求直接命中内存，不用碰磁盘<br><br>好处：<br>  → 避免维护一份 <span class="hljs-keyword">JVM </span>堆内缓存，减少 GC 压力，堆可以开得很小<br>  → 顺序写 + Page <span class="hljs-keyword">Cache </span>+ 零拷贝三者配合：sendfile 直接把 Page <span class="hljs-keyword">Cache </span>里的数据<br>    发到网卡，数据全程不用经过用户态内存<br>  → 代价：<span class="hljs-keyword">Broker </span>意外断电时，还没刷盘的数据可能丢失，<br>    所以可靠性要求高的场景要靠 acks=all + 多副本兜底，不能只依赖 Page <span class="hljs-keyword">Cache</span><br></code></pre></td></tr></table></figure>
+
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
-<p>“Kafka 的高性能是四维优化的结果：① 顺序写磁盘规避寻址开销 ② sendfile 零拷贝减少2次内存拷贝 ③ 批量发送+数据压缩降低网络开销 ④ 分区并行处理提升吞吐量。我们线上单机 Kafka 吞吐量能达到 50MB&#x2F;s，相当于每秒处理 50 万条消息。”</p>
+<p>“Kafka 的高性能是五维优化的结果：① 顺序写磁盘规避寻址开销 ② 依赖操作系统 Page Cache 做读写缓冲，减少 JVM 堆内缓存和 GC 压力 ③ sendfile 零拷贝，配合 Page Cache 直接把数据发到网卡 ④ 批量发送 + 数据压缩降低网络开销 ⑤ 分区并行处理提升吞吐量。我们线上单机 Kafka 吞吐量能达到 50MB&#x2F;s，相当于每秒处理 50 万条消息。”</p>
 </blockquote>
 <hr>
 <h3 id="第4题：Kafka-的分区（Partition）有什么用？"><a href="#第4题：Kafka-的分区（Partition）有什么用？" class="headerlink" title="第4题：Kafka 的分区（Partition）有什么用？"></a>第4题：Kafka 的分区（Partition）有什么用？</h3><p><strong>一句话总结</strong>：Partition 是 Kafka <strong>并行处理 + 负载均衡 + 顺序保证</strong> 的核心机制，一个 Topic 可以有多个 Partition，每个 Partition 是一个有序的队列。</p>
@@ -434,6 +437,34 @@
 </tbody></table>
 <p><strong>分区策略（消息发到哪个 Partition？）</strong>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 指定了 key → 相同 key 的消息一定发到同一个 Partition（保证顺序！）</span><br><span class="hljs-comment">//    hash(key) % numPartitions</span><br><br><span class="hljs-comment">// 2. 没指定 key → 轮询（Round-Robin），均匀分布</span><br><br><span class="hljs-comment">// 3. 自定义分区器 → 想发哪就发哪</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Kafka 架构与消费组分配</strong>（同一个 Partition 在一个消费组内只会被一个 Consumer 消费；不同消费组互不影响，各自独立消费全量数据）：</p>
+<pre><code class=" mermaid">flowchart LR
+    T[&quot;Topic：order-events（3 个 Partition）&quot;] --&gt; P0[&quot;Partition 0&quot;]
+    T --&gt; P1[&quot;Partition 1&quot;]
+    T --&gt; P2[&quot;Partition 2&quot;]
+
+    subgraph G1[&quot;消费组 A（如：库存服务，3 个实例）&quot;]
+        direction TB
+        CA1[&quot;Consumer A-1&quot;]
+        CA2[&quot;Consumer A-2&quot;]
+        CA3[&quot;Consumer A-3&quot;]
+    end
+
+    subgraph G2[&quot;消费组 B（如：数据同步服务，2 个实例）&quot;]
+        direction TB
+        CB1[&quot;Consumer B-1&quot;]
+        CB2[&quot;Consumer B-2&quot;]
+    end
+
+    P0 --&gt; CA1
+    P1 --&gt; CA2
+    P2 --&gt; CA3
+
+    P0 --&gt; CB1
+    P1 --&gt; CB1
+    P2 --&gt; CB2
+</code></pre>
 
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
@@ -570,6 +601,32 @@
 <td>关闭自动 Ack，手动 Ack</td>
 </tr>
 </tbody></table>
+<p><strong>消息可靠投递的三段防线</strong>（这张图对 RabbitMQ &#x2F; Kafka &#x2F; RocketMQ 都适用，只是每一段的具体机制不同）：</p>
+<pre><code class=" mermaid">flowchart LR
+    P((&quot;生产者&quot;)) --&gt; S1
+    S1 --&gt; S2
+    S2 --&gt; S3
+    S3 --&gt; C((&quot;消费者&quot;))
+
+    subgraph S1[&quot;① 生产者 → Broker&quot;]
+        direction TB
+        R1[&quot;丢失点：网络抖动/超时，消息其实没发出去，或确认包丢了&quot;]
+        G1[&quot;保障：Confirm/ACK 机制 + 失败重试（RabbitMQ Publisher Confirm，Kafka acks）&quot;]
+    end
+
+    subgraph S2[&quot;② Broker 内部持久化&quot;]
+        direction TB
+        R2[&quot;丢失点：消息只在内存/单副本，Broker 宕机后数据消失&quot;]
+        G2[&quot;保障：消息落盘（刷盘策略）+ 多副本同步（Kafka ISR / RabbitMQ 仲裁队列）&quot;]
+    end
+
+    subgraph S3[&quot;③ Broker → 消费者&quot;]
+        direction TB
+        R3[&quot;丢失点：先自动确认或自动提交位移，再处理业务，处理中途挂了消息就被跳过&quot;]
+        G3[&quot;保障：手动 ACK / 手动提交 Offset，业务处理成功后才确认&quot;]
+    end
+</code></pre>
+
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
 <p>“保证消息不丢失我们做了全链路保护：生产端开启 Confirm 回调，失败重试；服务端 Exchange、Queue、Message 全部开启持久化（注意：只设置 durable&#x3D;true 不够，发送消息时还要设置 deliveryMode&#x3D;2）；消费端关闭自动 Ack，等业务逻辑执行成功后手动 basicAck。另外我们还设置了 mirrored-queue（镜像队列），主节点挂了从节点自动接管，进一步保障高可用。”</p>
@@ -577,6 +634,9 @@
 <hr>
 <h2 id="五、如何保证消息不重复消费（幂等性）？"><a href="#五、如何保证消息不重复消费（幂等性）？" class="headerlink" title="五、如何保证消息不重复消费（幂等性）？"></a>五、如何保证消息不重复消费（幂等性）？</h2><h3 id="第8题：消费者怎么保证消息不被重复消费？（幂等性设计）"><a href="#第8题：消费者怎么保证消息不被重复消费？（幂等性设计）" class="headerlink" title="第8题：消费者怎么保证消息不被重复消费？（幂等性设计）"></a>第8题：消费者怎么保证消息不被重复消费？（幂等性设计）</h3><p><strong>一句话总结</strong>：消息重复消费的根本原因是<strong>网络重试 + 消费者重试</strong>，解决方法是让消费逻辑具备<strong>幂等性</strong>（多次执行结果相同），常用方案：<strong>唯一ID + 去重表 &#x2F; Redis &#x2F; 数据库唯一索引</strong>。</p>
 <p><strong>深度解析</strong>：</p>
+<p><strong>为什么消息投递做不到真正的端到端 Exactly-once？</strong></p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs coq">根本原因：发送方永远无法区分<span class="hljs-string">&quot;对方没收到消息&quot;</span>和<span class="hljs-string">&quot;对方收到了但确认包丢了&quot;</span>这两种情况<br>         （分布式系统里经典的<span class="hljs-string">&quot;两将军问题&quot;</span>），生产者-Broker、Broker-消费者之间都存在这个问题。<br><br>  → 超时后不重发：可能因为确认包丢了而漏发，退化成 At-most-<span class="hljs-built_in">once</span>（可能丢消息）<br>  → 超时后重发：万一对方其实已经收到，就变成 At-least-<span class="hljs-built_in">once</span>（可能重复）<br><br>所以消息中间件工程上的选择是：默认用 At-least-<span class="hljs-built_in">once</span>（宁可重复也不丢），<br>再靠消费端的幂等性把<span class="hljs-string">&quot;重复&quot;</span>抵消掉，效果上等价于 Exactly-<span class="hljs-built_in">once</span>（业界常称为 Effectively-<span class="hljs-built_in">once</span>）。<br></code></pre></td></tr></table></figure>
+
 <p><strong>为什么会重复消费？</strong></p>
 <figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">场景<span class="hljs-number">1</span>：生产者重试<br>  网络抖动 → 生产者没收到 ACK → 以为消息丢了 → 重发 → 消费者收到<span class="hljs-number">2</span>条相同消息<br><br>场景<span class="hljs-number">2</span>：消费者重试<br>  消费者处理了消息，但发送 ACK 前挂了 → RabbitMQ 认为没消费成功 → 重新投递 → 消费者又处理一次<br><br>场景<span class="hljs-number">3</span>：Kafka 重平衡<br>  Consumer <span class="hljs-keyword">Group</span> <span class="hljs-title">重平衡时，某个 Partition</span> 的消费者切换 → 新的消费者可能重新消费上次的消息<br></code></pre></td></tr></table></figure>
 
@@ -626,6 +686,21 @@
 <p><strong>步骤3：预防（以后怎么避免？）</strong></p>
 <figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs armasm">① 监控队列长度，超过阈值告警<br>② 消费者处理加超时时间，别让一条消息卡住所有消息<br>③ 设置消息过期时间（<span class="hljs-meta">TTL</span>），过期自动丢弃<br>④ Partition 数设计要有余量（未来可以扩消费者）<br></code></pre></td></tr></table></figure>
 
+<p><strong>消息堆积的处理决策流程</strong>：</p>
+<pre><code class=" mermaid">flowchart TD
+    Start[&quot;监控发现 Consumer Lag 持续增长&quot;] --&gt; Check&#123;&quot;消费者进程是否存活，且在正常处理消息？&quot;&#125;
+    Check -- &quot;否：进程挂了 / 卡在某条消息死循环 / 一直抛异常重试&quot; --&gt; Fix[&quot;定位并修复消费端 Bug，重启消费者&quot;]
+    Check -- &quot;是：活着，但处理速度跟不上生产速度&quot; --&gt; Bottleneck&#123;&quot;瓶颈在哪？&quot;&#125;
+    Bottleneck -- &quot;并行度不够（消费者数 &lt; Partition 数，或线程数不足）&quot; --&gt; Scale[&quot;扩容 Partition 数 + 消费者实例数&quot;]
+    Bottleneck -- &quot;单条处理慢（数据库慢查询、外部接口调用慢）&quot; --&gt; Optimize[&quot;优化消费逻辑：批量处理、异步化、加索引&quot;]
+    Fix --&gt; Recheck[&quot;观察 Lag 是否开始下降&quot;]
+    Scale --&gt; Recheck
+    Optimize --&gt; Recheck
+    Recheck -- &quot;降速太慢，业务等不起（如历史积压百万级）&quot; --&gt; Temp[&quot;临时转存：建高分区临时 Topic，程序分发后并行消费&quot;]
+    Recheck -- &quot;Lag 稳定下降直至恢复正常&quot; --&gt; Done[&quot;设置 Lag 告警阈值，防止复发&quot;]
+    Temp --&gt; Done
+</code></pre>
+
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
 <p>“我们有一次 Kafka 积压了 500 万条消息，原因是消费者连接池满了，大量消息处理超时。我们的处理步骤是：① 先紧急扩容消费者从 3 台扩到 12 台（Partition 数是 12）② 修复连接池配置问题重新发布 ③ 新建一个 24 Partition 的临时 Topic，写程序把积压消息重新分发到临时 Topic，24 个消费者并行消费，2 小时消费完 ④ 消费完后切回原 Topic。事后我们加了 Kafka Lag 监控，超过 10 万条就告警。”</p>
@@ -657,6 +732,14 @@
 
 <p><strong>延迟队列的实现（重要应用场景！）</strong>：</p>
 <figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs armasm">需求：订单下单后 <span class="hljs-number">30</span> 分钟未支付，自动取消<br><br>实现方案（RabbitMQ 没有原生延迟队列，用 <span class="hljs-meta">TTL</span> + DLQ 实现）：<br>  <span class="hljs-number">1</span>. 创建一个<span class="hljs-string">&quot;延迟队列&quot;</span>（设置 <span class="hljs-meta">TTL</span><span class="hljs-number">=30</span>分钟 + DLX 指向<span class="hljs-string">&quot;取消订单队列&quot;</span>）<br>  <span class="hljs-number">2</span>. 订单消息发到延迟队列，<span class="hljs-number">30</span>分钟内不消费<br>  <span class="hljs-number">3</span>. <span class="hljs-number">30</span>分钟到了，消息过期 → 变成死信 → 转发到<span class="hljs-string">&quot;取消订单队列&quot;</span><br>  <span class="hljs-number">4</span>. 消费者从<span class="hljs-string">&quot;取消订单队列&quot;</span>取出消息，执行取消订单逻辑<br><br>这就是：消息<span class="hljs-string">&quot;延迟&quot;</span><span class="hljs-number">30</span>分钟才被消费！<br></code></pre></td></tr></table></figure>
+
+<p><strong>RabbitMQ 用 TTL + 死信队列实现延迟消息</strong>：</p>
+<pre><code class=" mermaid">flowchart LR
+    Prod[&quot;生产者：发送订单创建消息&quot;] --&gt; DelayQ[&quot;延迟队列（TTL=30 分钟，不设置消费者）&quot;]
+    DelayQ -- &quot;30 分钟到期，消息仍未被消费，变成死信&quot; --&gt; DLX[&quot;死信交换机（DLX）&quot;]
+    DLX -- &quot;按 routingKey 转发&quot; --&gt; CancelQ[&quot;取消订单队列&quot;]
+    CancelQ --&gt; Cons[&quot;消费者：执行取消订单逻辑&quot;]
+</code></pre>
 
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
@@ -706,15 +789,15 @@
 </tr>
 <tr>
 <td><strong>延迟队列</strong></td>
-<td>原生支持（TTL+DLQ）</td>
+<td>TTL+死信队列组合模拟（非原生，官方插件可支持任意精度）</td>
 <td>不支持（需自己实现）</td>
-<td>原生支持</td>
+<td>原生支持（内置约 18 个延迟级别，非任意时间）</td>
 </tr>
 <tr>
 <td><strong>事务消息</strong></td>
 <td>不支持</td>
-<td>不支持</td>
-<td>支持</td>
+<td>有限支持（0.11+ 事务 API，只保证 Kafka 内部多分区&#x2F;多 Topic 原子写入，没有本地事务回查机制）</td>
+<td>支持（半消息 + 事务回查，可对接外部本地事务）</td>
 </tr>
 <tr>
 <td><strong>适用场景</strong></td>
@@ -747,10 +830,10 @@
 <p>“Kafka 的 HW 机制是保证数据一致性的关键。值得注意的是，旧版本 Kafka 的 HW 更新机制有一个缺陷：如果 Leader 切换时 HW 还没有及时更新，可能导致数据不一致甚至数据丢失（这就是所谓的 ‘HW 截断’ 问题）。Kafka 0.11 引入了 Leader Epoch（每个 Leader 版本号），彻底解决了这个问题——Follower 同步时会带上 Leader Epoch，发现 Epoch 不一致就先截断自己的日志到 HW，再同步新 Leader 的数据，保证了数据一致性。”</p>
 </blockquote>
 <hr>
-<h2 id="十二、如何保证消息队列的高可用？"><a href="#十二、如何保证消息队列的高可用？" class="headerlink" title="十二、如何保证消息队列的高可用？"></a>十二、如何保证消息队列的高可用？</h2><h3 id="第15题：如何搭建高可用的消息队列集群？"><a href="#第15题：如何搭建高可用的消息队列集群？" class="headerlink" title="第15题：如何搭建高可用的消息队列集群？"></a>第15题：如何搭建高可用的消息队列集群？</h3><p><strong>一句话总结</strong>：高可用需要从<strong>集群架构 + 数据副本 + 监控告警</strong>三个维度保障；RabbitMQ 用<strong>镜像队列</strong>，Kafka 用<strong>多副本 + ISR</strong>。</p>
+<h2 id="十二、如何保证消息队列的高可用？"><a href="#十二、如何保证消息队列的高可用？" class="headerlink" title="十二、如何保证消息队列的高可用？"></a>十二、如何保证消息队列的高可用？</h2><h3 id="第15题：如何搭建高可用的消息队列集群？"><a href="#第15题：如何搭建高可用的消息队列集群？" class="headerlink" title="第15题：如何搭建高可用的消息队列集群？"></a>第15题：如何搭建高可用的消息队列集群？</h3><p><strong>一句话总结</strong>：高可用需要从<strong>集群架构 + 数据副本 + 监控告警</strong>三个维度保障；RabbitMQ 现在用<strong>仲裁队列（Quorum Queue）</strong>，Kafka 用<strong>多副本 + ISR</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>RabbitMQ 高可用方案</strong>：</p>
-<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs ada">普通模式（单机）：<br>  → 一台 RabbitMQ 挂了，整个系统不可用 ❌<br><br>镜像模式（高可用，推荐）：<br>  → 每个 Queue 的数据在多个节点上都有副本<br>  → 一个节点挂了，其他节点上的副本自动接管<br>  → 设置方式：通过 policy 指定哪些队列要镜像、镜像到几个节点<br><br>rabbitmqctl set_policy ha-<span class="hljs-keyword">all</span> <span class="hljs-string">&quot;^order\.&quot;</span> &#x27;&#123;<span class="hljs-string">&quot;ha-mode&quot;</span>:<span class="hljs-string">&quot;all&quot;</span>&#125;&#x27;<br>  → 所有以 <span class="hljs-string">&quot;order.&quot;</span> 开头的队列，镜像到所有节点<br></code></pre></td></tr></table></figure>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs lasso">普通模式（单机）：<br>  → 一台 RabbitMQ 挂了，整个系统不可用 ❌<br><br>镜像模式（Classic Mirrored <span class="hljs-built_in">Queue</span>，历史方案）：<br>  → 每个 <span class="hljs-built_in">Queue</span> 的数据在多个节点上都有副本<br>  → 一个节点挂了，其他节点上的副本自动接管<br>  → 设置方式：通过 policy 指定哪些队列要镜像、镜像到几个节点<br><br>rabbitmqctl set_policy ha<span class="hljs-params">-all</span> <span class="hljs-string">&quot;^order\.&quot;</span> <span class="hljs-string">&#x27;&#123;&quot;ha-mode&quot;:&quot;all&quot;&#125;&#x27;</span><br>  → 所有以 <span class="hljs-string">&quot;order.&quot;</span> 开头的队列，镜像到所有节点<br><br>⚠️ 版本提醒：以上是经典镜像队列（Classic Mirrored <span class="hljs-built_in">Queue</span>）的用法，<br>   RabbitMQ <span class="hljs-number">3.9</span>（<span class="hljs-number">2021</span> 年）起已标记废弃，<span class="hljs-number">4.0</span>（<span class="hljs-number">2024</span> 年发布）彻底移除。<br>   现在做高可用要用「仲裁队列」（Quorum <span class="hljs-built_in">Queue</span>，基于 Raft 协议）：<br>   声明队列时加上 x<span class="hljs-params">-queue</span><span class="hljs-params">-type</span>=quorum 参数即可，数据一致性和运维体验<br>   都优于镜像队列，是官方文档推荐的默认选择。<br></code></pre></td></tr></table></figure>
 
 <p><strong>Kafka 高可用方案</strong>：</p>
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs markdown">Kafka 的高可用是天生的（设计时就考虑了）：<br><span class="hljs-bullet">  1.</span> 每个 Partition 有多个副本（通常 3 个）<br><span class="hljs-bullet">  2.</span> 副本分布在不同的 Broker 上（防止一台机器挂了全挂）<br><span class="hljs-bullet">  3.</span> Leader 挂了，Controller 从 ISR 里选新 Leader<br><span class="hljs-bullet">  4.</span> min.insync.replicas=2（写入时至少 2 个副本确认）<br><span class="hljs-code">     → 哪怕一个 Broker 挂了，数据也不丢</span><br></code></pre></td></tr></table></figure>
@@ -808,6 +891,7 @@
 <blockquote>
 <p>“Kafka 的 Exactly-once 语义有两个层级：① 生产端 Exactly-once（幂等性 Producer，保证消息不重复写入）② 消费 + 处理端 Exactly-once（需要 Kafka 的事务 + 业务端的事务配合）。我们在金融对账场景用了 Exactly-once——消费 Kafka 消息，处理完后把处理结果和 Offset 一起写入数据库（同一个数据库事务），这样如果提交 Offset 失败，数据库事务回滚，消息会被重新消费，但处理结果也不会插入数据库，避免了重复处理。”</p>
 </blockquote>
+<p><strong>边界要说清楚</strong>：Kafka 的 Exactly-once 只在 <strong>Kafka 生态内部</strong>（Kafka → Kafka，或 Kafka → 支持事务的存储如数据库）才成立。如果消费逻辑里包含调用第三方接口、发短信这类<strong>不可回滚的外部副作用</strong>，Kafka 的事务机制管不到它——哪怕 Offset 提交失败回滚重新消费，外部调用已经真实发生过一次，还是要靠业务幂等兜底。更准确的说法是”配合幂等消费者做到 Exactly-once 的效果”，而不是”对任意副作用都天然 Exactly-once”。</p>
 <hr>
 <h2 id="十四、高频面试题速查表"><a href="#十四、高频面试题速查表" class="headerlink" title="十四、高频面试题速查表"></a>十四、高频面试题速查表</h2><h3 id="第17-30题：消息队列高频面试题精选"><a href="#第17-30题：消息队列高频面试题精选" class="headerlink" title="第17~30题：消息队列高频面试题精选"></a>第17~30题：消息队列高频面试题精选</h3><p><strong>第17题：如何保证消息队列的消息不丢失？</strong></p>
 <blockquote>
@@ -938,7 +1022,7 @@
 
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
-<p>“我们用 RockerMQ 做binlog 同步（数据同步必须保证顺序），方案是：① 生产端用表名+主键作为 Key，哈希到同一个 MessageQueue ② 消费端用 <code>MessageListenerConcurrently</code> 但设置 <code>consumeThreadMax=1</code>（单线程消费）③ 如果消费者挂了，RocketMQ 会自动 Rebalance，新消费者从 Offset 继续消费，顺序仍然保持。”</p>
+<p>“我们用 RocketMQ 做binlog 同步（数据同步必须保证顺序），方案是：① 生产端用表名+主键作为 Key，哈希到同一个 MessageQueue ② 消费端用 <code>MessageListenerConcurrently</code> 但设置 <code>consumeThreadMax=1</code>（单线程消费）③ 如果消费者挂了，RocketMQ 会自动 Rebalance，新消费者从 Offset 继续消费，顺序仍然保持。”</p>
 </blockquote>
 <hr>
 <h3 id="第-32-题：Kafka-的-Exactly-Once-语义怎么实现？"><a href="#第-32-题：Kafka-的-Exactly-Once-语义怎么实现？" class="headerlink" title="第 32 题：Kafka 的 Exactly-Once 语义怎么实现？"></a>第 32 题：Kafka 的 Exactly-Once 语义怎么实现？</h3><p><strong>一句话总结</strong>：Kafka 0.11+ 支持 Exactly-Once，通过<strong>幂等 Producer</strong> + <strong>事务型 Producer</strong> + <strong>消费者手动提交 Offset</strong> 三方配合实现。</p>
@@ -952,7 +1036,7 @@
 <hr>
 <h3 id="第-33-题：消息队列的”消息路由”和”消息追踪”怎么做？"><a href="#第-33-题：消息队列的”消息路由”和”消息追踪”怎么做？" class="headerlink" title="第 33 题：消息队列的”消息路由”和”消息追踪”怎么做？"></a>第 33 题：消息队列的”消息路由”和”消息追踪”怎么做？</h3><p><strong>一句话总结</strong>：<strong>消息路由</strong>用 Topic + Tag（RocketMQ）或 Routing Key（RabbitMQ）；<strong>消息追踪</strong>用消息 ID + 分布式链路追踪（SkyWalking&#x2F;Pinpoint）。</p>
 <p><strong>深度解析</strong>：</p>
-<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">【消息路由】<br>  RockerMQ：Topic（主题）+ <span class="hljs-keyword">Tag</span>（标签）<br>    → 一个订单 Topic，<span class="hljs-keyword">Tag</span> <span class="hljs-title">= CREATE</span>/PAY/SHIP<br>    → 消费者可以只订阅 <span class="hljs-attr">Tag=</span>PAY 的消息<br><br>  RabbitMQ：Exchange + Routing Key<br>    → Topic Exchange：路由 Key 做通配符匹配<br>    → Direct Exchange：精确匹配<br><br>【消息追踪】（生产环境必备！）<br>  → 每条消息分配一个 messageId（全局唯一）<br>  → 发送时：messageId 写入 DB（状态=SENT）<br>  → 消费时：根据 messageId 更新 DB 状态（CONSUMED）<br>  → 超时未消费 → 告警 + 人工介入<br><br>【分布式链路追踪】<br>  → 消息里带入 traceId（和 HTTP 请求打通）<br>  → SkyWalking/Pinpoint 可以追踪：HTTP 请求 → MQ → 消费 → DB 写入 的完整链路<br></code></pre></td></tr></table></figure>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">【消息路由】<br>  RocketMQ：Topic（主题）+ <span class="hljs-keyword">Tag</span>（标签）<br>    → 一个订单 Topic，<span class="hljs-keyword">Tag</span> <span class="hljs-title">= CREATE</span>/PAY/SHIP<br>    → 消费者可以只订阅 <span class="hljs-attr">Tag=</span>PAY 的消息<br><br>  RabbitMQ：Exchange + Routing Key<br>    → Topic Exchange：路由 Key 做通配符匹配<br>    → Direct Exchange：精确匹配<br><br>【消息追踪】（生产环境必备！）<br>  → 每条消息分配一个 messageId（全局唯一）<br>  → 发送时：messageId 写入 DB（状态=SENT）<br>  → 消费时：根据 messageId 更新 DB 状态（CONSUMED）<br>  → 超时未消费 → 告警 + 人工介入<br><br>【分布式链路追踪】<br>  → 消息里带入 traceId（和 HTTP 请求打通）<br>  → SkyWalking/Pinpoint 可以追踪：HTTP 请求 → MQ → 消费 → DB 写入 的完整链路<br></code></pre></td></tr></table></figure>
 
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
@@ -963,19 +1047,20 @@
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">【镜像队列的同步过程】<br>  <span class="hljs-number">1</span>. 生产者发送消息 → <span class="hljs-keyword">Master</span> <span class="hljs-title">节点</span><br><span class="hljs-title">  2</span>. <span class="hljs-keyword">Master</span> <span class="hljs-title">节点写入磁盘 + 同步给所有 Slave</span> 节点<br>  <span class="hljs-number">3</span>. 所有 <span class="hljs-literal">Slave</span> 确认收到 → <span class="hljs-keyword">Master</span> <span class="hljs-title">才给生产者返回 ACK</span><br>  <span class="hljs-number">4</span>. 消费者只能从 <span class="hljs-keyword">Master</span> <span class="hljs-title">节点消费</span><br><span class="hljs-title"></span><br><span class="hljs-title">【主从切换】</span><br><span class="hljs-title">  → Master</span> 挂了 → 最老的 <span class="hljs-literal">Slave</span> 提升为 <span class="hljs-keyword">Master</span><br>  <span class="hljs-title">→ 其他 Slave</span> 重新同步新 <span class="hljs-literal">Master</span>（可能丢数据！）<br>  → 所以：镜像队列 ≠ 高可用（异步同步时可能丢数据）<br><br>【高性能镜像队列】<br>  → 用 `ha-sync-mode: automatic`（自动同步）<br>  → 新节点加入时，自动同步历史数据<br></code></pre></td></tr></table></figure>
 
+<p>⚠️ 版本提醒：镜像队列是 RabbitMQ 3.9 起废弃、4.0 已彻底移除的历史机制，<br>只适合了解老系统或历史面经。现在做高可用用<strong>仲裁队列（Quorum Queue）</strong>——<br>基于 Raft 协议做多数派复制，天然没有镜像队列”异步同步可能丢数据”的问题，<br>也不需要手动配置 <code>ha-sync-mode</code>，是目前的官方推荐方案。</p>
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
-<p>“RabbitMQ 的镜像队列有个坑：如果 <code>ha-sync-mode=manual</code>（手动同步），新 Slave 加入时不会自动同步历史数据，导致新 Slave 提升为 Master 后数据不全。我们曾经踩过这个坑——解决方法是设置 <code>ha-sync-mode: automatic</code>，并且用 <code>ha-promote-on-shutdown: always</code> 确保优雅关闭时主动同步数据给 Slave。”</p>
+<p>“RabbitMQ 的镜像队列有个坑（这是老版本的机制，新项目请优先用仲裁队列）：如果 <code>ha-sync-mode=manual</code>（手动同步），新 Slave 加入时不会自动同步历史数据，导致新 Slave 提升为 Master 后数据不全。我们曾经踩过这个坑——解决方法是设置 <code>ha-sync-mode: automatic</code>，并且用 <code>ha-promote-on-shutdown: always</code> 确保优雅关闭时主动同步数据给 Slave。”</p>
 </blockquote>
 <hr>
-<h3 id="第-35-题：消息队列选型：RocketMQ-vs-Kafka-vs-RabbitMQ，怎么选？"><a href="#第-35-题：消息队列选型：RocketMQ-vs-Kafka-vs-RabbitMQ，怎么选？" class="headerlink" title="第 35 题：消息队列选型：RocketMQ vs Kafka vs RabbitMQ，怎么选？"></a>第 35 题：消息队列选型：RocketMQ vs Kafka vs RabbitMQ，怎么选？</h3><p><strong>一句话总结</strong>：<strong>日志&#x2F;流处理用 Kafka</strong>，<strong>订单&#x2F;事务用 RockerMQ</strong>，<strong>低延迟小项目用 RabbitMQ</strong>。</p>
+<h3 id="第-35-题：消息队列选型：RocketMQ-vs-Kafka-vs-RabbitMQ，怎么选？"><a href="#第-35-题：消息队列选型：RocketMQ-vs-Kafka-vs-RabbitMQ，怎么选？" class="headerlink" title="第 35 题：消息队列选型：RocketMQ vs Kafka vs RabbitMQ，怎么选？"></a>第 35 题：消息队列选型：RocketMQ vs Kafka vs RabbitMQ，怎么选？</h3><p><strong>一句话总结</strong>：<strong>日志&#x2F;流处理用 Kafka</strong>，<strong>订单&#x2F;事务用 RocketMQ</strong>，<strong>低延迟小项目用 RabbitMQ</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
 <tr>
 <th>维度</th>
 <th>Kafka</th>
-<th>RockerMQ</th>
+<th>RocketMQ</th>
 <th>RabbitMQ</th>
 </tr>
 </thead>
@@ -999,15 +1084,15 @@
 </tr>
 <tr>
 <td><strong>事务消息</strong></td>
-<td>0.11+ 支持</td>
-<td>原生支持（最完善）</td>
+<td>0.11+ 有限支持（仅 Kafka 内部原子写入，无本地事务回查）</td>
+<td>原生支持（半消息 + 事务回查，最完善）</td>
 <td>不支持</td>
 </tr>
 <tr>
 <td><strong>延迟消息</strong></td>
 <td>不支持（需自己实现）</td>
-<td>原生支持（18个延迟级别）</td>
-<td>原生支持（TTL+死信队列）</td>
+<td>原生支持（内置约 18 个延迟级别，非任意时间）</td>
+<td>TTL+死信队列组合模拟（非原生，官方插件可支持任意时间）</td>
 </tr>
 <tr>
 <td><strong>适用场景</strong></td>
@@ -1018,7 +1103,7 @@
 </tbody></table>
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
-<p>“我们公司同时用 Kafka 和 RockerMQ：① 日志采集（Logback → Kafka → ElasticSearch）用 Kafka，因为吞吐量高，而且 Kafka 的 Partition 机制方便并行消费 ② 订单系统用 RockerMQ，因为需要事务消息（订单创建 + 库存扣减 + 优惠券核销必须原子性）③ 内部通知系统（如新用户注册发邮件）用 RabbitMQ，因为消息量不大，但要求低延迟（RabbitMQ 的延迟是微秒级，比 Kafka&#x2F;RocketMQ 快 10 倍）。”</p>
+<p>“我们公司同时用 Kafka 和 RocketMQ：① 日志采集（Logback → Kafka → ElasticSearch）用 Kafka，因为吞吐量高，而且 Kafka 的 Partition 机制方便并行消费 ② 订单系统用 RocketMQ，因为需要事务消息（订单创建 + 库存扣减 + 优惠券核销必须原子性）③ 内部通知系统（如新用户注册发邮件）用 RabbitMQ，因为消息量不大，但要求低延迟（RabbitMQ 的延迟是微秒级，比 Kafka&#x2F;RocketMQ 快 10 倍）。”</p>
 </blockquote>
 <hr>
 <blockquote>
@@ -1166,7 +1251,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 生产者压测（测试发送 TPS）</span><br><span class="hljs-type">long</span> <span class="hljs-variable">start</span> <span class="hljs-operator">=</span> System.currentTimeMillis();<br><span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">1000000</span>;<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; count; i++) &#123;<br>    producer.send(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Message</span>(<span class="hljs-string">&quot;TopicTest&quot;</span>, (<span class="hljs-string">&quot;Message-&quot;</span> + i).getBytes()));<br>&#125;<br><span class="hljs-type">long</span> <span class="hljs-variable">end</span> <span class="hljs-operator">=</span> System.currentTimeMillis();<br><span class="hljs-type">double</span> <span class="hljs-variable">tps</span> <span class="hljs-operator">=</span> count * <span class="hljs-number">1000.0</span> / (end - start);<br>System.out.println(<span class="hljs-string">&quot;发送 TPS：&quot;</span> + tps);<br><br><span class="hljs-comment">// 2. 消费者压测（测试消费 TPS）</span><br><span class="hljs-comment">// 用线程池并发消费，统计每秒消费的消息数</span><br></code></pre></td></tr></table></figure>
 
 <p><strong>Kafka 的 TPS 指标（自带）</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 Kafka 的 TPS（Bytes/s、Records/s）</span><br>kafka-run-class.sh kafka.tools.ConsumerOffsetChecker \<br>  --zookeeper localhost:2181 \<br>  --group test-group<br><br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># Topic          Pid Offset          logSize         Lag             Owner</span><br><span class="hljs-comment"># TopicTest     0   12345           12345           0               consumer-1</span><br><span class="hljs-comment"># → Records/s = (当前 Offset - 上次 Offset) / 时间间隔</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 Kafka 的消费进度和 Lag（现行命令，不依赖 ZooKeeper）</span><br>kafka-consumer-groups.sh \<br>  --bootstrap-server localhost:9092 \<br>  --group test-group \<br>  --describe<br><br><span class="hljs-comment"># 输出：</span><br><span class="hljs-comment"># GROUP       TOPIC       PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG</span><br><span class="hljs-comment"># test-group  TopicTest   0          12345           12345           0</span><br><span class="hljs-comment"># → Records/s = (本次 CURRENT-OFFSET - 上次 CURRENT-OFFSET) / 时间间隔</span><br><br><span class="hljs-comment"># 旧版 kafka.tools.ConsumerOffsetChecker（依赖 --zookeeper）早已从 Kafka 中移除，</span><br><span class="hljs-comment"># 现在统一用 kafka-consumer-groups.sh --bootstrap-server，面试时不要再提旧命令。</span><br></code></pre></td></tr></table></figure>
 
 <hr>
 <h4 id="面试加分回答-3"><a href="#面试加分回答-3" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
@@ -1214,7 +1299,7 @@
 </blockquote>
 <hr>
 <h3 id="第-41-题：RocketMQ-的-NameServer-和-Broker-的关系？"><a href="#第-41-题：RocketMQ-的-NameServer-和-Broker-的关系？" class="headerlink" title="第 41 题：RocketMQ 的 NameServer 和 Broker 的关系？"></a>第 41 题：RocketMQ 的 NameServer 和 Broker 的关系？</h3><h4 id="一句话结论-5"><a href="#一句话结论-5" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>NameServer</strong>：路由注册中心（类似 Kafka 的 ZooKeeper，但更轻量），管理 Broker 的路由信息；<strong>Broker</strong>：消息存储和传输的节点，负责消息的收发、存储、拉取。</p>
+<p><strong>NameServer</strong>：路由注册中心（定位类似早期 Kafka 依赖的 ZooKeeper，但更轻量、无状态），管理 Broker 的路由信息；<strong>Broker</strong>：消息存储和传输的节点，负责消息的收发、存储、拉取。</p>
 </blockquote>
 <hr>
 <h4 id="深度解析-5"><a href="#深度解析-5" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>NameServer 的作用</strong>：</p>
@@ -1223,34 +1308,41 @@
 <p><strong>Broker 的作用</strong>：</p>
 <figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">Broker = 消息存储和传输节点<br>  → 接收生产者发送的消息，写入 CommitLog<br>  → 接收消费者拉取消息的请求，从 CommitLog 读取消息<br>  → 主从同步（<span class="hljs-keyword">Master</span> <span class="hljs-title">Broker</span> 同步数据给 <span class="hljs-literal">Slave</span> Broker）<br></code></pre></td></tr></table></figure>
 
-<p><strong>NameServer vs ZooKeeper（Kafka 用 ZooKeeper）</strong>：</p>
+<p><strong>NameServer vs ZooKeeper &#x2F; KRaft（Kafka 的元数据管理）</strong>：</p>
+<blockquote>
+<p>⚠️ 版本提醒：Kafka 3.3（2022 年）起 KRaft 模式已可用于生产，之后的新集群默认使用 KRaft，<br>4.0（2024 年发布）已彻底移除对 ZooKeeper 的支持。KRaft 用 Kafka 自带的 Controller 节点<br>（基于 Raft 协议，元数据存在内部 <code>__cluster_metadata</code> Topic 里）管理元数据，不再需要<br>单独部署 ZooKeeper 集群。下表把”历史上的 ZooKeeper 模式”和”现行的 KRaft 模式”分开列。</p>
+</blockquote>
 <table>
 <thead>
 <tr>
 <th>对比项</th>
 <th>NameServer（RocketMQ）</th>
-<th>ZooKeeper（Kafka）</th>
+<th>ZooKeeper（Kafka，旧模式，4.0 已移除）</th>
+<th>KRaft Controller（Kafka，现行默认）</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>部署复杂度</td>
 <td>简单（无状态，彼此不通信）</td>
-<td>复杂（需要集群部署，维护 ZAB 协议）</td>
+<td>复杂（需要额外部署 ZK 集群，维护 ZAB 协议）</td>
+<td>较简单（Controller 角色内嵌在 Kafka 进程里）</td>
 </tr>
 <tr>
 <td>可用性</td>
 <td>高（NameServer 挂了，Broker 仍然可以提供服务）</td>
-<td>依赖 ZooKeeper（ZooKeeper 挂了，Kafka 不可用）</td>
+<td>依赖 ZooKeeper（ZK 集群不可用，Kafka 不可用）</td>
+<td>高（Controller Quorum 多数派存活即可，用 Raft 保证一致性）</td>
 </tr>
 <tr>
 <td>功能</td>
 <td>只做路由注册和发现</td>
 <td>路由注册 + 集群元数据管理 + Controller 选举</td>
+<td>集群元数据管理 + Controller 选举（内置于 Kafka）</td>
 </tr>
 </tbody></table>
 <hr>
 <h4 id="面试加分回答-5"><a href="#面试加分回答-5" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>NameServer 是 RockerMQ 的<strong>亮点之一</strong>（比 Kafka 的 ZooKeeper 轻量很多）。实际部署中，NameServer 通常部署 <strong>2 个节点</strong>（互不通信，Broker 向两个 NameServer 都注册），即使一个 NameServer 挂了，另一个仍然可以提供路由发现服务。另外，RocketMQ 5.0+ 正在去 NameServer 化（用 <strong>Proxy 模式</strong> 取代 NameServer），简化部署架构。</p>
+<p>NameServer 是 RocketMQ 的<strong>亮点之一</strong>（部署形态比 Kafka 早期依赖的 ZooKeeper 轻量很多）。实际部署中，NameServer 通常部署 <strong>2 个节点</strong>（互不通信，Broker 向两个 NameServer 都注册），即使一个 NameServer 挂了，另一个仍然可以提供路由发现服务。需要注意：RocketMQ 5.0 新增的 <strong>Proxy 组件</strong>是给 gRPC&#x2F;轻量 SDK 客户端提供统一接入层（协议转换、连接收敛），并没有取代 NameServer 的路由注册职责，两者是叠加而不是替代关系。类比地，Kafka 从 3.3 开始用 KRaft 模式替代 ZooKeeper 管理元数据，到 4.0 已完全不依赖 ZooKeeper——面试被问到”Kafka 还依赖 ZooKeeper 吗”时要说清楚这是版本相关的问题，新集群默认已经是 KRaft。</p>
 </blockquote>
 <hr>
 <h3 id="第-42-题：Kafka-的日志压缩（Log-Compaction）是什么？"><a href="#第-42-题：Kafka-的日志压缩（Log-Compaction）是什么？" class="headerlink" title="第 42 题：Kafka 的日志压缩（Log Compaction）是什么？"></a>第 42 题：Kafka 的日志压缩（Log Compaction）是什么？</h3><h4 id="一句话结论-6"><a href="#一句话结论-6" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
@@ -1405,7 +1497,7 @@
 </blockquote>
 <hr>
 <h4 id="深度解析-10"><a href="#深度解析-10" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>Broker 高可用</strong>：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs routeros">Kafka：<br>  → 多副本（replication.<span class="hljs-attribute">factor</span>=3）<br>  → <span class="hljs-attribute">acks</span>=all（所有 ISR 副本确认才返回成功）<br>  → min.insync.<span class="hljs-attribute">replicas</span>=2（至少 2 个 ISR 副本，否则拒绝写入）<br><br>RocketMQ：<br>  → 主从同步（Master Broker + Slave Broker）<br>  → 同步刷盘（<span class="hljs-attribute">flushDiskType</span>=SYNC_FLUSH）<br>  → Dledger 模式（RocketMQ 5.0+，基于 Raft 协议，自动选主）<br></code></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs routeros">Kafka：<br>  → 多副本（replication.<span class="hljs-attribute">factor</span>=3）<br>  → <span class="hljs-attribute">acks</span>=all（所有 ISR 副本确认才返回成功）<br>  → min.insync.<span class="hljs-attribute">replicas</span>=2（至少 2 个 ISR 副本，否则拒绝写入）<br><br>RocketMQ：<br>  → 主从同步（Master Broker + Slave Broker）<br>  → 同步刷盘（<span class="hljs-attribute">flushDiskType</span>=SYNC_FLUSH）<br>  → Dledger 模式（RocketMQ 4.5+，基于 Raft 协议，自动选主）<br></code></pre></td></tr></table></figure>
 
 <p><strong>消费者高可用</strong>：</p>
 <figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs abnf">消费者集群：<br>  → 多个消费者订阅同一个 Topic（同一个 Consumer Group）<br>  → 一个消费者挂了，其他消费者继续消费（不会停止消费）<br>  → Kafka：分区数 &gt;<span class="hljs-operator">=</span> 消费者数（一个分区只能被一个消费者线程消费）<br></code></pre></td></tr></table></figure>
@@ -1703,6 +1795,21 @@
 
 
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 

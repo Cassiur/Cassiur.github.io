@@ -27,7 +27,7 @@
 <meta property="og:description" content="📖 学习指南 🎯 学习目标：通过本文，你将系统掌握 Java 并发 的核心知识，能够自信地应对任何相关面试问题。  适合人群 🔰 初学者：想系统学习 Java 并发 的开发者 🚀 有经验者：想深入理解 Java 并发 原理的高级开发者 💼 面试准备者：想刷 Java 并发 面试题的求职者  学习建议 先理解概念，再深入原理：先搞懂”是什么”，再搞懂”为什么” 结合实战场景：不要死记硬背，">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:10:00.000Z">
-<meta property="article:modified_time" content="2026-06-09T06:44:58.903Z">
+<meta property="article:modified_time" content="2026-09-03T16:48:06.108Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="八股文">
@@ -226,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          31k 字
+          32k 字
         
       </span>
     
@@ -237,7 +237,7 @@
         
         
         
-          255 分钟
+          270 分钟
         
       </span>
     
@@ -301,38 +301,51 @@
 <hr>
 <h2 id="🗺️-知识图谱"><a href="#🗺️-知识图谱" class="headerlink" title="🗺️ 知识图谱"></a>🗺️ 知识图谱</h2><pre><code class=" mermaid">mindmap
   root((Java 并发))
-    基础概念
-      核心概念1
-      核心概念2
-      核心概念3
-    高级特性
-      特性1
-      特性2
-    实战应用
-      应用场景1
-      应用场景2
-    性能优化
-      优化技巧1
-      优化技巧2
+    线程基础
+      线程创建与生命周期
+      线程状态转换
+      线程通信 wait/notify
+    Java内存模型 JMM
+      happens-before 规则
+      volatile 语义
+      指令重排序
+    synchronized与volatile
+      锁升级 偏向轻量重量
+      Mark Word
+      内存屏障
+    AQS与锁
+      CLH队列
+      ReentrantLock
+      读写锁与Condition
+    并发容器
+      ConcurrentHashMap
+      CopyOnWriteArrayList
+      BlockingQueue
+    线程池
+      ThreadPoolExecutor参数
+      拒绝策略
+      任务调度
+    原子类与CAS
+      AtomicInteger
+      ABA问题
+      LongAdder
 </code></pre>
 
 <hr>
-<h2 id="⚠️-常见陷阱与误区"><a href="#⚠️-常见陷阱与误区" class="headerlink" title="⚠️ 常见陷阱与误区"></a>⚠️ 常见陷阱与误区</h2><h3 id="陷阱-1：概念理解错误"><a href="#陷阱-1：概念理解错误" class="headerlink" title="陷阱 1：概念理解错误"></a>陷阱 1：概念理解错误</h3><p>❌ <strong>错误示例</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 错误的理解或用法</span><br></code></pre></td></tr></table></figure>
+<h2 id="⚠️-常见陷阱与误区"><a href="#⚠️-常见陷阱与误区" class="headerlink" title="⚠️ 常见陷阱与误区"></a>⚠️ 常见陷阱与误区</h2><h3 id="陷阱-1：以为-volatile-能保证原子性"><a href="#陷阱-1：以为-volatile-能保证原子性" class="headerlink" title="陷阱 1：以为 volatile 能保证原子性"></a>陷阱 1：以为 volatile 能保证原子性</h3><p>❌ <strong>错误示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> &#123;<br>    count++; <span class="hljs-comment">// 依然是&quot;读取-加一-写回&quot;三步操作，volatile 不保证原子性</span><br>&#125;<br><span class="hljs-comment">// 多线程并发调用 increment()，最终 count 的结果通常小于预期值</span><br></code></pre></td></tr></table></figure>
 <p>✅ <strong>正确做法</strong>：</p>
 <ul>
-<li>正确理解概念</li>
-<li>避免常见误区</li>
+<li>复合操作（如 <code>i++</code>）要用 <code>AtomicInteger</code>、<code>synchronized</code> 或 <code>LongAdder</code></li>
+<li>volatile 只保证可见性和禁止指令重排，不保证原子性</li>
 </ul>
-<h3 id="陷阱-2：忽略边界条件"><a href="#陷阱-2：忽略边界条件" class="headerlink" title="陷阱 2：忽略边界条件"></a>陷阱 2：忽略边界条件</h3><p>❌ <strong>错误做法</strong>：</p>
-<ul>
-<li>不考虑特殊情况</li>
-<li>忽略异常处理</li>
-</ul>
+<h3 id="陷阱-2：用-Executors-创建线程池导致-OOM"><a href="#陷阱-2：用-Executors-创建线程池导致-OOM" class="headerlink" title="陷阱 2：用 Executors 创建线程池导致 OOM"></a>陷阱 2：用 Executors 创建线程池导致 OOM</h3><p>❌ <strong>错误做法</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Executors.newFixedThreadPool 内部使用无界队列 LinkedBlockingQueue</span><br><span class="hljs-type">ExecutorService</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">10</span>);<br><span class="hljs-comment">// 任务堆积过多时，队列无限扩张，最终导致 OutOfMemoryError</span><br></code></pre></td></tr></table></figure>
+
 <p>✅ <strong>正确做法</strong>：</p>
 <ul>
-<li>总是考虑边界条件</li>
-<li>添加异常处理</li>
+<li>手动 <code>new ThreadPoolExecutor(...)</code>，显式指定有界队列（如 <code>ArrayBlockingQueue</code>）和拒绝策略</li>
+<li>阿里巴巴 Java 开发手册也明确建议禁止使用 Executors 创建线程池</li>
 </ul>
 <hr>
 <h2 id="💡-面试技巧"><a href="#💡-面试技巧" class="headerlink" title="💡 面试技巧"></a>💡 面试技巧</h2><h3 id="技巧-1：结构化回答"><a href="#技巧-1：结构化回答" class="headerlink" title="技巧 1：结构化回答"></a>技巧 1：结构化回答</h3><p>不要只回答”是什么”，要按照以下结构回答：</p>
@@ -344,12 +357,12 @@
 <h3 id="技巧-2：结合实战场景"><a href="#技巧-2：结合实战场景" class="headerlink" title="技巧 2：结合实战场景"></a>技巧 2：结合实战场景</h3><p>不要只背概念，要结合实际项目经验回答。</p>
 <h3 id="技巧-3：引导到你会的方向"><a href="#技巧-3：引导到你会的方向" class="headerlink" title="技巧 3：引导到你会的方向"></a>技巧 3：引导到你会的方向</h3><p>如果遇到不会的问题，不要慌，可以引导到你会的方向。</p>
 <hr>
-<h2 id="🎯-实战演练（真实面试场景）"><a href="#🎯-实战演练（真实面试场景）" class="headerlink" title="🎯 实战演练（真实面试场景）"></a>🎯 实战演练（真实面试场景）</h2><h3 id="场景-1：请你设计一个系统？"><a href="#场景-1：请你设计一个系统？" class="headerlink" title="场景 1：请你设计一个系统？"></a>场景 1：请你设计一个系统？</h3><p><strong>回答思路</strong>：</p>
+<h2 id="🎯-实战演练（真实面试场景）"><a href="#🎯-实战演练（真实面试场景）" class="headerlink" title="🎯 实战演练（真实面试场景）"></a>🎯 实战演练（真实面试场景）</h2><h3 id="场景-1：如何设计一个线程安全的秒杀库存扣减方案？"><a href="#场景-1：如何设计一个线程安全的秒杀库存扣减方案？" class="headerlink" title="场景 1：如何设计一个线程安全的秒杀库存扣减方案？"></a>场景 1：如何设计一个线程安全的秒杀库存扣减方案？</h3><p><strong>回答思路</strong>：</p>
 <ol>
-<li><strong>需求分析</strong>：明确系统需求</li>
-<li><strong>技术选型</strong>：选择合适的技术栈</li>
-<li><strong>架构设计</strong>：设计系统架构</li>
-<li><strong>性能优化</strong>：考虑性能瓶颈和优化方案</li>
+<li><strong>明确并发点</strong>：多个请求同时扣减同一商品库存，存在竞态条件</li>
+<li><strong>技术选型</strong>：单机可用 <code>synchronized</code>&#x2F;<code>ReentrantLock</code> + 数据库乐观锁（版本号&#x2F;CAS）；分布式场景用 Redis 原子操作（<code>DECR</code>）或分布式锁</li>
+<li><strong>架构设计</strong>：请求先经限流与本地&#x2F;分布式缓存预扣减，再异步落库，避免直接打满数据库连接</li>
+<li><strong>性能优化</strong>：用 <code>LongAdder</code> 统计计数、线程池隔离下单与扣减逻辑、结合消息队列削峰填谷</li>
 </ol>
 <hr>
 <h2 id="🚀-学习路径总结"><a href="#🚀-学习路径总结" class="headerlink" title="🚀 学习路径总结"></a>🚀 学习路径总结</h2><h3 id="第一阶段：基础概念（1-2-天）"><a href="#第一阶段：基础概念（1-2-天）" class="headerlink" title="第一阶段：基础概念（1-2 天）"></a>第一阶段：基础概念（1-2 天）</h3><ul>
@@ -375,16 +388,16 @@
 </ul>
 <hr>
 <h2 id="📚-扩展学习资源"><a href="#📚-扩展学习资源" class="headerlink" title="📚 扩展学习资源"></a>📚 扩展学习资源</h2><h3 id="官方资源"><a href="#官方资源" class="headerlink" title="官方资源"></a>官方资源</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">官方文档</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">官方教程</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/tutorial/essential/concurrency/">Oracle 官方并发教程</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html">JSR-133（Java 内存模型）FAQ</a></li>
 </ul>
 <h3 id="书籍推荐"><a href="#书籍推荐" class="headerlink" title="书籍推荐"></a>书籍推荐</h3><ul>
-<li>《Java 并发 实战》</li>
-<li>《Java 并发 权威指南》</li>
+<li>《Java 并发编程实战》（Brian Goetz）</li>
+<li>《Java 并发编程的艺术》（方腾飞）</li>
 </ul>
 <h3 id="博客推荐"><a href="#博客推荐" class="headerlink" title="博客推荐"></a>博客推荐</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">官方博客</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.example.com/">技术社区</a></li>
+<li><a target="_blank" rel="noopener" href="http://gee.cs.oswego.edu/dl/concurrency-interest/">Doug Lea 并发编程主页</a></li>
+<li><a target="_blank" rel="noopener" href="https://openjdk.org/jeps/0">OpenJDK JEP 索引</a></li>
 </ul>
 <hr>
 <h1 id="Java-并发编程面试八股文30条（深度详解版）"><a href="#Java-并发编程面试八股文30条（深度详解版）" class="headerlink" title="Java 并发编程面试八股文30条（深度详解版）"></a>Java 并发编程面试八股文30条（深度详解版）</h1><blockquote>
@@ -496,7 +509,7 @@
 </blockquote>
 <hr>
 <h3 id="第-5-题：volatile-关键字的作用？底层原理？"><a href="#第-5-题：volatile-关键字的作用？底层原理？" class="headerlink" title="第 5 题：volatile 关键字的作用？底层原理？"></a>第 5 题：volatile 关键字的作用？底层原理？</h3><h4 id="一句话结论-4"><a href="#一句话结论-4" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>volatile 保证可见性（一个线程修改，其他线程立即看到）和禁止指令重排，但不保证原子性。底层原理：在写操作前插入 StoreStore 屏障，写操作后插入 StoreLoad 屏障；读操作前插入 LoadLoad 屏障，读操作后插入 LoadStore 屏障。</strong></p>
+<p><strong>volatile 保证可见性（一个线程修改，其他线程立即看到）和禁止指令重排，但不保证原子性。底层原理：在写操作前插入 StoreStore 屏障，写操作后插入 StoreLoad 屏障；读操作后插入 LoadLoad 屏障，读操作后插入 LoadStore 屏障。</strong></p>
 </blockquote>
 <hr>
 <h4 id="深度解析-4"><a href="#深度解析-4" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>问题场景（没有 volatile）：</strong></p>
@@ -508,7 +521,7 @@
 
 <hr>
 <p><strong>volatile 的两大作用：</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 作用 1：保证可见性</span><br><span class="hljs-comment">//   → 写 volatile 变量时，JMM 会把本地内存中的值刷回主内存</span><br><span class="hljs-comment">//   → 读 volatile 变量时，JMM 会失效本地内存，从主内存重新读</span><br><br><span class="hljs-comment">// 作用 2：禁止指令重排</span><br><span class="hljs-comment">//   → 在 volatile 写操作前插入 StoreStore 屏障</span><br><span class="hljs-comment">//   → 在 volatile 写操作后插入 StoreLoad 屏障</span><br><span class="hljs-comment">//   → 在 volatile 读操作前插入 LoadLoad 屏障</span><br><span class="hljs-comment">//   → 在 volatile 读操作后插入 LoadStore 屏障</span><br><br><span class="hljs-comment">// 经典应用：双重检查锁的单例模式</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> Singleton instance;  <span class="hljs-comment">// ← 必须加 volatile！</span><br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;  <span class="hljs-comment">// 第一次检查</span><br>            <span class="hljs-keyword">synchronized</span> (Singleton.class) &#123;<br>                <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;  <span class="hljs-comment">// 第二次检查</span><br>                    instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>();  <span class="hljs-comment">// ← 这里会发生指令重排！</span><br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 作用 1：保证可见性</span><br><span class="hljs-comment">//   → 写 volatile 变量时，JMM 会把本地内存中的值刷回主内存</span><br><span class="hljs-comment">//   → 读 volatile 变量时，JMM 会失效本地内存，从主内存重新读</span><br><br><span class="hljs-comment">// 作用 2：禁止指令重排</span><br><span class="hljs-comment">//   → 在 volatile 写操作前插入 StoreStore 屏障</span><br><span class="hljs-comment">//   → 在 volatile 写操作后插入 StoreLoad 屏障</span><br><span class="hljs-comment">//   → 在 volatile 读操作后插入 LoadLoad 屏障</span><br><span class="hljs-comment">//   → 在 volatile 读操作后插入 LoadStore 屏障</span><br><br><span class="hljs-comment">// 经典应用：双重检查锁的单例模式</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> Singleton instance;  <span class="hljs-comment">// ← 必须加 volatile！</span><br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;  <span class="hljs-comment">// 第一次检查</span><br>            <span class="hljs-keyword">synchronized</span> (Singleton.class) &#123;<br>                <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;  <span class="hljs-comment">// 第二次检查</span><br>                    instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>();  <span class="hljs-comment">// ← 这里会发生指令重排！</span><br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p><strong>为什么双重检查锁必须加 volatile？</strong><br><code>instance = new Singleton()</code> 不是原子操作，分为三步：</p>
@@ -519,6 +532,31 @@
 </ol>
 <p>步骤 2 和 3 可能被重排（指令重排），导致其他线程拿到一个<strong>未初始化的对象</strong>（空指针异常）。<br>volatile 禁止了这种重排，保证安全地发布对象。</p>
 </blockquote>
+<p><strong>指令重排对比：无 volatile vs 有 volatile</strong></p>
+<pre><code class=" mermaid">sequenceDiagram
+    participant T1 as 线程A（创建对象）
+    participant Mem as 内存
+    participant T2 as 线程B（读取 instance）
+
+    rect rgba(128,128,128,0.15)
+    Note over T1,T2: 场景一：instance 没有 volatile 修饰，发生 1-3-2 重排
+    T1-&gt;&gt;Mem: ① 分配内存空间
+    T1-&gt;&gt;Mem: ③ instance 指向该内存（重排到初始化之前）
+    T2-&gt;&gt;Mem: 检查 instance != null，直接返回
+    T2-&gt;&gt;T2: 使用对象，但字段还是默认值（未初始化完成）
+    T1-&gt;&gt;Mem: ② 执行构造函数，初始化对象字段（太晚了）
+    end
+
+    rect rgba(128,128,128,0.15)
+    Note over T1,T2: 场景二：instance 用 volatile 修饰，禁止重排
+    T1-&gt;&gt;Mem: ① 分配内存空间
+    T1-&gt;&gt;Mem: ② 执行构造函数，初始化对象字段
+    T1-&gt;&gt;Mem: ③ instance 指向该内存（StoreStore 屏障保证顺序）
+    T2-&gt;&gt;Mem: 检查 instance != null
+    T2-&gt;&gt;T2: 拿到的一定是初始化完成的对象
+    end
+</code></pre>
+
 <hr>
 <p><strong>volatile 不保证原子性（重要！）：</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// volatile 不保证原子性！</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Counter</span> &#123;<br>    <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">increment</span><span class="hljs-params">()</span> &#123;<br>        count++;  <span class="hljs-comment">// ← 这不是原子操作！</span><br>        <span class="hljs-comment">// count++ 分为三步：读取 count → +1 → 写回 count</span><br>        <span class="hljs-comment">// 两个线程同时执行，可能丢失更新</span><br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 解决：用 synchronized 或 AtomicInteger</span><br><span class="hljs-type">AtomicInteger</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicInteger</span>(<span class="hljs-number">0</span>);<br>count.incrementAndGet();  <span class="hljs-comment">// 原子操作</span><br></code></pre></td></tr></table></figure>
@@ -837,6 +875,31 @@
 <blockquote>
 <p><strong>CLH 队列是双向链表</strong>，每个 Node 有 <code>prev</code>、<code>next</code>、<code>thread</code>、<code>waitStatus</code> 字段。<br>线程获取锁失败时，封装成 Node 加入队列尾部，然后 <code>LockSupport.park()</code> 阻塞自己。<br>持有锁的线程释放锁时，唤醒队列中的下一个线程（<code>LockSupport.unpark()</code>）。</p>
 </blockquote>
+<p><strong>AQS CLH 队列结构图</strong>：</p>
+<pre><code class=" mermaid">flowchart LR
+    subgraph AQS
+        state[&quot;state (volatile int)&lt;br/&gt;同步状态&quot;]
+    end
+
+    head([&quot;head&lt;br/&gt;虚拟头节点&lt;br/&gt;（不关联线程）&quot;])
+    n1[&quot;Node1&lt;br/&gt;thread = Thread-A&lt;br/&gt;waitStatus = SIGNAL&quot;]
+    n2[&quot;Node2&lt;br/&gt;thread = Thread-B&lt;br/&gt;waitStatus = SIGNAL&quot;]
+    n3[&quot;Node3&lt;br/&gt;thread = Thread-C&lt;br/&gt;waitStatus = 0&quot;]
+
+    head -- next --&gt; n1
+    n1 -- prev --&gt; head
+    n1 -- next --&gt; n2
+    n2 -- prev --&gt; n1
+    n2 -- next --&gt; n3
+    n3 -- prev --&gt; n2
+
+    tail([&quot;tail&quot;])
+    n3 -- next --&gt; tail
+</code></pre>
+
+<blockquote>
+<p><strong>为什么需要虚拟头节点（head）？</strong> head 节点本身不代表任何等待线程，而是代表”当前持有锁&#x2F;正在运行的逻辑占位”。这样设计的好处：入队、出队操作都可以统一按照”链表操作”处理，不需要对”队列为空”这种边界情况做特殊判断——新线程入队时永远是在 tail 后面追加节点，释放锁时永远是唤醒 head 的下一个节点，代码逻辑保持一致，无需分支判断队列是否为空。</p>
+</blockquote>
 <hr>
 <h4 id="面试加分回答-14"><a href="#面试加分回答-14" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「AQS 是 Java 并发包的基石，面试时经常问：<strong>ReentrantLock 是基于 AQS 实现的，那 synchronized 呢？</strong> 答案是：synchronized 是 JVM 内置的（C++ 实现），不使用 AQS；而 ReentrantLock 是 Java 代码实现的，底层依赖 AQS。另外，<strong>AQS 支持两种模式</strong>：独占模式（Exclusive，如 ReentrantLock）和共享模式（Shared，如 CountDownLatch、Semaphore）。面试时还可能追问：<strong>AQS 中的 state 有什么用？</strong> 答案是：state 是「同步状态」，具体含义由子类定义（ReentrantLock 中表示「重入次数」，CountDownLatch 中表示「计数器」，Semaphore 中表示「许可证数量」）。」</p>
@@ -859,11 +922,11 @@
 
 <hr>
 <p><strong>偏向锁的撤销（重要！）：</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 偏向锁的撤销（Revoke）：</span><br><span class="hljs-comment">// 当有另一个线程尝试获取偏向锁时，需要撤销偏向锁（STW）</span><br><br><span class="hljs-comment">// 撤销过程（需要 STW）：</span><br><span class="hljs-comment">// 1. 暂停持有偏向锁的线程</span><br><span class="hljs-comment">// 2. 检查该线程是否还持有锁</span><br><span class="hljs-comment">//    → 如果还持有：升级为轻量级锁（在栈帧中创建锁记录）</span><br><span class="hljs-comment">//    → 如果不持有：将对象头恢复为无锁状态（可以重新偏向）</span><br><span class="hljs-comment">// 3. 唤醒被暂停的线程</span><br><br><span class="hljs-comment">// Java 15 开始，偏向锁默认禁用（因为撤销的 STW 开销在某些场景下不值得）</span><br><span class="hljs-comment">// 可以通过 -XX:+UseBiasedLocking 开启（不推荐）</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 偏向锁的撤销（Revoke）：</span><br><span class="hljs-comment">// 当有另一个线程尝试获取偏向锁时，需要撤销偏向锁（STW）</span><br><br><span class="hljs-comment">// 撤销过程（需要 STW）：</span><br><span class="hljs-comment">// 1. 暂停持有偏向锁的线程</span><br><span class="hljs-comment">// 2. 检查该线程是否还持有锁</span><br><span class="hljs-comment">//    → 如果还持有：升级为轻量级锁（在栈帧中创建锁记录）</span><br><span class="hljs-comment">//    → 如果不持有：将对象头恢复为无锁状态（可以重新偏向）</span><br><span class="hljs-comment">// 3. 唤醒被暂停的线程</span><br><br><span class="hljs-comment">// Java 15 开始，偏向锁默认禁用（JEP 374，因为撤销的 STW 开销在某些场景下不值得）</span><br><span class="hljs-comment">// Java 18 开始，-XX:+UseBiasedLocking 参数被标记为 obsolete（JDK-8256425），设置它不再有任何效果</span><br><span class="hljs-comment">// 也就是说在主流 LTS 版本 17 / 21 上，偏向锁已基本不可用，不要再依赖它做性能预期</span><br></code></pre></td></tr></table></figure>
 
 <hr>
 <h4 id="面试加分回答-15"><a href="#面试加分回答-15" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「synchronized 的锁升级是 Java 6 引入的重要优化。面试时经常追问：<strong>为什么有了 synchronized，还需要 ReentrantLock？</strong> 答案是：1. ReentrantLock 可以尝试获取锁（tryLock()），synchronized 会一直阻塞；2. ReentrantLock 可以中断获取锁（lockInterruptibly()），synchronized 不支持中断；3. ReentrantLock 可以设置公平锁，synchronized 只能是非公平锁；4. ReentrantLock 有多个条件变量（Condition），synchronized 只有一个等待队列。但 Java 6 之后，synchronized 的性能已经和 ReentrantLock 接近（因为锁升级），<strong>优先使用 synchronized</strong>（更简洁，JVM 可以继续优化它）。另外，<strong>Java 15 开始偏向锁默认禁用</strong>（JEP 374），因为现代应用中，偏向锁的撤销开销（STW）可能大于其带来的性能提升。」</p>
+<p>「synchronized 的锁升级是 Java 6 引入的重要优化。面试时经常追问：<strong>为什么有了 synchronized，还需要 ReentrantLock？</strong> 答案是：1. ReentrantLock 可以尝试获取锁（tryLock()），synchronized 会一直阻塞；2. ReentrantLock 可以中断获取锁（lockInterruptibly()），synchronized 不支持中断；3. ReentrantLock 可以设置公平锁，synchronized 只能是非公平锁；4. ReentrantLock 有多个条件变量（Condition），synchronized 只有一个等待队列。但 Java 6 之后，synchronized 的性能已经和 ReentrantLock 接近（因为锁升级），<strong>优先使用 synchronized</strong>（更简洁，JVM 可以继续优化它）。另外，<strong>Java 15 开始偏向锁默认禁用</strong>（JEP 374），因为现代应用中，偏向锁的撤销开销（STW）可能大于其带来的性能提升；<strong>Java 18 开始 <code>-XX:+UseBiasedLocking</code> 参数已 obsolete、设置无效</strong>，在 17&#x2F;21 等主流 LTS 上偏向锁已基本退出历史舞台。」</p>
 </blockquote>
 <hr>
 <h2 id="四、线程通信（17-20）"><a href="#四、线程通信（17-20）" class="headerlink" title="四、线程通信（17-20）"></a>四、线程通信（17-20）</h2><hr>
@@ -1041,9 +1104,12 @@
 </tr>
 </tbody></table>
 <hr>
-<p><strong>ConcurrentHashMap 的 size() 实现（Java 8+）：</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java 8+ 的 size() 实现（分段计数，避免竞争）：</span><br><span class="hljs-comment">//  - 用 CounterCell 数组（类似 LongAdder 的分段计数）</span><br><span class="hljs-comment">//  - 多个线程修改时，分散到不同的 CounterCell 中（减少 CAS 竞争）</span><br><br><span class="hljs-comment">// size() 方法：</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">long</span> <span class="hljs-title function_">mappingCount</span><span class="hljs-params">()</span> &#123;  <span class="hljs-comment">// ← 推荐用 mappingCount() 代替 size()（返回 long）</span><br>    <span class="hljs-type">long</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> sumCount();<br>    <span class="hljs-keyword">return</span> (n &lt; <span class="hljs-number">0L</span>) ? <span class="hljs-number">0L</span> : n;  <span class="hljs-comment">// 可能是负数（并发修改），但不会影响正确性</span><br>&#125;<br><br><span class="hljs-comment">// sumCount()：</span><br><span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-title function_">sumCount</span><span class="hljs-params">()</span> &#123;<br>    CounterCell[] as = counterCells; CounterCell a;<br>    <span class="hljs-type">long</span> <span class="hljs-variable">sum</span> <span class="hljs-operator">=</span> baseCount;<br>    <span class="hljs-keyword">if</span> (as != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; as.length; ++i) &#123;<br>            <span class="hljs-keyword">if</span> ((a = as[i]) != <span class="hljs-literal">null</span>)<br>                sum += a.value;  <span class="hljs-comment">// 累加所有 CounterCell 的值</span><br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> sum;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>size() &#x2F; mappingCount() 的计数实现（Java 8+）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java 8+ 的计数实现（分段计数，避免竞争）：</span><br><span class="hljs-comment">//  - 用 CounterCell 数组（类似 LongAdder 的分段计数）</span><br><span class="hljs-comment">//  - 多个线程修改时，分散到不同的 CounterCell 中（减少 CAS 竞争）</span><br><span class="hljs-comment">//  - size() 和 mappingCount() 底层都基于同一个 sumCount()</span><br><br><span class="hljs-comment">// mappingCount()：返回 long，官方推荐使用</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">long</span> <span class="hljs-title function_">mappingCount</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">long</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> sumCount();<br>    <span class="hljs-keyword">return</span> (n &lt; <span class="hljs-number">0L</span>) ? <span class="hljs-number">0L</span> : n;  <span class="hljs-comment">// 可能是负数（并发修改期间的中间态），但不会影响正确性</span><br>&#125;<br><br><span class="hljs-comment">// size()：返回 int，为兼容 Map 接口而保留</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">size</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">long</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> sumCount();<br>    <span class="hljs-keyword">return</span> ((n &lt; <span class="hljs-number">0L</span>) ? <span class="hljs-number">0</span> :<br>            (n &gt; (<span class="hljs-type">long</span>)Integer.MAX_VALUE) ? Integer.MAX_VALUE :<br>            (<span class="hljs-type">int</span>)n);  <span class="hljs-comment">// 超过 Integer.MAX_VALUE 时会被截断，不精确</span><br>&#125;<br><br><span class="hljs-comment">// sumCount()：两者共用的底层累加逻辑</span><br><span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-title function_">sumCount</span><span class="hljs-params">()</span> &#123;<br>    CounterCell[] as = counterCells; CounterCell a;<br>    <span class="hljs-type">long</span> <span class="hljs-variable">sum</span> <span class="hljs-operator">=</span> baseCount;<br>    <span class="hljs-keyword">if</span> (as != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; as.length; ++i) &#123;<br>            <span class="hljs-keyword">if</span> ((a = as[i]) != <span class="hljs-literal">null</span>)<br>                sum += a.value;  <span class="hljs-comment">// 累加所有 CounterCell 的值</span><br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> sum;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<blockquote>
+<p><strong>size() 和 mappingCount() 的区别</strong>：两者都基于 <code>sumCount()</code> 计算元素总数，区别在于返回值类型——<code>size()</code> 返回 <code>int</code>，当元素数量超过 <code>Integer.MAX_VALUE</code> 时会被截断、结果不精确（这是历史遗留的 <code>Map</code> 接口签名决定的）；<code>mappingCount()</code> 返回 <code>long</code>，能表达任意规模的元素数量。<strong>官方推荐新代码使用 <code>mappingCount()</code> 代替 <code>size()</code></strong>。</p>
+</blockquote>
 <hr>
 <h4 id="面试加分回答-20"><a href="#面试加分回答-20" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「ConcurrentHashMap 是 Java 并发包中使用最频繁的并发集合。面试时经常追问：<strong>ConcurrentHashMap 和 Hashtable 的区别？</strong> 答案是：1. Hashtable 是全表锁（所有操作都 synchronized），ConcurrentHashMap 是分段锁&#x2F;CAS + synchronized（锁粒度更细，并发性能更好）；2. Hashtable 不允许 null 键值，ConcurrentHashMap 也不允许（但 HashMap 允许）；3. Hashtable 是 Java 1.0 遗留类，不推荐使用，ConcurrentHashMap 是 Java 5+ 的推荐替代。另外，<strong>Java 8+ 的 ConcurrentHashMap 为什么放弃 Segment 分段锁？</strong> 答案是：Segment 的并发度固定（默认 16），且内存开销更大（每个 Segment 是一个独立的 HashEntry 数组）。Java 8+ 使用 CAS + synchronized，锁粒度细化到桶级别，性能更好，且实现更简洁。」</p>
@@ -1138,8 +1204,18 @@
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs markdown">提交任务到线程池：<br><br><span class="hljs-bullet">    1.</span> 当前线程数 &lt; corePoolSize？<br><span class="hljs-code">       → 是：创建新线程（核心线程）执行任务</span><br><span class="hljs-code">       → 否：进入步骤 2</span><br><span class="hljs-code"></span><br><span class="hljs-bullet">    2.</span> 任务队列是否已满？<br><span class="hljs-code">       → 否：将任务放入队列</span><br><span class="hljs-code">       → 是：进入步骤 3</span><br><span class="hljs-code"></span><br><span class="hljs-bullet">    3.</span> 当前线程数 &lt; maximumPoolSize？<br><span class="hljs-code">       → 是：创建新线程（非核心线程）执行任务</span><br><span class="hljs-code">       → 否：进入步骤 4（执行拒绝策略）</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
-<p><strong>关键</strong>：先填满核心线程数，再填满任务队列，最后才创建非核心线程（直到 maximumPoolSize）。</p>
+<p><strong>关键</strong>：先填满核心线程数，再填满任务队列，最后才创建非核心线程（直到 maximumPoolSize）。这个顺序是面试中<strong>最常被写反的考点</strong>，务必牢记：不是”先扩容线程池，队列满了再排队”，而是”先用核心线程，再排队，队列也满了才继续扩容线程”。</p>
 </blockquote>
+<pre><code class=" mermaid">flowchart TD
+    A[提交任务] --&gt; B&#123;核心线程数&lt;br/&gt;是否已满?&#125;
+    B -- 否 --&gt; C[创建核心线程执行任务]
+    B -- 是 --&gt; D&#123;任务队列&lt;br/&gt;是否已满?&#125;
+    D -- 否 --&gt; E[任务入队等待]
+    D -- 是 --&gt; F&#123;线程数是否&lt;br/&gt;已达 maximumPoolSize?&#125;
+    F -- 否 --&gt; G[创建非核心线程执行任务]
+    F -- 是 --&gt; H[执行拒绝策略 RejectedExecutionHandler]
+</code></pre>
+
 <hr>
 <p><strong>任务队列（workQueue）的选择：</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. ArrayBlockingQueue（有界队列）</span><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayBlockingQueue</span>&lt;&gt;(<span class="hljs-number">100</span>);  <span class="hljs-comment">// ← 队列容量固定为 100</span><br><span class="hljs-comment">//  → 当核心线程数满了，任务进入队列</span><br><span class="hljs-comment">//  → 队列满了，才创建非核心线程</span><br><span class="hljs-comment">//  → 适用场景：需要限制任务队列大小（防止 OOM）</span><br><br><span class="hljs-comment">// 2. LinkedBlockingQueue（无界队列，默认 Integer.MAX_VALUE）</span><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedBlockingQueue</span>&lt;&gt;()  <span class="hljs-comment">// ← 无界（可能 OOM！）</span><br><span class="hljs-comment">//  → 核心线程数满了，任务进入队列（队列永远不会满）</span><br><span class="hljs-comment">//  → 永远不会创建非核心线程（maximumPoolSize 无效）</span><br><span class="hljs-comment">//  → 适用场景：任务量不大，且内存充足</span><br><br><span class="hljs-comment">// 3. SynchronousQueue（同步队列，容量为 0）</span><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">SynchronousQueue</span>&lt;&gt;()  <span class="hljs-comment">// ← 不存储任务，直接交给线程处理</span><br><span class="hljs-comment">//  → 如果没有空闲线程，创建新线程（直到 maximumPoolSize）</span><br><span class="hljs-comment">//  → 如果线程数达到 maximumPoolSize，执行拒绝策略</span><br><span class="hljs-comment">//  → 适用场景：任务处理速度快，且需要快速响应</span><br><br><span class="hljs-comment">// 4. PriorityBlockingQueue（优先级队列）</span><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">PriorityBlockingQueue</span>&lt;&gt;()  <span class="hljs-comment">// ← 按优先级处理任务</span><br></code></pre></td></tr></table></figure>
@@ -1549,8 +1625,17 @@
 </blockquote>
 <hr>
 <h4 id="深度解析-32"><a href="#深度解析-32" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>锁升级流程</strong>：</p>
-<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">无锁（<span class="hljs-keyword">No</span> <span class="hljs-keyword">Lock</span>）<br>    ↓ 第一次进入 synchronized 块<br>偏向锁（Biased <span class="hljs-keyword">Lock</span>）<br>    ↓ 另一个线程来抢锁（偏向锁撤销）<br>轻量级锁（Lightweight <span class="hljs-keyword">Lock</span>）<br>    ↓ 自旋超过阈值（或竞争激烈）<br>重量级锁（Heavyweight <span class="hljs-keyword">Lock</span>）<br>    ↓ 线程挂起，进入阻塞状态<br></code></pre></td></tr></table></figure>
+<pre><code class=" mermaid">stateDiagram-v2
+    [*] --&gt; 无锁
+    无锁 --&gt; 偏向锁 : 首次有线程访问同步块
+    偏向锁 --&gt; 轻量级锁 : 出现竞争 / 偏向锁被撤销
+    轻量级锁 --&gt; 重量级锁 : CAS 自旋抢锁失败（竞争激烈）
+    重量级锁 --&gt; [*]
+</code></pre>
 
+<blockquote>
+<p><strong>版本提醒</strong>：上图中”无锁 → 偏向锁”这一跳，自 Java 15 起默认已禁用（JEP 374）；Java 18 起 <code>-XX:+UseBiasedLocking</code> 参数被标记 obsolete、设置不再生效（JDK-8256425）。也就是说在 17&#x2F;21 等主流 LTS 上，锁升级实际路径通常直接是”无锁 → 轻量级锁 → 重量级锁”，偏向锁这一档基本不会出现。</p>
+</blockquote>
 <p><strong>三种锁的对比</strong>：</p>
 <table>
 <thead>
@@ -1581,8 +1666,11 @@
 </tr>
 </tbody></table>
 <p><strong>对象头（Mark Word）的变化</strong>：</p>
-<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs tap">对象头（64 位 JVM）：<br>┌──────────────────────────────────────────────────────┐<br>│         Mark Word（64 bits）                         │<br>├─────────────┬─────────────┬──────────┬───────────┤<br>│ 锁状态        │<span class="hljs-number"> 25 </span>bits      │<span class="hljs-number"> 31 </span>bits   │<span class="hljs-number"> 4 </span>bits    │<br>├─────────────┼─────────────┼──────────┼───────────┤<br>│ 无锁         │ hashCode      │ 分代年龄  │<span class="hljs-number"> 01 </span>        │<br>│ 偏向锁       │ 线程 ID       │ Epoch     │<span class="hljs-number"> 01 </span>        │<br>│ 轻量级锁      │ 指向栈中锁记录 │           │<span class="hljs-number"> 00 </span>        │<br>│ 重量级锁      │ 指向监视器对象 │           │<span class="hljs-number"> 10 </span>        │<br>│ GC 标记      │              │           │<span class="hljs-number"> 11 </span>        │<br>└─────────────┴─────────────┴──────────┴───────────┘<br></code></pre></td></tr></table></figure>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs coq">对象头（<span class="hljs-number">64</span> 位 JVM，Mark Word 共 <span class="hljs-number">64</span> bits）：<br><br>无锁状态：<br>| <span class="hljs-type">unused</span>:<span class="hljs-number">25</span> | <span class="hljs-type">hashCode</span>:<span class="hljs-number">31</span> | <span class="hljs-type">unused</span>:<span class="hljs-number">1</span> | <span class="hljs-type">age</span>:<span class="hljs-number">4</span> | <span class="hljs-type">biased_lock</span>:<span class="hljs-number">1</span> | <span class="hljs-type">lock</span>:<span class="hljs-number">2</span> |<br><span class="hljs-type">（25</span> + <span class="hljs-number">31</span> + <span class="hljs-number">1</span> + <span class="hljs-number">4</span> + <span class="hljs-number">1</span> + <span class="hljs-number">2</span> = <span class="hljs-number">64</span>）<br>锁标志位 = <span class="hljs-number">01</span>，biased_lock = <span class="hljs-number">0</span><br><br>偏向锁状态：<br>| <span class="hljs-type">thread</span>:<span class="hljs-number">54</span> | <span class="hljs-type">epoch</span>:<span class="hljs-number">2</span> | <span class="hljs-type">unused</span>:<span class="hljs-number">1</span> | <span class="hljs-type">age</span>:<span class="hljs-number">4</span> | <span class="hljs-type">biased_lock</span>:<span class="hljs-number">1</span> | <span class="hljs-type">lock</span>:<span class="hljs-number">2</span> |<br><span class="hljs-type">（54</span> + <span class="hljs-number">2</span> + <span class="hljs-number">1</span> + <span class="hljs-number">4</span> + <span class="hljs-number">1</span> + <span class="hljs-number">2</span> = <span class="hljs-number">64</span>）<br>锁标志位 = <span class="hljs-number">01</span>，biased_lock = <span class="hljs-number">1</span><br><br>轻量级锁状态：<br>| <span class="hljs-type">指向栈中锁记录的指针:62</span> | <span class="hljs-type">lock</span>:<span class="hljs-number">2</span> |<br><span class="hljs-type">锁标志位 = 00</span><br><br>重量级锁状态：<br>| <span class="hljs-type">指向监视器 Monitor</span> 的指针:<span class="hljs-number">62</span> | <span class="hljs-type">lock</span>:<span class="hljs-number">2</span> |<br><span class="hljs-type">锁标志位 = 10</span><br><br>GC 标记：<br>| <span class="hljs-type">空:62</span> | <span class="hljs-type">lock</span>:<span class="hljs-number">2</span> |<br><span class="hljs-type">锁标志位 = 11</span><br></code></pre></td></tr></table></figure>
 
+<blockquote>
+<p>注意：无锁状态下 hashCode 占 31 bit、age 占 4 bit（不是反过来）；偏向锁状态下线程 ID 实际占 54 bit（不是常被简化误传的 23 bit），加上 2 bit 的 epoch 才能凑满 64 bit。可与前文 32 位 JVM 的 Mark Word 布局对照理解，两者思路一致，只是位宽不同。</p>
+</blockquote>
 <hr>
 <h4 id="面试加分回答-32"><a href="#面试加分回答-32" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>synchronized 的锁升级是 JDK 6 的<strong>重大性能优化</strong>。在 JDK 5 及之前，synchronized 直接是重量级锁（性能差），所以 JDK 5 推出了 <code>ReentrantLock</code>（基于 AQS，性能更好）。但 JDK 6 之后，synchronized 做了锁升级优化，性能已经和 <code>ReentrantLock</code> 相差无几，所以现在<strong>优先用 synchronized</strong>（语法更简洁，JVM 会自动优化）。</p>
@@ -1899,8 +1987,13 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 不推荐：锁范围太大（整个方法都加锁）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">process</span><span class="hljs-params">(List&lt;String&gt; data)</span> &#123;<br>    <span class="hljs-comment">// 1. 数据校验（不需要加锁）</span><br>    <span class="hljs-keyword">if</span> (data == <span class="hljs-literal">null</span> || data.isEmpty()) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-comment">// 2. 数据处理（不需要加锁）</span><br>    List&lt;String&gt; processed = data.stream().map(s -&gt; s.toUpperCase()).collect(toList());<br>    <span class="hljs-comment">// 3. 写入共享变量（需要加锁）</span><br>    <span class="hljs-built_in">this</span>.result = processed;<br>&#125;<br><br><span class="hljs-comment">// ✅ 推荐：缩小锁范围（只在必要的代码块加锁）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">process</span><span class="hljs-params">(List&lt;String&gt; data)</span> &#123;<br>    <span class="hljs-keyword">if</span> (data == <span class="hljs-literal">null</span> || data.isEmpty()) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    List&lt;String&gt; processed = data.stream().map(s -&gt; s.toUpperCase()).collect(toList());<br>    <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;  <span class="hljs-comment">// 只在写入共享变量时加锁</span><br>        <span class="hljs-built_in">this</span>.result = processed;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>最佳实践 3：避免死锁</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ✅ 推荐：按顺序获取锁</span><br><span class="hljs-comment">// 所有线程都按 lockA → lockB 的顺序获取锁（不会死锁）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">transfer</span><span class="hljs-params">(Account from, Account to, <span class="hljs-type">int</span> amount)</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (from) &#123;       <span class="hljs-comment">// 先获取 from 的锁</span><br>        <span class="hljs-keyword">synchronized</span> (to) &#123;     <span class="hljs-comment">// 再获取 to 的锁</span><br>            from.debit(amount);<br>            to.credit(amount);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 反例（找 Bug 练习）：这段代码&quot;看起来&quot;按顺序加锁，其实并没有固定顺序！</span><br><span class="hljs-comment">// 请思考：两个线程同时执行 transfer(A, B, 100) 和 transfer(B, A, 100) 会发生什么？</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">transfer</span><span class="hljs-params">(Account from, Account to, <span class="hljs-type">int</span> amount)</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (from) &#123;       <span class="hljs-comment">// 先获取 from 的锁</span><br>        <span class="hljs-keyword">synchronized</span> (to) &#123;     <span class="hljs-comment">// 再获取 to 的锁</span><br>            from.debit(amount);<br>            to.credit(amount);<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-comment">// 答案：线程1执行 transfer(A, B, ...) 时锁顺序是 A → B</span><br><span class="hljs-comment">//       线程2执行 transfer(B, A, ...) 时锁顺序是 B → A</span><br><span class="hljs-comment">// &quot;from → to&quot; 的顺序完全由调用方传入的参数决定，不是固定顺序！</span><br><span class="hljs-comment">// 线程1持有A等待B、线程2持有B等待A，构成循环等待 —— 这就是经典死锁，</span><br><span class="hljs-comment">// 和本文前面「第 43 题」讲过的死锁示例本质上是同一个 Bug，只是包装成了看似&quot;有顺序&quot;的样子。</span><br></code></pre></td></tr></table></figure>
 
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ✅ 推荐：按与调用参数无关的固定顺序获取锁</span><br><span class="hljs-comment">// 用账户的唯一 ID（而不是参数出现的先后）决定加锁顺序，</span><br><span class="hljs-comment">// 这样无论调用方传 transfer(A, B) 还是 transfer(B, A)，</span><br><span class="hljs-comment">// 对同一对账户，全局的加锁顺序永远一致，不会出现循环等待。</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">transfer</span><span class="hljs-params">(Account a, Account b, <span class="hljs-type">int</span> amount)</span> &#123;<br>    <span class="hljs-type">Account</span> <span class="hljs-variable">first</span>  <span class="hljs-operator">=</span> a.getId() &lt; b.getId() ? a : b;   <span class="hljs-comment">// ID 小的先加锁</span><br>    <span class="hljs-type">Account</span> <span class="hljs-variable">second</span> <span class="hljs-operator">=</span> a.getId() &lt; b.getId() ? b : a;   <span class="hljs-comment">// ID 大的后加锁</span><br>    <span class="hljs-keyword">synchronized</span> (first) &#123;<br>        <span class="hljs-keyword">synchronized</span> (second) &#123;<br>            a.debit(amount);<br>            b.credit(amount);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>为什么 <code>synchronized(from) { synchronized(to) {...} }</code> 不算”固定顺序”？</strong> “固定顺序”指的是：对同一把锁的集合，任意线程、任意调用都必须按照同一套全局规则来决定先后。<code>from</code>、<code>to</code> 只是方法参数的名字，它们指向哪个具体对象完全由调用方决定——<code>transfer(A, B, 100)</code> 和 <code>transfer(B, A, 100)</code> 对同一对账户会得到相反的加锁顺序，这不是”顺序”，只是”参数顺序”的错觉。真正固定的顺序必须依赖于锁对象本身某个不随调用变化的属性（如账户 ID、<code>System.identityHashCode()</code>，或者更彻底地引入一把额外的全局锁），才能保证任意两个账户之间的加锁顺序在所有线程里都一致。</p>
+</blockquote>
 <p><strong>最佳实践 4：正确关闭线程池</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ✅ 推荐：shutdown() + awaitTermination()</span><br><span class="hljs-type">ExecutorService</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">10</span>);<br><br><span class="hljs-comment">// 1. shutdown()：不再接受新任务，但已提交的任务会继续执行</span><br>executor.shutdown();<br><br><span class="hljs-comment">// 2. awaitTermination()：等待所有任务完成（最多等 60 秒）</span><br><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-keyword">if</span> (!executor.awaitTermination(<span class="hljs-number">60</span>, TimeUnit.SECONDS)) &#123;<br>        <span class="hljs-comment">// 3. 如果超时还没结束，强制关闭（shutdownNow()）</span><br>        executor.shutdownNow();<br>    &#125;<br>&#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>    executor.shutdownNow();<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -2005,9 +2098,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-jvm-interview-deep/" title="JVM 面试八股文30条（深度详解版）">
+                      <a href="/2026/06/07/2026-06-07-knowflow-interview-qa/" title="KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">JVM 面试八股文30条（深度详解版）</span>
+                        <span class="hidden-mobile">KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -2015,8 +2108,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-mysql-50-interview/" title="MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）">
-                        <span class="hidden-mobile">MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                      <a href="/2026/06/07/2026-06-07-jvm-interview-deep/" title="JVM 面试八股文30条（深度详解版）">
+                        <span class="hidden-mobile">JVM 面试八股文30条（深度详解版）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -2080,6 +2173,21 @@
 
 
 
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 
