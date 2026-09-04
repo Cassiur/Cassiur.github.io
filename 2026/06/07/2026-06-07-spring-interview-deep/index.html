@@ -21,13 +21,13 @@
   
     <meta name="description" content="Spring 面试八股文 50 道｜深度详解版 写给准备面试的你：这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。配有大量比喻和场景化解释，目标是让没有 Spring 基础的人也能看懂。建议配合实际代码练习，理解效果翻倍。   📖 学习指南 🎯 学习目标：真正理解 Spring 的核心原理，而不仅仅是背答案 📖 适用人群：Java 初学者、准备面试的同学、想深">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）">
+<meta property="og:title" content="Spring 面试八股文 65 道｜深度详解版（傻子都能看懂）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-spring-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
 <meta property="og:description" content="Spring 面试八股文 50 道｜深度详解版 写给准备面试的你：这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。配有大量比喻和场景化解释，目标是让没有 Spring 基础的人也能看懂。建议配合实际代码练习，理解效果翻倍。   📖 学习指南 🎯 学习目标：真正理解 Spring 的核心原理，而不仅仅是背答案 📖 适用人群：Java 初学者、准备面试的同学、想深">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-03T16:48:08.359Z">
+<meta property="article:modified_time" content="2026-09-04T16:56:07.826Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="Spring">
@@ -38,7 +38,7 @@
   
   
   
-  <title>Spring 面试八股文 50 道｜深度详解版（傻子都能看懂） - WhyAlwaysMe 的树洞</title>
+  <title>Spring 面试八股文 65 道｜深度详解版（傻子都能看懂） - WhyAlwaysMe 的树洞</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -204,7 +204,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）"></span>
+            <span id="subtitle" data-typed-text="Spring 面试八股文 65 道｜深度详解版（傻子都能看懂）"></span>
           
         </div>
 
@@ -275,7 +275,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）</h1>
+            <h1 id="seo-header">Spring 面试八股文 65 道｜深度详解版（傻子都能看懂）</h1>
             
             
               <div class="markdown-body">
@@ -2578,7 +2578,7 @@
 </ol>
 <p>祝你面试顺利！🚀</p>
 </blockquote>
-<h3 id="Q36：Spring-中的-Lazy-注解有什么作用？"><a href="#Q36：Spring-中的-Lazy-注解有什么作用？" class="headerlink" title="Q36：Spring 中的 @Lazy 注解有什么作用？"></a>Q36：Spring 中的 @Lazy 注解有什么作用？</h3><p><strong>一句话总结</strong>：<code>@Lazy</code> 用于延迟初始化 Bean，只有在第一次被使用时才会创建 Bean 实例，解决循环依赖和启动速度问题。</p>
+<h3 id="Q51：Spring-中的-Lazy-注解有什么作用？"><a href="#Q51：Spring-中的-Lazy-注解有什么作用？" class="headerlink" title="Q51：Spring 中的 @Lazy 注解有什么作用？"></a>Q51：Spring 中的 @Lazy 注解有什么作用？</h3><p><strong>一句话总结</strong>：<code>@Lazy</code> 用于延迟初始化 Bean，只有在第一次被使用时才会创建 Bean 实例，解决循环依赖和启动速度问题。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Spring 容器启动时，默认会<strong>立即初始化所有单例 Bean</strong>。但有时我们希望：</p>
 <ul>
@@ -2602,7 +2602,7 @@
 <li>可以讲讲实际应用场景（比如 Spring Boot 的自动配置类很多都用了 <code>@Lazy</code>）</li>
 </ul>
 <hr>
-<h3 id="Q37：Spring-中的-DependsOn-注解有什么作用？"><a href="#Q37：Spring-中的-DependsOn-注解有什么作用？" class="headerlink" title="Q37：Spring 中的 @DependsOn 注解有什么作用？"></a>Q37：Spring 中的 @DependsOn 注解有什么作用？</h3><p><strong>一句话总结</strong>：<code>@DependsOn</code> 用于指定 Bean 的初始化顺序，确保依赖的 Bean 先被初始化。</p>
+<h3 id="Q52：Spring-中的-DependsOn-注解有什么作用？"><a href="#Q52：Spring-中的-DependsOn-注解有什么作用？" class="headerlink" title="Q52：Spring 中的 @DependsOn 注解有什么作用？"></a>Q52：Spring 中的 @DependsOn 注解有什么作用？</h3><p><strong>一句话总结</strong>：<code>@DependsOn</code> 用于指定 Bean 的初始化顺序，确保依赖的 Bean 先被初始化。</p>
 <p><strong>深度解析</strong>：</p>
 <p>默认情况下，Spring 按照<strong>类路径扫描顺序</strong>或**@Bean 方法的声明顺序<strong>来初始化 Bean。但有时我们需要</strong>显式指定初始化顺序**。</p>
 <p><strong>使用场景</strong>：</p>
@@ -2619,7 +2619,7 @@
 <li>可以讲讲实际应用场景（比如数据库迁移脚本需要在 Service 之前执行）</li>
 </ul>
 <hr>
-<h3 id="Q38：Spring-中的-Primary-和-Qualifier-有什么区别？"><a href="#Q38：Spring-中的-Primary-和-Qualifier-有什么区别？" class="headerlink" title="Q38：Spring 中的 @Primary 和 @Qualifier 有什么区别？"></a>Q38：Spring 中的 @Primary 和 @Qualifier 有什么区别？</h3><p><strong>一句话总结</strong>：<code>@Primary</code> 用于指定<strong>首选 Bean</strong>，<code>@Qualifier</code> 用于<strong>精确指定</strong>要注入的 Bean。</p>
+<h3 id="Q53：Spring-中的-Primary-和-Qualifier-有什么区别？"><a href="#Q53：Spring-中的-Primary-和-Qualifier-有什么区别？" class="headerlink" title="Q53：Spring 中的 @Primary 和 @Qualifier 有什么区别？"></a>Q53：Spring 中的 @Primary 和 @Qualifier 有什么区别？</h3><p><strong>一句话总结</strong>：<code>@Primary</code> 用于指定<strong>首选 Bean</strong>，<code>@Qualifier</code> 用于<strong>精确指定</strong>要注入的 Bean。</p>
 <p><strong>深度解析</strong>：</p>
 <p>当容器中有<strong>多个同类型的 Bean</strong> 时，Spring 会抛出 <code>NoUniqueBeanDefinitionException</code>。解决方案有：</p>
 <ol>
@@ -2640,7 +2640,7 @@
 <li>可以讲讲实际应用场景（比如多数据源配置，主库用 <code>@Primary</code>，从库用 <code>@Qualifier</code>）</li>
 </ul>
 <hr>
-<h3 id="Q39：Spring-Boot-中的-Conditional-条件注解有哪些？"><a href="#Q39：Spring-Boot-中的-Conditional-条件注解有哪些？" class="headerlink" title="Q39：Spring Boot 中的 @Conditional 条件注解有哪些？"></a>Q39：Spring Boot 中的 @Conditional 条件注解有哪些？</h3><p><strong>一句话总结</strong>：<code>@Conditional</code> 系列注解用于<strong>根据条件决定是否创建 Bean</strong>，是 Spring Boot 自动配置的核心。</p>
+<h3 id="Q54：Spring-Boot-中的-Conditional-条件注解有哪些？"><a href="#Q54：Spring-Boot-中的-Conditional-条件注解有哪些？" class="headerlink" title="Q54：Spring Boot 中的 @Conditional 条件注解有哪些？"></a>Q54：Spring Boot 中的 @Conditional 条件注解有哪些？</h3><p><strong>一句话总结</strong>：<code>@Conditional</code> 系列注解用于<strong>根据条件决定是否创建 Bean</strong>，是 Spring Boot 自动配置的核心。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Spring Boot 提供了很多 <code>@Conditional</code> 派生注解：</p>
 <table>
@@ -2697,7 +2697,7 @@
 <li>可以讲讲实际应用场景（比如根据配置文件切换不同的实现类）</li>
 </ul>
 <hr>
-<h3 id="Q40：Spring-中的-BeanPostProcessor-和-BeanFactoryPostProcessor-有什么区别？"><a href="#Q40：Spring-中的-BeanPostProcessor-和-BeanFactoryPostProcessor-有什么区别？" class="headerlink" title="Q40：Spring 中的 BeanPostProcessor 和 BeanFactoryPostProcessor 有什么区别？"></a>Q40：Spring 中的 BeanPostProcessor 和 BeanFactoryPostProcessor 有什么区别？</h3><p><strong>一句话总结</strong>：<code>BeanPostProcessor</code> 在 <strong>Bean 初始化前后</strong>执行，<code>BeanFactoryPostProcessor</code> 在 <strong>Bean 定义加载完成后、Bean 实例化前</strong>执行。</p>
+<h3 id="Q55：Spring-中的-BeanPostProcessor-和-BeanFactoryPostProcessor-有什么区别？"><a href="#Q55：Spring-中的-BeanPostProcessor-和-BeanFactoryPostProcessor-有什么区别？" class="headerlink" title="Q55：Spring 中的 BeanPostProcessor 和 BeanFactoryPostProcessor 有什么区别？"></a>Q55：Spring 中的 BeanPostProcessor 和 BeanFactoryPostProcessor 有什么区别？</h3><p><strong>一句话总结</strong>：<code>BeanPostProcessor</code> 在 <strong>Bean 初始化前后</strong>执行，<code>BeanFactoryPostProcessor</code> 在 <strong>Bean 定义加载完成后、Bean 实例化前</strong>执行。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Spring 容器启动流程：</p>
 <ol>
@@ -2722,7 +2722,7 @@
 <li>可以画一下 Spring 容器启动流程图</li>
 </ul>
 <hr>
-<h3 id="Q41：Spring-AOP-中的通知（Advice）有哪些类型？"><a href="#Q41：Spring-AOP-中的通知（Advice）有哪些类型？" class="headerlink" title="Q41：Spring AOP 中的通知（Advice）有哪些类型？"></a>Q41：Spring AOP 中的通知（Advice）有哪些类型？</h3><p><strong>一句话总结</strong>：Spring AOP 支持 5 种通知类型：<code>@Before</code>、<code>@AfterReturning</code>、<code>@AfterThrowing</code>、<code>@After</code>、<code>@Around</code>。</p>
+<h3 id="Q56：Spring-AOP-中的通知（Advice）有哪些类型？"><a href="#Q56：Spring-AOP-中的通知（Advice）有哪些类型？" class="headerlink" title="Q56：Spring AOP 中的通知（Advice）有哪些类型？"></a>Q56：Spring AOP 中的通知（Advice）有哪些类型？</h3><p><strong>一句话总结</strong>：Spring AOP 支持 5 种通知类型：<code>@Before</code>、<code>@AfterReturning</code>、<code>@AfterThrowing</code>、<code>@After</code>、<code>@Around</code>。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -2768,7 +2768,7 @@
 <li>可以讲讲实际应用场景（日志、事务、权限校验、接口耗时统计）</li>
 </ul>
 <hr>
-<h3 id="Q42：Spring-中的事务传播行为有哪些？"><a href="#Q42：Spring-中的事务传播行为有哪些？" class="headerlink" title="Q42：Spring 中的事务传播行为有哪些？"></a>Q42：Spring 中的事务传播行为有哪些？</h3><p><strong>一句话总结</strong>：Spring 定义了 7 种事务传播行为，决定了<strong>事务方法嵌套调用时</strong>事务如何传播。</p>
+<h3 id="Q57：Spring-中的事务传播行为有哪些？"><a href="#Q57：Spring-中的事务传播行为有哪些？" class="headerlink" title="Q57：Spring 中的事务传播行为有哪些？"></a>Q57：Spring 中的事务传播行为有哪些？</h3><p><strong>一句话总结</strong>：Spring 定义了 7 种事务传播行为，决定了<strong>事务方法嵌套调用时</strong>事务如何传播。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -2816,7 +2816,7 @@
 <li>可以讲讲事务传播行为的实现原理（Spring 通过 <code>TransactionInterceptor</code> 拦截方法调用，根据传播行为决定是否创建新事务）</li>
 </ul>
 <hr>
-<h3 id="Q43：Spring-中的-Transactional-注解有哪些注意事项？"><a href="#Q43：Spring-中的-Transactional-注解有哪些注意事项？" class="headerlink" title="Q43：Spring 中的 @Transactional 注解有哪些注意事项？"></a>Q43：Spring 中的 @Transactional 注解有哪些注意事项？</h3><p><strong>一句话总结</strong>：<code>@Transactional</code> 注解有很多<strong>坑</strong>，比如<strong>非public方法不生效</strong>、<strong>自调用不生效</strong>、<strong>异常类型不对不回滚</strong>等。</p>
+<h3 id="Q58：Spring-中的-Transactional-注解有哪些注意事项？"><a href="#Q58：Spring-中的-Transactional-注解有哪些注意事项？" class="headerlink" title="Q58：Spring 中的 @Transactional 注解有哪些注意事项？"></a>Q58：Spring 中的 @Transactional 注解有哪些注意事项？</h3><p><strong>一句话总结</strong>：<code>@Transactional</code> 注解有很多<strong>坑</strong>，比如<strong>非public方法不生效</strong>、<strong>自调用不生效</strong>、<strong>异常类型不对不回滚</strong>等。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>常见坑</strong>：</p>
 <ol>
@@ -2844,7 +2844,7 @@
 <li>可以讲讲实际遇到的坑（比如联调时发现事务没回滚，查了半天才发现是 catch 了异常）</li>
 </ul>
 <hr>
-<h3 id="Q44：Spring-Boot-中的-Actuator-端点有哪些？如何自定义？"><a href="#Q44：Spring-Boot-中的-Actuator-端点有哪些？如何自定义？" class="headerlink" title="Q44：Spring Boot 中的 Actuator 端点有哪些？如何自定义？"></a>Q44：Spring Boot 中的 Actuator 端点有哪些？如何自定义？</h3><p><strong>一句话总结</strong>：Actuator 提供了很多<strong>生产级监控端点</strong>（比如 <code>/health</code>、<code>/metrics</code>、<code>/env</code>），可以自定义端点来暴露业务指标。</p>
+<h3 id="Q59：Spring-Boot-中的-Actuator-端点有哪些？如何自定义？"><a href="#Q59：Spring-Boot-中的-Actuator-端点有哪些？如何自定义？" class="headerlink" title="Q59：Spring Boot 中的 Actuator 端点有哪些？如何自定义？"></a>Q59：Spring Boot 中的 Actuator 端点有哪些？如何自定义？</h3><p><strong>一句话总结</strong>：Actuator 提供了很多<strong>生产级监控端点</strong>（比如 <code>/health</code>、<code>/metrics</code>、<code>/env</code>），可以自定义端点来暴露业务指标。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>常用端点</strong>：</p>
 <table>
@@ -2893,7 +2893,7 @@
 <li>可以讲讲实际应用场景（比如监控业务指标：订单量、支付成功率等）</li>
 </ul>
 <hr>
-<h3 id="Q45：Spring-Security-中的-CSRF-防护原理是什么？"><a href="#Q45：Spring-Security-中的-CSRF-防护原理是什么？" class="headerlink" title="Q45：Spring Security 中的 CSRF 防护原理是什么？"></a>Q45：Spring Security 中的 CSRF 防护原理是什么？</h3><p><strong>一句话总结</strong>：CSRF（跨站请求伪造）防护通过在<strong>表单中嵌入随机 Token</strong> 来验证请求是否来自合法页面。</p>
+<h3 id="Q60：Spring-Security-中的-CSRF-防护原理是什么？"><a href="#Q60：Spring-Security-中的-CSRF-防护原理是什么？" class="headerlink" title="Q60：Spring Security 中的 CSRF 防护原理是什么？"></a>Q60：Spring Security 中的 CSRF 防护原理是什么？</h3><p><strong>一句话总结</strong>：CSRF（跨站请求伪造）防护通过在<strong>表单中嵌入随机 Token</strong> 来验证请求是否来自合法页面。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>CSRF 攻击流程</strong>：</p>
 <ol>
@@ -2919,7 +2919,7 @@
 <li>可以讲讲实际应用场景（比如银行系统、支付系统必须开启 CSRF 防护）</li>
 </ul>
 <hr>
-<h3 id="Q46：Spring-Cloud-Gateway-的过滤器有哪些类型？"><a href="#Q46：Spring-Cloud-Gateway-的过滤器有哪些类型？" class="headerlink" title="Q46：Spring Cloud Gateway 的过滤器有哪些类型？"></a>Q46：Spring Cloud Gateway 的过滤器有哪些类型？</h3><p><strong>一句话总结</strong>：Spring Cloud Gateway 提供了<strong>全局过滤器</strong>和<strong>路由过滤器</strong>，可以在请求转发前后执行逻辑（比如鉴权、限流、日志）。</p>
+<h3 id="Q61：Spring-Cloud-Gateway-的过滤器有哪些类型？"><a href="#Q61：Spring-Cloud-Gateway-的过滤器有哪些类型？" class="headerlink" title="Q61：Spring Cloud Gateway 的过滤器有哪些类型？"></a>Q61：Spring Cloud Gateway 的过滤器有哪些类型？</h3><p><strong>一句话总结</strong>：Spring Cloud Gateway 提供了<strong>全局过滤器</strong>和<strong>路由过滤器</strong>，可以在请求转发前后执行逻辑（比如鉴权、限流、日志）。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>过滤器类型</strong>：</p>
 <ol>
@@ -2944,7 +2944,7 @@
 <li>可以讲讲实际应用场景（比如统一鉴权、统一日志记录、灰度发布）</li>
 </ul>
 <hr>
-<h3 id="Q47：Spring-Cloud-中的服务发现原理是什么？"><a href="#Q47：Spring-Cloud-中的服务发现原理是什么？" class="headerlink" title="Q47：Spring Cloud 中的服务发现原理是什么？"></a>Q47：Spring Cloud 中的服务发现原理是什么？</h3><p><strong>一句话总结</strong>：服务发现通过<strong>服务注册表</strong>来管理服务实例的地址，客户端通过<strong>服务名</strong>而不是<strong>IP地址</strong>来调用服务。</p>
+<h3 id="Q62：Spring-Cloud-中的服务发现原理是什么？"><a href="#Q62：Spring-Cloud-中的服务发现原理是什么？" class="headerlink" title="Q62：Spring Cloud 中的服务发现原理是什么？"></a>Q62：Spring Cloud 中的服务发现原理是什么？</h3><p><strong>一句话总结</strong>：服务发现通过<strong>服务注册表</strong>来管理服务实例的地址，客户端通过<strong>服务名</strong>而不是<strong>IP地址</strong>来调用服务。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>服务发现流程</strong>：</p>
 <ol>
@@ -2998,7 +2998,7 @@
 <li>可以讲讲实际选型建议（内网用 Nacos，跨机房用 Consul）</li>
 </ul>
 <hr>
-<h3 id="Q48：Spring-Cloud-中的负载均衡原理是什么？"><a href="#Q48：Spring-Cloud-中的负载均衡原理是什么？" class="headerlink" title="Q48：Spring Cloud 中的负载均衡原理是什么？"></a>Q48：Spring Cloud 中的负载均衡原理是什么？</h3><p><strong>一句话总结</strong>：负载均衡通过<strong>负载均衡算法</strong>从服务实例列表中选择一个实例，常见的有轮询、随机、加权轮询等。</p>
+<h3 id="Q63：Spring-Cloud-中的负载均衡原理是什么？"><a href="#Q63：Spring-Cloud-中的负载均衡原理是什么？" class="headerlink" title="Q63：Spring Cloud 中的负载均衡原理是什么？"></a>Q63：Spring Cloud 中的负载均衡原理是什么？</h3><p><strong>一句话总结</strong>：负载均衡通过<strong>负载均衡算法</strong>从服务实例列表中选择一个实例，常见的有轮询、随机、加权轮询等。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>负载均衡类型</strong>：</p>
 <ol>
@@ -3032,7 +3032,7 @@
 <li>可以讲讲实际应用场景（比如灰度发布，根据版本号路由）</li>
 </ul>
 <hr>
-<h3 id="Q49：Spring-Cloud-中的熔断原理是什么？"><a href="#Q49：Spring-Cloud-中的熔断原理是什么？" class="headerlink" title="Q49：Spring Cloud 中的熔断原理是什么？"></a>Q49：Spring Cloud 中的熔断原理是什么？</h3><p><strong>一句话总结</strong>：熔断通过<strong>监控服务调用失败率</strong>，当失败率达到阈值时<strong>自动切断调用</strong>，避免雪崩效应。</p>
+<h3 id="Q64：Spring-Cloud-中的熔断原理是什么？"><a href="#Q64：Spring-Cloud-中的熔断原理是什么？" class="headerlink" title="Q64：Spring Cloud 中的熔断原理是什么？"></a>Q64：Spring Cloud 中的熔断原理是什么？</h3><p><strong>一句话总结</strong>：熔断通过<strong>监控服务调用失败率</strong>，当失败率达到阈值时<strong>自动切断调用</strong>，避免雪崩效应。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>熔断器状态</strong>：</p>
 <ol>
@@ -3053,7 +3053,7 @@
 <li>可以讲讲实际应用场景（比如调用第三方接口时，一定要加熔断）</li>
 </ul>
 <hr>
-<h3 id="Q50：Spring-Cloud-中的配置中心原理是什么？"><a href="#Q50：Spring-Cloud-中的配置中心原理是什么？" class="headerlink" title="Q50：Spring Cloud 中的配置中心原理是什么？"></a>Q50：Spring Cloud 中的配置中心原理是什么？</h3><p><strong>一句话总结</strong>：配置中心将<strong>配置文件集中管理</strong>，支持<strong>动态刷新</strong>，避免修改配置后重启服务。</p>
+<h3 id="Q65：Spring-Cloud-中的配置中心原理是什么？"><a href="#Q65：Spring-Cloud-中的配置中心原理是什么？" class="headerlink" title="Q65：Spring Cloud 中的配置中心原理是什么？"></a>Q65：Spring Cloud 中的配置中心原理是什么？</h3><p><strong>一句话总结</strong>：配置中心将<strong>配置文件集中管理</strong>，支持<strong>动态刷新</strong>，避免修改配置后重启服务。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>配置中心流程</strong>：</p>
 <ol>
@@ -3179,7 +3179,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）</div>
+      <div>Spring 面试八股文 65 道｜深度详解版（傻子都能看懂）</div>
       <div>https://whyalwaysme.lol/2026/06/07/2026-06-07-spring-interview-deep/</div>
     </div>
     <div class="license-meta">
