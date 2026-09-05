@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解混合检索的实现细节（向量检索 + 文本匹配、KNN 召回、BM25 Rescore、权限过滤）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是混合检索？傻子都能懂的解释： 想象你要在知识库里搜索”如何学习 Java”：  传统搜索（只用文本匹配）：搜索”如何">
+    <meta name="description" content="📚 KnowFlow · 混合检索：① 核心原理 · ② 源码精讲 · ③ 实战问答   写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解混合检索的实现细节（向量检索 + 文本匹配、KNN 召回、BM25 Rescore、权限过滤）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是混合检索？傻子都能懂的解">
 <meta property="og:type" content="article">
 <meta property="og:title" content="KnowFlow 项目学习笔记（二）：混合检索深度解析">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-hybrid-search-learn/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解混合检索的实现细节（向量检索 + 文本匹配、KNN 召回、BM25 Rescore、权限过滤）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是混合检索？傻子都能懂的解释： 想象你要在知识库里搜索”如何学习 Java”：  传统搜索（只用文本匹配）：搜索”如何">
+<meta property="og:description" content="📚 KnowFlow · 混合检索：① 核心原理 · ② 源码精讲 · ③ 实战问答   写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解混合检索的实现细节（向量检索 + 文本匹配、KNN 召回、BM25 Rescore、权限过滤）。并指出源码里的 3 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是混合检索？傻子都能懂的解">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T14:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T13:41:29.868Z">
+<meta property="article:modified_time" content="2026-09-04T17:21:42.829Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="BM25">
 <meta property="article:tag" content="Elasticsearch">
@@ -229,7 +229,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.2k 字
+          3.3k 字
         
       </span>
     
@@ -240,7 +240,7 @@
         
         
         
-          27 分钟
+          28 分钟
         
       </span>
     
@@ -283,6 +283,9 @@
               <div class="markdown-body">
                 
                 <blockquote>
+<p>📚 <strong>KnowFlow · 混合检索</strong>：<a href="/2026/06/07/knowflow-hybrid-search/">① 核心原理</a> · <strong>② 源码精讲</strong> · <a href="/2026/06/08/knowflow-search-qa/">③ 实战问答</a></p>
+</blockquote>
+<blockquote>
 <p><strong>写在前面</strong>：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解混合检索的实现细节（向量检索 + 文本匹配、KNN 召回、BM25 Rescore、权限过滤）。并指出源码里的 <strong>3 处严重问题</strong>（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。</p>
 </blockquote>
 <hr>
@@ -947,6 +950,10 @@
   <script  src="/js/local-search.js" ></script>
 
 
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
 
 
 

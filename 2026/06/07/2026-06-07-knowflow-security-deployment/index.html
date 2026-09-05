@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署 项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试   一、为什么需要”双令牌”机制？（面试必问）1.1 单 Token 方案的痛点1234567用户登录 → 拿到一个 JWT Token（有效期 1 小时）↓用户正在用系统干活... 第">
+    <meta name="description" content="📚 KnowFlow · 安全 &amp; 部署：① 核心原理 · ② 源码精讲 · ③ 实战问答  KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署 项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试   一、为什么需要”双令牌”机制？（面试必问）1.1 单 Token 方案的痛点">
 <meta property="og:type" content="article">
 <meta property="og:title" content="KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署（面试深挖）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-knowflow-security-deployment/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署 项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试   一、为什么需要”双令牌”机制？（面试必问）1.1 单 Token 方案的痛点1234567用户登录 → 拿到一个 JWT Token（有效期 1 小时）↓用户正在用系统干活... 第">
+<meta property="og:description" content="📚 KnowFlow · 安全 &amp; 部署：① 核心原理 · ② 源码精讲 · ③ 实战问答  KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署 项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试   一、为什么需要”双令牌”机制？（面试必问）1.1 单 Token 方案的痛点">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T14:30:00.000Z">
-<meta property="article:modified_time" content="2026-06-07T13:08:26.123Z">
+<meta property="article:modified_time" content="2026-09-04T17:21:40.874Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="JWT">
 <meta property="article:tag" content="K8s">
@@ -283,7 +283,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="KnowFlow-④：JWT-双令牌-RBAC-多租户-K8s-云原生化部署"><a href="#KnowFlow-④：JWT-双令牌-RBAC-多租户-K8s-云原生化部署" class="headerlink" title="KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署"></a>KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署</h1><blockquote>
+                <blockquote>
+<p>📚 <strong>KnowFlow · 安全 &amp; 部署</strong>：<strong>① 核心原理</strong> · <a href="/2026/06/08/knowflow-security-deployment-learn/">② 源码精讲</a> · <a href="/2026/06/08/knowflow-security-qa/">③ 实战问答</a></p>
+</blockquote>
+<h1 id="KnowFlow-④：JWT-双令牌-RBAC-多租户-K8s-云原生化部署"><a href="#KnowFlow-④：JWT-双令牌-RBAC-多租户-K8s-云原生化部署" class="headerlink" title="KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署"></a>KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署</h1><blockquote>
 <p>项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试</p>
 </blockquote>
 <hr>
@@ -452,19 +455,19 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
         <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
       
-        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
-      
         <a href="/tags/JWT/" class="print-no-link">#JWT</a>
+      
+        <a href="/tags/SpringSecurity/" class="print-no-link">#SpringSecurity</a>
       
         <a href="/tags/RBAC/" class="print-no-link">#RBAC</a>
       
         <a href="/tags/K8s/" class="print-no-link">#K8s</a>
-      
-        <a href="/tags/SpringSecurity/" class="print-no-link">#SpringSecurity</a>
       
         <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="print-no-link">#云原生</a>
       
@@ -851,6 +854,10 @@
   <script  src="/js/local-search.js" ></script>
 
 
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
 
 
 

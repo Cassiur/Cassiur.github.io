@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="写在前面：本学习笔记基于技术派（PaiCoding）项目源码逐行解析，深度讲解三种缓存策略（Write Through、Write Back、Cache Aside）的实现细节、优缺点、适用场景。并指出源码里的 5 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、项目背景：高并发互动场景的缓存设计技术派项目面临的高并发互动场景：  阅读量计数：用户每浏览">
+    <meta name="description" content="📚 DevLink · 缓存策略：① 原理精讲 · ② 实战问答 · ③ 精华总结   写在前面：本学习笔记基于技术派（PaiCoding）项目源码逐行解析，深度讲解三种缓存策略（Write Through、Write Back、Cache Aside）的实现细节、优缺点、适用场景。并指出源码里的 5 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、项">
 <meta property="og:type" content="article">
 <meta property="og:title" content="技术派项目学习笔记（一）：三种缓存策略深度解析">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-cache-strategies-learn/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="写在前面：本学习笔记基于技术派（PaiCoding）项目源码逐行解析，深度讲解三种缓存策略（Write Through、Write Back、Cache Aside）的实现细节、优缺点、适用场景。并指出源码里的 5 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、项目背景：高并发互动场景的缓存设计技术派项目面临的高并发互动场景：  阅读量计数：用户每浏览">
+<meta property="og:description" content="📚 DevLink · 缓存策略：① 原理精讲 · ② 实战问答 · ③ 精华总结   写在前面：本学习笔记基于技术派（PaiCoding）项目源码逐行解析，深度讲解三种缓存策略（Write Through、Write Back、Cache Aside）的实现细节、优缺点、适用场景。并指出源码里的 5 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、项">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T13:30:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T13:36:00.538Z">
+<meta property="article:modified_time" content="2026-09-04T17:20:24.833Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Cache Aside">
 <meta property="article:tag" content="Redis Pipeline">
@@ -283,6 +283,9 @@
               <div class="markdown-body">
                 
                 <blockquote>
+<p>📚 <strong>DevLink · 缓存策略</strong>：<strong>① 原理精讲</strong> · <a href="/2026/06/08/devlink-cache-pipeline-qa/">② 实战问答</a> · <a href="/2026/06/09/devlink-cache-pipeline-ultimate/">③ 精华总结</a></p>
+</blockquote>
+<blockquote>
 <p><strong>写在前面</strong>：本学习笔记基于技术派（PaiCoding）项目源码逐行解析，深度讲解三种缓存策略（Write Through、Write Back、Cache Aside）的实现细节、优缺点、适用场景。并指出源码里的 <strong>5 处严重问题</strong>（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。</p>
 </blockquote>
 <hr>
@@ -1160,6 +1163,10 @@
   <script  src="/js/local-search.js" ></script>
 
 
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
 
 
 

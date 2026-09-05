@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="技术派缓存 + Pipeline 面试题深度解析（22 问·附源码） 简历原文：针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓存拦截热点聚合数据（侧边栏、热文榜），利用 Redis Hash + hIncr 原子操作聚合用户&#x2F;文章的点赞数、评论数、阅读数等高频写计数，并通过 Pipeline 批量提交减少 RTT，有效降低直接落库压力 下面每道题都贴出项目源码，">
+    <meta name="description" content="📚 DevLink · 缓存策略：① 原理精讲 · ② 实战问答 · ③ 精华总结  技术派缓存 + Pipeline 面试题深度解析（22 问·附源码） 简历原文：针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓存拦截热点聚合数据（侧边栏、热文榜），利用 Redis Hash + hIncr 原子操作聚合用户&#x2F;文章的点赞数、评论数、阅读数等高频写计数，并通过">
 <meta property="og:type" content="article">
 <meta property="og:title" content="技术派缓存+Pipeline面试题深度解析（22问·附源码）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-cache-pipeline-qa/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="技术派缓存 + Pipeline 面试题深度解析（22 问·附源码） 简历原文：针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓存拦截热点聚合数据（侧边栏、热文榜），利用 Redis Hash + hIncr 原子操作聚合用户&#x2F;文章的点赞数、评论数、阅读数等高频写计数，并通过 Pipeline 批量提交减少 RTT，有效降低直接落库压力 下面每道题都贴出项目源码，">
+<meta property="og:description" content="📚 DevLink · 缓存策略：① 原理精讲 · ② 实战问答 · ③ 精华总结  技术派缓存 + Pipeline 面试题深度解析（22 问·附源码） 简历原文：针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓存拦截热点聚合数据（侧边栏、热文榜），利用 Redis Hash + hIncr 原子操作聚合用户&#x2F;文章的点赞数、评论数、阅读数等高频写计数，并通过">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T10:56:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T10:58:35.909Z">
+<meta property="article:modified_time" content="2026-09-04T17:20:23.680Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Caffeine">
 <meta property="article:tag" content="Pipeline">
@@ -282,7 +282,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="技术派缓存-Pipeline-面试题深度解析（22-问·附源码）"><a href="#技术派缓存-Pipeline-面试题深度解析（22-问·附源码）" class="headerlink" title="技术派缓存 + Pipeline 面试题深度解析（22 问·附源码）"></a>技术派缓存 + Pipeline 面试题深度解析（22 问·附源码）</h1><blockquote>
+                <blockquote>
+<p>📚 <strong>DevLink · 缓存策略</strong>：<a href="/2026/06/08/devlink-cache-strategies-learn/">① 原理精讲</a> · <strong>② 实战问答</strong> · <a href="/2026/06/09/devlink-cache-pipeline-ultimate/">③ 精华总结</a></p>
+</blockquote>
+<h1 id="技术派缓存-Pipeline-面试题深度解析（22-问·附源码）"><a href="#技术派缓存-Pipeline-面试题深度解析（22-问·附源码）" class="headerlink" title="技术派缓存 + Pipeline 面试题深度解析（22 问·附源码）"></a>技术派缓存 + Pipeline 面试题深度解析（22 问·附源码）</h1><blockquote>
 <p>简历原文：<em>针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓存拦截热点聚合数据（侧边栏、热文榜），利用 Redis Hash + hIncr 原子操作聚合用户&#x2F;文章的点赞数、评论数、阅读数等高频写计数，并通过 Pipeline 批量提交减少 RTT，有效降低直接落库压力</em></p>
 <p>下面每道题都<strong>贴出项目源码</strong>，确保你答出来的东西是”真的做过”，而不是背八股。</p>
 </blockquote>
@@ -803,9 +806,9 @@
       
         <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/" class="print-no-link">#技术派</a>
       
-        <a href="/tags/Caffeine/" class="print-no-link">#Caffeine</a>
-      
         <a href="/tags/Pipeline/" class="print-no-link">#Pipeline</a>
+      
+        <a href="/tags/Caffeine/" class="print-no-link">#Caffeine</a>
       
     </div>
   
@@ -1190,6 +1193,10 @@
   <script  src="/js/local-search.js" ></script>
 
 
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
 
 
 

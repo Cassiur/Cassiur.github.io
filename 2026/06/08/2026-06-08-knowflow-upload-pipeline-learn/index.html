@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解文件上传流水线的实现细节（分片上传、断点续传、MinIO 存储、Redis Bitmap 去重）。并指出源码里的 4 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是上传流水线？傻子都能懂的解释： 想象你要上传一个 100MB 的文件到服务器：  传统方式：直接上传整个文件，如果">
+    <meta name="description" content="📚 KnowFlow · 分片上传流水线：① 核心原理 · ② 源码精讲 · ③ 实战问答   写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解文件上传流水线的实现细节（分片上传、断点续传、MinIO 存储、Redis Bitmap 去重）。并指出源码里的 4 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是上传流水线？傻子">
 <meta property="og:type" content="article">
 <meta property="og:title" content="KnowFlow 项目学习笔记（一）：上传流水线深度解析">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-upload-pipeline-learn/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解文件上传流水线的实现细节（分片上传、断点续传、MinIO 存储、Redis Bitmap 去重）。并指出源码里的 4 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是上传流水线？傻子都能懂的解释： 想象你要上传一个 100MB 的文件到服务器：  传统方式：直接上传整个文件，如果">
+<meta property="og:description" content="📚 KnowFlow · 分片上传流水线：① 核心原理 · ② 源码精讲 · ③ 实战问答   写在前面：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解文件上传流水线的实现细节（分片上传、断点续传、MinIO 存储、Redis Bitmap 去重）。并指出源码里的 4 处严重问题（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。   一、什么是上传流水线？傻子">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T13:45:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T13:40:50.268Z">
+<meta property="article:modified_time" content="2026-09-04T17:21:47.672Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="KnowFlow">
 <meta property="article:tag" content="MinIO">
@@ -282,6 +282,9 @@
               <div class="markdown-body">
                 
                 <blockquote>
+<p>📚 <strong>KnowFlow · 分片上传流水线</strong>：<a href="/2026/06/07/knowflow-upload-pipeline/">① 核心原理</a> · <strong>② 源码精讲</strong> · <a href="/2026/06/08/knowflow-upload-qa/">③ 实战问答</a></p>
+</blockquote>
+<blockquote>
 <p><strong>写在前面</strong>：本学习笔记基于 KnowFlow 项目源码逐行解析，深度讲解文件上传流水线的实现细节（分片上传、断点续传、MinIO 存储、Redis Bitmap 去重）。并指出源码里的 <strong>4 处严重问题</strong>（❗❗ 标记），给出修复方案。适合面试前深度学习，确保”傻子都能懂”。</p>
 </blockquote>
 <hr>
@@ -1009,6 +1012,10 @@
   <script  src="/js/local-search.js" ></script>
 
 
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
 
 
 

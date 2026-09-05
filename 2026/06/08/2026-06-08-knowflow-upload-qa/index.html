@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Redis Bitmap 相关（6 道）Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？答： 分片上传需要记录”哪些分片已经上传了”，本质上是一个超大的布尔数组。    方案 存储 10">
+    <meta name="description" content="📚 KnowFlow · 分片上传流水线：① 核心原理 · ② 源码精讲 · ③ 实战问答  KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Redis Bitmap 相关（6 道）Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？">
 <meta property="og:type" content="article">
 <meta property="og:title" content="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-upload-qa/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Redis Bitmap 相关（6 道）Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？答： 分片上传需要记录”哪些分片已经上传了”，本质上是一个超大的布尔数组。    方案 存储 10">
+<meta property="og:description" content="📚 KnowFlow · 分片上传流水线：① 核心原理 · ② 源码精讲 · ③ 实战问答  KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Redis Bitmap 相关（6 道）Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T12:30:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T12:29:58.233Z">
+<meta property="article:modified_time" content="2026-09-04T17:21:48.568Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Kafka">
 <meta property="article:tag" content="KnowFlow">
@@ -284,7 +284,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka"><a href="#KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka" class="headerlink" title="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka"></a>KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka</h1><blockquote>
+                <blockquote>
+<p>📚 <strong>KnowFlow · 分片上传流水线</strong>：<a href="/2026/06/07/knowflow-upload-pipeline/">① 核心原理</a> · <a href="/2026/06/08/knowflow-upload-pipeline-learn/">② 源码精讲</a> · <strong>③ 实战问答</strong></p>
+</blockquote>
+<h1 id="KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka"><a href="#KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka" class="headerlink" title="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka"></a>KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka</h1><blockquote>
 <p>面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。</p>
 </blockquote>
 <hr>
@@ -810,11 +813,11 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
         <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
-      
-        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
       
         <a href="/tags/Redis/" class="print-no-link">#Redis</a>
       
@@ -1211,6 +1214,10 @@
   <script  src="/js/local-search.js" ></script>
 
 
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
 
 
 

@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="KnowFlow ①：Redis Bitmap 分片上传 + MinIO + Kafka 异步流水线 项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试   一、为什么大文件上传不能用普通方式？（面试必问）1.1 普通上传的灾难假设你要在网页上传一个 500MB 的 PDF 技术文档，普通方式直接 multipartFil">
+    <meta name="description" content="📚 KnowFlow · 分片上传流水线：① 核心原理 · ② 源码精讲 · ③ 实战问答  KnowFlow ①：Redis Bitmap 分片上传 + MinIO + Kafka 异步流水线 项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试   一、为什么大文件上传不能用普通方式？（面试必问）1.1 普通上传的灾">
 <meta property="og:type" content="article">
 <meta property="og:title" content="KnowFlow ①：Redis Bitmap 分片状态 + MinIO 异步处理流水线（面试深挖）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-knowflow-upload-pipeline/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="KnowFlow ①：Redis Bitmap 分片上传 + MinIO + Kafka 异步流水线 项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试   一、为什么大文件上传不能用普通方式？（面试必问）1.1 普通上传的灾难假设你要在网页上传一个 500MB 的 PDF 技术文档，普通方式直接 multipartFil">
+<meta property="og:description" content="📚 KnowFlow · 分片上传流水线：① 核心原理 · ② 源码精讲 · ③ 实战问答  KnowFlow ①：Redis Bitmap 分片上传 + MinIO + Kafka 异步流水线 项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试   一、为什么大文件上传不能用普通方式？（面试必问）1.1 普通上传的灾">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T14:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-07T13:05:02.611Z">
+<meta property="article:modified_time" content="2026-09-04T17:21:41.735Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Kafka">
 <meta property="article:tag" content="KnowFlow">
@@ -282,7 +282,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="KnowFlow-①：Redis-Bitmap-分片上传-MinIO-Kafka-异步流水线"><a href="#KnowFlow-①：Redis-Bitmap-分片上传-MinIO-Kafka-异步流水线" class="headerlink" title="KnowFlow ①：Redis Bitmap 分片上传 + MinIO + Kafka 异步流水线"></a>KnowFlow ①：Redis Bitmap 分片上传 + MinIO + Kafka 异步流水线</h1><blockquote>
+                <blockquote>
+<p>📚 <strong>KnowFlow · 分片上传流水线</strong>：<strong>① 核心原理</strong> · <a href="/2026/06/08/knowflow-upload-pipeline-learn/">② 源码精讲</a> · <a href="/2026/06/08/knowflow-upload-qa/">③ 实战问答</a></p>
+</blockquote>
+<h1 id="KnowFlow-①：Redis-Bitmap-分片上传-MinIO-Kafka-异步流水线"><a href="#KnowFlow-①：Redis-Bitmap-分片上传-MinIO-Kafka-异步流水线" class="headerlink" title="KnowFlow ①：Redis Bitmap 分片上传 + MinIO + Kafka 异步流水线"></a>KnowFlow ①：Redis Bitmap 分片上传 + MinIO + Kafka 异步流水线</h1><blockquote>
 <p>项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试</p>
 </blockquote>
 <hr>
@@ -472,11 +475,11 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
         <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
-      
-        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
       
         <a href="/tags/Redis/" class="print-no-link">#Redis</a>
       
@@ -869,6 +872,10 @@
   <script  src="/js/local-search.js" ></script>
 
 
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
 
 
 
