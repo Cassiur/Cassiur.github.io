@@ -1,0 +1,1057 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="全博客内容导航：Java 后端八股文学习路线、技术派 &amp; KnowFlow 项目深度解析、华为 AI 机试备考，一张图找到所有文章。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="博客内容导航｜Java 后端 + AI Agent 学习路线图">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/09/05/%E5%8D%9A%E5%AE%A2%E5%86%85%E5%AE%B9%E5%AF%BC%E8%88%AA/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="全博客内容导航：Java 后端八股文学习路线、技术派 &amp; KnowFlow 项目深度解析、华为 AI 机试备考，一张图找到所有文章。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-05T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-05T08:32:55.668Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="AI应用">
+<meta property="article:tag" content="Java后端">
+<meta property="article:tag" content="学习路线">
+<meta property="article:tag" content="导航">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>博客内容导航｜Java 后端 + AI Agent 学习路线图 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="博客内容导航｜Java 后端 + AI Agent 学习路线图"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-09-05 12:00" pubdate>
+          2026年9月5日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">博客内容导航｜Java 后端 + AI Agent 学习路线图</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p>📌 <strong>使用指南</strong>：本文是全博客的内容入口。左边目录快速跳转分类，或按 <a href="#java-%E5%90%8E%E7%AB%AF%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E6%8E%A8%E8%8D%90%E9%A1%BA%E5%BA%8F">推荐路线</a> 顺序阅读。博客所有文章均已收录。</p>
+</blockquote>
+<hr>
+<h2 id="🎯-Java-后端学习路线（推荐顺序）"><a href="#🎯-Java-后端学习路线（推荐顺序）" class="headerlink" title="🎯 Java 后端学习路线（推荐顺序）"></a>🎯 Java 后端学习路线（推荐顺序）</h2><p>从基础到分布式，按阶段递进。每道关卡配有深度文章，先读八股文打底，再结合项目实战理解。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>主题</th>
+<th>推荐文章</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>基础层</strong></td>
+<td>Java 基础</td>
+<td><a href="/2026/06/15/java-basic-interview-deep/">Java 基础面试八股文（50题）</a></td>
+</tr>
+<tr>
+<td><strong>基础层</strong></td>
+<td>JVM 内存 &amp; GC</td>
+<td><a href="/2026/06/07/jvm-interview-deep/">JVM 面试八股文 30 道</a></td>
+</tr>
+<tr>
+<td><strong>基础层</strong></td>
+<td>并发编程</td>
+<td><a href="/2026/06/07/java-concurrency-interview-deep/">Java 并发面试八股文 30 道</a></td>
+</tr>
+<tr>
+<td><strong>基础层</strong></td>
+<td>计算机网络</td>
+<td><a href="/2026/06/08/computer-networks-interview-deep/">计算机网络面试八股文</a></td>
+</tr>
+<tr>
+<td><strong>基础层</strong></td>
+<td>数据结构 &amp; 算法</td>
+<td><a href="/2026/06/07/algorithm-interview-deep/">算法面试八股文</a></td>
+</tr>
+<tr>
+<td><strong>框架层</strong></td>
+<td>Spring 全家桶</td>
+<td><a href="/2026/06/07/spring-interview-deep/">Spring 面试八股文 30 道</a></td>
+</tr>
+<tr>
+<td><strong>数据层</strong></td>
+<td>MySQL</td>
+<td><a href="/2026/06/07/mysql-50-interview/">MySQL 50 道面试题深度解析</a></td>
+</tr>
+<tr>
+<td><strong>缓存层</strong></td>
+<td>Redis</td>
+<td><a href="/2026/06/07/redis-interview-deep/">Redis 面试八股文 30 道</a></td>
+</tr>
+<tr>
+<td><strong>消息队列</strong></td>
+<td>MQ 综合 + Kafka</td>
+<td><a href="/2026/06/08/mq-interview-deep/">消息队列面试八股文</a> · <a href="/2026/06/09/kafka-interview-deep/">Kafka 专题 30 道</a></td>
+</tr>
+<tr>
+<td><strong>搜索引擎</strong></td>
+<td>Elasticsearch</td>
+<td><a href="/2026/06/09/elasticsearch-interview-deep/">ES 面试八股文 30 道</a></td>
+</tr>
+<tr>
+<td><strong>云原生</strong></td>
+<td>Docker + K8s</td>
+<td><a href="/2026/06/09/docker-interview-deep/">Docker 面试八股文 30 道</a> · <a href="/2026/06/09/kubernetes-interview-deep/">K8s 面试八股文 30 道</a></td>
+</tr>
+<tr>
+<td><strong>系统设计</strong></td>
+<td>架构 &amp; 高并发</td>
+<td><a href="/2026/06/15/system-design-interview-deep/">系统设计面试八股文</a></td>
+</tr>
+<tr>
+<td><strong>AI 方向</strong></td>
+<td>RAG &#x2F; 大模型工程</td>
+<td><a href="/2026/06/09/rag-interview-deep/">RAG 面试八股文 30 道</a></td>
+</tr>
+<tr>
+<td><strong>工程实践</strong></td>
+<td>CI&#x2F;CD &amp; 工程化</td>
+<td><a href="/2026/06/09/harness-interview-deep/">Harness Engineering 面试八股文</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="📚-面试八股文"><a href="#📚-面试八股文" class="headerlink" title="📚 面试八股文"></a>📚 面试八股文</h2><h3 id="Java-核心"><a href="#Java-核心" class="headerlink" title="Java 核心"></a>Java 核心</h3><ul>
+<li><a href="/2026/06/15/java-basic-interview-deep/">Java 基础面试八股文（50题）</a> — 集合、泛型、异常、IO、新特性</li>
+<li><a href="/2026/06/07/jvm-interview-deep/">JVM 面试八股文 30 道｜深度详解版</a> — 内存模型、GC 算法、类加载、调优</li>
+<li><a href="/2026/06/07/java-concurrency-interview-deep/">Java 并发面试八股文 30 道｜深度详解版</a> — AQS、ThreadPoolExecutor、volatile、CAS</li>
+</ul>
+<h3 id="框架-中间件"><a href="#框架-中间件" class="headerlink" title="框架 &amp; 中间件"></a>框架 &amp; 中间件</h3><ul>
+<li><a href="/2026/06/07/spring-interview-deep/">Spring 面试八股文 30 道｜深度详解版</a> — IoC&#x2F;AOP&#x2F;事务&#x2F;循环依赖&#x2F;Spring MVC</li>
+<li><a href="/2026/06/07/mysql-50-interview/">MySQL 50 道面试题深度解析</a> — 索引、锁、事务、MVCC、SQL 优化</li>
+<li><a href="/2026/06/07/redis-interview-deep/">Redis 面试八股文 30 道｜深度详解版</a> — 数据结构、持久化、集群、缓存击穿</li>
+<li><a href="/2026/06/08/mq-interview-deep/">消息队列面试八股文</a> — 对比选型、可靠性、顺序消费、死信队列</li>
+<li><a href="/2026/06/09/kafka-interview-deep/">Kafka 面试八股文 30 道｜深度详解版</a> — 分区、副本、ISR、消费者组、性能优化</li>
+<li><a href="/2026/06/09/elasticsearch-interview-deep/">Elasticsearch 面试八股文 30 道｜深度详解版</a> — 倒排索引、分词、聚合、集群架构</li>
+</ul>
+<h3 id="基础-网络"><a href="#基础-网络" class="headerlink" title="基础 &amp; 网络"></a>基础 &amp; 网络</h3><ul>
+<li><a href="/2026/06/08/computer-networks-interview-deep/">计算机网络面试八股文</a> — TCP&#x2F;UDP、HTTP&#x2F;HTTPS、三次握手、CDN</li>
+<li><a href="/2026/06/07/algorithm-interview-deep/">算法面试八股文</a> — 常见数据结构、排序、二叉树、动态规划</li>
+</ul>
+<h3 id="云原生-工程"><a href="#云原生-工程" class="headerlink" title="云原生 &amp; 工程"></a>云原生 &amp; 工程</h3><ul>
+<li><a href="/2026/06/09/docker-interview-deep/">Docker 面试八股文 30 道｜深度详解版</a> — 镜像、容器、Dockerfile、网络</li>
+<li><a href="/2026/06/09/kubernetes-interview-deep/">Kubernetes 面试八股文 30 道｜深度详解版</a> — Pod、Service、Deployment、HPA</li>
+<li><a href="/2026/06/15/system-design-interview-deep/">系统设计面试八股文</a> — 限流、熔断、分布式锁、一致性哈希</li>
+<li><a href="/2026/06/09/harness-interview-deep/">Harness Engineering 面试八股文 30 道</a> — CI&#x2F;CD、工程化实践、性能优化</li>
+<li><a href="/2026/06/09/rag-interview-deep/">RAG 面试八股文 30 道｜深度详解版</a> — Embedding、向量数据库、检索增强生成</li>
+</ul>
+<hr>
+<h2 id="🏗️-项目经历"><a href="#🏗️-项目经历" class="headerlink" title="🏗️ 项目经历"></a>🏗️ 项目经历</h2><h3 id="技术派（DevLink）开发平台"><a href="#技术派（DevLink）开发平台" class="headerlink" title="技术派（DevLink）开发平台"></a>技术派（DevLink）开发平台</h3><blockquote>
+<p>基于 Spring Boot + Redis + RabbitMQ 的技术交流平台。核心亮点：多级缓存策略、消息可靠投递、FastExcel 并发导出、WebSocket 流式推送。每个模块均提供<strong>原理精讲 → 实战问答 → 精华总结</strong>三连。</p>
+</blockquote>
+<h4 id="模块一：缓存策略-Redis-Pipeline"><a href="#模块一：缓存策略-Redis-Pipeline" class="headerlink" title="模块一：缓存策略 + Redis Pipeline"></a>模块一：缓存策略 + Redis Pipeline</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>文章</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① 原理精讲</td>
+<td><a href="/2026/06/08/devlink-cache-strategies-learn/">三种缓存策略深度解析（本地缓存 &#x2F; Redis &#x2F; 多级）</a></td>
+</tr>
+<tr>
+<td>② 实战问答</td>
+<td><a href="/2026/06/08/devlink-cache-pipeline-qa/">缓存 + Pipeline 面试题深度解析（22问·附源码）</a></td>
+</tr>
+<tr>
+<td>③ 精华总结</td>
+<td><a href="/2026/06/09/devlink-cache-pipeline-ultimate/">缓存 + Pipeline 最高标准源码级深度解析</a></td>
+</tr>
+</tbody></table>
+<h4 id="模块二：RabbitMQ-异步解耦-消息可靠性"><a href="#模块二：RabbitMQ-异步解耦-消息可靠性" class="headerlink" title="模块二：RabbitMQ 异步解耦 &amp; 消息可靠性"></a>模块二：RabbitMQ 异步解耦 &amp; 消息可靠性</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>文章</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① 原理精讲</td>
+<td><a href="/2026/06/08/devlink-rabbitmq-learn/">RabbitMQ 异步解耦与消息可靠性（源码级）</a></td>
+</tr>
+<tr>
+<td>② 实战问答</td>
+<td><a href="/2026/06/08/devlink-rabbitmq-qa/">RabbitMQ 可靠投递实战问答</a></td>
+</tr>
+<tr>
+<td>③ 精华总结</td>
+<td><a href="/2026/06/09/devlink-rabbitmq-ultimate/">RabbitMQ 精华面试总结</a></td>
+</tr>
+</tbody></table>
+<h4 id="模块三：策略模式-WebSocket-流式推送"><a href="#模块三：策略模式-WebSocket-流式推送" class="headerlink" title="模块三：策略模式 + WebSocket 流式推送"></a>模块三：策略模式 + WebSocket 流式推送</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>文章</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① 原理精讲</td>
+<td><a href="/2026/06/08/devlink-strategy-websocket-learn/">策略模式 + WebSocket 流式推送（源码级）</a></td>
+</tr>
+<tr>
+<td>② 实战问答</td>
+<td><a href="/2026/06/08/devlink-strategy-websocket-qa/">策略模式 + WebSocket 实战问答</a></td>
+</tr>
+<tr>
+<td>③ 精华总结</td>
+<td><a href="/2026/06/09/devlink-strategy-websocket-ultimate/">策略模式 + WebSocket 精华面试总结</a></td>
+</tr>
+</tbody></table>
+<h4 id="模块四：FastExcel-并发导出-线程池"><a href="#模块四：FastExcel-并发导出-线程池" class="headerlink" title="模块四：FastExcel 并发导出 &amp; 线程池"></a>模块四：FastExcel 并发导出 &amp; 线程池</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>文章</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① 原理精讲</td>
+<td><a href="/2026/06/08/devlink-fastexcel-learn/">FastExcel 并发导出与线程池（源码级）</a></td>
+</tr>
+<tr>
+<td>② 实战问答</td>
+<td><a href="/2026/06/08/devlink-fastexcel-qa/">FastExcel 并发导出实战问答</a></td>
+</tr>
+<tr>
+<td>③ 精华总结</td>
+<td><a href="/2026/06/09/devlink-fastexcel-ultimate/">FastExcel 精华面试总结</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="KnowFlow-知识库系统"><a href="#KnowFlow-知识库系统" class="headerlink" title="KnowFlow 知识库系统"></a>KnowFlow 知识库系统</h3><blockquote>
+<p>基于 Spring Boot + Elasticsearch + MinIO + Spring AI 的 RAG 知识库问答系统。核心亮点：KNN 向量检索 + BM25 混合搜索、Redis Bitmap 分片状态追踪、JWT 双令牌 + RBAC 多租户、Prometheus 全链路可观测。</p>
+</blockquote>
+<h4 id="综合面试题"><a href="#综合面试题" class="headerlink" title="综合面试题"></a>综合面试题</h4><ul>
+<li><a href="/2026/06/07/knowflow-interview-qa/">KnowFlow 项目 30+ 道面试八股文（字节实习向）</a> — 横跨各模块的高频面试题汇总</li>
+</ul>
+<h4 id="模块一：上传处理流水线（Redis-Bitmap-MinIO-Kafka）"><a href="#模块一：上传处理流水线（Redis-Bitmap-MinIO-Kafka）" class="headerlink" title="模块一：上传处理流水线（Redis Bitmap + MinIO + Kafka）"></a>模块一：上传处理流水线（Redis Bitmap + MinIO + Kafka）</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>文章</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>深度解析</td>
+<td><a href="/2026/06/07/knowflow-upload-pipeline/">KnowFlow ①：Redis Bitmap 分片 + MinIO 异步流水线（面试深挖）</a></td>
+</tr>
+<tr>
+<td>原理精讲</td>
+<td><a href="/2026/06/08/knowflow-upload-pipeline-learn/">KnowFlow 学习笔记（一）：上传流水线深度解析</a></td>
+</tr>
+<tr>
+<td>实战问答</td>
+<td><a href="/2026/06/08/knowflow-upload-qa/">KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线</a></td>
+</tr>
+</tbody></table>
+<h4 id="模块二：混合检索引擎（KNN-BM25-RRF-重排序）"><a href="#模块二：混合检索引擎（KNN-BM25-RRF-重排序）" class="headerlink" title="模块二：混合检索引擎（KNN + BM25 + RRF 重排序）"></a>模块二：混合检索引擎（KNN + BM25 + RRF 重排序）</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>文章</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>深度解析</td>
+<td><a href="/2026/06/07/knowflow-hybrid-search/">KnowFlow ②：ES 混合检索（KNN 向量 + BM25 关键词 + RRF）面试深挖</a></td>
+</tr>
+<tr>
+<td>原理精讲</td>
+<td><a href="/2026/06/08/knowflow-hybrid-search-learn/">KnowFlow 学习笔记（二）：混合检索深度解析</a></td>
+</tr>
+<tr>
+<td>实战问答</td>
+<td><a href="/2026/06/08/knowflow-search-qa/">KnowFlow ② 八股文：ES 混合检索（KNN + BM25 + RRF）</a></td>
+</tr>
+</tbody></table>
+<h4 id="模块三：可观测性（Prometheus-Spring-Cache-全局异常）"><a href="#模块三：可观测性（Prometheus-Spring-Cache-全局异常）" class="headerlink" title="模块三：可观测性（Prometheus + Spring Cache + 全局异常）"></a>模块三：可观测性（Prometheus + Spring Cache + 全局异常）</h4><ul>
+<li><a href="/2026/06/07/knowflow-observability/">KnowFlow ③：复合索引 + @Cacheable + Prometheus 可观测性（面试深挖）</a></li>
+</ul>
+<h4 id="模块四：安全-云原生部署（JWT-RBAC-K8s）"><a href="#模块四：安全-云原生部署（JWT-RBAC-K8s）" class="headerlink" title="模块四：安全 + 云原生部署（JWT + RBAC + K8s）"></a>模块四：安全 + 云原生部署（JWT + RBAC + K8s）</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>文章</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>深度解析</td>
+<td><a href="/2026/06/07/knowflow-security-deployment/">KnowFlow ④：JWT 双令牌 + RBAC 多租户 + K8s 云原生化部署（面试深挖）</a></td>
+</tr>
+<tr>
+<td>原理精讲</td>
+<td><a href="/2026/06/08/knowflow-security-deployment-learn/">KnowFlow 学习笔记（三）：安全 + 部署深度解析</a></td>
+</tr>
+<tr>
+<td>实战问答</td>
+<td><a href="/2026/06/08/knowflow-security-qa/">KnowFlow ③ 八股文：Spring Security + JWT 双令牌 + K8s 云原生部署</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="🤖-华为-OD-AI-机试备考"><a href="#🤖-华为-OD-AI-机试备考" class="headerlink" title="🤖 华为 OD &#x2F; AI 机试备考"></a>🤖 华为 OD &#x2F; AI 机试备考</h2><blockquote>
+<p>华为 2026 秋招算法机试全套备考资料。编程题（Python NumPy 手写）+ 选择题（Linux、数据结构、网络、AI基础）+ 真题模拟。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>文章</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="/2026/09/01/%E5%8D%8E%E4%B8%BAAI%E6%9C%BA%E8%AF%95-%E5%A4%87%E8%80%83%E8%AE%A1%E5%88%92/">华为AI机试备考计划（完整版）</a></td>
+<td>备考时间线、刷题计划、考场策略</td>
+</tr>
+<tr>
+<td><a href="/2026/09/01/%E5%8D%8E%E4%B8%BAAI%E6%9C%BA%E8%AF%95-%E9%80%89%E6%8B%A9%E9%A2%98%E7%9F%A5%E8%AF%86%E7%82%B9/">华为AI机试选择题知识点大全</a></td>
+<td>操作系统、数据结构、网络、AI 基础全覆盖</td>
+</tr>
+<tr>
+<td><a href="/2026/09/01/%E5%8D%8E%E4%B8%BAAI%E6%9C%BA%E8%AF%95-%E7%BC%96%E7%A8%8B%E9%A2%98%E6%A8%A1%E6%9D%BF/">华为AI机试编程题算法模板（NumPy手写）</a></td>
+<td>矩阵、排序、图、DP 等常用模板</td>
+</tr>
+<tr>
+<td><a href="/2026/09/01/%E5%8D%8E%E4%B8%BAAI%E6%9C%BA%E8%AF%95-%E7%9C%9F%E9%A2%98%E6%A8%A1%E6%8B%9F/">华为AI机试真题模拟练习</a></td>
+<td>模拟题集合，含评分标准</td>
+</tr>
+<tr>
+<td><a href="/2026/09/01/%E5%8D%8E%E4%B8%BAAI%E6%9C%BA%E8%AF%95-%E7%BB%88%E6%9E%81%E5%A4%87%E8%80%83%E6%8C%87%E5%8D%97/">华为AI机试终极备考指南（作战手册）</a></td>
+<td>考前 48h 速查手册</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="📖-学习资源"><a href="#📖-学习资源" class="headerlink" title="📖 学习资源"></a>📖 学习资源</h2><ul>
+<li><a href="/2026/09/01/%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99%E5%AF%BC%E8%88%AA/">学习资料导航</a> — 推荐书单、视频课程、刷题平台整理</li>
+</ul>
+<hr>
+<details>
+<summary>📊 博客统计（点击展开）</summary>
+
+<table>
+<thead>
+<tr>
+<th>分类</th>
+<th>文章数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>面试八股文</td>
+<td>16 篇</td>
+</tr>
+<tr>
+<td>项目经历（技术派 DevLink）</td>
+<td>12 篇</td>
+</tr>
+<tr>
+<td>项目经历（KnowFlow）</td>
+<td>11 篇</td>
+</tr>
+<tr>
+<td>华为AI机试</td>
+<td>5 篇</td>
+</tr>
+<tr>
+<td>学习资源</td>
+<td>2 篇</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>46 篇</strong></td>
+</tr>
+</tbody></table>
+</details>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%BA%90/" class="category-chain-item">学习资源</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/AI%E5%BA%94%E7%94%A8/" class="print-no-link">#AI应用</a>
+      
+        <a href="/tags/%E5%AF%BC%E8%88%AA/" class="print-no-link">#导航</a>
+      
+        <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/" class="print-no-link">#学习路线</a>
+      
+        <a href="/tags/Java%E5%90%8E%E7%AB%AF/" class="print-no-link">#Java后端</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>博客内容导航｜Java 后端 + AI Agent 学习路线图</div>
+      <div>https://whyalwaysme.lol/2026/09/05/博客内容导航/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年9月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/01/%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99%E5%AF%BC%E8%88%AA/" title="📚 学习资料导航">
+                        <span class="hidden-mobile">📚 学习资料导航</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
