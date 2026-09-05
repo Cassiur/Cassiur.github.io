@@ -19,20 +19,24 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="🗺️ 知识图谱mindmap   root((RAG))     文档处理       解析与清洗       分块策略       重叠与元数据     向量化       Embedding 模型选型       向量维度与归一化       批量与增量入库     检索       向量检索 KNN ANN       关键词检索 BM25       混合检索与融合       过滤与权">
+    <meta name="description" content="RAG 30题：检索增强生成原理、向量化与召回策略、重排序、LLM接入工程实践。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RAG 面试八股文 30 道｜深度详解版（傻子都能看懂）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/09/2026-06-09-rag-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="🗺️ 知识图谱mindmap   root((RAG))     文档处理       解析与清洗       分块策略       重叠与元数据     向量化       Embedding 模型选型       向量维度与归一化       批量与增量入库     检索       向量检索 KNN ANN       关键词检索 BM25       混合检索与融合       过滤与权">
+<meta property="og:description" content="RAG 30题：检索增强生成原理、向量化与召回策略、重排序、LLM接入工程实践。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-09T03:30:00.000Z">
-<meta property="article:modified_time" content="2026-09-03T17:00:15.908Z">
+<meta property="article:modified_time" content="2026-09-05T08:28:35.239Z">
 <meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="AI应用">
+<meta property="article:tag" content="Embedding">
+<meta property="article:tag" content="LLM">
 <meta property="article:tag" content="RAG">
 <meta property="article:tag" content="八股文">
 <meta property="article:tag" content="向量数据库">
-<meta property="article:tag" content="检索增强生成">
+<meta property="article:tag" content="知识库">
+<meta property="article:tag" content="重排序">
 <meta property="article:tag" content="面试">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -2018,7 +2022,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E9%9D%A2%E8%AF%95/" class="category-chain-item">技术面试</a>
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87/" class="category-chain-item">面试八股文</a>
   
   
 
@@ -2033,15 +2037,23 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/RAG/" class="print-no-link">#RAG</a>
-      
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
         <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
       
-        <a href="/tags/%E6%A3%80%E7%B4%A2%E5%A2%9E%E5%BC%BA%E7%94%9F%E6%88%90/" class="print-no-link">#检索增强生成</a>
+        <a href="/tags/RAG/" class="print-no-link">#RAG</a>
+      
+        <a href="/tags/LLM/" class="print-no-link">#LLM</a>
       
         <a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" class="print-no-link">#向量数据库</a>
+      
+        <a href="/tags/Embedding/" class="print-no-link">#Embedding</a>
+      
+        <a href="/tags/%E9%87%8D%E6%8E%92%E5%BA%8F/" class="print-no-link">#重排序</a>
+      
+        <a href="/tags/AI%E5%BA%94%E7%94%A8/" class="print-no-link">#AI应用</a>
+      
+        <a href="/tags/%E7%9F%A5%E8%AF%86%E5%BA%93/" class="print-no-link">#知识库</a>
       
     </div>
   
@@ -2098,9 +2110,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/09/2026-06-09-harness-interview-deep/" title="Harness Engineering 面试八股文 30 道｜深度详解版（傻子都能看懂）">
+                      <a href="/2026/06/09/2026-06-09-kafka-interview-deep/" title="Kafka 面试八股文（30题）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Harness Engineering 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                        <span class="hidden-mobile">Kafka 面试八股文（30题）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -2108,8 +2120,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/09/2026-06-09-devlink-rabbitmq-ultimate/" title="RabbitMQ 面试八股文（30题）">
-                        <span class="hidden-mobile">RabbitMQ 面试八股文（30题）</span>
+                      <a href="/2026/06/09/2026-06-09-harness-interview-deep/" title="Harness Engineering 面试八股文 30 道｜深度详解版（傻子都能看懂）">
+                        <span class="hidden-mobile">Harness Engineering 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

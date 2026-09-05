@@ -19,19 +19,24 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="🗺️ 知识图谱mindmap   root((Kubernetes))     架构       控制面 apiserver etcd       scheduler       controller-manager       节点 kubelet kube-proxy     工作负载       Pod 与容器       Deployment ReplicaSet       State">
+    <meta name="description" content="Kubernetes 30题：Pod生命周期、Service类型、Deployment滚动更新、调度与存储机制。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kubernetes 面试八股文（30题）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/09/2026-06-09-kubernetes-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="🗺️ 知识图谱mindmap   root((Kubernetes))     架构       控制面 apiserver etcd       scheduler       controller-manager       节点 kubelet kube-proxy     工作负载       Pod 与容器       Deployment ReplicaSet       State">
+<meta property="og:description" content="Kubernetes 30题：Pod生命周期、Service类型、Deployment滚动更新、调度与存储机制。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-09T06:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-03T17:00:15.165Z">
+<meta property="article:modified_time" content="2026-09-05T08:28:34.494Z">
 <meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Deployment">
 <meta property="article:tag" content="K8s">
 <meta property="article:tag" content="Kubernetes">
-<meta property="article:tag" content="容器编排">
+<meta property="article:tag" content="Pod">
+<meta property="article:tag" content="Service">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="持久化存储">
+<meta property="article:tag" content="调度">
 <meta property="article:tag" content="面试">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -3466,11 +3471,21 @@
       
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
         <a href="/tags/K8s/" class="print-no-link">#K8s</a>
       
         <a href="/tags/Kubernetes/" class="print-no-link">#Kubernetes</a>
       
-        <a href="/tags/%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92/" class="print-no-link">#容器编排</a>
+        <a href="/tags/Pod/" class="print-no-link">#Pod</a>
+      
+        <a href="/tags/Service/" class="print-no-link">#Service</a>
+      
+        <a href="/tags/Deployment/" class="print-no-link">#Deployment</a>
+      
+        <a href="/tags/%E8%B0%83%E5%BA%A6/" class="print-no-link">#调度</a>
+      
+        <a href="/tags/%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8/" class="print-no-link">#持久化存储</a>
       
     </div>
   

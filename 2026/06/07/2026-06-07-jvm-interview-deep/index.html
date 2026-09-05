@@ -19,25 +19,29 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="📖 学习指南 🎯 学习目标：通过本文，你将系统掌握 JVM 的核心知识，能够自信地应对任何相关面试问题。  适合人群 🔰 初学者：想系统学习 JVM 的开发者 🚀 有经验者：想深入理解 JVM 原理的高级开发者 💼 面试准备者：想刷 JVM 面试题的求职者  学习建议 先理解概念，再深入原理：先搞懂”是什么”，再搞懂”为什么” 结合实战场景：不要死记硬背，要理解实际应用场景 动手实践：在">
+    <meta name="description" content="JVM 50题深度版：内存区域、GC算法、类加载机制、JIT编译与性能调优。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="JVM 面试八股文50条（深度详解版）">
+<meta property="og:title" content="JVM 面试八股文30条（深度详解版）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-jvm-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="📖 学习指南 🎯 学习目标：通过本文，你将系统掌握 JVM 的核心知识，能够自信地应对任何相关面试问题。  适合人群 🔰 初学者：想系统学习 JVM 的开发者 🚀 有经验者：想深入理解 JVM 原理的高级开发者 💼 面试准备者：想刷 JVM 面试题的求职者  学习建议 先理解概念，再深入原理：先搞懂”是什么”，再搞懂”为什么” 结合实战场景：不要死记硬背，要理解实际应用场景 动手实践：在">
+<meta property="og:description" content="JVM 50题深度版：内存区域、GC算法、类加载机制、JIT编译与性能调优。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:10:00.000Z">
-<meta property="article:modified_time" content="2026-09-04T16:56:03.940Z">
+<meta property="article:modified_time" content="2026-09-05T08:28:13.523Z">
 <meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="GC">
+<meta property="article:tag" content="JIT">
 <meta property="article:tag" content="JVM">
-<meta property="article:tag" content="Java">
 <meta property="article:tag" content="八股文">
+<meta property="article:tag" content="内存模型">
+<meta property="article:tag" content="字节码">
+<meta property="article:tag" content="类加载">
 <meta property="article:tag" content="面试">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>JVM 面试八股文50条（深度详解版） - WhyAlwaysMe 的树洞</title>
+  <title>JVM 面试八股文30条（深度详解版） - WhyAlwaysMe 的树洞</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -203,7 +207,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="JVM 面试八股文50条（深度详解版）"></span>
+            <span id="subtitle" data-typed-text="JVM 面试八股文30条（深度详解版）"></span>
           
         </div>
 
@@ -274,7 +278,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">JVM 面试八股文50条（深度详解版）</h1>
+            <h1 id="seo-header">JVM 面试八股文30条（深度详解版）</h1>
             
             
               <div class="markdown-body">
@@ -2072,7 +2076,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E9%9D%A2%E8%AF%95/" class="category-chain-item">技术面试</a>
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87/" class="category-chain-item">面试八股文</a>
   
   
 
@@ -2089,11 +2093,19 @@
       
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
-        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
-      
-        <a href="/tags/Java/" class="print-no-link">#Java</a>
-      
         <a href="/tags/JVM/" class="print-no-link">#JVM</a>
+      
+        <a href="/tags/GC/" class="print-no-link">#GC</a>
+      
+        <a href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" class="print-no-link">#内存模型</a>
+      
+        <a href="/tags/%E7%B1%BB%E5%8A%A0%E8%BD%BD/" class="print-no-link">#类加载</a>
+      
+        <a href="/tags/JIT/" class="print-no-link">#JIT</a>
+      
+        <a href="/tags/%E5%AD%97%E8%8A%82%E7%A0%81/" class="print-no-link">#字节码</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
       
     </div>
   
@@ -2105,7 +2117,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>JVM 面试八股文50条（深度详解版）</div>
+      <div>JVM 面试八股文30条（深度详解版）</div>
       <div>https://whyalwaysme.lol/2026/06/07/2026-06-07-jvm-interview-deep/</div>
     </div>
     <div class="license-meta">
@@ -2150,9 +2162,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-java-concurrency-interview-deep/" title="Java 并发编程面试八股文50条（深度详解版）">
+                      <a href="/2026/06/07/2026-06-07-knowflow-interview-qa/" title="KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Java 并发编程面试八股文50条（深度详解版）</span>
+                        <span class="hidden-mobile">KnowFlow 项目 —— 30+ 道面试八股文（字节实习向）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -2160,8 +2172,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-mysql-50-interview/" title="MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）">
-                        <span class="hidden-mobile">MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                      <a href="/2026/06/07/2026-06-07-java-concurrency-interview-deep/" title="Java 并发编程面试八股文30条（深度详解版）">
+                        <span class="hidden-mobile">Java 并发编程面试八股文30条（深度详解版）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

@@ -19,19 +19,24 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="MySQL 面试八股文 30 道｜深度详解版 写给准备面试的你：这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。配有大量比喻和场景化解释，目标是让没有数据库基础的人也能看懂。建议配合实际 SQL 练习，理解效果翻倍。   一、存储引擎与架构（1-4） 第 1 题：InnoDB 和 MyISAM 到底有什么区别？我该选哪个？一句话结论 99% 的场景用 InnoDB；">
+    <meta name="description" content="MySQL 30题深度版：索引底层、事务隔离、行锁表锁、MVCC与SQL执行计划优化。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-mysql-50-interview/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="MySQL 面试八股文 30 道｜深度详解版 写给准备面试的你：这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。配有大量比喻和场景化解释，目标是让没有数据库基础的人也能看懂。建议配合实际 SQL 练习，理解效果翻倍。   一、存储引擎与架构（1-4） 第 1 题：InnoDB 和 MyISAM 到底有什么区别？我该选哪个？一句话结论 99% 的场景用 InnoDB；">
+<meta property="og:description" content="MySQL 30题深度版：索引底层、事务隔离、行锁表锁、MVCC与SQL执行计划优化。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-04T09:38:40.018Z">
+<meta property="article:modified_time" content="2026-09-05T08:28:17.302Z">
 <meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="MVCC">
 <meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="SQL优化">
+<meta property="article:tag" content="主从复制">
+<meta property="article:tag" content="事务">
 <meta property="article:tag" content="八股文">
-<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="索引">
+<meta property="article:tag" content="锁">
 <meta property="article:tag" content="面试">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -2460,7 +2465,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E9%9D%A2%E8%AF%95/" class="category-chain-item">技术面试</a>
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87/" class="category-chain-item">面试八股文</a>
   
   
 
@@ -2479,9 +2484,19 @@
       
         <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
       
+        <a href="/tags/%E9%94%81/" class="print-no-link">#锁</a>
+      
         <a href="/tags/MySQL/" class="print-no-link">#MySQL</a>
       
-        <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="print-no-link">#数据库</a>
+        <a href="/tags/%E7%B4%A2%E5%BC%95/" class="print-no-link">#索引</a>
+      
+        <a href="/tags/%E4%BA%8B%E5%8A%A1/" class="print-no-link">#事务</a>
+      
+        <a href="/tags/SQL%E4%BC%98%E5%8C%96/" class="print-no-link">#SQL优化</a>
+      
+        <a href="/tags/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" class="print-no-link">#主从复制</a>
+      
+        <a href="/tags/MVCC/" class="print-no-link">#MVCC</a>
       
     </div>
   
@@ -2538,9 +2553,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-jvm-interview-deep/" title="JVM 面试八股文50条（深度详解版）">
+                      <a href="/2026/06/07/2026-06-07-spring-interview-deep/" title="Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">JVM 面试八股文50条（深度详解版）</span>
+                        <span class="hidden-mobile">Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -2548,8 +2563,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-redis-interview-deep/" title="Redis 面试八股文 30 道｜深度详解版（傻子都能看懂）">
-                        <span class="hidden-mobile">Redis 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                      <a href="/2025/12/19/hello-world/" title="Hello World">
+                        <span class="hidden-mobile">Hello World</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

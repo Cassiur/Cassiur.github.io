@@ -47,7 +47,7 @@
   var style = document.createElement('style');
   style.textContent = [
     /* ── 通用 */
-    '#ds-fab{position:fixed;bottom:28px;right:28px;z-index:9998;width:46px;height:46px;',
+    '#ds-fab{position:fixed;bottom:28px;left:28px;z-index:9998;width:46px;height:46px;',
     'border-radius:50%;background:linear-gradient(135deg,#4f8ef7,#6c3be4);color:#fff;',
     'border:none;cursor:pointer;font-size:20px;box-shadow:0 4px 14px rgba(79,142,247,.5);',
     'transition:transform .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center;}',

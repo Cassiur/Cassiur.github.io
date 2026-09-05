@@ -19,19 +19,23 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="📚 DevLink · RabbitMQ 可靠投递：① 原理精讲 · ② 实战问答 · ③ 精华总结  RabbitMQ 面试八股文（30 题） 📚 面试高频：本文覆盖 RabbitMQ 核心知识点，从基础概念到高级特性，帮你系统掌握 RabbitMQ 面试要点。 🎯 面试加分：每个问题都包含深度解析和面试加分回答，让你在面试中脱颖而出。 ⚡ 快速掌握：所有问题都附有通俗易懂的解释和实战经">
+    <meta name="description" content="RabbitMQ 完整面试宝典30题：交换机类型、消息确认、集群高可用、与Kafka对比。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RabbitMQ 面试八股文（30题）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/09/2026-06-09-devlink-rabbitmq-ultimate/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="📚 DevLink · RabbitMQ 可靠投递：① 原理精讲 · ② 实战问答 · ③ 精华总结  RabbitMQ 面试八股文（30 题） 📚 面试高频：本文覆盖 RabbitMQ 核心知识点，从基础概念到高级特性，帮你系统掌握 RabbitMQ 面试要点。 🎯 面试加分：每个问题都包含深度解析和面试加分回答，让你在面试中脱颖而出。 ⚡ 快速掌握：所有问题都附有通俗易懂的解释和实战经">
+<meta property="og:description" content="RabbitMQ 完整面试宝典30题：交换机类型、消息确认、集群高可用、与Kafka对比。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-09T02:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-04T17:20:44.301Z">
+<meta property="article:modified_time" content="2026-09-05T08:28:30.008Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="RabbitMQ">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="死信队列">
+<meta property="article:tag" content="消息可靠性">
 <meta property="article:tag" content="消息队列">
 <meta property="article:tag" content="面试">
+<meta property="article:tag" content="高可用">
 <meta name="twitter:card" content="summary_large_image">
   
   
@@ -236,7 +240,7 @@
         
         
         
-          133 分钟
+          132 分钟
         
       </span>
     
@@ -278,10 +282,7 @@
             
               <div class="markdown-body">
                 
-                <blockquote>
-<p>📚 <strong>DevLink · RabbitMQ 可靠投递</strong>：<a href="/2026/06/08/devlink-rabbitmq-learn/">① 原理精讲</a> · <a href="/2026/06/08/devlink-rabbitmq-qa/">② 实战问答</a> · <strong>③ 精华总结</strong></p>
-</blockquote>
-<h1 id="RabbitMQ-面试八股文（30-题）"><a href="#RabbitMQ-面试八股文（30-题）" class="headerlink" title="RabbitMQ 面试八股文（30 题）"></a>RabbitMQ 面试八股文（30 题）</h1><blockquote>
+                <h1 id="RabbitMQ-面试八股文（30-题）"><a href="#RabbitMQ-面试八股文（30-题）" class="headerlink" title="RabbitMQ 面试八股文（30 题）"></a>RabbitMQ 面试八股文（30 题）</h1><blockquote>
 <p>📚 <strong>面试高频</strong>：本文覆盖 RabbitMQ 核心知识点，从基础概念到高级特性，帮你系统掌握 RabbitMQ 面试要点。</p>
 <p>🎯 <strong>面试加分</strong>：每个问题都包含深度解析和面试加分回答，让你在面试中脱颖而出。</p>
 <p>⚡ <strong>快速掌握</strong>：所有问题都附有通俗易懂的解释和实战经验分享。</p>
@@ -1684,7 +1685,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87/" class="category-chain-item">面试八股文</a>
+  <a href="/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="category-chain-item">项目经历</a>
   
   
 
@@ -1701,9 +1702,17 @@
       
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
         <a href="/tags/RabbitMQ/" class="print-no-link">#RabbitMQ</a>
       
         <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="print-no-link">#消息队列</a>
+      
+        <a href="/tags/%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7/" class="print-no-link">#消息可靠性</a>
+      
+        <a href="/tags/%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/" class="print-no-link">#死信队列</a>
+      
+        <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/" class="print-no-link">#高可用</a>
       
     </div>
   
@@ -1760,9 +1769,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/09/2026-06-09-rag-interview-deep/" title="RAG 面试八股文 30 道｜深度详解版（傻子都能看懂）">
+                      <a href="/2026/06/09/2026-06-09-harness-interview-deep/" title="Harness Engineering 面试八股文 30 道｜深度详解版（傻子都能看懂）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">RAG 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                        <span class="hidden-mobile">Harness Engineering 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -1770,8 +1779,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/09/2026-06-09-devlink-cache-pipeline-ultimate/" title="技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析">
-                        <span class="hidden-mobile">技术派项目学习笔记（一）：缓存 + Pipeline 最高标准源码级深度解析</span>
+                      <a href="/2026/06/09/2026-06-09-devlink-fastexcel-ultimate/" title="技术派项目学习笔记（四）：FastExcel 并发导出深度解析（最高标准版）">
+                        <span class="hidden-mobile">技术派项目学习笔记（四）：FastExcel 并发导出深度解析（最高标准版）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

@@ -19,25 +19,24 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="📚 DevLink · RabbitMQ 可靠投递：① 原理精讲 · ② 实战问答 · ③ 精华总结  技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性 简历原文：「将点赞通知等事件通过 RabbitMQ 异步解耦，消费端手动 Ack 保障消息至少处理一次；针对消息可靠性设计了生产端 Confirm 与死信兜底方案。」 面试口径：“点赞通知用 RabbitMQ 做异步解耦：用户点赞立即">
+    <meta name="description" content="技术派RabbitMQ 面试拷打：消息可靠性&#x2F;幂等&#x2F;顺序&#x2F;延迟队列共30题，含源码。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-devlink-rabbitmq-qa/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="📚 DevLink · RabbitMQ 可靠投递：① 原理精讲 · ② 实战问答 · ③ 精华总结  技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性 简历原文：「将点赞通知等事件通过 RabbitMQ 异步解耦，消费端手动 Ack 保障消息至少处理一次；针对消息可靠性设计了生产端 Confirm 与死信兜底方案。」 面试口径：“点赞通知用 RabbitMQ 做异步解耦：用户点赞立即">
+<meta property="og:description" content="技术派RabbitMQ 面试拷打：消息可靠性&#x2F;幂等&#x2F;顺序&#x2F;延迟队列共30题，含源码。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T11:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-04T17:20:29.745Z">
+<meta property="article:modified_time" content="2026-09-05T08:28:22.992Z">
 <meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="DevLink">
 <meta property="article:tag" content="RabbitMQ">
-<meta property="article:tag" content="八股文">
-<meta property="article:tag" content="字节跳动">
-<meta property="article:tag" content="手动Ack">
 <meta property="article:tag" content="技术派">
 <meta property="article:tag" content="死信队列">
 <meta property="article:tag" content="消息可靠性">
 <meta property="article:tag" content="消息队列">
 <meta property="article:tag" content="面试">
+<meta property="article:tag" content="项目经历">
 <meta name="twitter:card" content="summary_large_image">
   
   
@@ -284,10 +283,7 @@
             
               <div class="markdown-body">
                 
-                <blockquote>
-<p>📚 <strong>DevLink · RabbitMQ 可靠投递</strong>：<a href="/2026/06/08/devlink-rabbitmq-learn/">① 原理精讲</a> · <strong>② 实战问答</strong> · <a href="/2026/06/09/devlink-rabbitmq-ultimate/">③ 精华总结</a></p>
-</blockquote>
-<h1 id="技术派面试拷打①：RabbitMQ-异步解耦与消息可靠性"><a href="#技术派面试拷打①：RabbitMQ-异步解耦与消息可靠性" class="headerlink" title="技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性"></a>技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性</h1><blockquote>
+                <h1 id="技术派面试拷打①：RabbitMQ-异步解耦与消息可靠性"><a href="#技术派面试拷打①：RabbitMQ-异步解耦与消息可靠性" class="headerlink" title="技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性"></a>技术派面试拷打①：RabbitMQ 异步解耦与消息可靠性</h1><blockquote>
 <p>简历原文：「将点赞通知等事件通过 RabbitMQ 异步解耦，消费端手动 Ack 保障消息至少处理一次；针对消息可靠性设计了生产端 Confirm 与死信兜底方案。」</p>
 <p>面试口径：<strong>“点赞通知用 RabbitMQ 做异步解耦：用户点赞立即返回，通知消息异步处理，核心链路和非核心链路解耦。消费端用 manual ack，业务处理完成后才 basicAck，保证 at-least-once；重复消费靠 notify 表唯一索引做幂等。生产端开启 Confirm 回调，Broker 持久化失败后 nack 触发重发；消费失败进入死信队列（DLQ）人工兜底。”</strong></p>
 </blockquote>
@@ -674,19 +670,17 @@
       
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
-        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
-      
-        <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/" class="print-no-link">#字节跳动</a>
+        <a href="/tags/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="print-no-link">#项目经历</a>
       
         <a href="/tags/%E6%8A%80%E6%9C%AF%E6%B4%BE/" class="print-no-link">#技术派</a>
+      
+        <a href="/tags/DevLink/" class="print-no-link">#DevLink</a>
       
         <a href="/tags/RabbitMQ/" class="print-no-link">#RabbitMQ</a>
       
         <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="print-no-link">#消息队列</a>
       
         <a href="/tags/%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7/" class="print-no-link">#消息可靠性</a>
-      
-        <a href="/tags/%E6%89%8B%E5%8A%A8Ack/" class="print-no-link">#手动Ack</a>
       
         <a href="/tags/%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/" class="print-no-link">#死信队列</a>
       
@@ -755,8 +749,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/08/2026-06-08-mq-interview-deep/" title="消息队列面试八股文（深度版）｜RabbitMQ + Kafka 55题讲透">
-                        <span class="hidden-mobile">消息队列面试八股文（深度版）｜RabbitMQ + Kafka 55题讲透</span>
+                      <a href="/2026/06/08/2026-06-08-mq-interview-deep/" title="消息队列面试八股文（深度版）｜RabbitMQ + Kafka 30题讲透">
+                        <span class="hidden-mobile">消息队列面试八股文（深度版）｜RabbitMQ + Kafka 30题讲透</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

@@ -19,25 +19,24 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="📚 KnowFlow · 分片上传流水线：① 核心原理 · ② 源码精讲 · ③ 实战问答  KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Redis Bitmap 相关（6 道）Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？">
+    <meta name="description" content="KnowFlow分片上传面试30题：Redis Bitmap原理、MinIO分片API、Kafka消费幂等。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 异步流水线">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-knowflow-upload-qa/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="📚 KnowFlow · 分片上传流水线：① 核心原理 · ② 源码精讲 · ③ 实战问答  KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka 面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。   一、Redis Bitmap 相关（6 道）Q1：为什么用 Redis Bitmap 维护分片状态？对比其他方案好在哪里？">
+<meta property="og:description" content="KnowFlow分片上传面试30题：Redis Bitmap原理、MinIO分片API、Kafka消费幂等。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T12:30:00.000Z">
-<meta property="article:modified_time" content="2026-09-04T17:21:48.568Z">
+<meta property="article:modified_time" content="2026-09-05T08:28:27.618Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Kafka">
 <meta property="article:tag" content="KnowFlow">
 <meta property="article:tag" content="MinIO">
 <meta property="article:tag" content="Redis">
-<meta property="article:tag" content="傻子都能懂">
 <meta property="article:tag" content="八股文">
-<meta property="article:tag" content="字节跳动">
-<meta property="article:tag" content="文件上传">
+<meta property="article:tag" content="分片上传">
 <meta property="article:tag" content="面试">
+<meta property="article:tag" content="项目经历">
 <meta name="twitter:card" content="summary_large_image">
   
   
@@ -284,10 +283,7 @@
             
               <div class="markdown-body">
                 
-                <blockquote>
-<p>📚 <strong>KnowFlow · 分片上传流水线</strong>：<a href="/2026/06/07/knowflow-upload-pipeline/">① 核心原理</a> · <a href="/2026/06/08/knowflow-upload-pipeline-learn/">② 源码精讲</a> · <strong>③ 实战问答</strong></p>
-</blockquote>
-<h1 id="KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka"><a href="#KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka" class="headerlink" title="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka"></a>KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka</h1><blockquote>
+                <h1 id="KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka"><a href="#KnowFlow-①-八股文：Redis-Bitmap-MinIO-Kafka" class="headerlink" title="KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka"></a>KnowFlow ① 八股文：Redis Bitmap + MinIO + Kafka</h1><blockquote>
 <p>面向字节跳动 Java 后端暑期实习面试，从项目实现细节出发，每道题都结合代码讲清楚。</p>
 </blockquote>
 <hr>
@@ -813,11 +809,13 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
-      
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
         <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/KnowFlow/" class="print-no-link">#KnowFlow</a>
+      
+        <a href="/tags/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/" class="print-no-link">#项目经历</a>
       
         <a href="/tags/Redis/" class="print-no-link">#Redis</a>
       
@@ -825,11 +823,7 @@
       
         <a href="/tags/MinIO/" class="print-no-link">#MinIO</a>
       
-        <a href="/tags/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8/" class="print-no-link">#字节跳动</a>
-      
-        <a href="/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" class="print-no-link">#文件上传</a>
-      
-        <a href="/tags/%E5%82%BB%E5%AD%90%E9%83%BD%E8%83%BD%E6%87%82/" class="print-no-link">#傻子都能懂</a>
+        <a href="/tags/%E5%88%86%E7%89%87%E4%B8%8A%E4%BC%A0/" class="print-no-link">#分片上传</a>
       
     </div>
   
