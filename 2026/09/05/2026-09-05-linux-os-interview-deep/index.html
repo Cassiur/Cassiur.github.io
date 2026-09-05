@@ -1,0 +1,1806 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="Linux &amp; OS 30题深度版：进程&#x2F;线程区别与通信、内存管理与虚拟地址、调度算法、epoll 原理、文件系统 inode、死锁检测，Java 后端必背核心考点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux &amp; 操作系统面试八股文 30 道｜深度详解版（Java 后端必备）">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/09/05/2026-09-05-linux-os-interview-deep/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="Linux &amp; OS 30题深度版：进程&#x2F;线程区别与通信、内存管理与虚拟地址、调度算法、epoll 原理、文件系统 inode、死锁检测，Java 后端必背核心考点。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-05T06:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-05T09:09:46.797Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="IO模型">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="内存管理">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="文件系统">
+<meta property="article:tag" content="线程">
+<meta property="article:tag" content="进程">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Linux &amp; 操作系统面试八股文 30 道｜深度详解版（Java 后端必备） - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux &amp; 操作系统面试八股文 30 道｜深度详解版（Java 后端必备）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-09-05 14:00" pubdate>
+          2026年9月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          100 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux &amp; 操作系统面试八股文 30 道｜深度详解版（Java 后端必备）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p>本文是 Linux &amp; 操作系统面试八股文深度详解版，共 30 题，覆盖进程&#x2F;线程、内存管理、IO 模型、文件系统、调度算法等核心考点。每道题都配有原理分析 + 实战命令 + Java 视角，适合 Java 后端开发者面试前系统复习。</p>
+</blockquote>
+<hr>
+<h2 id="Q1-进程-vs-线程的本质区别（从-Linux-内核-task-struct-角度解释）"><a href="#Q1-进程-vs-线程的本质区别（从-Linux-内核-task-struct-角度解释）" class="headerlink" title="Q1. 进程 vs 线程的本质区别（从 Linux 内核 task_struct 角度解释）"></a>Q1. 进程 vs 线程的本质区别（从 Linux 内核 task_struct 角度解释）</h2><h3 id="核心结论"><a href="#核心结论" class="headerlink" title="核心结论"></a>核心结论</h3><p>在 Linux 内核里，<strong>进程和线程都是 <code>task_struct</code> 结构体的实例</strong>，本质上都是调度单元。区别在于资源的共享程度。</p>
+<h3 id="task-struct-关键字段"><a href="#task-struct-关键字段" class="headerlink" title="task_struct 关键字段"></a>task_struct 关键字段</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">task_struct</span> &#123;</span><br>    <span class="hljs-type">pid_t</span> pid;           <span class="hljs-comment">// 进程/线程自己的 ID</span><br>    <span class="hljs-type">pid_t</span> tgid;          <span class="hljs-comment">// 线程组 ID（主线程的 pid）</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mm_struct</span> *<span class="hljs-title">mm</span>;</span>       <span class="hljs-comment">// 虚拟内存空间（进程独有，线程共享）</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">files_struct</span> *<span class="hljs-title">files</span>;</span> <span class="hljs-comment">// 文件描述符表</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fs_struct</span> *<span class="hljs-title">fs</span>;</span>       <span class="hljs-comment">// 文件系统信息</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">signal_struct</span> *<span class="hljs-title">signal</span>;</span> <span class="hljs-comment">// 信号处理</span><br>    <span class="hljs-comment">// ...</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><strong>判断是进程还是线程：看 <code>pid == tgid</code> 是否成立。</strong></p>
+<ul>
+<li>主线程：<code>pid == tgid</code>，是进程领头羊</li>
+<li>子线程：<code>pid != tgid</code>，属于同一线程组</li>
+</ul>
+<h3 id="关键区别对比"><a href="#关键区别对比" class="headerlink" title="关键区别对比"></a>关键区别对比</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>进程</th>
+<th>线程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>资源</td>
+<td>独立的虚拟地址空间、文件描述符</td>
+<td>共享进程的内存、fd、堆</td>
+</tr>
+<tr>
+<td>创建开销</td>
+<td>大（<code>fork()</code> 需拷贝页表）</td>
+<td>小（<code>clone()</code> 共享内存）</td>
+</tr>
+<tr>
+<td>崩溃影响</td>
+<td>独立，不影响其他进程</td>
+<td>一个线程崩溃导致整个进程崩溃</td>
+</tr>
+<tr>
+<td>通信</td>
+<td>IPC 机制（复杂）</td>
+<td>共享内存（简单但需同步）</td>
+</tr>
+<tr>
+<td>Linux 系统调用</td>
+<td><code>fork()</code> &#x2F; <code>exec()</code></td>
+<td><code>clone(CLONE_VM | CLONE_FILES)</code></td>
+</tr>
+</tbody></table>
+<h3 id="Java-视角"><a href="#Java-视角" class="headerlink" title="Java 视角"></a>Java 视角</h3><p>Java 的 <code>Thread</code> 底层就是通过 <code>pthread_create</code> 创建内核线程，对应 Linux 的 <code>clone()</code> 系统调用。每个 Java 线程都有独立的栈（默认 512KB~1MB），但共享堆内存。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 Java 进程的线程</span><br>ps -eLf | grep java<br><span class="hljs-comment"># 或者</span><br><span class="hljs-built_in">ls</span> /proc/$(pgrep java)/task/  <span class="hljs-comment"># 每个子目录就是一个线程的 tid</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q2-进程间通信（IPC）6种方式"><a href="#Q2-进程间通信（IPC）6种方式" class="headerlink" title="Q2. 进程间通信（IPC）6种方式"></a>Q2. 进程间通信（IPC）6种方式</h2><h3 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h3><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>速度</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>管道</td>
+<td>中</td>
+<td>父子进程、Shell 命令链</td>
+</tr>
+<tr>
+<td>消息队列</td>
+<td>中</td>
+<td>异步解耦、带格式的消息</td>
+</tr>
+<tr>
+<td>共享内存</td>
+<td>最快</td>
+<td>大量数据传输，需配合信号量</td>
+</tr>
+<tr>
+<td>信号</td>
+<td>快（无数据）</td>
+<td>异常通知、进程控制</td>
+</tr>
+<tr>
+<td>信号量</td>
+<td>快</td>
+<td>互斥&#x2F;同步控制</td>
+</tr>
+<tr>
+<td>Socket</td>
+<td>慢（最灵活）</td>
+<td>跨机器、跨语言通信</td>
+</tr>
+</tbody></table>
+<h3 id="1-管道（Pipe）"><a href="#1-管道（Pipe）" class="headerlink" title="1. 管道（Pipe）"></a>1. 管道（Pipe）</h3><p><strong>匿名管道</strong>：只能在父子进程间使用，单向，内核缓冲区通常 64KB。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ls</span> -la | grep java   <span class="hljs-comment"># Shell 管道，ls 的 stdout → grep 的 stdin</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>命名管道（FIFO）</strong>：通过文件系统路径访问，无亲缘关系的进程也能用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkfifo</span> /tmp/myfifo<br><span class="hljs-built_in">cat</span> /tmp/myfifo &amp;     <span class="hljs-comment"># 读端</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;hello&quot;</span> &gt; /tmp/myfifo  <span class="hljs-comment"># 写端</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-消息队列"><a href="#2-消息队列" class="headerlink" title="2. 消息队列"></a>2. 消息队列</h3><p>内核维护的链表，按消息类型过滤，支持优先级。比管道多了<strong>消息边界</strong>和<strong>类型过滤</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 发送消息</span><br>msgsnd(msgid, &amp;msg, <span class="hljs-keyword">sizeof</span>(msg.text), <span class="hljs-number">0</span>);<br><span class="hljs-comment">// 接收特定类型消息</span><br>msgrcv(msgid, &amp;msg, <span class="hljs-keyword">sizeof</span>(msg.text), msg_type, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-共享内存（最快的-IPC）"><a href="#3-共享内存（最快的-IPC）" class="headerlink" title="3. 共享内存（最快的 IPC）"></a>3. 共享内存（最快的 IPC）</h3><p>直接映射同一块物理内存到不同进程的虚拟地址空间，<strong>零拷贝</strong>，但需要同步机制。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> shmid = shmget(key, SIZE, IPC_CREAT | <span class="hljs-number">0666</span>);<br><span class="hljs-type">void</span> *ptr = shmat(shmid, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>);  <span class="hljs-comment">// 附加到进程</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-信号（Signal）"><a href="#4-信号（Signal）" class="headerlink" title="4. 信号（Signal）"></a>4. 信号（Signal）</h3><p>异步通知机制，只能携带信号编号，不能携带数据。常见信号：</p>
+<ul>
+<li><code>SIGTERM(15)</code>：优雅停止</li>
+<li><code>SIGKILL(9)</code>：强制杀死（不可捕获）</li>
+<li><code>SIGUSR1/2</code>：用户自定义</li>
+</ul>
+<h3 id="5-信号量（Semaphore）"><a href="#5-信号量（Semaphore）" class="headerlink" title="5. 信号量（Semaphore）"></a>5. 信号量（Semaphore）</h3><p>本质是一个计数器，用于进程间互斥&#x2F;同步，不传数据。</p>
+<h3 id="6-Socket"><a href="#6-Socket" class="headerlink" title="6. Socket"></a>6. Socket</h3><p>最通用，支持同机（Unix Domain Socket，比 TCP 快）和跨机（TCP&#x2F;UDP）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Unix Domain Socket 比 TCP 性能高 ~30%（无需网络协议栈）</span><br><span class="hljs-comment"># Nginx 与 PHP-FPM 通信就用 Unix Domain Socket</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-视角-1"><a href="#Java-视角-1" class="headerlink" title="Java 视角"></a>Java 视角</h3><p>Java 微服务间通信（RPC&#x2F;HTTP）本质是 Socket。JVM 进程内可以用 <code>Queue</code>，但跨 JVM 就需要 MQ（Kafka&#x2F;RabbitMQ）。</p>
+<hr>
+<h2 id="Q3-线程间同步的4种方式"><a href="#Q3-线程间同步的4种方式" class="headerlink" title="Q3. 线程间同步的4种方式"></a>Q3. 线程间同步的4种方式</h2><h3 id="为什么需要同步"><a href="#为什么需要同步" class="headerlink" title="为什么需要同步"></a>为什么需要同步</h3><p>多线程共享内存，并发访问导致<strong>竞态条件（Race Condition）</strong>，需要同步保证操作的原子性和可见性。</p>
+<h3 id="1-Mutex（互斥锁）"><a href="#1-Mutex（互斥锁）" class="headerlink" title="1. Mutex（互斥锁）"></a>1. Mutex（互斥锁）</h3><p>同一时刻只有一个线程能持有锁，其他线程阻塞等待。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">pthread_mutex_t</span> lock = PTHREAD_MUTEX_INITIALIZER;<br>pthread_mutex_lock(&amp;lock);<br><span class="hljs-comment">// 临界区</span><br>pthread_mutex_unlock(&amp;lock);<br></code></pre></td></tr></table></figure>
+
+<p>Java 对应：<code>synchronized</code>、<code>ReentrantLock</code></p>
+<p><strong>注意</strong>：mutex 是不可重入的（<code>pthread_mutex_t</code>），Java 的 <code>synchronized</code> 是可重入的。</p>
+<h3 id="2-条件变量（Condition-Variable）"><a href="#2-条件变量（Condition-Variable）" class="headerlink" title="2. 条件变量（Condition Variable）"></a>2. 条件变量（Condition Variable）</h3><p>配合 mutex 使用，让线程在满足特定条件前<strong>主动让出锁并挂起</strong>，条件满足时被唤醒。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">pthread_cond_wait(&amp;cond, &amp;mutex);   <span class="hljs-comment">// 原子释放锁并等待</span><br>pthread_cond_signal(&amp;cond);          <span class="hljs-comment">// 唤醒一个等待线程</span><br>pthread_cond_broadcast(&amp;cond);       <span class="hljs-comment">// 唤醒所有等待线程</span><br></code></pre></td></tr></table></figure>
+
+<p>Java 对应：<code>Object.wait()/notify()/notifyAll()</code>，<code>Condition.await()/signal()</code></p>
+<p><strong>经典用法</strong>：生产者-消费者模式</p>
+<h3 id="3-信号量（Semaphore）"><a href="#3-信号量（Semaphore）" class="headerlink" title="3. 信号量（Semaphore）"></a>3. 信号量（Semaphore）</h3><p>计数信号量，允许 N 个线程同时访问资源（N&#x3D;1 时退化为 mutex）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">sem_t</span> sem;<br>sem_init(&amp;sem, <span class="hljs-number">0</span>, N);  <span class="hljs-comment">// 初始化为 N</span><br>sem_wait(&amp;sem);         <span class="hljs-comment">// P 操作，计数-1，为0时阻塞</span><br>sem_post(&amp;sem);         <span class="hljs-comment">// V 操作，计数+1，唤醒等待线程</span><br></code></pre></td></tr></table></figure>
+
+<p>Java 对应：<code>java.util.concurrent.Semaphore</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Semaphore</span> <span class="hljs-variable">semaphore</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Semaphore</span>(<span class="hljs-number">10</span>);  <span class="hljs-comment">// 最多10个并发</span><br>semaphore.acquire();<br><span class="hljs-keyword">try</span> &#123; <span class="hljs-comment">/* 访问资源 */</span> &#125; <span class="hljs-keyword">finally</span> &#123; semaphore.release(); &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-读写锁（ReadWriteLock）"><a href="#4-读写锁（ReadWriteLock）" class="headerlink" title="4. 读写锁（ReadWriteLock）"></a>4. 读写锁（ReadWriteLock）</h3><p>允许多个读线程并发，写线程独占。适合<strong>读多写少</strong>的场景。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">pthread_rwlock_rdlock(&amp;rwlock);  <span class="hljs-comment">// 读锁（共享）</span><br>pthread_rwlock_wrlock(&amp;rwlock);  <span class="hljs-comment">// 写锁（独占）</span><br>pthread_rwlock_unlock(&amp;rwlock);<br></code></pre></td></tr></table></figure>
+
+<p>Java 对应：<code>ReentrantReadWriteLock</code>，StampedLock（支持乐观读）</p>
+<h3 id="选择建议"><a href="#选择建议" class="headerlink" title="选择建议"></a>选择建议</h3><ul>
+<li>简单互斥 → mutex &#x2F; synchronized</li>
+<li>等待条件 → 条件变量 &#x2F; wait-notify</li>
+<li>限流并发 → 信号量</li>
+<li>读多写少 → 读写锁</li>
+</ul>
+<hr>
+<h2 id="Q4-用户态线程-vs-内核态线程-vs-协程"><a href="#Q4-用户态线程-vs-内核态线程-vs-协程" class="headerlink" title="Q4. 用户态线程 vs 内核态线程 vs 协程"></a>Q4. 用户态线程 vs 内核态线程 vs 协程</h2><h3 id="三种模型"><a href="#三种模型" class="headerlink" title="三种模型"></a>三种模型</h3><p><strong>内核态线程（KLT - Kernel Level Thread）</strong></p>
+<p>由操作系统内核直接管理，每次线程切换都需要<strong>系统调用</strong>，有用户态↔内核态切换开销。</p>
+<ul>
+<li>Linux 的 <code>pthread</code> 就是内核线程（1:1 模型）</li>
+<li>Java 传统线程（JDK 19 之前）&#x3D; 内核线程</li>
+<li>调度由内核控制，可以利用多核</li>
+<li>每个线程需要独立内核栈（通常 4~8MB），大量线程时内存消耗大</li>
+</ul>
+<p><strong>用户态线程（ULT - User Level Thread）</strong></p>
+<p>由用户空间的运行时（Runtime）管理，内核看到的只有少数内核线程（N:M 模型）。</p>
+<ul>
+<li>切换不需要系统调用，速度极快（纳秒级）</li>
+<li>无法利用多核（除非绑定到多个内核线程）</li>
+<li>Go 的 goroutine 早期用此模型，现在是 M:N</li>
+</ul>
+<p><strong>协程（Coroutine）</strong></p>
+<p>用户态的协作式调度，<strong>由程序员显式让出控制权</strong>（<code>yield</code>&#x2F;<code>await</code>），而非抢占式。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">fetch</span>():<br>    data = <span class="hljs-keyword">await</span> http.get(url)  <span class="hljs-comment"># 让出控制权，等IO完成再恢复</span><br>    <span class="hljs-keyword">return</span> data<br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-的演进"><a href="#Java-的演进" class="headerlink" title="Java 的演进"></a>Java 的演进</h3><table>
+<thead>
+<tr>
+<th>时期</th>
+<th>模型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JDK 1~18</td>
+<td>1:1（平台线程）</td>
+<td>Java线程 &#x3D; 内核线程，重量级</td>
+</tr>
+<tr>
+<td>JDK 19~20</td>
+<td>预览：虚拟线程</td>
+<td>M:N，由JVM调度</td>
+</tr>
+<tr>
+<td>JDK 21+</td>
+<td>正式：虚拟线程</td>
+<td>Project Loom，轻量级协程</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java 21 虚拟线程：百万级并发不是梦</span><br><span class="hljs-type">Thread</span> <span class="hljs-variable">vt</span> <span class="hljs-operator">=</span> Thread.ofVirtual().start(() -&gt; &#123;<br>    <span class="hljs-comment">// IO阻塞时，JVM自动把载体线程让给其他虚拟线程</span><br>    doBlockingIO();<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>虚拟线程阻塞时不会阻塞内核线程，JVM 运行时自动挂起并在 IO 完成后恢复，实现了协程语义。</p>
+<hr>
+<h2 id="Q5-进程状态机（5种状态及转换）"><a href="#Q5-进程状态机（5种状态及转换）" class="headerlink" title="Q5. 进程状态机（5种状态及转换）"></a>Q5. 进程状态机（5种状态及转换）</h2><h3 id="五大状态"><a href="#五大状态" class="headerlink" title="五大状态"></a>五大状态</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs awk">新建(New) ──fork()──&gt; 就绪(Ready)<br>                          │  ↑<br>               调度选中   │  │ 时间片到/被抢占<br>                          ↓  │<br>                       运行(Running)<br>                          │<br>              等待资源/IO  │<br>                          ↓<br>                       阻塞(Blocked/Sleeping) ──资源就绪──&gt; 就绪<br>                          │<br>               <span class="hljs-keyword">exit</span>()     │<br>                          ↓<br>                       终止(Terminated/Zombie)<br></code></pre></td></tr></table></figure>
+
+<h3 id="Linux-实际进程状态"><a href="#Linux-实际进程状态" class="headerlink" title="Linux 实际进程状态"></a>Linux 实际进程状态</h3><p><code>ps aux</code> 的 <code>STAT</code> 列：</p>
+<table>
+<thead>
+<tr>
+<th>字符</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>R</code></td>
+<td>Running 或 Runnable（就绪队列中）</td>
+</tr>
+<tr>
+<td><code>S</code></td>
+<td>Interruptible Sleep（可中断睡眠，等IO）</td>
+</tr>
+<tr>
+<td><code>D</code></td>
+<td>Uninterruptible Sleep（不可中断，正在IO，不能被信号打断）</td>
+</tr>
+<tr>
+<td><code>T</code></td>
+<td>Stopped（被 <code>SIGSTOP</code> 暂停）</td>
+</tr>
+<tr>
+<td><code>Z</code></td>
+<td>Zombie（僵尸进程）</td>
+</tr>
+<tr>
+<td><code>I</code></td>
+<td>Idle（内核线程空闲）</td>
+</tr>
+</tbody></table>
+<p><strong><code>D</code> 状态很危险</strong>：进程卡在内核 IO 路径，<code>kill -9</code> 也杀不死，只能等 IO 完成或重启。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 D 状态进程</span><br>ps aux | awk <span class="hljs-string">&#x27;$8 == &quot;D&quot;&#x27;</span><br><br><span class="hljs-comment"># 查看具体在等待什么</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/wchan<br></code></pre></td></tr></table></figure>
+
+<h3 id="状态转换触发条件"><a href="#状态转换触发条件" class="headerlink" title="状态转换触发条件"></a>状态转换触发条件</h3><ul>
+<li><strong>就绪 → 运行</strong>：调度器选中（<code>schedule()</code> 函数）</li>
+<li><strong>运行 → 就绪</strong>：时间片耗尽、被高优先级进程抢占</li>
+<li><strong>运行 → 阻塞</strong>：<code>read()</code> 等待 IO、<code>sleep()</code>、<code>wait()</code></li>
+<li><strong>阻塞 → 就绪</strong>：IO 完成（硬件中断）、<code>notify()</code>、定时器触发</li>
+</ul>
+<hr>
+<h2 id="Q6-僵尸进程-vs-孤儿进程"><a href="#Q6-僵尸进程-vs-孤儿进程" class="headerlink" title="Q6. 僵尸进程 vs 孤儿进程"></a>Q6. 僵尸进程 vs 孤儿进程</h2><h3 id="僵尸进程（Zombie-Process）"><a href="#僵尸进程（Zombie-Process）" class="headerlink" title="僵尸进程（Zombie Process）"></a>僵尸进程（Zombie Process）</h3><p><strong>定义</strong>：子进程已经退出（exit），但父进程还没有调用 <code>wait()</code>&#x2F;<code>waitpid()</code> 回收其 <code>task_struct</code>，导致进程表项残留。</p>
+<p><strong>特征</strong>：</p>
+<ul>
+<li>进程状态为 <code>Z</code></li>
+<li>不占用 CPU 和内存，但占用 PID 和进程表槽位</li>
+<li><code>kill -9</code> 无法杀死（已经死了）</li>
+</ul>
+<p><strong>产生原因</strong>：父进程没有正确处理 <code>SIGCHLD</code> 信号。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 父进程没有 wait，子进程变僵尸</span><br><span class="hljs-type">pid_t</span> pid = fork();<br><span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);  <span class="hljs-comment">// 子进程退出</span><br>&#125;<br>sleep(<span class="hljs-number">100</span>);   <span class="hljs-comment">// 父进程不 wait，子进程成僵尸</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>如何消灭</strong>：</p>
+<ol>
+<li>杀死父进程（僵尸子进程会被 init 收养并回收）</li>
+<li>父进程调用 <code>wait()</code></li>
+<li>父进程注册 <code>SIGCHLD</code> 处理函数</li>
+</ol>
+<h3 id="孤儿进程（Orphan-Process）"><a href="#孤儿进程（Orphan-Process）" class="headerlink" title="孤儿进程（Orphan Process）"></a>孤儿进程（Orphan Process）</h3><p><strong>定义</strong>：父进程先于子进程退出，子进程成为孤儿，被 init 进程（PID&#x3D;1，或 systemd）收养。</p>
+<p><strong>特征</strong>：正常运行，不会产生危害，init 会负责回收。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 验证孤儿进程的父进程变成1</span><br>ps -o pid,ppid,cmd | grep &lt;孤儿进程名&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-视角-2"><a href="#Java-视角-2" class="headerlink" title="Java 视角"></a>Java 视角</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java 中 ProcessBuilder 创建子进程后需要处理</span><br><span class="hljs-type">Process</span> <span class="hljs-variable">p</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProcessBuilder</span>(<span class="hljs-string">&quot;some-script.sh&quot;</span>).start();<br><span class="hljs-comment">// 必须消费 stdout/stderr，否则缓冲区满后子进程阻塞</span><br><span class="hljs-comment">// 最后调用 p.waitFor() 避免僵尸</span><br><span class="hljs-type">int</span> <span class="hljs-variable">exitCode</span> <span class="hljs-operator">=</span> p.waitFor();<br></code></pre></td></tr></table></figure>
+
+<p><strong>实际排查</strong>：<code>ps aux | grep Z | grep -v grep</code>，若僵尸进程持续增多，通常是 Java 应用频繁 <code>Runtime.exec()</code> 但未调用 <code>waitFor()</code>。</p>
+<hr>
+<h2 id="Q7-fork-的-Copy-On-Write（COW）机制"><a href="#Q7-fork-的-Copy-On-Write（COW）机制" class="headerlink" title="Q7. fork() 的 Copy-On-Write（COW）机制"></a>Q7. fork() 的 Copy-On-Write（COW）机制</h2><h3 id="没有-COW-时的问题"><a href="#没有-COW-时的问题" class="headerlink" title="没有 COW 时的问题"></a>没有 COW 时的问题</h3><p><code>fork()</code> 创建子进程需要复制父进程所有内存。一个 4GB 堆的 JVM 进程 fork 一次需要复制 4GB 内存，耗时数秒，完全不可接受。</p>
+<h3 id="COW-的原理"><a href="#COW-的原理" class="headerlink" title="COW 的原理"></a>COW 的原理</h3><p><code>fork()</code> 后，父子进程<strong>共享相同的物理内存页</strong>，页表项都标记为<strong>只读</strong>。</p>
+<p>当任意一方尝试<strong>写入</strong>某个页面时：</p>
+<ol>
+<li>CPU 触发<strong>写保护异常</strong>（Page Fault，写保护类型）</li>
+<li>内核处理函数 <code>do_wp_page()</code> 被调用</li>
+<li>内核分配一个新的物理页，复制原页内容</li>
+<li>将触发写操作的进程的页表项指向新页，标记可写</li>
+<li>恢复执行写操作</li>
+</ol>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">fork</span><span class="hljs-params">()</span></span> 之后：<br>父进程页表: VA → PA<span class="hljs-selector-attr">[x]</span> (只读)<br>子进程页表: VA → PA<span class="hljs-selector-attr">[x]</span> (只读)  ← 共享同一物理页<br><br>子进程写入后：<br>父进程页表: VA → PA<span class="hljs-selector-attr">[x]</span> (只读)<br>子进程页表: VA → PA<span class="hljs-selector-attr">[y]</span> (可写)  ← 新分配的页<br></code></pre></td></tr></table></figure>
+
+<h3 id="fork-exec-的优化"><a href="#fork-exec-的优化" class="headerlink" title="fork() + exec() 的优化"></a>fork() + exec() 的优化</h3><p><code>exec()</code> 会替换进程的整个地址空间，所以 <code>fork()</code> + 立即 <code>exec()</code> 根本不会触发大量 COW，只复制极少量页（如栈、页表本身）。</p>
+<p>Linux 还有 <code>vfork()</code>：子进程完全共享父进程地址空间，父进程挂起直到子进程 <code>exec()</code> 或 <code>exit()</code>，专为 fork-exec 场景优化。</p>
+<h3 id="Java-视角-与-Redis-的-COW"><a href="#Java-视角-与-Redis-的-COW" class="headerlink" title="Java 视角 与 Redis 的 COW"></a>Java 视角 与 Redis 的 COW</h3><p>Redis 的 <code>BGSAVE</code> 命令就是 <code>fork()</code> 子进程进行持久化，利用 COW 保证数据一致性。</p>
+<p><strong>Java 需要注意</strong>：JVM 进程 fork 后，父进程继续写入堆（GC 活动），会大量触发 COW，导致内存使用量翻倍。这就是为什么建议在 JVM 进程中<strong>尽量不 fork</strong>，而是用线程或进程间通信。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看进程内存使用（包含 COW 后的实际使用）</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/status | grep -i vm<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q8-虚拟内存的作用与实现（页表、TLB、多级页表）"><a href="#Q8-虚拟内存的作用与实现（页表、TLB、多级页表）" class="headerlink" title="Q8. 虚拟内存的作用与实现（页表、TLB、多级页表）"></a>Q8. 虚拟内存的作用与实现（页表、TLB、多级页表）</h2><h3 id="虚拟内存解决了什么问题"><a href="#虚拟内存解决了什么问题" class="headerlink" title="虚拟内存解决了什么问题"></a>虚拟内存解决了什么问题</h3><ol>
+<li><strong>地址空间隔离</strong>：每个进程以为自己独占所有内存，互不干扰</li>
+<li><strong>内存超量使用</strong>：物理内存不足时，部分数据放到磁盘（swap）</li>
+<li><strong>内存共享</strong>：多个进程可以映射同一物理页（共享库 libc 只需一份）</li>
+<li><strong>内存保护</strong>：进程无法访问其他进程的内存</li>
+</ol>
+<h3 id="页表（Page-Table）"><a href="#页表（Page-Table）" class="headerlink" title="页表（Page Table）"></a>页表（Page Table）</h3><p><strong>地址翻译过程</strong>：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs applescript">虚拟地址(VA) = 页号(VPN) + 页内偏移(<span class="hljs-built_in">offset</span>)<br>                   ↓（查页表）<br>物理地址(PA) = 物理帧号(PFN) + 页内偏移(<span class="hljs-built_in">offset</span>)<br></code></pre></td></tr></table></figure>
+
+<p>x86-64 使用<strong>4级页表</strong>（Linux 5.x 支持5级）：</p>
+<figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs isbl"><span class="hljs-variable">CR3</span>寄存器 → <span class="hljs-function"><span class="hljs-title">PGD</span>(<span class="hljs-variable">L4</span>) → <span class="hljs-title">PUD</span>(<span class="hljs-variable">L3</span>) → <span class="hljs-title">PMD</span>(<span class="hljs-variable">L2</span>) → <span class="hljs-title">PTE</span>(<span class="hljs-variable">L1</span>) → 物理页</span><br><span class="hljs-function">                ↑每级<span class="hljs-number">9</span>位索引，共<span class="hljs-number">4</span>×<span class="hljs-number">9</span>=<span class="hljs-number">36</span>位 + <span class="hljs-number">12</span>位偏移 = <span class="hljs-number">48</span>位虚拟地址</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="TLB（Translation-Lookaside-Buffer）"><a href="#TLB（Translation-Lookaside-Buffer）" class="headerlink" title="TLB（Translation Lookaside Buffer）"></a>TLB（Translation Lookaside Buffer）</h3><p>页表存在内存中，每次地址翻译都要走4次内存访问，太慢！TLB 是页表的<strong>硬件缓存</strong>（通常64~1024个条目），命中时直接给出物理地址。</p>
+<p><strong>TLB 失效（TLB miss）</strong>：</p>
+<ul>
+<li>访问新地址 → 硬件 Page Table Walk</li>
+<li>进程切换 → 整个 TLB 失效（除非支持 ASID 标记）</li>
+</ul>
+<p><strong>上下文切换慢的主要原因之一就是 TLB 失效</strong>。</p>
+<h3 id="多级页表的意义"><a href="#多级页表的意义" class="headerlink" title="多级页表的意义"></a>多级页表的意义</h3><p>32位进程：虚拟地址空间 4GB，若 4KB 一页，需要 100万个页表项，每项 4B &#x3D; 4MB 页表（每个进程都要！）。</p>
+<p>4级页表：只需为<strong>实际用到的</strong>虚拟地址范围分配页表，节省大量内存。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看进程虚拟内存映射</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/maps<br><br><span class="hljs-comment"># 查看 TLB 相关统计</span><br>perf <span class="hljs-built_in">stat</span> -e dTLB-load-misses,dTLB-store-misses ./your-program<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q9-缺页中断（Page-Fault）的处理流程"><a href="#Q9-缺页中断（Page-Fault）的处理流程" class="headerlink" title="Q9. 缺页中断（Page Fault）的处理流程"></a>Q9. 缺页中断（Page Fault）的处理流程</h2><h3 id="什么是缺页中断"><a href="#什么是缺页中断" class="headerlink" title="什么是缺页中断"></a>什么是缺页中断</h3><p>CPU 访问虚拟地址时，页表项中对应的物理页<strong>不在内存中</strong>（页表项 Present 位为0），触发 Page Fault 异常（中断号14）。</p>
+<h3 id="三种-Page-Fault-类型"><a href="#三种-Page-Fault-类型" class="headerlink" title="三种 Page Fault 类型"></a>三种 Page Fault 类型</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>原因</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Minor Fault</td>
+<td>页在内存，但页表未建立（如 mmap 后首次访问）</td>
+<td>建立映射，无需IO</td>
+</tr>
+<tr>
+<td>Major Fault</td>
+<td>页在 Swap 或文件，需要磁盘IO</td>
+<td>从磁盘读入，慢！</td>
+</tr>
+<tr>
+<td>Invalid Fault</td>
+<td>非法访问（如空指针）</td>
+<td>发送 SIGSEGV 信号</td>
+</tr>
+</tbody></table>
+<h3 id="完整处理流程"><a href="#完整处理流程" class="headerlink" title="完整处理流程"></a>完整处理流程</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> CPU 触发 Page Fault 异常，保存现场（寄存器、PC）<br><span class="hljs-bullet">2.</span> 跳转到内核 Page Fault 处理函数 do<span class="hljs-emphasis">_page_</span>fault()<br><span class="hljs-bullet">3.</span> 检查故障地址（CR2 寄存器保存虚拟地址）<br><span class="hljs-bullet">4.</span> 查找 VMA（Virtual Memory Area），判断地址是否合法<br>   └── 非法地址 → 发送 SIGSEGV，进程崩溃<br><span class="hljs-bullet">5.</span> 确认 Fault 类型：<br>   ├── COW Fault → 分配新页，复制内容<br>   ├── Anonymous Page → 分配新物理页（清零），建立映射<br>   └── File-backed Page → 从文件/Swap 读入数据<br><span class="hljs-bullet">6.</span> 更新页表，刷新 TLB<br><span class="hljs-bullet">7.</span> 返回用户态，重新执行触发 Fault 的指令<br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-视角-3"><a href="#Java-视角-3" class="headerlink" title="Java 视角"></a>Java 视角</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看进程的 Page Fault 统计</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/stat | awk <span class="hljs-string">&#x27;&#123;print &quot;Minor:&quot;, $10, &quot;Major:&quot;, $12&#125;&#x27;</span><br><br><span class="hljs-comment"># 或者用 ps</span><br>ps -o pid,minflt,majflt,cmd -p &lt;pid&gt;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Java 启动慢的原因之一</strong>：JVM 加载大量类文件，触发大量 Minor Page Fault（mmap 映射 jar 包后，首次访问时才加载）。</p>
+<p><strong>JVM 的 <code>-XX:+AlwaysPreTouch</code></strong>：JVM 启动时主动触碰所有堆内存，提前触发 Page Fault，避免运行时首次 GC 时卡顿。</p>
+<hr>
+<h2 id="Q10-内存分配：malloc-free-的底层实现（brk-vs-mmap-阈值）"><a href="#Q10-内存分配：malloc-free-的底层实现（brk-vs-mmap-阈值）" class="headerlink" title="Q10. 内存分配：malloc&#x2F;free 的底层实现（brk vs mmap 阈值）"></a>Q10. 内存分配：malloc&#x2F;free 的底层实现（brk vs mmap 阈值）</h2><h3 id="用户空间内存布局"><a href="#用户空间内存布局" class="headerlink" title="用户空间内存布局"></a>用户空间内存布局</h3><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs lasso">高地址<br>┌─────────────────┐<br>│   内核空间       │ (用户不可访问)<br>├─────────────────┤ <span class="hljs-number">0x7fff</span><span class="hljs-params">...</span><br>│   栈 (<span class="hljs-built_in">Stack</span>)     │ ↓ 向下增长<br>│                 │<br>├─────────────────┤<br>│   mmap 区域      │ (共享库、mmap文件、大块malloc)<br>│                 │<br>├─────────────────┤<br>│   堆 (Heap)      │ ↑ 向上增长（brk/sbrk控制）<br>├─────────────────┤ program break<br>│   BSS段          │ (未初始化全局变量)<br>│   <span class="hljs-built_in">Data</span>段         │ (已初始化全局变量)<br>│   Text段         │ (代码)<br>└─────────────────┘ <span class="hljs-number">0x0</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="malloc-的两种分配策略"><a href="#malloc-的两种分配策略" class="headerlink" title="malloc 的两种分配策略"></a>malloc 的两种分配策略</h3><p><strong>策略1：brk()——移动堆顶指针（小内存）</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 分配小块内存（通常 &lt; 128KB）</span><br><span class="hljs-comment">// glibc 调用 brk()/sbrk() 扩展堆</span><br><span class="hljs-type">void</span> *p = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">1024</span>);   <span class="hljs-comment">// 从堆上分配，碎片化后不一定归还OS</span><br><span class="hljs-built_in">free</span>(p);                   <span class="hljs-comment">// 归还给 glibc，不一定调用 brk 收缩</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>策略2：mmap()——直接映射匿名页（大内存）</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 分配大块内存（&gt; MMAP_THRESHOLD，默认 128KB）</span><br><span class="hljs-comment">// glibc 调用 mmap(MAP_ANONYMOUS) 映射独立内存区域</span><br><span class="hljs-type">void</span> *p = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>);  <span class="hljs-comment">// 走 mmap</span><br><span class="hljs-built_in">free</span>(p);                         <span class="hljs-comment">// 调用 munmap，立即归还OS</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="glibc-malloc-的内存池（bins）"><a href="#glibc-malloc-的内存池（bins）" class="headerlink" title="glibc malloc 的内存池（bins）"></a>glibc malloc 的内存池（bins）</h3><p>glibc 使用 <strong>ptmalloc2</strong> 算法，维护多个大小的 free list（bins）：</p>
+<ul>
+<li><strong>fast bins</strong>：16~64字节，单链表，不合并相邻块</li>
+<li><strong>small bins</strong>：&lt; 512字节，双向链表</li>
+<li><strong>large bins</strong>：≥ 512字节，按大小排序</li>
+<li><strong>unsorted bin</strong>：刚释放的块先放这里</li>
+</ul>
+<h3 id="Java-视角-4"><a href="#Java-视角-4" class="headerlink" title="Java 视角"></a>Java 视角</h3><p>JVM 的内存分配走的是 JVM 自己的分配器（不直接调用 glibc malloc），但 JVM native 代码（JNI）分配的内存走 glibc。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 调整 mmap 阈值（大对象直接还给OS）</span><br><span class="hljs-built_in">export</span> MALLOC_MMAP_THRESHOLD_=65536<br><br><span class="hljs-comment"># 使用 jemalloc 替换 glibc malloc（更低碎片化）</span><br>LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so java ...<br><br><span class="hljs-comment"># Java 进程堆外内存排查</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/smaps | grep -A5 heap<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q11-内存泄漏的检测方法"><a href="#Q11-内存泄漏的检测方法" class="headerlink" title="Q11. 内存泄漏的检测方法"></a>Q11. 内存泄漏的检测方法</h2><h3 id="内存泄漏的本质"><a href="#内存泄漏的本质" class="headerlink" title="内存泄漏的本质"></a>内存泄漏的本质</h3><p>已分配的内存，程序<strong>不再使用但无法释放</strong>（C：忘记 free；Java：对象有强引用但业务已不需要）。</p>
+<h3 id="Linux-层面检测工具"><a href="#Linux-层面检测工具" class="headerlink" title="Linux 层面检测工具"></a>Linux 层面检测工具</h3><p><strong>1. valgrind（最全面）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">valgrind --leak-check=full --show-leak-kinds=all \<br>         --track-origins=<span class="hljs-built_in">yes</span> --verbose \<br>         ./your-program 2&gt;&amp;1 | <span class="hljs-built_in">tee</span> valgrind.log<br></code></pre></td></tr></table></figure>
+
+<p>输出示例：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">LEAK SUMMARY:<br>  definitely lost: <span class="hljs-number">1</span>,<span class="hljs-number">024</span> <span class="hljs-keyword">bytes </span>in <span class="hljs-number">1</span> <span class="hljs-keyword">blocks </span>  <span class="hljs-comment"># 确定泄漏</span><br>    indirectly lost: <span class="hljs-number">0</span> <span class="hljs-keyword">bytes </span>in <span class="hljs-number">0</span> <span class="hljs-keyword">blocks</span><br><span class="hljs-keyword"></span>      possibly lost: <span class="hljs-number">512</span> <span class="hljs-keyword">bytes </span>in <span class="hljs-number">2</span> <span class="hljs-keyword">blocks </span>   <span class="hljs-comment"># 可能泄漏</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>2. &#x2F;proc&#x2F;PID&#x2F;smaps 监控</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 持续监控进程内存</span><br><span class="hljs-keyword">while</span> <span class="hljs-literal">true</span>; <span class="hljs-keyword">do</span><br>    <span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/smaps | grep -E <span class="hljs-string">&quot;^(Size|Rss|Pss)&quot;</span> | \<br>        awk <span class="hljs-string">&#x27;&#123;sum+=$2&#125; END&#123;print strftime(&quot;%T&quot;), sum&quot;KB&quot;&#125;&#x27;</span> &gt;&gt; mem.log<br>    <span class="hljs-built_in">sleep</span> 10<br><span class="hljs-keyword">done</span><br><br><span class="hljs-comment"># 查看具体内存区域</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/smaps_rollup<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. &#x2F;proc&#x2F;PID&#x2F;status 关键字段</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/status<br><span class="hljs-comment"># VmRSS：实际物理内存（RSS）</span><br><span class="hljs-comment"># VmHWM：历史最高 RSS（high water mark）</span><br><span class="hljs-comment"># VmPeak：历史最高虚拟内存</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>4. pmap 命令</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">pmap -x &lt;pid&gt;  <span class="hljs-comment"># 查看各内存段的大小</span><br>pmap -x &lt;pid&gt; | <span class="hljs-built_in">sort</span> -k3 -n -r | <span class="hljs-built_in">head</span>  <span class="hljs-comment"># 找最大内存块</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-内存泄漏排查"><a href="#Java-内存泄漏排查" class="headerlink" title="Java 内存泄漏排查"></a>Java 内存泄漏排查</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 堆内存泄漏</span><br>jmap -histo:live &lt;pid&gt; | <span class="hljs-built_in">head</span> -30  <span class="hljs-comment"># 查看对象数量</span><br>jmap -dump:format=b,file=heap.hprof &lt;pid&gt;  <span class="hljs-comment"># 生成堆转储</span><br><span class="hljs-comment"># 用 MAT/VisualVM 分析 hprof</span><br><br><span class="hljs-comment"># 堆外内存泄漏（DirectByteBuffer/NIO）</span><br>java -XX:NativeMemoryTracking=detail ...<br>jcmd &lt;pid&gt; VM.native_memory detail  <span class="hljs-comment"># 查看原生内存</span><br><br><span class="hljs-comment"># 元空间泄漏（类加载器泄漏）</span><br>jstat -gcmetacapacity &lt;pid&gt; 1000<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q12-进程调度算法"><a href="#Q12-进程调度算法" class="headerlink" title="Q12. 进程调度算法"></a>Q12. 进程调度算法</h2><h3 id="FCFS（先来先服务）"><a href="#FCFS（先来先服务）" class="headerlink" title="FCFS（先来先服务）"></a>FCFS（先来先服务）</h3><p>按到达顺序调度，简单但<strong>护航效应</strong>严重（长进程阻塞后面的短进程）。非抢占式。</p>
+<h3 id="SJF（短作业优先）"><a href="#SJF（短作业优先）" class="headerlink" title="SJF（短作业优先）"></a>SJF（短作业优先）</h3><p>选择预估执行时间最短的进程，平均等待时间最优，但<strong>需要预知执行时间</strong>（实际难以做到）。</p>
+<p><strong>SRTF（最短剩余时间）</strong>&#x3D; 抢占式 SJF</p>
+<h3 id="轮转调度（Round-Robin）"><a href="#轮转调度（Round-Robin）" class="headerlink" title="轮转调度（Round Robin）"></a>轮转调度（Round Robin）</h3><p>每个进程分配固定<strong>时间片</strong>（通常 10~100ms），时间片到则抢占，放到队尾。</p>
+<ul>
+<li>时间片太大 → 退化为 FCFS</li>
+<li>时间片太小 → 上下文切换开销过大</li>
+</ul>
+<h3 id="优先级调度"><a href="#优先级调度" class="headerlink" title="优先级调度"></a>优先级调度</h3><p>高优先级进程优先运行，可抢占低优先级进程。问题：低优先级进程<strong>饥饿</strong>（Starvation）。</p>
+<p>解决：<strong>老化（Aging）</strong>——随时间推移提升等待进程的优先级。</p>
+<h3 id="CFS（完全公平调度）—-Linux-默认"><a href="#CFS（完全公平调度）—-Linux-默认" class="headerlink" title="CFS（完全公平调度）— Linux 默认"></a>CFS（完全公平调度）— Linux 默认</h3><p><strong>核心思想</strong>：让每个进程都获得公平的 CPU 时间，以虚拟运行时间（<code>vruntime</code>）衡量公平性。</p>
+<figure class="highlight fix"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs fix"><span class="hljs-attr">vruntime +</span>=<span class="hljs-string"> 实际运行时间 × (默认权重 / 进程权重)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>**优先级（nice 值）**影响权重，而非直接影响调度顺序</li>
+<li>使用<strong>红黑树</strong>存储所有可运行进程，<code>vruntime</code> 最小的进程最先运行（最左节点）</li>
+<li>时间复杂度 O(log n)</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看进程的调度信息</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/sched<br><br><span class="hljs-comment"># 设置进程优先级（nice值：-20最高优先级，19最低）</span><br><span class="hljs-built_in">nice</span> -n 10 java -jar app.jar    <span class="hljs-comment"># 低优先级启动</span><br>renice -n -5 -p &lt;pid&gt;           <span class="hljs-comment"># 提升运行中进程优先级</span><br><br><span class="hljs-comment"># 实时调度（绕过CFS）</span><br>chrt -f 50 ./realtime-process   <span class="hljs-comment"># FIFO实时调度，优先级50</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-视角-5"><a href="#Java-视角-5" class="headerlink" title="Java 视角"></a>Java 视角</h3><p>Java 线程优先级（1-10）会被映射到 Linux nice 值，但映射关系因 JVM 实现而异，实际效果有限。更推荐通过业务架构（线程池隔离、任务队列）来控制优先级。</p>
+<hr>
+<h2 id="Q13-上下文切换的开销"><a href="#Q13-上下文切换的开销" class="headerlink" title="Q13. 上下文切换的开销"></a>Q13. 上下文切换的开销</h2><h3 id="什么是上下文"><a href="#什么是上下文" class="headerlink" title="什么是上下文"></a>什么是上下文</h3><p>进程&#x2F;线程的”运行现场”：CPU 寄存器（通用寄存器、PC、SP、状态寄存器）+ 内核栈 + 内存映射信息。</p>
+<h3 id="上下文切换的步骤和开销"><a href="#上下文切换的步骤和开销" class="headerlink" title="上下文切换的步骤和开销"></a>上下文切换的步骤和开销</h3><p><strong>1. 保存当前线程上下文</strong></p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-bullet">- </span>保存所有 CPU 寄存器到 task_struct.thread<br><span class="hljs-bullet">- </span>保存浮点/SSE寄存器（如果使用）← 这个很重！<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 切换内存空间（进程间切换才有）</strong></p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-bullet">- </span>加载新进程的页表基址到 CR3 寄存器<br><span class="hljs-bullet">- </span>TLB 完全失效（没有 ASID 时）← 主要开销来源<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 恢复新线程上下文</strong></p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-bullet">- </span>从 task_struct 恢复寄存器<br><span class="hljs-bullet">- </span>返回用户态<br></code></pre></td></tr></table></figure>
+
+<h3 id="Cache-失效的间接开销"><a href="#Cache-失效的间接开销" class="headerlink" title="Cache 失效的间接开销"></a>Cache 失效的间接开销</h3><p>上下文切换后，新线程访问的数据不在 CPU Cache 中（L1&#x2F;L2&#x2F;L3 Cache Miss），触发大量内存访问，这个<strong>间接开销比直接开销大得多</strong>。</p>
+<p>估算：</p>
+<ul>
+<li>直接开销：<del>1</del>10 微秒（寄存器保存恢复）</li>
+<li>间接 Cache 冷启动：可高达 100+ 微秒</li>
+</ul>
+<h3 id="减少上下文切换的方法"><a href="#减少上下文切换的方法" class="headerlink" title="减少上下文切换的方法"></a>减少上下文切换的方法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看系统上下文切换频率</span><br>vmstat 1 | awk <span class="hljs-string">&#x27;&#123;print $12, $13&#125;&#x27;</span>  <span class="hljs-comment"># cs 列是上下文切换次数</span><br><br><span class="hljs-comment"># 绑定 CPU（减少跨CPU迁移导致的Cache失效）</span><br>taskset -c 0,1 java -jar app.jar<br><br><span class="hljs-comment"># 查看线程上下文切换</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/status | grep ctxt<br><span class="hljs-comment"># voluntary_ctxt_switches：主动切换（IO等待）</span><br><span class="hljs-comment"># nonvoluntary_ctxt_switches：被抢占（时间片到）</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-视角-6"><a href="#Java-视角-6" class="headerlink" title="Java 视角"></a>Java 视角</h3><p>线程池大小 &#x3D; CPU 核数（CPU 密集型）或更多（IO 密集型）。线程过多 → 大量上下文切换 → 性能下降。</p>
+<p><strong>Java 21 虚拟线程的优势</strong>：虚拟线程切换不需要系统调用，开销仅在 JVM 层面（纳秒级），大幅减少内核上下文切换。</p>
+<hr>
+<h2 id="Q14-死锁的4个必要条件及-Banker-算法"><a href="#Q14-死锁的4个必要条件及-Banker-算法" class="headerlink" title="Q14. 死锁的4个必要条件及 Banker 算法"></a>Q14. 死锁的4个必要条件及 Banker 算法</h2><h3 id="四个必要条件（Coffman-条件）"><a href="#四个必要条件（Coffman-条件）" class="headerlink" title="四个必要条件（Coffman 条件）"></a>四个必要条件（Coffman 条件）</h3><ol>
+<li><strong>互斥（Mutual Exclusion）</strong>：资源一次只能被一个进程使用</li>
+<li><strong>持有并等待（Hold and Wait）</strong>：进程持有资源的同时，等待其他进程持有的资源</li>
+<li><strong>不可剥夺（No Preemption）</strong>：已分配的资源不能被强制剥夺</li>
+<li><strong>循环等待（Circular Wait）</strong>：存在进程等待链形成环路</li>
+</ol>
+<p><strong>只要破坏其中一个，死锁就不会发生。</strong></p>
+<h3 id="实际避免策略"><a href="#实际避免策略" class="headerlink" title="实际避免策略"></a>实际避免策略</h3><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>破坏条件</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>资源一次性申请</td>
+<td>持有并等待</td>
+<td>事务开始前锁定所有资源</td>
+</tr>
+<tr>
+<td>有序加锁</td>
+<td>循环等待</td>
+<td>约定锁的获取顺序</td>
+</tr>
+<tr>
+<td>超时机制</td>
+<td>不可剥夺</td>
+<td><code>tryLock(timeout)</code></td>
+</tr>
+<tr>
+<td>乐观锁&#x2F;无锁</td>
+<td>互斥</td>
+<td>CAS 操作</td>
+</tr>
+</tbody></table>
+<h3 id="Banker-算法（银行家算法）"><a href="#Banker-算法（银行家算法）" class="headerlink" title="Banker 算法（银行家算法）"></a>Banker 算法（银行家算法）</h3><p>动态避免死锁，判断资源分配后系统是否仍处于<strong>安全状态</strong>（存在安全序列）。</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs armasm">安全序列：存在一个进程执行顺序 <span class="hljs-built_in">P1</span>, <span class="hljs-built_in">P2</span>, ..., Pn<br>使得每个进程 Pi 需要的最大资源 ≤ 当前可用 + 前面所有进程释放的资源<br></code></pre></td></tr></table></figure>
+
+<p><strong>简化版算法</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">is_safe</span>(<span class="hljs-params">available, max_need, allocation</span>):<br>    need = max_need - allocation<br>    work = available.copy()<br>    finish = [<span class="hljs-literal">False</span>] * n<br>    <br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        found = <span class="hljs-literal">False</span><br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):<br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> finish[i] <span class="hljs-keyword">and</span> <span class="hljs-built_in">all</span>(need[i] &lt;= work):<br>                work += allocation[i]  <span class="hljs-comment"># Pi完成，释放资源</span><br>                finish[i] = <span class="hljs-literal">True</span><br>                found = <span class="hljs-literal">True</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> found:<br>            <span class="hljs-keyword">break</span><br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">all</span>(finish)  <span class="hljs-comment"># 全部完成 → 安全状态</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-死锁检测"><a href="#Java-死锁检测" class="headerlink" title="Java 死锁检测"></a>Java 死锁检测</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java 代码层面的死锁检测</span><br><span class="hljs-type">ThreadMXBean</span> <span class="hljs-variable">bean</span> <span class="hljs-operator">=</span> ManagementFactory.getThreadMXBean();<br><span class="hljs-type">long</span>[] deadlockedThreads = bean.findDeadlockedThreads();<br><br><span class="hljs-comment">// 命令行检测</span><br>jstack &lt;pid&gt; | grep -A5 <span class="hljs-string">&quot;deadlock&quot;</span><br><br><span class="hljs-comment">// jcmd</span><br>jcmd &lt;pid&gt; Thread.print | grep -i dead<br></code></pre></td></tr></table></figure>
+
+<p><strong>有序加锁示例（破坏循环等待）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 错误：可能死锁</span><br><span class="hljs-keyword">synchronized</span>(lockA) &#123; <span class="hljs-keyword">synchronized</span>(lockB) &#123; ... &#125; &#125;<br><span class="hljs-keyword">synchronized</span>(lockB) &#123; <span class="hljs-keyword">synchronized</span>(lockA) &#123; ... &#125; &#125;<br><br><span class="hljs-comment">// 正确：按固定顺序（如hashCode）加锁</span><br><span class="hljs-type">Object</span> <span class="hljs-variable">first</span> <span class="hljs-operator">=</span> System.identityHashCode(a) &lt; System.identityHashCode(b) ? a : b;<br><span class="hljs-type">Object</span> <span class="hljs-variable">second</span> <span class="hljs-operator">=</span> first == a ? b : a;<br><span class="hljs-keyword">synchronized</span>(first) &#123; <span class="hljs-keyword">synchronized</span>(second) &#123; ... &#125; &#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q15-文件系统：inode-是什么，软链接-vs-硬链接"><a href="#Q15-文件系统：inode-是什么，软链接-vs-硬链接" class="headerlink" title="Q15. 文件系统：inode 是什么，软链接 vs 硬链接"></a>Q15. 文件系统：inode 是什么，软链接 vs 硬链接</h2><h3 id="inode-的本质"><a href="#inode-的本质" class="headerlink" title="inode 的本质"></a>inode 的本质</h3><p>inode（Index Node）是文件系统中存储<strong>文件元数据</strong>的数据结构，每个文件&#x2F;目录有唯一一个 inode。</p>
+<p><strong>inode 中存储什么</strong>：</p>
+<ul>
+<li>文件类型（普通文件、目录、符号链接…）</li>
+<li>权限（rwxrwxrwx）</li>
+<li>硬链接计数</li>
+<li>所有者 UID、GID</li>
+<li>文件大小</li>
+<li>时间戳（atime&#x2F;mtime&#x2F;ctime）</li>
+<li>数据块指针（直接块 + 间接块）</li>
+</ul>
+<p><strong>inode 中不存储</strong>：文件名（文件名存在目录项中！）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 inode 号</span><br><span class="hljs-built_in">ls</span> -i filename<br><span class="hljs-built_in">stat</span> filename<br><br><span class="hljs-comment"># 查看文件系统 inode 使用情况</span><br><span class="hljs-built_in">df</span> -i<br><br><span class="hljs-comment"># 查看 inode 内容</span><br><span class="hljs-built_in">stat</span> /etc/hosts<br></code></pre></td></tr></table></figure>
+
+<h3 id="目录的本质"><a href="#目录的本质" class="headerlink" title="目录的本质"></a>目录的本质</h3><p>目录是一个特殊文件，内容是<strong>文件名 → inode 号</strong>的映射表：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">/etc/</span>hosts 目录项：<br>  <span class="hljs-string">&quot;hosts&quot;</span> → inode <span class="hljs-number">123456</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="硬链接（Hard-Link）"><a href="#硬链接（Hard-Link）" class="headerlink" title="硬链接（Hard Link）"></a>硬链接（Hard Link）</h3><p>创建另一个目录项指向<strong>同一个 inode</strong>，inode 的链接计数 +1。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ln</span> /etc/hosts /tmp/hosts_backup  <span class="hljs-comment"># 硬链接</span><br><br><span class="hljs-comment"># 两个文件的 inode 号相同</span><br><span class="hljs-built_in">ls</span> -i /etc/hosts /tmp/hosts_backup<br><span class="hljs-comment"># 123456 /etc/hosts</span><br><span class="hljs-comment"># 123456 /tmp/hosts_backup</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>特点</strong>：</p>
+<ul>
+<li>删除原文件不影响硬链接（inode 引用计数 &gt; 0）</li>
+<li>不能跨文件系统（inode 号只在同一文件系统内唯一）</li>
+<li>不能指向目录（防止循环）</li>
+</ul>
+<h3 id="软链接（Symbolic-Link-Symlink）"><a href="#软链接（Symbolic-Link-Symlink）" class="headerlink" title="软链接（Symbolic Link &#x2F; Symlink）"></a>软链接（Symbolic Link &#x2F; Symlink）</h3><p>创建一个新文件（新 inode），内容是<strong>目标路径字符串</strong>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ln</span> -s /etc/hosts /tmp/hosts_link  <span class="hljs-comment"># 软链接</span><br><br><span class="hljs-built_in">ls</span> -li /tmp/hosts_link<br><span class="hljs-comment"># 789012 lrwxrwxrwx ... /tmp/hosts_link -&gt; /etc/hosts</span><br><span class="hljs-comment"># ↑ 新的 inode 号</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>特点</strong>：</p>
+<ul>
+<li>可以跨文件系统</li>
+<li>可以指向目录</li>
+<li>原文件删除后，软链接变为<strong>悬空链接</strong>（dangling link）</li>
+<li>访问软链接需要额外一次路径解析</li>
+</ul>
+<h3 id="对比总结"><a href="#对比总结" class="headerlink" title="对比总结"></a>对比总结</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>硬链接</th>
+<th>软链接</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>inode</td>
+<td>相同</td>
+<td>不同（新建）</td>
+</tr>
+<tr>
+<td>跨文件系统</td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>目标目录</td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>原文件删除</td>
+<td>文件仍可访问</td>
+<td>链接失效</td>
+</tr>
+<tr>
+<td>本质</td>
+<td>目录项引用</td>
+<td>路径字符串文件</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="Q16-VFS（虚拟文件系统）的作用"><a href="#Q16-VFS（虚拟文件系统）的作用" class="headerlink" title="Q16. VFS（虚拟文件系统）的作用"></a>Q16. VFS（虚拟文件系统）的作用</h2><h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>Linux 支持数十种文件系统：ext4、xfs、btrfs、tmpfs、procfs、nfs……用户程序难道要为每种文件系统写不同的代码？</p>
+<h3 id="VFS-的解决方案"><a href="#VFS-的解决方案" class="headerlink" title="VFS 的解决方案"></a>VFS 的解决方案</h3><p>VFS 是 Linux 内核中的<strong>文件系统抽象层</strong>，为上层提供统一的接口，屏蔽不同文件系统的实现差异。</p>
+<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs tcl">用户程序<br>    │  <span class="hljs-keyword">open</span>() <span class="hljs-keyword">read</span>() write() <span class="hljs-keyword">close</span>()<br>    ↓<br>  系统调用接口<br>    ↓<br>  VFS 层（统一接口：super_block, inode, dentry, <span class="hljs-keyword">file</span>）<br>    ├── ext4 文件系统<br>    ├── xfs 文件系统<br>    ├── tmpfs（内存文件系统）<br>    ├── procfs（/<span class="hljs-keyword">proc</span>，进程信息）<br>    ├──<span class="hljs-title"> sysfs（/sys，设备信息）</span><br>    └──<span class="hljs-title"> nfs（网络文件系统）</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="VFS-四大核心对象"><a href="#VFS-四大核心对象" class="headerlink" title="VFS 四大核心对象"></a>VFS 四大核心对象</h3><table>
+<thead>
+<tr>
+<th>对象</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>super_block</code></td>
+<td>描述已挂载文件系统的整体信息</td>
+</tr>
+<tr>
+<td><code>inode</code></td>
+<td>描述文件元数据（对应具体FS的inode）</td>
+</tr>
+<tr>
+<td><code>dentry</code></td>
+<td>目录项缓存，路径名 → inode 的映射</td>
+</tr>
+<tr>
+<td><code>file</code></td>
+<td>进程打开文件的上下文（当前偏移量等）</td>
+</tr>
+</tbody></table>
+<h3 id="dentry-缓存（dcache）"><a href="#dentry-缓存（dcache）" class="headerlink" title="dentry 缓存（dcache）"></a>dentry 缓存（dcache）</h3><p>路径查找是高频操作，VFS 用 dcache 缓存路径解析结果，避免每次都从磁盘读取目录项。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 dcache 使用情况</span><br><span class="hljs-built_in">cat</span> /proc/sys/fs/dentry-state<br><span class="hljs-comment"># 格式：dentry数量 未使用数量 年龄限制 ...</span><br><br><span class="hljs-comment"># 查看 inode 缓存</span><br><span class="hljs-built_in">cat</span> /proc/sys/fs/inode-state<br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-视角-7"><a href="#Java-视角-7" class="headerlink" title="Java 视角"></a>Java 视角</h3><p>Java 的 <code>File</code>、<code>Path</code>、<code>FileChannel</code> 等 API 最终都通过 JNI 调用 Linux 的 <code>open()</code>、<code>read()</code> 等系统调用，走 VFS 层。正因为有 VFS，Java 代码不需要关心底层是 ext4 还是 xfs。</p>
+<p><code>/proc</code> 和 <code>/sys</code> 也是 VFS 的文件系统，所以 Java 可以直接读取 <code>/proc/self/status</code> 获取 JVM 进程信息。</p>
+<hr>
+<h2 id="Q17-磁盘调度算法"><a href="#Q17-磁盘调度算法" class="headerlink" title="Q17. 磁盘调度算法"></a>Q17. 磁盘调度算法</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>传统机械硬盘（HDD）磁盘寻道时间（5~15ms）是主要瓶颈，调度算法目标是减少总寻道时间。（SSD 无寻道时间，这些算法意义较小，但 Linux 仍提供调度层抽象。）</p>
+<h3 id="FCFS（先来先服务）-1"><a href="#FCFS（先来先服务）-1" class="headerlink" title="FCFS（先来先服务）"></a>FCFS（先来先服务）</h3><p>按 IO 请求到达顺序处理，简单公平，但可能导致磁头来回大幅移动。</p>
+<h3 id="SSTF（最短寻道时间优先）"><a href="#SSTF（最短寻道时间优先）" class="headerlink" title="SSTF（最短寻道时间优先）"></a>SSTF（最短寻道时间优先）</h3><p>每次选择距当前磁头<strong>最近</strong>的请求，减少总寻道距离，但可能导致远端请求<strong>饥饿</strong>。</p>
+<h3 id="SCAN（电梯算法）"><a href="#SCAN（电梯算法）" class="headerlink" title="SCAN（电梯算法）"></a>SCAN（电梯算法）</h3><p>磁头像电梯一样，向一个方向移动，处理路径上的所有请求，到达端点后反向。</p>
+<p><strong>C-SCAN（循环 SCAN）</strong>：只向一个方向扫描，到达端点后立即返回起点，再次向同一方向扫描。响应时间更均匀。</p>
+<h3 id="实际使用"><a href="#实际使用" class="headerlink" title="实际使用"></a>实际使用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看磁盘使用的调度算法</span><br><span class="hljs-built_in">cat</span> /sys/block/sda/queue/scheduler<br><span class="hljs-comment"># [mq-deadline] kyber bfq none</span><br><br><span class="hljs-comment"># 查看所有可用调度器并切换</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;bfq&quot;</span> &gt; /sys/block/sda/queue/scheduler<br><br><span class="hljs-comment"># 各调度器适用场景：</span><br><span class="hljs-comment"># noop/none：SSD（无寻道开销）</span><br><span class="hljs-comment"># deadline：数据库（保证延迟上限）</span><br><span class="hljs-comment"># bfq：桌面系统（交互响应好）</span><br><span class="hljs-comment"># mq-deadline：通用服务器</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="查看磁盘-IO-性能"><a href="#查看磁盘-IO-性能" class="headerlink" title="查看磁盘 IO 性能"></a>查看磁盘 IO 性能</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">iostat -x 1        <span class="hljs-comment"># 查看磁盘利用率、等待时间</span><br>iotop -d 1         <span class="hljs-comment"># 查看进程IO使用量</span><br>blktrace /dev/sda  <span class="hljs-comment"># 详细跟踪块设备IO</span><br><br><span class="hljs-comment"># 查看 Java 进程的磁盘IO</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/io<br><span class="hljs-comment"># rchar: 读取字节数</span><br><span class="hljs-comment"># wchar: 写入字节数</span><br><span class="hljs-comment"># read_bytes: 实际磁盘读</span><br><span class="hljs-comment"># write_bytes: 实际磁盘写</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q18-IO-的5种模型"><a href="#Q18-IO-的5种模型" class="headerlink" title="Q18. IO 的5种模型"></a>Q18. IO 的5种模型</h2><p>以 <code>recvfrom</code> 系统调用为例，等待 UDP 数据包到来：</p>
+<h3 id="1-阻塞-IO（Blocking-IO）"><a href="#1-阻塞-IO（Blocking-IO）" class="headerlink" title="1. 阻塞 IO（Blocking IO）"></a>1. 阻塞 IO（Blocking IO）</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs">调用 recvfrom<br>    → 内核等待数据到达（阻塞，什么都不干）<br>    → 数据到达，内核将数据从内核缓冲区拷贝到用户缓冲区<br>    → 返回，进程继续<br></code></pre></td></tr></table></figure>
+
+<p>简单，但线程被阻塞，无法处理其他事情。</p>
+<h3 id="2-非阻塞-IO（Non-blocking-IO）"><a href="#2-非阻塞-IO（Non-blocking-IO）" class="headerlink" title="2. 非阻塞 IO（Non-blocking IO）"></a>2. 非阻塞 IO（Non-blocking IO）</h3><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">调用 recvfrom（<span class="hljs-built_in">socket</span>设为O_NONBLOCK）<br>    → 数据未就绪 → 立即返回 EAGAIN/EWOULDBLOCK<br>    → 进程轮询（busy-<span class="hljs-built_in">wait</span>），浪费 CPU<br>    → 数据就绪 → 返回数据<br></code></pre></td></tr></table></figure>
+
+<p>不阻塞，但轮询浪费 CPU。</p>
+<h3 id="3-IO-多路复用（IO-Multiplexing）"><a href="#3-IO-多路复用（IO-Multiplexing）" class="headerlink" title="3. IO 多路复用（IO Multiplexing）"></a>3. IO 多路复用（IO Multiplexing）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-keyword">select</span>/poll/epoll 监控多个 fd<br>    → 有 fd 就绪时返回<br>    → 调用 recvfrom 读取数据（这步仍然是同步的）<br></code></pre></td></tr></table></figure>
+
+<p>单线程管理多个连接，是 Nginx、Redis 的基础。</p>
+<h3 id="4-信号驱动-IO（Signal-driven-IO）"><a href="#4-信号驱动-IO（Signal-driven-IO）" class="headerlink" title="4. 信号驱动 IO（Signal-driven IO）"></a>4. 信号驱动 IO（Signal-driven IO）</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs">注册 SIGIO 信号处理函数，调用 sigaction<br>    → 立即返回，进程继续执行<br>    → 数据就绪时，内核发送 SIGIO 信号<br>    → 信号处理函数中调用 recvfrom<br></code></pre></td></tr></table></figure>
+
+<p>实际很少用（信号处理复杂，存在竞态）。</p>
+<h3 id="5-异步-IO（Asynchronous-IO）"><a href="#5-异步-IO（Asynchronous-IO）" class="headerlink" title="5. 异步 IO（Asynchronous IO）"></a>5. 异步 IO（Asynchronous IO）</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs">调用 aio_read（Linux POSIX AIO 或 io_uring）<br>    → 立即返回<br>    → 内核等待数据、拷贝到用户缓冲区<br>    → 完成后通知进程（回调/信号）<br></code></pre></td></tr></table></figure>
+
+<p>真正的异步，连数据拷贝也是内核做的。Linux 的 <code>io_uring</code>（5.1+）是目前最高效的实现。</p>
+<h3 id="区分同步异步、阻塞非阻塞"><a href="#区分同步异步、阻塞非阻塞" class="headerlink" title="区分同步异步、阻塞非阻塞"></a>区分同步异步、阻塞非阻塞</h3><ul>
+<li><strong>阻塞&#x2F;非阻塞</strong>：描述调用者是否等待（发起调用到得到结果这段时间）</li>
+<li><strong>同步&#x2F;异步</strong>：描述 IO 操作是否由调用者自己完成<ul>
+<li>同步：调用者自己调用 recvfrom 拷贝数据</li>
+<li>异步：内核完成数据拷贝，通知调用者</li>
+</ul>
+</li>
+</ul>
+<p>前4种模型都是<strong>同步 IO</strong>（都需要调用者调用 recvfrom 等拷贝数据），只有第5种是<strong>异步 IO</strong>。</p>
+<hr>
+<h2 id="Q19-select-poll-epoll-的区别与触发模式"><a href="#Q19-select-poll-epoll-的区别与触发模式" class="headerlink" title="Q19. select &#x2F; poll &#x2F; epoll 的区别与触发模式"></a>Q19. select &#x2F; poll &#x2F; epoll 的区别与触发模式</h2><h3 id="select"><a href="#select" class="headerlink" title="select"></a>select</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">fd_set readfds;<br>FD_SET(sock_fd, &amp;readfds);<br>select(maxfd + <span class="hljs-number">1</span>, &amp;readfds, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, &amp;timeout);<br></code></pre></td></tr></table></figure>
+
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>fd 数量上限 1024（<code>FD_SETSIZE</code>）</li>
+<li>每次调用都要把 fd 集合从用户态拷贝到内核态（O(n)）</li>
+<li>内核需要遍历所有 fd 检查就绪状态（O(n)）</li>
+<li>返回后用户还要遍历所有 fd 找到就绪的（O(n)）</li>
+</ul>
+<h3 id="poll"><a href="#poll" class="headerlink" title="poll"></a>poll</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pollfd</span> <span class="hljs-title">fds</span>[<span class="hljs-title">N</span>];</span><br>fds[<span class="hljs-number">0</span>] = &#123;.fd = sock_fd, .events = POLLIN&#125;;<br>poll(fds, N, timeout);<br></code></pre></td></tr></table></figure>
+
+<p><strong>相对 select 的改进</strong>：去掉了 1024 的限制（用链表）。<br><strong>仍然有</strong>：O(n) 拷贝、O(n) 遍历的问题。</p>
+<h3 id="epoll"><a href="#epoll" class="headerlink" title="epoll"></a>epoll</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> epfd = epoll_create1(<span class="hljs-number">0</span>);<br>epoll_ctl(epfd, EPOLL_CTL_ADD, sock_fd, &amp;ev);  <span class="hljs-comment">// 注册，O(log n)</span><br>epoll_wait(epfd, events, MAX_EVENTS, <span class="hljs-number">-1</span>);       <span class="hljs-comment">// 只返回就绪的fd</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>核心优势</strong>：</p>
+<ul>
+<li>内核用<strong>红黑树</strong>存储所有监听 fd（O(log n) 增删）</li>
+<li>内核用<strong>就绪链表</strong>存储就绪 fd</li>
+<li><code>epoll_wait</code> 只返回就绪 fd，O(1) 处理</li>
+<li>fd 信息存在内核，无需每次拷贝</li>
+</ul>
+<h3 id="水平触发（LT）vs-边缘触发（ET）"><a href="#水平触发（LT）vs-边缘触发（ET）" class="headerlink" title="水平触发（LT）vs 边缘触发（ET）"></a>水平触发（LT）vs 边缘触发（ET）</h3><p><strong>水平触发（Level Trigger，默认）</strong>：</p>
+<ul>
+<li>只要缓冲区有数据，每次 <code>epoll_wait</code> 都会通知</li>
+<li>没读完数据也没关系，下次还会通知</li>
+<li>更安全，不容易丢事件</li>
+</ul>
+<p><strong>边缘触发（Edge Trigger）</strong>：</p>
+<ul>
+<li>只在状态<strong>变化时</strong>（从无数据→有数据）通知一次</li>
+<li>必须一次性把数据读完（用非阻塞 IO + 循环读到 EAGAIN）</li>
+<li>更高效，减少系统调用次数</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// ET 模式必须循环读完</span><br><span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>    n = recv(fd, buf, <span class="hljs-keyword">sizeof</span>(buf), <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">if</span> (n == <span class="hljs-number">-1</span> &amp;&amp; errno == EAGAIN) <span class="hljs-keyword">break</span>;  <span class="hljs-comment">// 读完了</span><br>    <span class="hljs-keyword">if</span> (n &lt;= <span class="hljs-number">0</span>) &#123; close(fd); <span class="hljs-keyword">break</span>; &#125;<br>    process(buf, n);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Java NIO &#x2F; Netty 使用 epoll ET 模式</strong>（Linux 上），性能更高。</p>
+<hr>
+<h2 id="Q20-epoll-的内部实现（红黑树-就绪链表）"><a href="#Q20-epoll-的内部实现（红黑树-就绪链表）" class="headerlink" title="Q20. epoll 的内部实现（红黑树 + 就绪链表）"></a>Q20. epoll 的内部实现（红黑树 + 就绪链表）</h2><h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">epoll_create1</span><span class="hljs-params">()</span></span> 创建:<br>┌─────────────────────────────────────┐<br>│  epoll 实例 (eventpoll struct)       │<br>│                                     │<br>│  ┌─────────────────┐                │<br>│  │  红黑树 (rbr)    │  ← 所有监听的fd │<br>│  │                 │                │<br>│  │  <span class="hljs-selector-attr">[fd1]</span> <span class="hljs-selector-attr">[fd2]</span>    │                │<br>│  │    <span class="hljs-selector-attr">[fd3]</span>        │                │<br>│  └─────────────────┘                │<br>│                                     │<br>│  ┌─────────────────┐                │<br>│  │  就绪链表 (rdllist)│ ← 已就绪的fd  │<br>│  │  fd2 → fd5 → ...│                │<br>│  └─────────────────┘                │<br>└─────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<h3 id="epoll-ctl-添加-fd-的过程"><a href="#epoll-ctl-添加-fd-的过程" class="headerlink" title="epoll_ctl 添加 fd 的过程"></a>epoll_ctl 添加 fd 的过程</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">epoll_ctl</span><span class="hljs-params">(epfd, EPOLL_CTL_ADD, fd, &amp;event)</span></span><br>    <span class="hljs-number">1</span>. 创建 epitem 结构体，包含 fd 和监听事件<br>    <span class="hljs-number">2</span>. 将 epitem 插入红黑树（按 fd 排序）<br>    <span class="hljs-number">3</span>. 在 fd 对应的 socket 等待队列上注册回调函数 ep_poll_callback<br></code></pre></td></tr></table></figure>
+
+<h3 id="数据就绪时的回调机制"><a href="#数据就绪时的回调机制" class="headerlink" title="数据就绪时的回调机制"></a>数据就绪时的回调机制</h3><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">网络数据到达 → 触发硬件中断 → 软中断 → 内核协议栈<br>    → 数据放入 <span class="hljs-built_in">socket</span> 接收缓冲区<br>    → 调用 <span class="hljs-built_in">socket</span> 等待队列上的回调 ep_poll_callback<br>    → ep_poll_callback 把 epitem 加入就绪链表 rdllist<br>    → 唤醒在 epoll_wait 上等待的进程<br></code></pre></td></tr></table></figure>
+
+<h3 id="epoll-wait-的执行"><a href="#epoll-wait-的执行" class="headerlink" title="epoll_wait 的执行"></a>epoll_wait 的执行</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">epoll_wait</span><span class="hljs-params">(epfd, events, maxevents, timeout)</span></span><br>    <span class="hljs-number">1</span>. 检查就绪链表是否为空<br>    <span class="hljs-number">2</span>. 若空，挂起进程等待（或超时）<br>    <span class="hljs-number">3</span>. 就绪链表非空时唤醒<br>    <span class="hljs-number">4</span>. 将就绪链表中的 epitem 拷贝到用户空间 events 数组<br>    <span class="hljs-number">5</span>. LT 模式：就绪 fd 重新放回就绪链表（下次还会通知）<br>       ET 模式：移除，等下次状态变化才再加入<br></code></pre></td></tr></table></figure>
+
+<h3 id="关键性能数据"><a href="#关键性能数据" class="headerlink" title="关键性能数据"></a>关键性能数据</h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>select&#x2F;poll</th>
+<th>epoll</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>注册 fd</td>
+<td>O(1)</td>
+<td>O(log n)</td>
+</tr>
+<tr>
+<td>检查就绪</td>
+<td>O(n)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>拷贝 fd 集合</td>
+<td>O(n)</td>
+<td>O(就绪数)</td>
+</tr>
+<tr>
+<td>最大 fd 数</td>
+<td>1024 &#x2F; 无限制</td>
+<td>无限制（内存限制）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="Q21-mmap-的原理及与-read-write-的对比"><a href="#Q21-mmap-的原理及与-read-write-的对比" class="headerlink" title="Q21. mmap 的原理及与 read&#x2F;write 的对比"></a>Q21. mmap 的原理及与 read&#x2F;write 的对比</h2><h3 id="传统-read-write-的数据路径"><a href="#传统-read-write-的数据路径" class="headerlink" title="传统 read&#x2F;write 的数据路径"></a>传统 read&#x2F;write 的数据路径</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs css">磁盘 → 内核页缓存（<span class="hljs-attribute">Page</span> Cache）→ <span class="hljs-selector-attr">[CPU拷贝]</span> → 用户态缓冲区<br>用户态缓冲区 → <span class="hljs-selector-attr">[CPU拷贝]</span> → 内核页缓存 → 磁盘<br></code></pre></td></tr></table></figure>
+
+<p>每次 IO 涉及<strong>2次CPU拷贝</strong> + <strong>2次系统调用</strong>。</p>
+<h3 id="mmap-的原理"><a href="#mmap-的原理" class="headerlink" title="mmap 的原理"></a>mmap 的原理</h3><p><code>mmap()</code> 将文件的某个区域<strong>直接映射</strong>到进程的虚拟地址空间，文件内容成为内存中的字节数组。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 将文件映射到内存</span><br><span class="hljs-type">void</span> *addr = mmap(<span class="hljs-literal">NULL</span>, file_size, PROT_READ|PROT_WRITE,<br>                  MAP_SHARED, fd, <span class="hljs-number">0</span>);<br><br><span class="hljs-comment">// 直接像操作内存一样操作文件</span><br><span class="hljs-built_in">memcpy</span>(dest, addr, n);  <span class="hljs-comment">// 读</span><br>*(addr + offset) = value;  <span class="hljs-comment">// 写（自动写回Page Cache）</span><br><br>munmap(addr, file_size);<br></code></pre></td></tr></table></figure>
+
+<p><strong>数据路径</strong>：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs lasso">磁盘 → 内核页缓存（Page <span class="hljs-keyword">Cache</span>）= 进程虚拟地址空间<br>（文件内容和 Page <span class="hljs-keyword">Cache</span> 是同一块物理内存，无需额外拷贝）<br></code></pre></td></tr></table></figure>
+
+<h3 id="对比总结-1"><a href="#对比总结-1" class="headerlink" title="对比总结"></a>对比总结</h3><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>拷贝次数</th>
+<th>系统调用</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>read&#x2F;write</td>
+<td>2次</td>
+<td>2次&#x2F;IO</td>
+<td>小文件、流式处理</td>
+</tr>
+<tr>
+<td>mmap</td>
+<td>1次（Page Fault时）</td>
+<td>1次（mmap本身）</td>
+<td>大文件随机访问</td>
+</tr>
+</tbody></table>
+<h3 id="Java-中的-mmap"><a href="#Java-中的-mmap" class="headerlink" title="Java 中的 mmap"></a>Java 中的 mmap</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java NIO MappedByteBuffer</span><br><span class="hljs-type">FileChannel</span> <span class="hljs-variable">fc</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(<span class="hljs-string">&quot;large.dat&quot;</span>).getChannel();<br><span class="hljs-type">MappedByteBuffer</span> <span class="hljs-variable">mbb</span> <span class="hljs-operator">=</span> fc.map(FileChannel.MapMode.READ_ONLY,<br>                               <span class="hljs-number">0</span>, fc.size());<br><span class="hljs-comment">// 直接读写，背后是 mmap</span><br><span class="hljs-type">byte</span> <span class="hljs-variable">b</span> <span class="hljs-operator">=</span> mbb.get(offset);<br></code></pre></td></tr></table></figure>
+
+<p><strong>Kafka 为什么快</strong>：Kafka 的消费者读取消息用 <code>sendfile</code>（零拷贝），索引文件用 <code>mmap</code>（快速随机查找），是经典的高性能 IO 设计。</p>
+<hr>
+<h2 id="Q22-零拷贝（Zero-Copy）：sendfile-vs-mmap，Java-NIO-的-transferTo"><a href="#Q22-零拷贝（Zero-Copy）：sendfile-vs-mmap，Java-NIO-的-transferTo" class="headerlink" title="Q22. 零拷贝（Zero-Copy）：sendfile vs mmap，Java NIO 的 transferTo()"></a>Q22. 零拷贝（Zero-Copy）：sendfile vs mmap，Java NIO 的 transferTo()</h2><h3 id="传统文件传输的4次拷贝"><a href="#传统文件传输的4次拷贝" class="headerlink" title="传统文件传输的4次拷贝"></a>传统文件传输的4次拷贝</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs css">磁盘 →<span class="hljs-selector-attr">[DMA拷贝]</span>→ 内核<span class="hljs-attribute">Page</span> Cache →<span class="hljs-selector-attr">[CPU拷贝]</span>→ 用户缓冲区<br>     →<span class="hljs-selector-attr">[CPU拷贝]</span>→ Socket发送缓冲区 →<span class="hljs-selector-attr">[DMA拷贝]</span>→ 网卡<br>共<span class="hljs-number">4</span>次拷贝，<span class="hljs-number">2</span>次CPU拷贝，<span class="hljs-number">4</span>次上下文切换<br></code></pre></td></tr></table></figure>
+
+<h3 id="sendfile（Linux-2-1-）"><a href="#sendfile（Linux-2-1-）" class="headerlink" title="sendfile（Linux 2.1+）"></a>sendfile（Linux 2.1+）</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">sendfile(socket_fd, file_fd, &amp;offset, count);<br><span class="hljs-comment">// 文件内容直接从 Page Cache 传到 Socket 缓冲区，无需经过用户态</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>数据路径</strong>：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs css">磁盘 →<span class="hljs-selector-attr">[DMA]</span>→ <span class="hljs-attribute">Page</span> Cache →<span class="hljs-selector-attr">[CPU拷贝]</span>→ Socket缓冲区 →<span class="hljs-selector-attr">[DMA]</span>→ 网卡<br>共<span class="hljs-number">3</span>次拷贝（<span class="hljs-number">2</span>次DMA + <span class="hljs-number">1</span>次CPU），<span class="hljs-number">0</span>次用户态拷贝<br></code></pre></td></tr></table></figure>
+
+<h3 id="sendfile-DMA-Gather（Linux-2-4-，真正零拷贝）"><a href="#sendfile-DMA-Gather（Linux-2-4-，真正零拷贝）" class="headerlink" title="sendfile + DMA Gather（Linux 2.4+，真正零拷贝）"></a>sendfile + DMA Gather（Linux 2.4+，真正零拷贝）</h3><p>支持 scatter-gather DMA 的网卡：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs css">磁盘 →<span class="hljs-selector-attr">[DMA]</span>→ <span class="hljs-attribute">Page</span> Cache →<span class="hljs-selector-attr">[DMA]</span>→ 网卡<br><span class="hljs-attribute">Page</span> Cache 的物理地址直接传给网卡，CPU 完全不参与数据拷贝<br>共<span class="hljs-number">2</span>次拷贝（<span class="hljs-number">2</span>次DMA），<span class="hljs-number">0</span>次CPU拷贝<br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-NIO-的-transferTo"><a href="#Java-NIO-的-transferTo" class="headerlink" title="Java NIO 的 transferTo()"></a>Java NIO 的 transferTo()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Java 底层在 Linux 上调用 sendfile</span><br><span class="hljs-type">FileChannel</span> <span class="hljs-variable">src</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(<span class="hljs-string">&quot;file.txt&quot;</span>).getChannel();<br><span class="hljs-type">SocketChannel</span> <span class="hljs-variable">dest</span> <span class="hljs-operator">=</span> socketChannel;<br><br><span class="hljs-comment">// 真正的零拷贝</span><br>src.transferTo(<span class="hljs-number">0</span>, src.size(), dest);<br></code></pre></td></tr></table></figure>
+
+<p><strong>Netty 的零拷贝</strong>还包括：</p>
+<ul>
+<li><code>CompositeByteBuf</code>：逻辑合并多个 ByteBuf，不做内存拷贝</li>
+<li><code>slice()</code>：切片，共享原 Buffer 内存</li>
+</ul>
+<h3 id="mmap-vs-sendfile"><a href="#mmap-vs-sendfile" class="headerlink" title="mmap vs sendfile"></a>mmap vs sendfile</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>mmap</th>
+<th>sendfile</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>适用</td>
+<td>需要在用户态处理内容</td>
+<td>纯文件→网络传输</td>
+</tr>
+<tr>
+<td>修改内容</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>CPU 拷贝</td>
+<td>1次</td>
+<td>0次（scatter-gather）</td>
+</tr>
+<tr>
+<td>使用场景</td>
+<td>Kafka索引、数据库</td>
+<td>Nginx静态文件</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="Q23-Linux-信号机制：SIGKILL-vs-SIGTERM-vs-SIGINT，Java-的-ShutdownHook"><a href="#Q23-Linux-信号机制：SIGKILL-vs-SIGTERM-vs-SIGINT，Java-的-ShutdownHook" class="headerlink" title="Q23. Linux 信号机制：SIGKILL vs SIGTERM vs SIGINT，Java 的 ShutdownHook"></a>Q23. Linux 信号机制：SIGKILL vs SIGTERM vs SIGINT，Java 的 ShutdownHook</h2><h3 id="常用信号"><a href="#常用信号" class="headerlink" title="常用信号"></a>常用信号</h3><table>
+<thead>
+<tr>
+<th>信号</th>
+<th>编号</th>
+<th>默认行为</th>
+<th>可捕获&#x2F;忽略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SIGTERM</td>
+<td>15</td>
+<td>终止进程</td>
+<td>可捕获</td>
+</tr>
+<tr>
+<td>SIGKILL</td>
+<td>9</td>
+<td>强制杀死</td>
+<td><strong>不可捕获</strong></td>
+</tr>
+<tr>
+<td>SIGINT</td>
+<td>2</td>
+<td>终止（Ctrl+C）</td>
+<td>可捕获</td>
+</tr>
+<tr>
+<td>SIGQUIT</td>
+<td>3</td>
+<td>终止+Core Dump</td>
+<td>可捕获</td>
+</tr>
+<tr>
+<td>SIGHUP</td>
+<td>1</td>
+<td>终止（终端挂断）</td>
+<td>可捕获</td>
+</tr>
+<tr>
+<td>SIGSEGV</td>
+<td>11</td>
+<td>Core Dump</td>
+<td>可捕获（但建议不处理）</td>
+</tr>
+<tr>
+<td>SIGUSR1&#x2F;2</td>
+<td>10&#x2F;12</td>
+<td>用户自定义</td>
+<td>可捕获</td>
+</tr>
+</tbody></table>
+<h3 id="关键区别"><a href="#关键区别" class="headerlink" title="关键区别"></a>关键区别</h3><ul>
+<li><strong>SIGTERM（15）</strong>：礼貌地请求程序退出，程序可以捕获并做清理工作（关闭连接、flush 缓冲区）</li>
+<li><strong>SIGKILL（9）</strong>：内核直接杀死进程，程序没有机会做任何清理，<strong>慎用</strong></li>
+<li><strong>SIGINT（2）</strong>：Ctrl+C，类似 SIGTERM，程序通常会捕获并退出</li>
+</ul>
+<p><strong>最佳实践</strong>：先发 SIGTERM，等几秒，再发 SIGKILL（Docker stop 的默认行为就是这样）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">kill</span> -15 &lt;pid&gt;   <span class="hljs-comment"># 或 kill &lt;pid&gt;（默认 SIGTERM）</span><br><span class="hljs-built_in">sleep</span> 5<br><span class="hljs-built_in">kill</span> -9 &lt;pid&gt;    <span class="hljs-comment"># 如果还活着，强制杀</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-的-ShutdownHook"><a href="#Java-的-ShutdownHook" class="headerlink" title="Java 的 ShutdownHook"></a>Java 的 ShutdownHook</h3><p>JVM 在收到 SIGTERM 时会触发 ShutdownHook：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java">Runtime.getRuntime().addShutdownHook(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>    System.out.println(<span class="hljs-string">&quot;JVM 正在关闭，执行清理...&quot;</span>);<br>    <span class="hljs-comment">// 关闭线程池</span><br>    executorService.shutdown();<br>    <span class="hljs-keyword">try</span> &#123;<br>        executorService.awaitTermination(<span class="hljs-number">30</span>, TimeUnit.SECONDS);<br>    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>        Thread.currentThread().interrupt();<br>    &#125;<br>    <span class="hljs-comment">// 关闭数据库连接</span><br>    dataSource.close();<br>    System.out.println(<span class="hljs-string">&quot;清理完成&quot;</span>);<br>&#125;));<br></code></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：</p>
+<ul>
+<li><code>SIGKILL</code> 和 JVM 崩溃不会触发 ShutdownHook</li>
+<li>Spring Boot 的 <code>server.shutdown=graceful</code> 在 ShutdownHook 中等待请求完成</li>
+<li>ShutdownHook 里的代码要控制超时，避免关闭卡住</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 给 Java 进程发送 SIGUSR1（可用于触发自定义诊断）</span><br><span class="hljs-built_in">kill</span> -USR1 &lt;pid&gt;<br><span class="hljs-comment"># JVM 默认 SIGUSR1 不处理，可在 JVM 内注册</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q24-proc-文件系统的常用路径"><a href="#Q24-proc-文件系统的常用路径" class="headerlink" title="Q24. &#x2F;proc 文件系统的常用路径"></a>Q24. &#x2F;proc 文件系统的常用路径</h2><h3 id="proc-的本质"><a href="#proc-的本质" class="headerlink" title="&#x2F;proc 的本质"></a>&#x2F;proc 的本质</h3><p><code>/proc</code> 是一个<strong>内存文件系统</strong>，不占用磁盘空间，内容由内核动态生成，用于暴露内核和进程信息。</p>
+<h3 id="进程排查常用路径"><a href="#进程排查常用路径" class="headerlink" title="进程排查常用路径"></a>进程排查常用路径</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 进程基本信息</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/status          <span class="hljs-comment"># 状态、内存、线程数</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/stat            <span class="hljs-comment"># 原始调度统计（单行）</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/cmdline         <span class="hljs-comment"># 启动命令行（null分隔）</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/environ         <span class="hljs-comment"># 环境变量</span><br><span class="hljs-built_in">ls</span> -la /proc/&lt;pid&gt;/exe          <span class="hljs-comment"># 可执行文件路径</span><br><br><span class="hljs-comment"># 文件描述符</span><br><span class="hljs-built_in">ls</span> -la /proc/&lt;pid&gt;/fd/          <span class="hljs-comment"># 所有打开的fd</span><br><span class="hljs-built_in">ls</span> -la /proc/&lt;pid&gt;/fd/ | <span class="hljs-built_in">wc</span> -l  <span class="hljs-comment"># fd数量</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/fdinfo/&lt;fd&gt;     <span class="hljs-comment"># 某个fd的详细信息</span><br><br><span class="hljs-comment"># 内存</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/maps            <span class="hljs-comment"># 虚拟内存映射</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/smaps           <span class="hljs-comment"># 详细内存统计（每个区域）</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/smaps_rollup    <span class="hljs-comment"># 汇总版 smaps</span><br><br><span class="hljs-comment"># 网络</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/net/tcp         <span class="hljs-comment"># TCP连接</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/net/tcp6        <span class="hljs-comment"># IPv6 TCP连接</span><br><span class="hljs-built_in">ls</span> /proc/&lt;pid&gt;/net/             <span class="hljs-comment"># 所有网络信息</span><br><br><span class="hljs-comment"># IO</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/io              <span class="hljs-comment"># IO字节统计</span><br><br><span class="hljs-comment"># 线程</span><br><span class="hljs-built_in">ls</span> /proc/&lt;pid&gt;/task/            <span class="hljs-comment"># 每个子目录是一个线程</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Java-进程排查实用命令"><a href="#Java-进程排查实用命令" class="headerlink" title="Java 进程排查实用命令"></a>Java 进程排查实用命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash">PID=$(pgrep -f <span class="hljs-string">&quot;java.*your-app&quot;</span>)<br><br><span class="hljs-comment"># 1. 查看 JVM 打开了多少个文件</span><br><span class="hljs-built_in">ls</span> /proc/<span class="hljs-variable">$PID</span>/fd | <span class="hljs-built_in">wc</span> -l<br><span class="hljs-comment"># 超过 ulimit 就会报 &quot;Too many open files&quot;</span><br><br><span class="hljs-comment"># 2. 查看哪些文件被打开</span><br><span class="hljs-built_in">ls</span> -la /proc/<span class="hljs-variable">$PID</span>/fd/ 2&gt;/dev/null | grep -v <span class="hljs-string">&quot;^total&quot;</span> | awk <span class="hljs-string">&#x27;&#123;print $NF&#125;&#x27;</span><br><br><span class="hljs-comment"># 3. 查看 JVM 内存映射（找 jar 包、so 库）</span><br><span class="hljs-built_in">cat</span> /proc/<span class="hljs-variable">$PID</span>/maps | grep <span class="hljs-string">&quot;\.jar&quot;</span><br><span class="hljs-built_in">cat</span> /proc/<span class="hljs-variable">$PID</span>/maps | grep <span class="hljs-string">&quot;\.so&quot;</span><br><br><span class="hljs-comment"># 4. 查看 JVM 进程的 TCP 连接数</span><br><span class="hljs-built_in">ls</span> /proc/<span class="hljs-variable">$PID</span>/fd | xargs -I&#123;&#125; <span class="hljs-built_in">readlink</span> /proc/<span class="hljs-variable">$PID</span>/fd/&#123;&#125; 2&gt;/dev/null | \<br>    grep socket | <span class="hljs-built_in">wc</span> -l<br><br><span class="hljs-comment"># 5. 查看 JVM 内存使用</span><br>grep -E <span class="hljs-string">&quot;VmRSS|VmHWM|Threads&quot;</span> /proc/<span class="hljs-variable">$PID</span>/status<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q25-top-htop-命令关键指标解读"><a href="#Q25-top-htop-命令关键指标解读" class="headerlink" title="Q25. top&#x2F;htop 命令关键指标解读"></a>Q25. top&#x2F;htop 命令关键指标解读</h2><h3 id="top-输出解析"><a href="#top-输出解析" class="headerlink" title="top 输出解析"></a>top 输出解析</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">top</span> <span class="hljs-bullet">-</span> <span class="hljs-number">14</span><span class="hljs-string">:30:25</span> <span class="hljs-string">up</span> <span class="hljs-number">10</span> <span class="hljs-string">days,</span> <span class="hljs-number">3</span><span class="hljs-string">:45,</span>  <span class="hljs-number">2</span> <span class="hljs-string">users,</span>  <span class="hljs-attr">load average:</span> <span class="hljs-number">1.23</span><span class="hljs-string">,</span> <span class="hljs-number">1.45</span><span class="hljs-string">,</span> <span class="hljs-number">1.67</span><br><span class="hljs-attr">Tasks:</span> <span class="hljs-number">256</span> <span class="hljs-string">total,</span>   <span class="hljs-number">1</span> <span class="hljs-string">running,</span> <span class="hljs-number">255</span> <span class="hljs-string">sleeping,</span>   <span class="hljs-number">0</span> <span class="hljs-string">stopped,</span>   <span class="hljs-number">0</span> <span class="hljs-string">zombie</span><br><span class="hljs-string">%Cpu(s):</span>  <span class="hljs-number">12.5</span> <span class="hljs-string">us,</span>  <span class="hljs-number">3.2</span> <span class="hljs-string">sy,</span>  <span class="hljs-number">0.0</span> <span class="hljs-string">ni,</span> <span class="hljs-number">82.3</span> <span class="hljs-string">id,</span>  <span class="hljs-number">1.8</span> <span class="hljs-string">wa,</span>  <span class="hljs-number">0.0</span> <span class="hljs-string">hi,</span>  <span class="hljs-number">0.2</span> <span class="hljs-string">si,</span>  <span class="hljs-number">0.0</span> <span class="hljs-string">st</span><br><span class="hljs-attr">MiB Mem :</span>  <span class="hljs-number">15880.2</span> <span class="hljs-string">total,</span>   <span class="hljs-number">2345.6 </span><span class="hljs-string">free,</span>  <span class="hljs-number">10234.5</span> <span class="hljs-string">used,</span>   <span class="hljs-number">3300.1 </span><span class="hljs-string">buff/cache</span><br><span class="hljs-attr">MiB Swap:</span>   <span class="hljs-number">2048.0 </span><span class="hljs-string">total,</span>   <span class="hljs-number">1800.0 </span><span class="hljs-string">free,</span>    <span class="hljs-number">248.0</span> <span class="hljs-string">used.</span>   <span class="hljs-number">4892.3 </span><span class="hljs-string">avail</span> <span class="hljs-string">Mem</span><br><br>  <span class="hljs-string">PID</span> <span class="hljs-string">USER</span>      <span class="hljs-string">PR</span>  <span class="hljs-string">NI</span>    <span class="hljs-string">VIRT</span>    <span class="hljs-string">RES</span>    <span class="hljs-string">SHR</span> <span class="hljs-string">S</span>  <span class="hljs-string">%CPU</span>  <span class="hljs-string">%MEM</span>     <span class="hljs-string">TIME+</span> <span class="hljs-string">COMMAND</span><br><span class="hljs-number">12345</span> <span class="hljs-string">tomcat</span>    <span class="hljs-number">20</span>   <span class="hljs-number">0</span>   <span class="hljs-number">8.</span><span class="hljs-string">2g</span>   <span class="hljs-number">2.</span><span class="hljs-string">1g</span>  <span class="hljs-number">45.</span><span class="hljs-string">6m</span> <span class="hljs-string">S</span>  <span class="hljs-number">35.0</span>  <span class="hljs-number">13.2</span>  <span class="hljs-number">45</span><span class="hljs-string">:12.34</span> <span class="hljs-string">java</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Load-Average-解读"><a href="#Load-Average-解读" class="headerlink" title="Load Average 解读"></a>Load Average 解读</h3><p><code>load average: 1.23, 1.45, 1.67</code> — 1分钟、5分钟、15分钟的平均负载</p>
+<p><strong>负载 &#x3D; 运行中 + 等待CPU + D状态（不可中断等待IO）的进程数</strong></p>
+<ul>
+<li>单核 CPU：负载 &#x3D; 1.0 表示满负载</li>
+<li>4核 CPU：负载 &#x3D; 4.0 表示满负载</li>
+<li><strong>负载持续 &gt; CPU核数就要关注了</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 快速获取 CPU 核数</span><br><span class="hljs-built_in">nproc</span><br><span class="hljs-comment"># 或</span><br>grep -c processor /proc/cpuinfo<br></code></pre></td></tr></table></figure>
+
+<h3 id="CPU-时间百分比"><a href="#CPU-时间百分比" class="headerlink" title="CPU 时间百分比"></a>CPU 时间百分比</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>us</code></td>
+<td>用户态 CPU（应用代码）</td>
+</tr>
+<tr>
+<td><code>sy</code></td>
+<td>内核态 CPU（系统调用）</td>
+</tr>
+<tr>
+<td><code>ni</code></td>
+<td>nice 调整后的用户态进程</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td>空闲</td>
+</tr>
+<tr>
+<td><code>wa</code></td>
+<td>IO 等待（高 wa → 磁盘&#x2F;网络瓶颈）</td>
+</tr>
+<tr>
+<td><code>hi</code></td>
+<td>硬件中断</td>
+</tr>
+<tr>
+<td><code>si</code></td>
+<td>软件中断（高 si → 网络包处理多）</td>
+</tr>
+<tr>
+<td><code>st</code></td>
+<td>被虚拟机 Steal 的时间（云服务器 CPU 抢占）</td>
+</tr>
+</tbody></table>
+<h3 id="进程内存字段"><a href="#进程内存字段" class="headerlink" title="进程内存字段"></a>进程内存字段</h3><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>VIRT</code></td>
+<td>虚拟内存总量（包括未使用的堆、mmap区域）</td>
+</tr>
+<tr>
+<td><code>RES</code></td>
+<td>实际物理内存（RSS，真正占用的RAM）</td>
+</tr>
+<tr>
+<td><code>SHR</code></td>
+<td>共享内存（共享库等，多进程共用）</td>
+</tr>
+<tr>
+<td><code>%MEM</code></td>
+<td>RES &#x2F; 总物理内存</td>
+</tr>
+</tbody></table>
+<p><strong>Java 进程的 VIRT 通常很大</strong>（几个GB），这是正常的，JVM 预先保留虚拟地址空间。<strong>看 RES</strong> 才是实际物理内存使用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 实时监控 Java 进程内存</span><br>watch -n 1 <span class="hljs-string">&quot;ps -o pid,vsz,rss,cmd -p <span class="hljs-subst">$(pgrep -f java)</span>&quot;</span><br><br><span class="hljs-comment"># htop 的优势：彩色、鼠标操作、直观的CPU/内存条</span><br>htop -p $(pgrep -f java)<br><br><span class="hljs-comment"># 按内存排序</span><br>top -o %MEM<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q26-系统调用的执行流程"><a href="#Q26-系统调用的执行流程" class="headerlink" title="Q26. 系统调用的执行流程"></a>Q26. 系统调用的执行流程</h2><h3 id="用户态-→-内核态切换过程"><a href="#用户态-→-内核态切换过程" class="headerlink" title="用户态 → 内核态切换过程"></a>用户态 → 内核态切换过程</h3><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs perl">用户程序调用 <span class="hljs-keyword">read</span>(fd, buf, len)<br>    ↓<br>glibc 的 <span class="hljs-keyword">read</span>() 函数（用户态库函数）<br>    ↓ 执行 <span class="hljs-keyword">syscall</span> 指令（x86-<span class="hljs-number">64</span>）/ svc 指令（ARM）<br>    ↓<br>CPU 切换到内核态（Ring <span class="hljs-number">3</span> → Ring <span class="hljs-number">0</span>）<br>    ↓ 保存用户寄存器到内核栈<br>    ↓<br>从 <span class="hljs-keyword">syscall</span> 号（RAX 寄存器）查 <span class="hljs-keyword">syscall</span> 表，找到 sys_read()<br>    ↓<br>执行 sys_read() 内核函数<br>    ↓<br>完成后恢复用户寄存器<br>    ↓<br>返回用户态，<span class="hljs-keyword">read</span>() 返回读取的字节数<br></code></pre></td></tr></table></figure>
+
+<h3 id="syscall-指令的作用"><a href="#syscall-指令的作用" class="headerlink" title="syscall 指令的作用"></a>syscall 指令的作用</h3><p><code>syscall</code>（x86-64）是专用指令，执行时：</p>
+<ol>
+<li>CPU 特权级从 Ring 3 → Ring 0</li>
+<li>跳转到 MSR（Model Specific Register）中预设的内核入口点</li>
+<li>切换到内核栈</li>
+<li>开始执行内核代码</li>
+</ol>
+<h3 id="上下文切换-vs-系统调用"><a href="#上下文切换-vs-系统调用" class="headerlink" title="上下文切换 vs 系统调用"></a>上下文切换 vs 系统调用</h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>说明</th>
+<th>开销</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>系统调用</td>
+<td>同一线程，切换特权级</td>
+<td>~100ns</td>
+</tr>
+<tr>
+<td>上下文切换</td>
+<td>切换到不同线程&#x2F;进程</td>
+<td><del>1</del>10μs</td>
+</tr>
+</tbody></table>
+<h3 id="减少系统调用的技术"><a href="#减少系统调用的技术" class="headerlink" title="减少系统调用的技术"></a>减少系统调用的技术</h3><p><strong>批量 IO</strong>：<code>writev()</code> &#x2F; <code>readv()</code> 一次系统调用完成多次 IO</p>
+<p><strong>vDSO（Virtual Dynamic Shared Object）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ls</span> -la /proc/&lt;pid&gt;/maps | grep vdso<br><span class="hljs-comment"># 7fff...000 r-xp ... [vdso]</span><br></code></pre></td></tr></table></figure>
+
+<p>glibc 的 <code>gettimeofday()</code> 在 vDSO 中实现，不需要真正的系统调用（内核映射到用户空间的只读页）。</p>
+<p><strong>io_uring（Linux 5.1+）</strong>：<br>用户态和内核态共享环形队列，批量提交 IO，大幅减少系统调用次数。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看进程的系统调用</span><br>strace -p &lt;pid&gt; -c          <span class="hljs-comment"># 统计系统调用频率</span><br>strace -p &lt;pid&gt; -e <span class="hljs-built_in">read</span>,write  <span class="hljs-comment"># 只追踪特定系统调用</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q27-NUMA-架构对-Java-应用的影响"><a href="#Q27-NUMA-架构对-Java-应用的影响" class="headerlink" title="Q27. NUMA 架构对 Java 应用的影响"></a>Q27. NUMA 架构对 Java 应用的影响</h2><h3 id="什么是-NUMA"><a href="#什么是-NUMA" class="headerlink" title="什么是 NUMA"></a>什么是 NUMA</h3><p>NUMA（Non-Uniform Memory Access，非一致内存访问）是多 CPU 插槽服务器的内存架构：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">NUMA <span class="hljs-keyword">Node</span> <span class="hljs-title">0</span>               NUMA <span class="hljs-keyword">Node</span> <span class="hljs-title">1</span><br>┌─────────────┐           ┌─────────────┐<br>│  CPU <span class="hljs-number">0</span>~<span class="hljs-number">15</span>   │           │  CPU <span class="hljs-number">16</span>~<span class="hljs-number">31</span>  │<br>│  L1/L2/L3  │           │  L1/L2/L3  │<br>│  本地内存    │←──QPI──→│  本地内存    │<br>│  <span class="hljs-number">64</span>GB       │           │  <span class="hljs-number">64</span>GB       │<br>└─────────────┘           └─────────────┘<br></code></pre></td></tr></table></figure>
+
+<p>访问<strong>本地内存</strong>（Local Memory）延迟约 80ns，访问<strong>远端内存</strong>（Remote Memory，跨 NUMA 节点）延迟约 160ns，慢约 2 倍。</p>
+<h3 id="NUMA-对-Java-的影响"><a href="#NUMA-对-Java-的影响" class="headerlink" title="NUMA 对 Java 的影响"></a>NUMA 对 Java 的影响</h3><p>JVM 分配对象时，如果堆内存跨 NUMA 节点，GC 和对象访问时就会产生大量跨节点内存访问，降低性能。</p>
+<h3 id="诊断-NUMA-问题"><a href="#诊断-NUMA-问题" class="headerlink" title="诊断 NUMA 问题"></a>诊断 NUMA 问题</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 NUMA 节点信息</span><br>numactl --hardware<br><br><span class="hljs-comment"># 查看 NUMA 内存命中率（numa_miss 高说明有跨节点访问）</span><br>numastat -p &lt;pid&gt;<br><br><span class="hljs-comment"># 查看 NUMA 节点的内存使用</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/numa_maps | <span class="hljs-built_in">head</span> -20<br></code></pre></td></tr></table></figure>
+
+<h3 id="优化方案"><a href="#优化方案" class="headerlink" title="优化方案"></a>优化方案</h3><p><strong>1. JVM 启用 NUMA 感知</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">java -XX:+UseNUMA -XX:+UseParallelGC -jar app.jar<br><span class="hljs-comment"># UseNUMA 让 JVM 在每个 NUMA 节点分配独立的 Eden 区</span><br><span class="hljs-comment"># 线程优先在本节点 Eden 上分配对象</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 绑定进程到单一 NUMA 节点</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 绑定到 NUMA Node 0</span><br>numactl --cpunodebind=0 --membind=0 java -jar app.jar<br><br><span class="hljs-comment"># 绑定到特定 CPU</span><br>numactl --physcpubind=0-15 --membind=0 java -jar app.jar<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. interleave（适合无状态服务）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 轮询使用所有 NUMA 节点的内存（适合内存密集、访问均匀的场景）</span><br>numactl --interleave=all java -jar app.jar<br></code></pre></td></tr></table></figure>
+
+<p><strong>最佳实践</strong>：大内存（&gt;&#x3D; 64GB）多 CPU 插槽的服务器，NUMA 优化可带来 10~30% 的性能提升。</p>
+<hr>
+<h2 id="Q28-Linux-OOM-Killer"><a href="#Q28-Linux-OOM-Killer" class="headerlink" title="Q28. Linux OOM Killer"></a>Q28. Linux OOM Killer</h2><h3 id="触发条件"><a href="#触发条件" class="headerlink" title="触发条件"></a>触发条件</h3><p>当系统<strong>物理内存 + Swap 都耗尽</strong>，且<strong>无法回收足够内存</strong>时，内核的 OOM Killer（Out-Of-Memory Killer）介入，强制杀死一个进程以释放内存。</p>
+<h3 id="oom-score-算法"><a href="#oom-score-算法" class="headerlink" title="oom_score 算法"></a>oom_score 算法</h3><p>内核为每个进程计算 <code>oom_score</code>（0-1000），分数越高越容易被杀。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看进程的 oom_score</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/oom_score<br><br><span class="hljs-comment"># 手动调整 oom_score_adj（-1000到1000）</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/oom_score_adj<br><span class="hljs-comment"># -1000: 完全免杀</span><br><span class="hljs-comment"># 1000: 最先被杀</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>oom_score 计算因素</strong>：</p>
+<ul>
+<li>进程占用内存越多 → 分数越高</li>
+<li>运行时间越短 → 分数越高</li>
+<li>子进程越多 → 分数越高</li>
+<li>root 进程适当降分</li>
+</ul>
+<h3 id="保护-Java-进程"><a href="#保护-Java-进程" class="headerlink" title="保护 Java 进程"></a>保护 Java 进程</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 设置 Java 进程不被 OOM Killer 杀死（需 root）</span><br><span class="hljs-built_in">echo</span> -1000 &gt; /proc/$(pgrep -f java)/oom_score_adj<br><br><span class="hljs-comment"># 或者用 oom_adj（旧接口）</span><br><span class="hljs-built_in">echo</span> -17 &gt; /proc/$(pgrep -f java)/oom_adj<br><br><span class="hljs-comment"># 通过 systemd 配置（推荐）</span><br><span class="hljs-comment"># /etc/systemd/system/my-java-app.service</span><br>[Service]<br>OOMScoreAdjust=-500<br></code></pre></td></tr></table></figure>
+
+<h3 id="OOM-发生后的排查"><a href="#OOM-发生后的排查" class="headerlink" title="OOM 发生后的排查"></a>OOM 发生后的排查</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看 OOM Killer 日志</span><br>dmesg | grep -i <span class="hljs-string">&quot;oom\|killed&quot;</span><br>journalctl -k | grep -i oom<br><br><span class="hljs-comment"># 典型输出</span><br><span class="hljs-comment"># Out of memory: Kill process 12345 (java) score 856 or sacrifice child</span><br><span class="hljs-comment"># Killed process 12345 (java) total-vm:4194304kB, anon-rss:3145728kB</span><br><br><span class="hljs-comment"># 查看内存使用历史</span><br>sar -r 1 10  <span class="hljs-comment"># 每1秒采集10次内存数据</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="预防措施"><a href="#预防措施" class="headerlink" title="预防措施"></a>预防措施</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 限制 Java 进程内存（防止无限增长）</span><br><span class="hljs-comment"># cgroup v2</span><br><span class="hljs-built_in">mkdir</span> /sys/fs/cgroup/java-app<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;4294967296&quot;</span> &gt; /sys/fs/cgroup/java-app/memory.max  <span class="hljs-comment"># 4GB 限制</span><br><span class="hljs-built_in">echo</span> &lt;pid&gt; &gt; /sys/fs/cgroup/java-app/cgroup.procs<br><br><span class="hljs-comment"># Docker/Kubernetes 的内存 limit 本质上就是 cgroup</span><br><span class="hljs-comment"># java -Xmx 不要超过容器 limit 的 75%（留给 JVM 本身）</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q29-ulimit-限制对-Java-服务的影响"><a href="#Q29-ulimit-限制对-Java-服务的影响" class="headerlink" title="Q29. ulimit 限制对 Java 服务的影响"></a>Q29. ulimit 限制对 Java 服务的影响</h2><h3 id="ulimit-是什么"><a href="#ulimit-是什么" class="headerlink" title="ulimit 是什么"></a>ulimit 是什么</h3><p><code>ulimit</code> 是 Linux 对每个进程资源使用的<strong>上限控制</strong>，分为软限制（soft，可以提高到硬限制）和硬限制（hard，只有 root 能提高）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ulimit</span> -a       <span class="hljs-comment"># 查看所有限制</span><br><span class="hljs-built_in">ulimit</span> -n       <span class="hljs-comment"># 查看文件描述符限制</span><br><span class="hljs-built_in">ulimit</span> -u       <span class="hljs-comment"># 查看最大进程数</span><br><span class="hljs-built_in">ulimit</span> -s       <span class="hljs-comment"># 查看栈大小限制（KB）</span><br><span class="hljs-built_in">ulimit</span> -v       <span class="hljs-comment"># 查看虚拟内存限制</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="对-Java-服务的关键影响"><a href="#对-Java-服务的关键影响" class="headerlink" title="对 Java 服务的关键影响"></a>对 Java 服务的关键影响</h3><p><strong>1. open files（-n，默认 1024）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 报错症状：java.io.IOException: Too many open files</span><br><br><span class="hljs-comment"># Java 每个连接 = 1个fd，每个打开的文件 = 1个fd</span><br><span class="hljs-comment"># 高并发 Java 服务至少需要设置 65535</span><br><span class="hljs-built_in">ulimit</span> -n 65535<br><br><span class="hljs-comment"># 永久生效（/etc/security/limits.conf）</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;* soft nofile 65535&quot;</span> &gt;&gt; /etc/security/limits.conf<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;* hard nofile 65535&quot;</span> &gt;&gt; /etc/security/limits.conf<br><br><span class="hljs-comment"># 验证</span><br><span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/limits | grep <span class="hljs-string">&quot;open files&quot;</span><br><br><span class="hljs-comment"># 实时查看 Java 进程打开了多少 fd</span><br><span class="hljs-built_in">ls</span> /proc/$(pgrep -f java)/fd | <span class="hljs-built_in">wc</span> -l<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. max user processes（-u，默认 1024 或 4096）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 报错症状：java.lang.OutOfMemoryError: unable to create new native thread</span><br><span class="hljs-comment"># 原因：每个 Java 线程 = 一个内核线程（占用进程槽位）</span><br><br><span class="hljs-built_in">ulimit</span> -u 65535  <span class="hljs-comment"># 或修改 /proc/sys/kernel/threads-max</span><br><br><span class="hljs-comment"># 查看系统线程总数</span><br><span class="hljs-built_in">cat</span> /proc/sys/kernel/threads-max<br>ps -eLf | <span class="hljs-built_in">wc</span> -l  <span class="hljs-comment"># 当前线程数</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>3. stack size（-s，默认 8192KB &#x3D; 8MB）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 影响：每个线程的栈大小</span><br><span class="hljs-comment"># Java 线程栈不受 ulimit 控制，由 -Xss 参数控制（默认 512KB~1MB）</span><br><span class="hljs-comment"># 但 Linux 进程本身的主线程栈受 ulimit 限制</span><br><br>java -Xss256k -jar app.jar  <span class="hljs-comment"># 减小线程栈，允许更多线程</span><br><br><span class="hljs-comment"># 栈溢出症状：java.lang.StackOverflowError（与 ulimit 无直接关系）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 虚拟内存（-v）</strong></p>
+<p>通常不建议限制（JVM 大量使用虚拟地址空间，-v 过小导致 JVM 无法启动）</p>
+<h3 id="systemd-服务配置"><a href="#systemd-服务配置" class="headerlink" title="systemd 服务配置"></a>systemd 服务配置</h3><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-comment"># /etc/systemd/system/my-java-app.service</span><br><span class="hljs-section">[Service]</span><br><span class="hljs-attr">LimitNOFILE</span>=<span class="hljs-number">65535</span><br><span class="hljs-attr">LimitNPROC</span>=<span class="hljs-number">65535</span><br><span class="hljs-attr">LimitSTACK</span>=<span class="hljs-number">8388608</span><br><br><span class="hljs-comment"># 生效后重新加载</span><br>systemctl daemon-reload<br>systemctl restart my-java-app<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q30-实战：Java-服务器-CPU-飙高完整排查流程"><a href="#Q30-实战：Java-服务器-CPU-飙高完整排查流程" class="headerlink" title="Q30. 实战：Java 服务器 CPU 飙高完整排查流程"></a>Q30. 实战：Java 服务器 CPU 飙高完整排查流程</h2><h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><p>生产环境 Java 服务 CPU 使用率突然飙到 90%+，如何快速定位根因？</p>
+<h3 id="第一步：top-看全局"><a href="#第一步：top-看全局" class="headerlink" title="第一步：top 看全局"></a>第一步：top 看全局</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">top -d 1<br><br><span class="hljs-comment"># 关键观察：</span><br><span class="hljs-comment"># 1. CPU 百分比是 us（用户态）高还是 sy（内核态）高？</span><br><span class="hljs-comment">#    - us 高 → Java 代码问题（死循环、大量计算、GC）</span><br><span class="hljs-comment">#    - sy 高 → 大量系统调用（频繁 IO、网络）</span><br><span class="hljs-comment"># 2. load average 趋势（上升还是下降）</span><br><span class="hljs-comment"># 3. wa 高 → IO 等待，可能不是 CPU 问题</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="第二步：ps-找到耗-CPU-的线程"><a href="#第二步：ps-找到耗-CPU-的线程" class="headerlink" title="第二步：ps 找到耗 CPU 的线程"></a>第二步：ps 找到耗 CPU 的线程</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 找到 CPU 最高的 Java 线程（LWP = Linux线程ID）</span><br>ps -eLf | grep java | <span class="hljs-built_in">sort</span> -k5 -r | <span class="hljs-built_in">head</span> -20<br><br><span class="hljs-comment"># 或者更方便的</span><br>top -H -p $(pgrep -f <span class="hljs-string">&quot;java.*your-app&quot;</span>) -d 1<br><span class="hljs-comment"># -H：显示线程模式</span><br><span class="hljs-comment"># 按 P 排序 CPU</span><br><br><span class="hljs-comment"># 记下 CPU 最高的线程 PID（假设是 12345）</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="第三步：转换线程-ID（LWP-→-十六进制）"><a href="#第三步：转换线程-ID（LWP-→-十六进制）" class="headerlink" title="第三步：转换线程 ID（LWP → 十六进制）"></a>第三步：转换线程 ID（LWP → 十六进制）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Java jstack 里的线程 ID 是十六进制</span><br><span class="hljs-built_in">printf</span> <span class="hljs-string">&quot;%x\n&quot;</span> 12345   <span class="hljs-comment"># 输出：3039</span><br><br><span class="hljs-comment"># 批量转换（找前5个高CPU线程）</span><br>ps -eLf | grep java | <span class="hljs-built_in">sort</span> -k5 -r | <span class="hljs-built_in">head</span> -5 | \<br>    awk <span class="hljs-string">&#x27;&#123;printf &quot;TID: %s, HEX: %x\n&quot;, $4, $4&#125;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="第四步：jstack-获取线程快照"><a href="#第四步：jstack-获取线程快照" class="headerlink" title="第四步：jstack 获取线程快照"></a>第四步：jstack 获取线程快照</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">PID=$(pgrep -f <span class="hljs-string">&quot;java.*your-app&quot;</span>)<br><br><span class="hljs-comment"># 生成线程快照</span><br>jstack -l <span class="hljs-variable">$PID</span> &gt; /tmp/jstack_$(<span class="hljs-built_in">date</span> +%Y%m%d_%H%M%S).txt<br><br><span class="hljs-comment"># 查找刚才找到的 HEX 线程 ID（如 3039）</span><br>grep -A 30 <span class="hljs-string">&quot;nid=0x3039&quot;</span> /tmp/jstack_*.txt<br></code></pre></td></tr></table></figure>
+
+<p>典型输出：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-string">&quot;GC task thread#0 (ParallelGC)&quot;</span> <span class="hljs-attribute">os_prio</span>=0 <span class="hljs-attribute">tid</span>=0x... <span class="hljs-attribute">nid</span>=0x3039 runnable<br><span class="hljs-comment"># → GC 线程 CPU 高 → 可能是频繁 GC</span><br><br><span class="hljs-string">&quot;http-nio-8080-exec-1&quot;</span> #20 daemon <span class="hljs-attribute">prio</span>=5 <span class="hljs-attribute">os_prio</span>=0 <span class="hljs-attribute">tid</span>=0x... <span class="hljs-attribute">nid</span>=0x303a runnable<br>    at com.example.SomeService.heavyCompute(SomeService.java:123)<br>    at <span class="hljs-built_in">..</span>.<br><span class="hljs-comment"># → 业务代码死循环或大量计算</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="第五步：根据-jstack-内容分析"><a href="#第五步：根据-jstack-内容分析" class="headerlink" title="第五步：根据 jstack 内容分析"></a>第五步：根据 jstack 内容分析</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 场景1：大量 GC 线程 CPU 高</span><br>jstat -gcutil <span class="hljs-variable">$PID</span> 1000 10  <span class="hljs-comment"># 查看 GC 频率和耗时</span><br><span class="hljs-comment"># FGC（Full GC）频繁 → 内存问题，dump heap 分析</span><br><br><span class="hljs-comment"># 场景2：业务线程 CPU 高（找具体方法）</span><br>jstack <span class="hljs-variable">$PID</span> | grep -A 20 <span class="hljs-string">&quot;nid=0x3039&quot;</span> <br><span class="hljs-comment"># 找到具体的方法栈，定位代码</span><br><br><span class="hljs-comment"># 场景3：大量 BLOCKED 线程（锁竞争）</span><br>jstack <span class="hljs-variable">$PID</span> | grep <span class="hljs-string">&quot;BLOCKED&quot;</span> | <span class="hljs-built_in">wc</span> -l<br>jstack <span class="hljs-variable">$PID</span> | grep -B5 <span class="hljs-string">&quot;BLOCKED&quot;</span> | grep <span class="hljs-string">&quot;waiting to lock&quot;</span><br><br><span class="hljs-comment"># 场景4：死循环（线程一直是 runnable 且相同栈）</span><br><span class="hljs-comment"># 多次 jstack 对比，同一线程栈一直不变</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="完整排查脚本"><a href="#完整排查脚本" class="headerlink" title="完整排查脚本"></a>完整排查脚本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br><span class="hljs-comment"># cpu-diagnose.sh</span><br><br>APP_NAME=<span class="hljs-string">&quot;your-app&quot;</span><br>PID=$(pgrep -f <span class="hljs-string">&quot;java.*<span class="hljs-variable">$APP_NAME</span>&quot;</span>)<br><br><span class="hljs-keyword">if</span> [ -z <span class="hljs-string">&quot;<span class="hljs-variable">$PID</span>&quot;</span> ]; <span class="hljs-keyword">then</span><br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;未找到进程: <span class="hljs-variable">$APP_NAME</span>&quot;</span><br>    <span class="hljs-built_in">exit</span> 1<br><span class="hljs-keyword">fi</span><br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;=== Java 进程 CPU 诊断 ===&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;PID: <span class="hljs-variable">$PID</span>&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;&quot;</span><br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;--- 进程 CPU/内存概况 ---&quot;</span><br>top -bn1 -p <span class="hljs-variable">$PID</span> | <span class="hljs-built_in">tail</span> -4<br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;--- Top 5 高CPU线程（LWP） ---&quot;</span><br>ps -eLf | grep <span class="hljs-variable">$PID</span> | grep -v grep | <span class="hljs-built_in">sort</span> -k5 -r | <span class="hljs-built_in">head</span> -5 | \<br>    awk <span class="hljs-string">&#x27;&#123;printf &quot;TID: %-6s CPU%%: %-5s HEX: 0x%x\n&quot;, $4, $5, $4&#125;&#x27;</span><br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;--- 生成 jstack 快照 ---&quot;</span><br>JSTACK_FILE=<span class="hljs-string">&quot;/tmp/jstack_<span class="hljs-variable">$&#123;PID&#125;</span>_<span class="hljs-subst">$(date +%H%M%S)</span>.txt&quot;</span><br>jstack -l <span class="hljs-variable">$PID</span> &gt; <span class="hljs-variable">$JSTACK_FILE</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;已保存到: <span class="hljs-variable">$JSTACK_FILE</span>&quot;</span><br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;--- jstack 线程状态统计 ---&quot;</span><br>grep <span class="hljs-string">&quot;java.lang.Thread.State&quot;</span> <span class="hljs-variable">$JSTACK_FILE</span> | <span class="hljs-built_in">sort</span> | <span class="hljs-built_in">uniq</span> -c | <span class="hljs-built_in">sort</span> -r<br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;--- GC 统计 ---&quot;</span><br>jstat -gcutil <span class="hljs-variable">$PID</span> 1000 3<br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;=== 诊断完成 ===&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;提示：用 &#x27;grep -A 30 \&quot;nid=0xHEX\&quot; <span class="hljs-variable">$JSTACK_FILE</span>&#x27; 查看指定线程的栈&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="常见-CPU-飙高原因汇总"><a href="#常见-CPU-飙高原因汇总" class="headerlink" title="常见 CPU 飙高原因汇总"></a>常见 CPU 飙高原因汇总</h3><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>可能原因</th>
+<th>解决方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GC 线程 CPU 高</td>
+<td>内存不足&#x2F;内存泄漏</td>
+<td>增大堆&#x2F;优化对象创建</td>
+</tr>
+<tr>
+<td>业务线程 Runnable 且栈不变</td>
+<td>死循环</td>
+<td>找代码里的无限循环</td>
+</tr>
+<tr>
+<td>大量线程 BLOCKED</td>
+<td>锁竞争</td>
+<td>减锁范围&#x2F;换并发结构</td>
+</tr>
+<tr>
+<td>sy CPU 高</td>
+<td>频繁系统调用</td>
+<td>strace 找高频 syscall</td>
+</tr>
+<tr>
+<td>si CPU 高</td>
+<td>网络包处理</td>
+<td>检查网络流量&#x2F;连接数</td>
+</tr>
+<tr>
+<td>负载高但 us 不高</td>
+<td>D 状态进程多</td>
+<td>检查磁盘&#x2F;NFS IO</td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<p><strong>总结</strong>：Linux &amp; OS 面试八股文的核心在于理解底层机制，而不是死记硬背。建议在自己的 Linux 服务器上亲手运行本文中的每一条命令，理解每个输出代表的含义。Java 后端开发者懂 OS 原理，才能在遇到线上问题时快速定位根因，而不是靠撞运气。祝面试顺利！</p>
+</blockquote>
+<hr>
+<p><em>本文首发于个人技术博客，欢迎转载，转载请注明出处。</em></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87/" class="category-chain-item">面试八股文</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="print-no-link">#操作系统</a>
+      
+        <a href="/tags/%E8%BF%9B%E7%A8%8B/" class="print-no-link">#进程</a>
+      
+        <a href="/tags/%E7%BA%BF%E7%A8%8B/" class="print-no-link">#线程</a>
+      
+        <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="print-no-link">#内存管理</a>
+      
+        <a href="/tags/IO%E6%A8%A1%E5%9E%8B/" class="print-no-link">#IO模型</a>
+      
+        <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" class="print-no-link">#文件系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux &amp; 操作系统面试八股文 30 道｜深度详解版（Java 后端必备）</div>
+      <div>https://whyalwaysme.lol/2026/09/05/2026-09-05-linux-os-interview-deep/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年9月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/09/05/2026-09-05-mybatis-interview-deep/" title="MyBatis 面试八股文 25 道｜深度详解版（傻子都能看懂）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MyBatis 面试八股文 25 道｜深度详解版（傻子都能看懂）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/05/%E5%8D%9A%E5%AE%A2%E5%86%85%E5%AE%B9%E5%AF%BC%E8%88%AA/" title="博客内容导航｜Java 后端 + AI Agent 学习路线图">
+                        <span class="hidden-mobile">博客内容导航｜Java 后端 + AI Agent 学习路线图</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

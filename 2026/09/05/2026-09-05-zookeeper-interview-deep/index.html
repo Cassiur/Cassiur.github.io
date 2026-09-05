@@ -1,0 +1,1488 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="Zookeeper 25题深度版：ZNode类型、ZAB协议与Leader选举、Watch机制、分布式锁实现、与Eureka&#x2F;Nacos对比、Paxos vs ZAB，分布式协调核心考点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zookeeper 面试八股文 25 道｜深度详解版（傻子都能看懂）">
+<meta property="og:url" content="https://whyalwaysme.lol/2026/09/05/2026-09-05-zookeeper-interview-deep/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="Zookeeper 25题深度版：ZNode类型、ZAB协议与Leader选举、Watch机制、分布式锁实现、与Eureka&#x2F;Nacos对比、Paxos vs ZAB，分布式协调核心考点。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-05T07:30:00.000Z">
+<meta property="article:modified_time" content="2026-09-05T09:09:52.582Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Leader选举">
+<meta property="article:tag" content="ZAB协议">
+<meta property="article:tag" content="Zookeeper">
+<meta property="article:tag" content="八股文">
+<meta property="article:tag" content="分布式协调">
+<meta property="article:tag" content="分布式锁">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Zookeeper 面试八股文 25 道｜深度详解版（傻子都能看懂） - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Zookeeper 面试八股文 25 道｜深度详解版（傻子都能看懂）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-09-05 15:30" pubdate>
+          2026年9月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          91 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Zookeeper 面试八股文 25 道｜深度详解版（傻子都能看懂）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p>本文是 Zookeeper 面试八股文深度版，共 25 道题，全程中文讲解，配合代码示例和 ASCII 图解，力求让每一个概念都从原理到实践彻底讲清楚。建议收藏后反复阅读，面试前过一遍即可。</p>
+</blockquote>
+<hr>
+<h2 id="Q1-Zookeeper-是什么？解决什么问题？"><a href="#Q1-Zookeeper-是什么？解决什么问题？" class="headerlink" title="Q1. Zookeeper 是什么？解决什么问题？"></a>Q1. Zookeeper 是什么？解决什么问题？</h2><p><strong>一句话定位</strong>：ZooKeeper 是 Apache 开源的<strong>分布式协调服务</strong>，专门解决分布式系统中的一致性协调难题。</p>
+<p><strong>背景故事</strong>：分布式系统最头疼的问题不是性能，而是”协调”——多台机器同时干活，怎么保证大家步调一致？比如：</p>
+<ul>
+<li>多个节点同时抢同一把锁，谁抢到算谁的？</li>
+<li>集群里哪台机器是 Master，大家怎么达成共识？</li>
+<li>配置文件改了，怎么通知所有节点及时更新？</li>
+</ul>
+<p>这些问题每个系统都要解决，与其各自造轮子，不如交给 ZooKeeper 统一处理。</p>
+<p><strong>ZooKeeper 能做什么</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>典型使用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分布式锁</td>
+<td>多节点抢占同一资源</td>
+</tr>
+<tr>
+<td>Master 选举</td>
+<td>Kafka Controller 选举、HBase Master</td>
+</tr>
+<tr>
+<td>服务注册发现</td>
+<td>早期 Dubbo 注册中心</td>
+</tr>
+<tr>
+<td>配置中心</td>
+<td>配置热更新</td>
+</tr>
+<tr>
+<td>分布式屏障</td>
+<td>多节点同步等待</td>
+</tr>
+<tr>
+<td>命名服务</td>
+<td>全局唯一 ID 生成</td>
+</tr>
+</tbody></table>
+<p><strong>核心设计哲学</strong>：ZooKeeper 并不自己实现这些功能，而是提供一套<strong>原语</strong>（树形数据模型 + Watch 机制 + Session 管理），让开发者在这些原语上<strong>组合</strong>出各种协调逻辑。就像乐高积木，基础块很简单，但能拼出各种复杂形状。</p>
+<p><strong>ZooKeeper 的保证</strong>：</p>
+<ol>
+<li><strong>顺序一致性</strong>：同一客户端的操作按提交顺序执行</li>
+<li><strong>原子性</strong>：每个操作要么成功要么失败，没有中间状态</li>
+<li><strong>单一系统映像</strong>：客户端看到的视图是一致的</li>
+<li><strong>可靠性</strong>：一旦写入成功，数据不丢失</li>
+<li><strong>实时性</strong>：客户端会在有限时间内看到最新数据（有界滞后）</li>
+</ol>
+<hr>
+<h2 id="Q2-ZNode-的4种类型"><a href="#Q2-ZNode-的4种类型" class="headerlink" title="Q2. ZNode 的4种类型"></a>Q2. ZNode 的4种类型</h2><p>ZNode 是 ZooKeeper 数据模型的基本单元，类似文件系统中的”文件+目录”的混合体。ZNode 有 4 种类型，理解它们是理解一切 ZK 应用的基础。</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs scss">ZNode 四种类型<br>├── 持久节点 (PERSISTENT)          ← 创建后永久存在，需手动删除<br>├── 临时节点 (EPHEMERAL)           ← Session 断开自动删除，不能有子节点<br>├── 持久顺序节点 (PERSISTENT_SEQUENTIAL) ← 永久存在 + 自动追加序号<br>└── 临时顺序节点 (EPHEMERAL_SEQUENTIAL)  ← Session 断开删除 + 自动追加序号<br></code></pre></td></tr></table></figure>
+
+<p><strong>逐类详解</strong>：</p>
+<p><strong>1. 持久节点（PERSISTENT）</strong></p>
+<p>最普通的节点，创建后一直存在，直到你主动删除它。适合存储配置信息、命名空间定义等需要长期保留的数据。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 用 Curator 创建持久节点</span><br>client.create()<br>      .creatingParentsIfNeeded()<br>      .withMode(CreateMode.PERSISTENT)<br>      .forPath(<span class="hljs-string">&quot;/config/database&quot;</span>, <span class="hljs-string">&quot;jdbc:mysql://localhost:3306/db&quot;</span>.getBytes());<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 临时节点（EPHEMERAL）</strong></p>
+<p>Session 断开后自动删除，是实现服务注册发现和分布式锁的核心原语。<strong>重要限制：临时节点不能有子节点</strong>（因为 Session 断开时 ZK 无法保证原子地删除整棵子树）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 服务上线时创建临时节点</span><br>client.create()<br>      .withMode(CreateMode.EPHEMERAL)<br>      .forPath(<span class="hljs-string">&quot;/services/order-service/192.168.1.100:8080&quot;</span>, <span class="hljs-string">&quot;UP&quot;</span>.getBytes());<br><span class="hljs-comment">// 服务宕机后，ZK 自动删除这个节点，其他节点收到 Watch 通知</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 持久顺序节点（PERSISTENT_SEQUENTIAL）</strong></p>
+<p>创建时 ZK 自动在节点名后追加一个全局单调递增的 10 位数字序号（如 <code>/lock/node-0000000001</code>）。适合实现需要记录操作顺序的场景。</p>
+<p><strong>4. 临时顺序节点（EPHEMERAL_SEQUENTIAL）</strong></p>
+<p>最常用的高级类型！同时具备”Session 断开自动删除”和”顺序编号”两个特性。<strong>分布式公平锁</strong>就是靠它实现的（详见 Q12）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 创建临时顺序节点</span><br><span class="hljs-type">String</span> <span class="hljs-variable">path</span> <span class="hljs-operator">=</span> client.create()<br>      .withMode(CreateMode.EPHEMERAL_SEQUENTIAL)<br>      .forPath(<span class="hljs-string">&quot;/lock/node-&quot;</span>, <span class="hljs-literal">null</span>);<br><span class="hljs-comment">// 返回类似：/lock/node-0000000003</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>一张表总结</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>Session 断开删除</th>
+<th>顺序编号</th>
+<th>能有子节点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PERSISTENT</td>
+<td>否</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>EPHEMERAL</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>PERSISTENT_SEQUENTIAL</td>
+<td>否</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>EPHEMERAL_SEQUENTIAL</td>
+<td>是</td>
+<td>是</td>
+<td>否</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="Q3-Zookeeper-的数据模型"><a href="#Q3-Zookeeper-的数据模型" class="headerlink" title="Q3. Zookeeper 的数据模型"></a>Q3. Zookeeper 的数据模型</h2><p>ZooKeeper 的数据模型是一棵<strong>层级树</strong>（类似 Unix 文件系统），根节点是 <code>/</code>，每个路径都是绝对路径。</p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs nix">ZooKeeper 数据树示意图<br><br><span class="hljs-symbol">/</span><br>├── zookeeper<span class="hljs-symbol">/</span>               ← ZK 内部使用，存储配额等信息<br>│   └── quota<span class="hljs-symbol">/</span><br>├── config<span class="hljs-symbol">/</span>                  ← 配置中心数据<br>│   ├── database             ← 叶子节点，存储实际数据<br>│   └── redis<br>├── services<span class="hljs-symbol">/</span>                ← 服务注册中心<br>│   ├── order-service<span class="hljs-symbol">/</span><br>│   │   ├── <span class="hljs-number">192.168</span>.<span class="hljs-number">1.100</span>:<span class="hljs-number">8080</span>   ← 临时节点，服务实例<br>│   │   └── <span class="hljs-number">192.168</span>.<span class="hljs-number">1.101</span>:<span class="hljs-number">8080</span><br>│   └── user-service<span class="hljs-symbol">/</span><br>│       └── <span class="hljs-number">192.168</span>.<span class="hljs-number">1.102</span>:<span class="hljs-number">8080</span><br>└── lock<span class="hljs-symbol">/</span>                    ← 分布式锁<br>    ├── node-<span class="hljs-number">0000000001</span>      ← 临时顺序节点<br>    └── node-<span class="hljs-number">0000000002</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>每个 ZNode 包含的数据</strong>：</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs haskell"><span class="hljs-type">ZNode</span> 结构<br>├── <span class="hljs-class"><span class="hljs-keyword">data</span>          ← 实际数据（字节数组），最大 1MB</span><br>├── stat          ← 元数据统计信息<br>│   ├── czxid     ← 创建时的 <span class="hljs-type">ZXID</span><br>│   ├── mzxid     ← 最后修改时的 <span class="hljs-type">ZXID</span><br>│   ├── ctime     ← 创建时间（毫秒）<br>│   ├── mtime     ← 最后修改时间（毫秒）<br>│   ├── version   ← 数据版本号（每次修改 +<span class="hljs-number">1</span>）<br>│   ├── cversion  ← 子节点版本号<br>│   ├── aversion  ← <span class="hljs-type">ACL</span> 版本号<br>│   ├── ephemeralOwner ← 临时节点的 <span class="hljs-type">Session</span> <span class="hljs-type">ID</span>（持久节点为<span class="hljs-number">0</span>）<br>│   ├── dataLength ← 数据长度<br>│   └── numChildren ← 子节点数量<br>└── children      ← 子节点列表（只存路径名，不存数据）<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键限制：每个节点最大存储 1MB 数据</strong></p>
+<p>这个限制是有意为之的设计。ZooKeeper 是协调服务，不是数据库，不应该存储大量数据。1MB 的限制防止开发者滥用 ZK 存储业务数据。如果需要存大数据，只在 ZK 存路径&#x2F;地址，真正的数据放 MySQL&#x2F;Redis。</p>
+<p><strong>版本号（version）用于乐观锁</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 读取当前版本</span><br><span class="hljs-type">Stat</span> <span class="hljs-variable">stat</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Stat</span>();<br><span class="hljs-type">byte</span>[] data = client.getData().storingStatIn(stat).forPath(<span class="hljs-string">&quot;/config/database&quot;</span>);<br><br><span class="hljs-comment">// 带版本号更新，如果版本不匹配则抛出 BadVersionException</span><br>client.setData()<br>      .withVersion(stat.getVersion())  <span class="hljs-comment">// 乐观锁</span><br>      .forPath(<span class="hljs-string">&quot;/config/database&quot;</span>, <span class="hljs-string">&quot;new-value&quot;</span>.getBytes());<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q4-Watch-机制：一次性触发、事件类型、持续监听"><a href="#Q4-Watch-机制：一次性触发、事件类型、持续监听" class="headerlink" title="Q4. Watch 机制：一次性触发、事件类型、持续监听"></a>Q4. Watch 机制：一次性触发、事件类型、持续监听</h2><p>Watch 机制是 ZooKeeper 最核心的特性之一，它让客户端能够<strong>监听节点变化并异步接收通知</strong>。</p>
+<p><strong>一次性触发原理</strong>：</p>
+<p>Watch 是<strong>一次性的</strong>。每次 Watch 触发后自动失效，如果想继续监听，必须重新注册 Watch。这个设计是为了减少 ZK 服务端的内存开销——如果 Watch 永久有效，服务端需要维护海量长连接订阅关系。</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">Watch 工作流程：<br><br>客户端                     ZooKeeper 服务端<br>  |<span class="hljs-string">                              </span>|<br>  |<span class="hljs-string">-- getData(&quot;/config&quot;, true) --&gt;</span>|<span class="hljs-string">   注册 Watch</span><br><span class="hljs-string">  </span>|<span class="hljs-string">&lt;--- 返回当前数据 ------------</span>|<br>  |<span class="hljs-string">                              </span>|<br>  |<span class="hljs-string">         (其他客户端修改了 /config)</span><br><span class="hljs-string">  </span>|<span class="hljs-string">                              </span>|<br>  |<span class="hljs-string">&lt;--- WatchedEvent 通知 -------</span>|<span class="hljs-string">  Watch 触发，自动失效！</span><br><span class="hljs-string">  </span>|<span class="hljs-string">                              </span>|<br>  |<span class="hljs-string">-- getData(&quot;/config&quot;, true) --&gt;</span>|<span class="hljs-string">   必须重新注册 Watch</span><br><span class="hljs-string">  </span>|<span class="hljs-string">&lt;--- 返回最新数据 ------------</span>|<br></code></pre></td></tr></table></figure>
+
+<p><strong>Watch 事件类型</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>事件类型</th>
+<th>触发条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NodeCreated</td>
+<td>监听的节点被创建</td>
+</tr>
+<tr>
+<td>NodeDeleted</td>
+<td>监听的节点被删除</td>
+</tr>
+<tr>
+<td>NodeDataChanged</td>
+<td>节点数据发生变化</td>
+</tr>
+<tr>
+<td>NodeChildrenChanged</td>
+<td>子节点列表发生变化（增加或删除子节点）</td>
+</tr>
+</tbody></table>
+<p><strong>不同 API 注册的 Watch 监听不同事件</strong>：</p>
+<ul>
+<li><code>getData(path, watch)</code> → 监听 NodeDeleted、NodeDataChanged</li>
+<li><code>exists(path, watch)</code> → 监听 NodeCreated、NodeDeleted、NodeDataChanged</li>
+<li><code>getChildren(path, watch)</code> → 监听 NodeDeleted（父节点删除）、NodeChildrenChanged</li>
+</ul>
+<p><strong>如何实现持续监听（递归Watch）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 方法一：手动递归重注册（原生客户端常用写法）</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">watchConfig</span><span class="hljs-params">(String path)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 读取数据的同时注册 Watch</span><br>        <span class="hljs-type">byte</span>[] data = client.getData()<br>            .usingWatcher((WatchedEvent event) -&gt; &#123;<br>                <span class="hljs-comment">// Watch 触发后，处理事件</span><br>                System.out.println(<span class="hljs-string">&quot;配置变化：&quot;</span> + event.getType());<br>                <span class="hljs-comment">// 重新注册 Watch（关键！）</span><br>                watchConfig(path);<br>            &#125;)<br>            .forPath(path);<br>        System.out.println(<span class="hljs-string">&quot;当前值：&quot;</span> + <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(data));<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        e.printStackTrace();<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 方法二：Curator 的 NodeCache（推荐，自动重注册）</span><br><span class="hljs-type">NodeCache</span> <span class="hljs-variable">nodeCache</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NodeCache</span>(client, <span class="hljs-string">&quot;/config/database&quot;</span>);<br>nodeCache.getListenable().addListener(() -&gt; &#123;<br>    <span class="hljs-type">ChildData</span> <span class="hljs-variable">currentData</span> <span class="hljs-operator">=</span> nodeCache.getCurrentData();<br>    <span class="hljs-keyword">if</span> (currentData != <span class="hljs-literal">null</span>) &#123;<br>        System.out.println(<span class="hljs-string">&quot;配置更新：&quot;</span> + <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(currentData.getData()));<br>    &#125;<br>&#125;);<br>nodeCache.start(<span class="hljs-literal">true</span>); <span class="hljs-comment">// true 表示立即拉取当前数据</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Watch 的注意事项</strong>：</p>
+<ol>
+<li>Watch 通知是异步的，客户端收到通知时数据可能已经被修改多次</li>
+<li>Watch 通知不携带变化后的数据，需要重新调用 getData 获取</li>
+<li>网络断开重连后，之前注册的 Watch 会丢失，需要应用层重新注册</li>
+</ol>
+<hr>
+<h2 id="Q5-Session-管理：超时、临时节点与-Session-的关系、Session-重连"><a href="#Q5-Session-管理：超时、临时节点与-Session-的关系、Session-重连" class="headerlink" title="Q5. Session 管理：超时、临时节点与 Session 的关系、Session 重连"></a>Q5. Session 管理：超时、临时节点与 Session 的关系、Session 重连</h2><p>Session 是客户端与 ZooKeeper 服务端之间的<strong>逻辑连接</strong>，是 ZK 很多核心特性的基础。</p>
+<p><strong>Session 的建立过程</strong>：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">客户端                         ZooKeeper 集群<br>  |<span class="hljs-string">                                  </span>|<br>  |<span class="hljs-string">--- ConnectRequest (timeout=30s) -&gt;</span>|<span class="hljs-string">  发起连接，协商超时时间</span><br><span class="hljs-string">  </span>|<span class="hljs-string">&lt;-- ConnectResponse (sessionId) ---</span>|<span class="hljs-string">  服务端返回 Session ID</span><br><span class="hljs-string">  </span>|<span class="hljs-string">                                  </span>|<br>  |<span class="hljs-string">--- Ping (每 sessionTimeout/3) --&gt;</span>|<span class="hljs-string">  心跳保活</span><br><span class="hljs-string">  </span>|<span class="hljs-string">&lt;-- Ping Response -----------------</span>|<br></code></pre></td></tr></table></figure>
+
+<p><strong>Session 超时的含义</strong>：</p>
+<p><code>sessionTimeout</code> 不是连接超时，而是<strong>Session 失效的等待时间</strong>。客户端断开后，ZK 服务端不会立刻删除 Session，而是等待 <code>sessionTimeout</code> 时间，给客户端重连的机会。超时后才真正删除 Session 及其关联的所有临时节点。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 创建客户端时设置 Session 超时</span><br><span class="hljs-type">CuratorFramework</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> CuratorFrameworkFactory.builder()<br>    .connectString(<span class="hljs-string">&quot;localhost:2181&quot;</span>)<br>    .sessionTimeoutMs(<span class="hljs-number">30000</span>)   <span class="hljs-comment">// Session 超时：30秒</span><br>    .connectionTimeoutMs(<span class="hljs-number">5000</span>) <span class="hljs-comment">// 连接超时：5秒（TCP 层面）</span><br>    .retryPolicy(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ExponentialBackoffRetry</span>(<span class="hljs-number">1000</span>, <span class="hljs-number">3</span>))<br>    .build();<br></code></pre></td></tr></table></figure>
+
+<p><strong>临时节点与 Session 的绑定关系</strong>：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">Session A (<span class="hljs-attr">sessionId=</span><span class="hljs-number">0</span>x1234)<br>  ├── 创建了 /services/order/<span class="hljs-number">192.168</span>.<span class="hljs-number">1.100</span>:<span class="hljs-number">8080</span> (临时节点)<br>  └── 创建了 /lock/<span class="hljs-keyword">node</span><span class="hljs-title">-0000000001</span> (临时顺序节点)<br><br>当 Session A 超时：<br>  ├── /services/order/<span class="hljs-number">192.168</span>.<span class="hljs-number">1.100</span>:<span class="hljs-number">8080</span> → 自动删除<br>  └── /lock/<span class="hljs-keyword">node</span><span class="hljs-title">-0000000001</span> → 自动删除<br></code></pre></td></tr></table></figure>
+
+<p><strong>Session 重连的三种状态</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CONNECTED</td>
+<td>正常连接</td>
+</tr>
+<tr>
+<td>SUSPENDED</td>
+<td>连接断开，等待重连（Session 未超时）</td>
+</tr>
+<tr>
+<td>LOST</td>
+<td>Session 超时，所有临时节点已删除</td>
+</tr>
+</tbody></table>
+<p><strong>处理 Session 重连的正确姿势</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java">client.getConnectionStateListenable().addListener((c, newState) -&gt; &#123;<br>    <span class="hljs-keyword">switch</span> (newState) &#123;<br>        <span class="hljs-keyword">case</span> SUSPENDED:<br>            <span class="hljs-comment">// 连接断开，暂停对外服务，等待重连</span><br>            log.warn(<span class="hljs-string">&quot;ZK 连接断开，暂停服务...&quot;</span>);<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> RECONNECTED:<br>            <span class="hljs-comment">// 重连成功且 Session 仍有效，无需重新注册临时节点</span><br>            log.info(<span class="hljs-string">&quot;ZK 重连成功，Session 仍有效&quot;</span>);<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> LOST:<br>            <span class="hljs-comment">// Session 超时！临时节点已被删除，必须重新注册</span><br>            log.error(<span class="hljs-string">&quot;ZK Session 丢失！重新初始化...&quot;</span>);<br>            reRegisterServices(); <span class="hljs-comment">// 重新注册所有临时节点</span><br>            <span class="hljs-keyword">break</span>;<br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试陷阱</strong>：Session 重连成功（RECONNECTED 状态）时，如果 sessionTimeout 内重连，临时节点<strong>不会</strong>被删除，不需要重建。只有 LOST 状态才需要重建。</p>
+<hr>
+<h2 id="Q6-ZAB-协议（Zookeeper-Atomic-Broadcast）"><a href="#Q6-ZAB-协议（Zookeeper-Atomic-Broadcast）" class="headerlink" title="Q6. ZAB 协议（Zookeeper Atomic Broadcast）"></a>Q6. ZAB 协议（Zookeeper Atomic Broadcast）</h2><p>ZAB 是 ZooKeeper 的核心一致性协议，全称 <strong>ZooKeeper Atomic Broadcast</strong>（ZooKeeper 原子广播协议）。它保证了 ZK 集群的数据一致性和高可用性。</p>
+<p>ZAB 协议分为两个阶段：<strong>崩溃恢复</strong>和<strong>消息广播</strong>。</p>
+<p><strong>阶段一：崩溃恢复（Leader 选举）</strong></p>
+<p>当集群启动或 Leader 宕机时，触发崩溃恢复，通过选举选出新 Leader（详见 Q7）。</p>
+<p><strong>阶段二：消息广播（正常工作阶段）</strong></p>
+<p>一旦有了 Leader，就进入消息广播阶段，所有写请求都通过 Leader 处理：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">写请求广播流程（2PC 简化版）：<br><br>客户端         Leader          Follower1      Follower2<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">                </span>|<span class="hljs-string">               </span>|<br>  |<span class="hljs-string">-- setData --&gt;</span>|<span class="hljs-string">                </span>|<span class="hljs-string">               </span>|<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">-- Propose ----&gt;</span>|<span class="hljs-string">               </span>|<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">-- Propose ----------------------&gt;</span>|<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">                </span>|<span class="hljs-string">               </span>|<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">&lt;-- ACK --------</span>|<span class="hljs-string">               </span>|<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">&lt;-- ACK ----------------------------</span>|<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">                </span>|<span class="hljs-string">               </span>|<br>  |<span class="hljs-string">  (收到过半 ACK，提交)         </span>|<span class="hljs-string">               </span>|<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">-- Commit -----&gt;</span>|<span class="hljs-string">               </span>|<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">-- Commit -----------------------&gt;</span>|<br>  |<span class="hljs-string">              </span>|<span class="hljs-string">                </span>|<span class="hljs-string">               </span>|<br>  |<span class="hljs-string">&lt;-- Success --</span>|<span class="hljs-string">                </span>|<span class="hljs-string">               </span>|<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键特性：两阶段提交 + 过半写成功</strong></p>
+<p>Leader 发出 Proposal 后，只需要收到<strong>过半节点（包含自身）的 ACK</strong>，就可以发出 Commit，不需要等所有节点确认。这是 ZK 在一致性和可用性之间的权衡——牺牲了强一致性（少数节点可能滞后），换来了高可用性。</p>
+<p><strong>ZAB 的数据恢复保证</strong>：</p>
+<p>崩溃恢复阶段，ZAB 必须满足两个条件：</p>
+<ol>
+<li><strong>已提交的事务必须恢复</strong>：如果事务已在 Leader 上 Commit 并发给了 Follower，选出新 Leader 后这条事务不能丢</li>
+<li><strong>未提交的事务必须丢弃</strong>：如果 Leader 只是 Propose 了事务但还没 Commit 就宕机了，新 Leader 必须丢弃这条事务</li>
+</ol>
+<p>这就是 ZXID 中 epoch 字段的作用——新 Leader 的 epoch 比旧 Leader 大，旧 epoch 的未提交事务会被自动丢弃。</p>
+<hr>
+<h2 id="Q7-Leader-选举流程（FastLeaderElection）"><a href="#Q7-Leader-选举流程（FastLeaderElection）" class="headerlink" title="Q7. Leader 选举流程（FastLeaderElection）"></a>Q7. Leader 选举流程（FastLeaderElection）</h2><p>ZooKeeper 默认使用 <strong>FastLeaderElection（快速 Leader 选举）</strong> 算法，依赖三个核心参数：</p>
+<ul>
+<li><strong>myid</strong>：每台机器的唯一标识，配置在 <code>myid</code> 文件中（整数，通常 1~255）</li>
+<li><strong>ZXID</strong>：最新事务 ID，ZXID 越大说明数据越新</li>
+<li><strong>epoch</strong>：选举轮次，每次选举 epoch 加 1</li>
+</ul>
+<p><strong>选举规则（谁能当 Leader）</strong>：</p>
+<blockquote>
+<p>优先选 epoch 最大的 → epoch 相同选 ZXID 最大的 → ZXID 相同选 myid 最大的</p>
+</blockquote>
+<p><strong>完整选举流程图</strong>：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs routeros">集群：Server1(<span class="hljs-attribute">myid</span>=1), Server2(<span class="hljs-attribute">myid</span>=2), Server3(<span class="hljs-attribute">myid</span>=3)<br>假设三台同时启动，ZXID 都为 0<br><br><span class="hljs-keyword">Step</span> 1: 每台服务器先投票给自己<br>  Server1 投票：(<span class="hljs-attribute">epoch</span>=1, <span class="hljs-attribute">zxid</span>=0, <span class="hljs-attribute">myid</span>=1)<br>  Server2 投票：(<span class="hljs-attribute">epoch</span>=1, <span class="hljs-attribute">zxid</span>=0, <span class="hljs-attribute">myid</span>=2)<br>  Server3 投票：(<span class="hljs-attribute">epoch</span>=1, <span class="hljs-attribute">zxid</span>=0, <span class="hljs-attribute">myid</span>=3)<br><br><span class="hljs-keyword">Step</span> 2: 交换投票，PK 规则：epoch &gt; zxid &gt; myid<br>  Server1 收到 Server2 的票：<span class="hljs-attribute">myid</span>=2 &gt; <span class="hljs-attribute">myid</span>=1，更新投票为 Server2<br>  Server1 收到 Server3 的票：<span class="hljs-attribute">myid</span>=3 &gt; <span class="hljs-attribute">myid</span>=2，更新投票为 Server3<br><br>  Server2 收到 Server1 的票：<span class="hljs-attribute">myid</span>=1 &lt; <span class="hljs-attribute">myid</span>=2，不更新<br>  Server2 收到 Server3 的票：<span class="hljs-attribute">myid</span>=3 &gt; <span class="hljs-attribute">myid</span>=2，更新投票为 Server3<br><br>  Server3 收到 Server1/2 的票：<span class="hljs-attribute">myid</span>=3 是最大，不更新，继续投 Server3<br><br><span class="hljs-keyword">Step</span> 3: 统计选票<br>  Server3 获得票数：3票（Server1、Server2、Server3 都投了 Server3）<br>  过半节点数 = floor(3/2) + 1 = 2<br>  Server3 票数 3 &gt;= 2，当选 Leader！<br><br><span class="hljs-keyword">Step</span> 4: 状态变更<br>  Server3 → LEADING（Leader）<br>  Server1 → FOLLOWING（Follower）<br>  Server2 → FOLLOWING（Follower）<br></code></pre></td></tr></table></figure>
+
+<p><strong>选举期间集群不可用</strong>：选举过程中，集群不处理任何读写请求。典型的选举时间是 200ms ~ 几秒，取决于网络状况和节点数量。</p>
+<p><strong>Leader 宕机后的重新选举</strong>：Follower 检测到与 Leader 的连接断开（超过一定时间收不到心跳），立刻进入 LOOKING 状态，触发新一轮选举，epoch 自动加 1，旧 Leader 的未提交事务被丢弃。</p>
+<hr>
+<h2 id="Q8-Leader、Follower、Observer-三种角色"><a href="#Q8-Leader、Follower、Observer-三种角色" class="headerlink" title="Q8. Leader、Follower、Observer 三种角色"></a>Q8. Leader、Follower、Observer 三种角色</h2><p><strong>Leader</strong>：</p>
+<ul>
+<li>集群唯一的写入节点，所有写请求必须经过 Leader</li>
+<li>负责发起事务 Proposal，收到过半 ACK 后 Commit</li>
+<li>维护与所有 Follower&#x2F;Observer 的心跳连接</li>
+<li>参与 Leader 选举投票</li>
+</ul>
+<p><strong>Follower</strong>：</p>
+<ul>
+<li>处理客户端读请求（本地直接返回）</li>
+<li>转发写请求给 Leader</li>
+<li>接收 Leader 的 Proposal 并 ACK，接收 Commit 后提交到本地</li>
+<li>参与 Leader 选举投票（这是与 Observer 最大的区别）</li>
+</ul>
+<p><strong>Observer</strong>：</p>
+<ul>
+<li>职责与 Follower 基本相同（处理读、转发写、同步数据）</li>
+<li><strong>不参与 Leader 选举投票</strong></li>
+<li><strong>不参与写事务的 Quorum（不需要给 Proposal 发 ACK）</strong></li>
+</ul>
+<p><strong>为什么需要 Observer</strong>：</p>
+<p>假设你想扩大集群规模提升读性能，直接加 Follower 会有问题：Follower 越多，Leader 等待 ACK 的时间越长，写性能下降。Observer 的引入解决了这个矛盾——加 Observer 可以提升读性能，又不影响写性能。</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs excel">典型部署：<span class="hljs-number">3</span> Follower（保障高可用）+ <span class="hljs-built_in">N</span> Observer（提升读吞吐）<br><br>客户端读 → 任意 Follower/Observer 直接返回（快）<br>客户端写 → Leader → 过半 Follower ACK → 提交（Observer 不计入过半）<br></code></pre></td></tr></table></figure>
+
+<p><strong>配置 Observer</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># zoo.cfg</span><br>server.1=zoo1:2888:3888<br>server.2=zoo2:2888:3888<br>server.3=zoo3:2888:3888<br>server.4=zoo4:2888:3888:observer  <span class="hljs-comment"># 末尾加 :observer 即为 Observer 角色</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q9-ZXID-的结构：高32位（epoch）-低32位（事务计数）"><a href="#Q9-ZXID-的结构：高32位（epoch）-低32位（事务计数）" class="headerlink" title="Q9. ZXID 的结构：高32位（epoch）+ 低32位（事务计数）"></a>Q9. ZXID 的结构：高32位（epoch）+ 低32位（事务计数）</h2><p>ZXID（ZooKeeper Transaction ID，事务ID）是一个 64 位长整数，结构如下：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs abnf">ZXID 结构（<span class="hljs-number">64</span>位）：<br><br> <span class="hljs-number">63</span>                <span class="hljs-number">32</span> <span class="hljs-number">31</span>                 <span class="hljs-number">0</span><br> ┌──────────────────┬─────────────────────┐<br> │    epoch (<span class="hljs-number">32</span>位)  │  counter (<span class="hljs-number">32</span>位)     │<br> └──────────────────┴─────────────────────┘<br>      选举轮次               事务计数<br><br>示例：ZXID <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x0000000200000045<br>       epoch <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x00000002 <span class="hljs-operator">=</span> <span class="hljs-number">2</span>（第<span class="hljs-number">2</span>任 Leader）<br>       counter <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x00000045 <span class="hljs-operator">=</span> <span class="hljs-number">69</span>（第<span class="hljs-number">69</span>条事务）<br></code></pre></td></tr></table></figure>
+
+<p><strong>epoch（高32位）</strong>：</p>
+<p>每次 Leader 选举成功，epoch 加 1。新 Leader 上任后，所有事务的 ZXID 中 epoch 部分都会更新为新值。这确保了：</p>
+<ul>
+<li>新 Leader 的事务 ZXID 一定大于旧 Leader 的所有事务 ZXID</li>
+<li>旧 Leader 生成的未提交事务（带旧 epoch）在新 Leader 上会被识别并丢弃</li>
+</ul>
+<p><strong>counter（低32位）</strong>：</p>
+<p>同一任 Leader 内，每产生一条事务，counter 加 1，严格单调递增。这保证了同一任 Leader 期间，事务有全局顺序。</p>
+<p><strong>ZXID 的作用</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 伪代码：新 Leader 处理 epoch 不匹配的事务</span><br><span class="hljs-keyword">for</span> (Transaction tx : pendingTransactions) &#123;<br>    <span class="hljs-keyword">if</span> (getEpoch(tx.zxid) &lt; currentEpoch) &#123;<br>        <span class="hljs-comment">// 旧 epoch 的未提交事务，直接丢弃</span><br>        discard(tx);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>在选举中的作用</strong>：ZXID 越大说明节点见过的事务越多，数据越新，优先当 Leader，避免数据回滚。</p>
+<hr>
+<h2 id="Q10-Zookeeper-的一致性保证：顺序一致性，读到旧数据的场景"><a href="#Q10-Zookeeper-的一致性保证：顺序一致性，读到旧数据的场景" class="headerlink" title="Q10. Zookeeper 的一致性保证：顺序一致性，读到旧数据的场景"></a>Q10. Zookeeper 的一致性保证：顺序一致性，读到旧数据的场景</h2><p>这是面试高频考点，很多人以为 ZK 是强一致性，其实不然。</p>
+<p><strong>ZooKeeper 提供的是顺序一致性（Sequential Consistency），不是强一致性（Linearizability）。</strong></p>
+<p><strong>区别</strong>：</p>
+<ul>
+<li><strong>强一致性</strong>：写入完成后，任意节点立刻能读到最新值</li>
+<li><strong>顺序一致性</strong>：同一客户端的操作有序，但不同客户端可能读到旧值</li>
+</ul>
+<p><strong>为什么会读到旧数据</strong>：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">时间轴：<br><br>Leader          Follower1       Follower2（慢）<br>  |<span class="hljs-string">                </span>|<span class="hljs-string">                </span>|<br>  |<span class="hljs-string">-- Commit A ---&gt;</span>|<span class="hljs-string">                </span>|<br>  |<span class="hljs-string">                </span>|<span class="hljs-string">                </span>|<br>  |<span class="hljs-string">  (Follower2 还未收到 Commit A)  </span>|<br>  |<span class="hljs-string">                </span>|<span class="hljs-string">                </span>|<br>客户端读 Follower2 → 读到 Commit A 之前的旧数据！<br></code></pre></td></tr></table></figure>
+
+<p>Follower 接收到 Commit 是<strong>异步</strong>的，Leader commit 后 Follower 可能有几毫秒到几十毫秒的延迟才能同步到。</p>
+<p><strong>如何强制读到最新数据（sync 操作）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 方法：在 getData 之前先调用 sync，强制 Follower 与 Leader 同步</span><br>client.sync().forPath(<span class="hljs-string">&quot;/config/database&quot;</span>);<br><span class="hljs-type">byte</span>[] data = client.getData().forPath(<span class="hljs-string">&quot;/config/database&quot;</span>);<br><br><span class="hljs-comment">// Curator 中的 Watcher 机制也会自动 sync</span><br></code></pre></td></tr></table></figure>
+
+<p><code>sync()</code> 的原理：客户端发送一个 sync 请求给连接的 Follower，Follower 将这个请求转发给 Leader，Leader 处理后告知 Follower 已同步到最新，然后客户端再发 getData 请求。</p>
+<p><strong>ZK 适合做什么</strong>：</p>
+<p>由于存在读旧数据的可能性，ZK 不适合做要求强一致读的场景。ZK 的典型应用（分布式锁、选举、配置中心）都能容忍短暂的不一致，因为 Watch 机制会在数据变化后及时通知。</p>
+<hr>
+<h2 id="Q11-Zookeeper-集群规模：为什么推荐奇数节点？过半原则"><a href="#Q11-Zookeeper-集群规模：为什么推荐奇数节点？过半原则" class="headerlink" title="Q11. Zookeeper 集群规模：为什么推荐奇数节点？过半原则"></a>Q11. Zookeeper 集群规模：为什么推荐奇数节点？过半原则</h2><p><strong>过半原则（Quorum）</strong>：</p>
+<p>ZK 的写操作需要超过半数节点（含 Leader）确认才能提交：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs tap">过半 = floor(N/2) + 1<br><br>3 节点集群：过半 = 2，最多容忍<span class="hljs-number"> 1 </span>个节点故障<br>5 节点集群：过半 = 3，最多容忍<span class="hljs-number"> 2 </span>个节点故障<br>7 节点集群：过半 = 4，最多容忍<span class="hljs-number"> 3 </span>个节点故障<br></code></pre></td></tr></table></figure>
+
+<p><strong>为什么推荐奇数节点</strong>：</p>
+<p>关键是比较<strong>容错能力</strong>与<strong>节点数量</strong>的性价比：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs tap">节点数  过半数  最大容错  说明<br> <span class="hljs-number"> 3 </span>    <span class="hljs-number"> 2 </span>     <span class="hljs-number"> 1 </span>     推荐：最小高可用配置<br> <span class="hljs-number"> 4 </span>    <span class="hljs-number"> 3 </span>     <span class="hljs-number"> 1 </span>     不推荐：容错数与3节点相同，却多用一台机器<br> <span class="hljs-number"> 5 </span>    <span class="hljs-number"> 3 </span>     <span class="hljs-number"> 2 </span>     推荐：比3节点多容1个故障<br> <span class="hljs-number"> 6 </span>    <span class="hljs-number"> 4 </span>     <span class="hljs-number"> 2 </span>     不推荐：容错数与5节点相同，多一台机器<br> <span class="hljs-number"> 7 </span>    <span class="hljs-number"> 4 </span>     <span class="hljs-number"> 3 </span>     推荐：大规模部署<br></code></pre></td></tr></table></figure>
+
+<p>结论：<strong>4 节点的容错能力 &#x3D;&#x3D; 3 节点</strong>，<strong>6 节点的容错能力 &#x3D;&#x3D; 5 节点</strong>，偶数节点纯属浪费。所以推荐 3&#x2F;5&#x2F;7 奇数节点。</p>
+<p><strong>脑裂（Split Brain）问题</strong>：</p>
+<p>网络分区时，两个分区可能各自认为自己是多数派，同时选出 Leader，数据不一致。过半原则解决了这个问题：</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs inform7">5 节点集群，网络分区为 <span class="hljs-comment">[2节点]</span> 和 <span class="hljs-comment">[3节点]</span>：<br>  分区1（2节点）：2 &lt; 过半数(3)，无法选出 Leader，停止服务<br>  分区2（3节点）：3 &gt;= 过半数(3)，可以正常工作<br><br>任意时刻，只有一个分区能拥有过半节点，天然防止脑裂。<br></code></pre></td></tr></table></figure>
+
+<p><strong>实际推荐</strong>：生产环境一般用 3 节点（低成本高可用）或 5 节点（关键业务），超过 7 节点后写性能明显下降（Leader 需要等更多 ACK），不建议继续扩大 Follower 数，可用 Observer 扩读能力。</p>
+<hr>
+<h2 id="Q12-分布式锁的实现：临时顺序节点-Watch-前一个节点"><a href="#Q12-分布式锁的实现：临时顺序节点-Watch-前一个节点" class="headerlink" title="Q12. 分布式锁的实现：临时顺序节点 + Watch 前一个节点"></a>Q12. 分布式锁的实现：临时顺序节点 + Watch 前一个节点</h2><p>用 ZK 实现分布式锁是面试最高频考题之一，必须吃透原理。</p>
+<p><strong>实现原理（公平锁）</strong>：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">锁路径：/lock<br><br>Step <span class="hljs-number">1</span>: 所有竞争者都在 /lock 下创建临时顺序节点<br>  客户端A 创建 /lock/<span class="hljs-keyword">node</span><span class="hljs-title">-0000000001</span><br>  客户端B 创建 /lock/<span class="hljs-keyword">node</span><span class="hljs-title">-0000000002</span><br>  客户端C 创建 /lock/<span class="hljs-keyword">node</span><span class="hljs-title">-0000000003</span><br><br>Step <span class="hljs-number">2</span>: 每个客户端检查自己是否是序号最小的节点<br>  客户端A：序号最小（<span class="hljs-keyword">node</span><span class="hljs-title">-1</span>），直接获取锁！<br>  客户端B：序号不是最小，Watch <span class="hljs-keyword">node</span><span class="hljs-title">-1</span> 的删除事件<br>  客户端C：序号不是最小，Watch <span class="hljs-keyword">node</span><span class="hljs-title">-2</span> 的删除事件<br><br>Step <span class="hljs-number">3</span>: 锁的释放<br>  客户端A 业务完成，删除 <span class="hljs-keyword">node</span><span class="hljs-title">-1</span><br>  → <span class="hljs-keyword">node</span><span class="hljs-title">-1</span> 删除，触发客户端B 的 Watch<br>  → 客户端B 重新检查，自己是序号最小，获取锁！<br></code></pre></td></tr></table></figure>
+
+<p><strong>Curator InterProcessMutex 实现（推荐直接用）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">CuratorFramework</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> CuratorFrameworkFactory.newClient(<br>    <span class="hljs-string">&quot;localhost:2181&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ExponentialBackoffRetry</span>(<span class="hljs-number">1000</span>, <span class="hljs-number">3</span>));<br>client.start();<br><br><span class="hljs-type">InterProcessMutex</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InterProcessMutex</span>(client, <span class="hljs-string">&quot;/lock/mylock&quot;</span>);<br><br><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-comment">// 尝试获取锁，最多等待10秒</span><br>    <span class="hljs-keyword">if</span> (lock.acquire(<span class="hljs-number">10</span>, TimeUnit.SECONDS)) &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// 执行临界区代码</span><br>            doBusinessLogic();<br>        &#125; <span class="hljs-keyword">finally</span> &#123;<br>            lock.release(); <span class="hljs-comment">// 必须在 finally 中释放</span><br>        &#125;<br>    &#125;<br>&#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>    Thread.currentThread().interrupt();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>羊群效应（Herd Effect）问题及解决</strong>：</p>
+<p><strong>错误实现</strong>：所有等待者都 Watch 同一个父节点 <code>/lock</code>，每次锁释放，所有等待者都被唤醒，但只有一个能获得锁，其余都白忙了。</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">错误方式：<br>  /lock 下有 <span class="hljs-number">100</span> 个等待节点<br>  <span class="hljs-keyword">node</span><span class="hljs-title">-1</span> 删除 → <span class="hljs-number">99</span>个 Watch 全部触发！<br>  <span class="hljs-number">99</span>个客户端全部抢锁 → 只有一个成功，<span class="hljs-number">98</span>个白跑<br><br>正确方式（Watch 前一个节点）：<br>  <span class="hljs-keyword">node</span><span class="hljs-title">-1</span> 删除 → 只触发 <span class="hljs-keyword">node</span><span class="hljs-title">-2</span> 的 Watch<br>  <span class="hljs-keyword">node</span><span class="hljs-title">-2</span> 客户端检查，确认自己是最小，获锁<br>  其他 <span class="hljs-number">97</span> 个节点继续安静等待<br></code></pre></td></tr></table></figure>
+
+<p><strong>Watch 前一个节点</strong>就是解决羊群效应的关键：每个等待者只关注比自己序号小 1 的节点，形成链式唤醒，每次只唤醒一个等待者。</p>
+<hr>
+<h2 id="Q13-分布式锁-vs-Redis-分布式锁"><a href="#Q13-分布式锁-vs-Redis-分布式锁" class="headerlink" title="Q13. 分布式锁 vs Redis 分布式锁"></a>Q13. 分布式锁 vs Redis 分布式锁</h2><p>这是常见对比题，考察你对两种方案权衡的理解。</p>
+<p><strong>ZooKeeper 分布式锁</strong>：</p>
+<p>优点：</p>
+<ul>
+<li><strong>天然公平锁</strong>：顺序节点保证先来先得，不会饥饿</li>
+<li><strong>自动释放</strong>：客户端宕机后，临时节点自动删除，锁自动释放，不存在死锁风险</li>
+<li><strong>Watch 机制高效</strong>：等待者不需要轮询，Watch 触发即唤醒</li>
+<li><strong>强一致性保证</strong>：ZAB 协议确保锁操作的原子性</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li><strong>性能较低</strong>：每次加锁都需要创建 ZNode，涉及一次或多次写操作，需要 Leader 广播，RT 较高（通常 5~20ms）</li>
+<li><strong>ZK 集群本身的稳定性</strong>：选举期间不可用</li>
+</ul>
+<p><strong>Redis 分布式锁</strong>：</p>
+<p>优点：</p>
+<ul>
+<li><strong>极高性能</strong>：单节点 Redis 内存操作，QPS 轻松 10w+，延迟 &lt; 1ms</li>
+<li><strong>简单易用</strong>：<code>SET key value NX PX timeout</code> 一条命令搞定</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li><strong>非公平锁</strong>：多个客户端竞争时，谁先请求 Redis 就谁得到锁，不保证先来先得</li>
+<li><strong>锁超时问题</strong>：业务执行时间超过锁超时时间，锁自动释放，可能出现两个客户端同时持有锁</li>
+<li><strong>主从切换风险（Redlock 问题）</strong>：Redis 主从异步复制，主节点宕机后从节点可能没同步到锁，新主节点上锁丢失</li>
+</ul>
+<p><strong>选型建议</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>高并发、对延迟敏感、允许偶尔异常</td>
+<td>Redis 分布式锁</td>
+</tr>
+<tr>
+<td>对公平性要求高、不能有死锁风险</td>
+<td>ZK 分布式锁</td>
+</tr>
+<tr>
+<td>金融&#x2F;支付等严格场景</td>
+<td>ZK 或 Redlock（Redis 多节点方案）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="Q14-服务注册与发现：ZK-如何实现，与-Eureka-Nacos-对比"><a href="#Q14-服务注册与发现：ZK-如何实现，与-Eureka-Nacos-对比" class="headerlink" title="Q14. 服务注册与发现：ZK 如何实现，与 Eureka&#x2F;Nacos 对比"></a>Q14. 服务注册与发现：ZK 如何实现，与 Eureka&#x2F;Nacos 对比</h2><p><strong>ZK 实现服务注册与发现的原理</strong>：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs css">服务提供者（Provider）启动时：<br>  <span class="hljs-number">1</span>. 在 /services/<span class="hljs-attribute">order</span>-service/ 下创建临时节点<br>     路径：/services/<span class="hljs-attribute">order</span>-service/<span class="hljs-number">192.168</span>.<span class="hljs-number">1.100</span>:<span class="hljs-number">8080</span><br>     数据：&#123;&quot;weight&quot;:<span class="hljs-number">1</span>, <span class="hljs-string">&quot;version&quot;</span>:<span class="hljs-string">&quot;v1.0&quot;</span>&#125;<br><br>服务消费者（Consumer）启动时：<br>  <span class="hljs-number">1</span>. getChildren(&quot;/services/<span class="hljs-attribute">order</span>-service&quot;) 获取所有实例列表<br>  <span class="hljs-number">2</span>. 注册 Watch，监听子节点变化<br><br>服务提供者宕机时：<br>  <span class="hljs-number">1</span>. 临时节点自动删除（Session 超时后）<br>  <span class="hljs-number">2</span>. Consumer 的 Watch 触发 NodeChildrenChanged 事件<br>  <span class="hljs-number">3</span>. Consumer 重新 getChildren 获取最新实例列表<br></code></pre></td></tr></table></figure>
+
+<p><strong>Curator 实现服务发现</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 服务注册（Provider 侧）</span><br>ServiceInstance&lt;String&gt; instance = ServiceInstance.&lt;String&gt;builder()<br>    .name(<span class="hljs-string">&quot;order-service&quot;</span>)<br>    .port(<span class="hljs-number">8080</span>)<br>    .address(<span class="hljs-string">&quot;192.168.1.100&quot;</span>)<br>    .payload(<span class="hljs-string">&quot;v1.0&quot;</span>)<br>    .build();<br><br>ServiceDiscovery&lt;String&gt; discovery = ServiceDiscoveryBuilder<br>    .builder(String.class)<br>    .client(curatorClient)<br>    .basePath(<span class="hljs-string">&quot;/services&quot;</span>)<br>    .thisInstance(instance)<br>    .build();<br>discovery.start();<br><br><span class="hljs-comment">// 服务发现（Consumer 侧）</span><br>ServiceProvider&lt;String&gt; provider = discovery<br>    .serviceProviderBuilder()<br>    .serviceName(<span class="hljs-string">&quot;order-service&quot;</span>)<br>    .build();<br>provider.start();<br>ServiceInstance&lt;String&gt; chosen = provider.getInstance(); <span class="hljs-comment">// 随机或轮询</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>三种注册中心对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ZooKeeper</th>
+<th>Eureka</th>
+<th>Nacos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一致性模型</td>
+<td>CP（ZAB，强一致）</td>
+<td>AP（最终一致）</td>
+<td>支持 CP 和 AP</td>
+</tr>
+<tr>
+<td>服务健康检测</td>
+<td>临时节点（被动）</td>
+<td>心跳（主动）</td>
+<td>心跳 + 健康检查</td>
+</tr>
+<tr>
+<td>推送机制</td>
+<td>Watch 推送</td>
+<td>轮询（30s）</td>
+<td>长轮询&#x2F;UDP 推送</td>
+</tr>
+<tr>
+<td>选举期间</td>
+<td>不可用</td>
+<td>仍可读（旧数据）</td>
+<td>可降级</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>强一致要求</td>
+<td>追求高可用</td>
+<td>云原生推荐</td>
+</tr>
+</tbody></table>
+<p><strong>重要结论</strong>：ZK 是 CP 系统，选举期间（通常几百毫秒）拒绝所有写请求，服务注册会短暂失败。Eureka 是 AP 系统，即使节点挂了也返回旧列表，不影响服务调用（虽然调用地址可能已下线）。对于服务注册发现这种场景，<strong>AP 往往比 CP 更实用</strong>，这也是 Eureka 和 Nacos 在微服务领域更受欢迎的原因。</p>
+<hr>
+<h2 id="Q15-Master-选举：如何用-ZK-实现主节点选举"><a href="#Q15-Master-选举：如何用-ZK-实现主节点选举" class="headerlink" title="Q15. Master 选举：如何用 ZK 实现主节点选举"></a>Q15. Master 选举：如何用 ZK 实现主节点选举</h2><p>ZK 实现 Master 选举有两种常见方式：</p>
+<p><strong>方式一：抢占式（争抢创建固定节点）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 所有节点都尝试创建同一个临时节点</span><br><span class="hljs-comment">// 只有一个会成功（ZK 保证创建的原子性）</span><br><span class="hljs-keyword">try</span> &#123;<br>    client.create()<br>          .withMode(CreateMode.EPHEMERAL)<br>          .forPath(<span class="hljs-string">&quot;/master&quot;</span>, myAddress.getBytes());<br>    <span class="hljs-comment">// 创建成功，我是 Master！</span><br>    becomeMaster();<br>&#125; <span class="hljs-keyword">catch</span> (NodeExistsException e) &#123;<br>    <span class="hljs-comment">// 节点已存在，说明已有 Master，我是 Slave</span><br>    becomeFollower();<br>    <span class="hljs-comment">// Watch Master 节点，一旦删除（Master 宕机），重新竞选</span><br>    client.getData()<br>          .usingWatcher(event -&gt; reElect())<br>          .forPath(<span class="hljs-string">&quot;/master&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>优点：简单直接。缺点：所有节点同时竞争，如果 Master 宕机，所有 Slave 同时触发 Watch，羊群效应。</p>
+<p><strong>方式二：顺序节点式（Curator LeaderLatch）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 所有节点都创建临时顺序节点，序号最小的当 Master</span><br><span class="hljs-comment">// Curator 封装了这个逻辑</span><br><br><span class="hljs-type">LeaderLatch</span> <span class="hljs-variable">leaderLatch</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">LeaderLatch</span>(client, <span class="hljs-string">&quot;/election&quot;</span>);<br>leaderLatch.addListener(<span class="hljs-keyword">new</span> <span class="hljs-title class_">LeaderLatchListener</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">isLeader</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;我成为 Master 了！&quot;</span>);<br>        startMasterWork();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">notLeader</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;我失去 Master 资格，变为 Slave&quot;</span>);<br>        stopMasterWork();<br>    &#125;<br>&#125;);<br>leaderLatch.start();<br><br><span class="hljs-comment">// 检查当前是否是 Leader</span><br><span class="hljs-type">boolean</span> <span class="hljs-variable">isMaster</span> <span class="hljs-operator">=</span> leaderLatch.hasLeadership();<br></code></pre></td></tr></table></figure>
+
+<p><strong>Curator LeaderSelector（更灵活的方式）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">LeaderSelector</span> <span class="hljs-variable">selector</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">LeaderSelector</span>(client, <span class="hljs-string">&quot;/election&quot;</span>,<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">LeaderSelectorListenerAdapter</span>() &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">takeLeadership</span><span class="hljs-params">(CuratorFramework client)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>            System.out.println(<span class="hljs-string">&quot;获得领导权，开始工作...&quot;</span>);<br>            <span class="hljs-comment">// 此方法返回时，自动放弃领导权（适合任务轮转场景）</span><br>            doLeaderWork();<br>        &#125;<br>    &#125;);<br>selector.autoRequeue(); <span class="hljs-comment">// 失去领导权后自动重新竞选</span><br>selector.start();<br></code></pre></td></tr></table></figure>
+
+<p><strong>两种 Curator API 的区别</strong>：</p>
+<ul>
+<li><code>LeaderLatch</code>：持续持有领导权直到手动关闭，适合需要长期 Master 的场景</li>
+<li><code>LeaderSelector</code>：<code>takeLeadership()</code> 返回后自动释放，多个节点轮流当 Master，适合任务调度</li>
+</ul>
+<hr>
+<h2 id="Q16-分布式配置中心：getData-Watch-实现配置热更新"><a href="#Q16-分布式配置中心：getData-Watch-实现配置热更新" class="headerlink" title="Q16. 分布式配置中心：getData + Watch 实现配置热更新"></a>Q16. 分布式配置中心：getData + Watch 实现配置热更新</h2><p>配置中心是 ZK 最经典的使用场景之一，原理非常清晰：</p>
+<p><strong>实现原理</strong>：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-number">1.</span> 配置管理系统将配置写入 ZK：<br>   /config/app/database.url = <span class="hljs-string">&quot;jdbc:mysql://prod:3306/db&quot;</span><br>   /config/app/redis.host = <span class="hljs-string">&quot;redis-cluster:6379&quot;</span><br><br><span class="hljs-number">2.</span> 应用启动时，读取配置并注册 Watch：<br>   <span class="hljs-built_in">getData</span>(<span class="hljs-string">&quot;/config/app/database.url&quot;</span>, watch=<span class="hljs-literal">true</span>)<br><br><span class="hljs-number">3.</span> 配置变更时：<br>   管理员修改 ZK 节点数据<br>   → Watch 触发（NodeDataChanged）<br>   → 应用收到通知，重新 getData 获取新配置<br>   → 应用动态更新配置，无需重启<br></code></pre></td></tr></table></figure>
+
+<p><strong>完整代码实现</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DynamicConfig</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> CuratorFramework client;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> String dbUrl;  <span class="hljs-comment">// volatile 保证可见性</span><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DynamicConfig</span><span class="hljs-params">(CuratorFramework client)</span> &#123;<br>        <span class="hljs-built_in">this</span>.client = client;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-comment">// 使用 Curator NodeCache 自动处理 Watch 重注册</span><br>        <span class="hljs-type">NodeCache</span> <span class="hljs-variable">nodeCache</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NodeCache</span>(client, <span class="hljs-string">&quot;/config/app/database.url&quot;</span>);<br>        nodeCache.getListenable().addListener(() -&gt; &#123;<br>            <span class="hljs-type">byte</span>[] data = nodeCache.getCurrentData().getData();<br>            <span class="hljs-type">String</span> <span class="hljs-variable">newUrl</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(data, StandardCharsets.UTF_8);<br>            log.info(<span class="hljs-string">&quot;数据库配置更新：&#123;&#125; -&gt; &#123;&#125;&quot;</span>, dbUrl, newUrl);<br>            dbUrl = newUrl;<br>            <span class="hljs-comment">// 可以在这里重新初始化数据库连接池</span><br>            refreshConnectionPool(newUrl);<br>        &#125;);<br>        nodeCache.start(<span class="hljs-literal">true</span>); <span class="hljs-comment">// true: 立即拉取当前值</span><br>        dbUrl = <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(nodeCache.getCurrentData().getData());<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getDbUrl</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> dbUrl;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>批量监听多个配置（PathChildrenCache）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 监听整个 /config/app 目录下的所有配置</span><br><span class="hljs-type">PathChildrenCache</span> <span class="hljs-variable">childrenCache</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PathChildrenCache</span>(<br>    client, <span class="hljs-string">&quot;/config/app&quot;</span>, <span class="hljs-literal">true</span>); <span class="hljs-comment">// true: 缓存数据内容</span><br><br>childrenCache.getListenable().addListener((client, event) -&gt; &#123;<br>    <span class="hljs-keyword">switch</span> (event.getType()) &#123;<br>        <span class="hljs-keyword">case</span> CHILD_ADDED:<br>            System.out.println(<span class="hljs-string">&quot;新增配置：&quot;</span> + event.getData().getPath());<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> CHILD_UPDATED:<br>            System.out.println(<span class="hljs-string">&quot;更新配置：&quot;</span> + event.getData().getPath()<br>                + <span class="hljs-string">&quot; = &quot;</span> + <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(event.getData().getData()));<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> CHILD_REMOVED:<br>            System.out.println(<span class="hljs-string">&quot;删除配置：&quot;</span> + event.getData().getPath());<br>            <span class="hljs-keyword">break</span>;<br>    &#125;<br>&#125;);<br>childrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q17-分布式屏障（Barrier）：多节点同步等待"><a href="#Q17-分布式屏障（Barrier）：多节点同步等待" class="headerlink" title="Q17. 分布式屏障（Barrier）：多节点同步等待"></a>Q17. 分布式屏障（Barrier）：多节点同步等待</h2><p>分布式屏障（Distributed Barrier）用于让多个节点在某个条件满足前全部阻塞，条件满足后同时继续执行。典型场景：分布式批处理任务，所有 Worker 准备好后再同时开始。</p>
+<p><strong>实现原理</strong>：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">场景：<span class="hljs-number">5</span>个 Worker 必须全部就绪后才能开始处理任务<br><br>Step <span class="hljs-number">1</span>: 每个 Worker 启动时在 /barrier/workers/ 下创建临时顺序节点<br>  Worker1 创建 /barrier/workers/<span class="hljs-keyword">node</span><span class="hljs-title">-0000000001</span><br>  Worker2 创建 /barrier/workers/<span class="hljs-keyword">node</span><span class="hljs-title">-0000000002</span><br>  ...<br>  Worker5 创建 /barrier/workers/<span class="hljs-keyword">node</span><span class="hljs-title">-0000000005</span><br><br>Step <span class="hljs-number">2</span>: 每个 Worker 检查当前子节点数量<br>  数量 <span class="hljs-tag">&lt; 5：等待（Watch /barrier/workers/ 的子节点变化）</span><br><span class="hljs-tag">  数量 = 5：屏障解除，所有 Worker 同时开始工作！</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Curator DistributedBarrier 实现</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 方式一：双重屏障（适合所有节点同时开始、同时结束的场景）</span><br><span class="hljs-type">DistributedDoubleBarrier</span> <span class="hljs-variable">barrier</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DistributedDoubleBarrier</span>(<br>    client, <span class="hljs-string">&quot;/barrier/batch-job&quot;</span>, <span class="hljs-number">5</span>); <span class="hljs-comment">// 5个节点</span><br><br><span class="hljs-comment">// Worker 代码</span><br>barrier.enter(); <span class="hljs-comment">// 等待所有5个节点 enter()，然后同时通过</span><br><span class="hljs-keyword">try</span> &#123;<br>    doBatchWork(); <span class="hljs-comment">// 所有节点同时工作</span><br>&#125; <span class="hljs-keyword">finally</span> &#123;<br>    barrier.leave(); <span class="hljs-comment">// 等待所有5个节点 leave()，然后同时结束</span><br>&#125;<br><br><span class="hljs-comment">// 方式二：简单屏障（适合等待某个条件的场景）</span><br><span class="hljs-type">DistributedBarrier</span> <span class="hljs-variable">barrier</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DistributedBarrier</span>(client, <span class="hljs-string">&quot;/barrier/start-signal&quot;</span>);<br><br><span class="hljs-comment">// 等待方（Worker）</span><br>barrier.waitOnBarrier(); <span class="hljs-comment">// 阻塞，直到屏障被移除</span><br><br><span class="hljs-comment">// 触发方（Coordinator）</span><br>barrier.removeBarrier(); <span class="hljs-comment">// 删除屏障节点，所有等待者同时通过</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>手动实现双重屏障的原理</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 进入屏障（enter）</span><br><span class="hljs-comment">// 1. 创建临时顺序节点</span><br><span class="hljs-comment">// 2. 检查当前节点数是否达到预期数量</span><br><span class="hljs-comment">//    - 未达到：Watch 子节点变化，等待</span><br><span class="hljs-comment">//    - 达到：所有等待的节点收到通知，同时继续</span><br><br><span class="hljs-comment">// 离开屏障（leave）</span><br><span class="hljs-comment">// 1. 删除自己创建的节点</span><br><span class="hljs-comment">// 2. 检查当前节点数是否为0</span><br><span class="hljs-comment">//    - 不为0：Watch 最小节点，等待</span><br><span class="hljs-comment">//    - 为0：所有节点已退出，同时继续</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q18-Paxos-vs-ZAB：两者关系"><a href="#Q18-Paxos-vs-ZAB：两者关系" class="headerlink" title="Q18. Paxos vs ZAB：两者关系"></a>Q18. Paxos vs ZAB：两者关系</h2><p>这道题考察你对分布式一致性协议历史的理解。</p>
+<p><strong>Paxos 是什么</strong>：</p>
+<p>Paxos 是 Leslie Lamport 在 1989 年提出的分布式一致性算法，被认为是分布式系统领域最重要的算法之一。它解决了如何在不可靠网络中的多台机器上对某个值达成共识的问题。</p>
+<p>Paxos 的角色：</p>
+<ul>
+<li><strong>Proposer</strong>：提出提案</li>
+<li><strong>Acceptor</strong>：接受&#x2F;拒绝提案</li>
+<li><strong>Learner</strong>：学习已达成共识的值</li>
+</ul>
+<p><strong>ZAB 与 Paxos 的关系</strong>：</p>
+<p>ZAB 的设计者（Flavio Junqueira 等）明确表示 ZAB 借鉴了 Paxos 的思想，但专门为 ZooKeeper 的使用场景做了定制优化。</p>
+<p><strong>主要区别</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Paxos</th>
+<th>ZAB</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>目的</td>
+<td>通用分布式共识</td>
+<td>专为 ZK 设计（Primary-Backup 模式）</td>
+</tr>
+<tr>
+<td>操作单元</td>
+<td>对单个值达成共识</td>
+<td>对有序事务序列广播</td>
+</tr>
+<tr>
+<td>顺序保证</td>
+<td>不保证（需要 Multi-Paxos 扩展）</td>
+<td>严格保证全局顺序</td>
+</tr>
+<tr>
+<td>Leader 概念</td>
+<td>Paxos 有 Primary 角色</td>
+<td>Leader 是核心，所有写必须经过 Leader</td>
+</tr>
+<tr>
+<td>崩溃恢复</td>
+<td>通用处理</td>
+<td>专门设计的崩溃恢复阶段</td>
+</tr>
+</tbody></table>
+<p><strong>ZAB 的核心创新</strong>：</p>
+<p>ZAB 相比 Paxos 多了一个核心设计——<strong>主备模式下的有序广播</strong>。ZK 的所有数据变更都是有序的，ZXID 严格单调递增，这在 Paxos 的通用框架里不是天然保证的。</p>
+<p>简单说：<strong>Paxos 是通用算法，ZAB 是 Paxos 的特化版本，专门优化了 ZK 的主备复制和有序事务场景</strong>。</p>
+<hr>
+<h2 id="Q19-ZAB-vs-Raft：两种共识算法的对比"><a href="#Q19-ZAB-vs-Raft：两种共识算法的对比" class="headerlink" title="Q19. ZAB vs Raft：两种共识算法的对比"></a>Q19. ZAB vs Raft：两种共识算法的对比</h2><p>Raft 是 Diego Ongaro 在 2014 年提出的共识算法，目标是比 Paxos 更<strong>易于理解和实现</strong>。etcd、TiKV、CockroachDB 等都用了 Raft。</p>
+<p><strong>核心对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ZAB（ZooKeeper）</th>
+<th>Raft（etcd&#x2F;TiKV）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>设计目标</td>
+<td>专为 ZK Primary-Backup 设计</td>
+<td>通用，易于理解</td>
+</tr>
+<tr>
+<td>Leader 选举</td>
+<td>FastLeaderElection（基于 ZXID + epoch + myid）</td>
+<td>基于 Term + Log Index</td>
+</tr>
+<tr>
+<td>日志复制</td>
+<td>2PC 广播（Propose + Commit）</td>
+<td>AppendEntries RPC</td>
+</tr>
+<tr>
+<td>成员变更</td>
+<td>需手动配置，不支持动态</td>
+<td>支持 JointConsensus 动态成员变更</td>
+</tr>
+<tr>
+<td>工程实现</td>
+<td>ZK 特有，难复用</td>
+<td>易于移植，etcd&#x2F;Raft 库可直接使用</td>
+</tr>
+<tr>
+<td>读性能</td>
+<td>Follower 可读（可能旧数据）</td>
+<td>默认 Leader 读，可配置 Follower 读</td>
+</tr>
+<tr>
+<td>生态</td>
+<td>Kafka（已迁移）、Hadoop</td>
+<td>etcd、Consul、TiKV</td>
+</tr>
+</tbody></table>
+<p><strong>选举机制的区别</strong>：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">ZAB</span> FastLeaderElection：<br>  选举优先级：epoch &gt; ZXID &gt; myid<br>  投票通过 UDP 广播，收到过半同意即当选<br><br>Raft：<br>  选举依赖 Term（任期）和 Log Index<br>  Candidate 发起 RequestVote，收到过半同意即当选<br>  优先选日志更新的节点（通过比较 <span class="hljs-literal">last</span>LogTerm 和 <span class="hljs-literal">last</span>LogIndex）<br></code></pre></td></tr></table></figure>
+
+<p><strong>Raft 更易理解的原因</strong>：Raft 将共识问题分解为 Leader 选举、日志复制、安全性三个独立子问题，每个子问题有清晰的边界和规则，便于实现和验证。ZAB 的实现细节更多地与 ZK 的特定架构耦合。</p>
+<p><strong>结论</strong>：如果你要在系统中嵌入共识模块，<strong>优先选 Raft</strong>（有成熟库）；ZK&#x2F;ZAB 作为现成的协调服务，不需要关心其内部算法实现。</p>
+<hr>
+<h2 id="Q20-ZK-的性能瓶颈"><a href="#Q20-ZK-的性能瓶颈" class="headerlink" title="Q20. ZK 的性能瓶颈"></a>Q20. ZK 的性能瓶颈</h2><p><strong>写操作必须经过 Leader</strong>：</p>
+<p>所有写操作（create、setData、delete）都必须由 Leader 处理并广播，即使你的客户端连接到 Follower，Follower 也会将写请求转发给 Leader。这意味着：</p>
+<ul>
+<li>写操作的延迟 &#x3D; 客户端到 Follower 的延迟 + Follower 到 Leader 的延迟 + Leader 广播到过半节点的延迟</li>
+<li>Leader 是写操作的单点，Leader 的吞吐量上限就是集群的写吞吐量上限</li>
+<li>典型写 QPS：单集群 1000~5000 ops&#x2F;s（视机器配置和网络情况）</li>
+</ul>
+<p><strong>读操作可能读到旧数据</strong>：</p>
+<p>读操作由 Follower 本地直接返回，不经过 Leader，因此：</p>
+<ul>
+<li>读性能高（本地内存读取，延迟 &lt; 1ms）</li>
+<li>但可能读到过期数据（Follower 未完全同步最新写入）</li>
+</ul>
+<p><strong>其他性能限制</strong>：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 内存限制：ZK 将所有数据保存在内存中，数据量受限于内存大小<br><span class="hljs-bullet">2.</span> 日志刷盘：每次写操作都需要 fsync 到事务日志，磁盘 I/O 是瓶颈<br><span class="hljs-bullet">3.</span> 快照：数据量大时，快照文件的生成和恢复耗时较长<br><span class="hljs-bullet">4.</span> Watch 数量：大量 Watch 会消耗服务端内存<br></code></pre></td></tr></table></figure>
+
+<p><strong>性能调优建议</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># zoo.cfg 调优参数</span><br>tickTime=2000           <span class="hljs-comment"># 基础时间单位（ms）</span><br>syncLimit=5             <span class="hljs-comment"># Leader 与 Follower 同步超时（syncLimit * tickTime）</span><br>autopurge.snapRetainCount=3  <span class="hljs-comment"># 保留的快照数量</span><br>autopurge.purgeInterval=1    <span class="hljs-comment"># 自动清理周期（小时）</span><br><br><span class="hljs-comment"># JVM 参数（避免 GC 暂停影响选举）</span><br>-Xmx4g -Xms4g           <span class="hljs-comment"># 堆内存固定，避免动态扩展</span><br>-XX:+UseG1GC             <span class="hljs-comment"># G1 GC 减少 Stop-The-World 时间</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>ZK 不适合的场景</strong>：</p>
+<ul>
+<li>大数据量存储（数据量应 &lt; 内存大小）</li>
+<li>高频写入（写 QPS &gt; 5000）</li>
+<li>强一致性读（需要加 sync）</li>
+</ul>
+<hr>
+<h2 id="Q21-ZK-的-ACL-权限控制"><a href="#Q21-ZK-的-ACL-权限控制" class="headerlink" title="Q21. ZK 的 ACL 权限控制"></a>Q21. ZK 的 ACL 权限控制</h2><p>ZooKeeper 提供了 ACL（Access Control List，访问控制列表）机制来保护数据安全。</p>
+<p><strong>ACL 的三个组成部分</strong>：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs markdown">ACL = Scheme:ID:Permission<br><br>Scheme（认证方案）：<br><span class="hljs-bullet">  -</span> world：任何人（world:anyone 表示所有人）<br><span class="hljs-bullet">  -</span> auth：当前已认证的用户<br><span class="hljs-bullet">  -</span> digest：用户名:密码（SHA1 加密后 Base64 编码）<br><span class="hljs-bullet">  -</span> ip：IP 地址或 IP 段（如 192.168.1.0/24）<br><span class="hljs-bullet">  -</span> sasl：SASL 认证（Kerberos）<br><br>Permission（权限，5种）：<br><span class="hljs-bullet">  -</span> CREATE (c)：创建子节点<br><span class="hljs-bullet">  -</span> READ (r)：读取节点数据和子节点列表<br><span class="hljs-bullet">  -</span> WRITE (w)：修改节点数据<br><span class="hljs-bullet">  -</span> DELETE (d)：删除子节点<br><span class="hljs-bullet">  -</span> ADMIN (a)：设置 ACL<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 方式1：digest 认证（用户名密码）</span><br><span class="hljs-type">String</span> <span class="hljs-variable">credentials</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;admin:password&quot;</span>;<br>client.addAuthInfo(<span class="hljs-string">&quot;digest&quot;</span>, credentials.getBytes());<br><br><span class="hljs-comment">// 创建只有当前认证用户才能读写的节点</span><br>List&lt;ACL&gt; acl = Arrays.asList(<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">ACL</span>(ZooDefs.Perms.READ | ZooDefs.Perms.WRITE, ZooDefs.Ids.AUTH_IDS)<br>);<br>client.create().withACL(acl).forPath(<span class="hljs-string">&quot;/secure-data&quot;</span>, <span class="hljs-string">&quot;secret&quot;</span>.getBytes());<br><br><span class="hljs-comment">// 方式2：IP 白名单限制（只允许内网访问）</span><br>List&lt;ACL&gt; ipAcl = Arrays.asList(<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">ACL</span>(ZooDefs.Perms.ALL, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Id</span>(<span class="hljs-string">&quot;ip&quot;</span>, <span class="hljs-string">&quot;192.168.1.0/24&quot;</span>))<br>);<br><br><span class="hljs-comment">// 方式3：world:anyone（公开节点，不推荐用于生产）</span><br>List&lt;ACL&gt; openAcl = ZooDefs.Ids.OPEN_ACL_UNSAFE; <span class="hljs-comment">// 任何人有所有权限</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Curator 简化 ACL 设置</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Curator 提供了更友好的 ACL 构建器</span><br><span class="hljs-type">ACLProvider</span> <span class="hljs-variable">aclProvider</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultACLProvider</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> List&lt;ACL&gt; <span class="hljs-title function_">getDefaultAcl</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> ZooDefs.Ids.CREATOR_ALL_ACL; <span class="hljs-comment">// 创建者有所有权限</span><br>    &#125;<br>&#125;;<br><br><span class="hljs-type">CuratorFramework</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> CuratorFrameworkFactory.builder()<br>    .connectString(<span class="hljs-string">&quot;localhost:2181&quot;</span>)<br>    .authorization(<span class="hljs-string">&quot;digest&quot;</span>, <span class="hljs-string">&quot;admin:password&quot;</span>.getBytes())<br>    .aclProvider(aclProvider)<br>    .retryPolicy(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ExponentialBackoffRetry</span>(<span class="hljs-number">1000</span>, <span class="hljs-number">3</span>))<br>    .build();<br></code></pre></td></tr></table></figure>
+
+<p><strong>生产环境注意事项</strong>：</p>
+<ul>
+<li>避免使用 <code>OPEN_ACL_UNSAFE</code>（任何人有所有权限）</li>
+<li>服务内部通信建议用 IP 白名单 + digest 双重认证</li>
+<li>ZK 的 ACL 不会递归继承，子节点需要单独设置 ACL</li>
+</ul>
+<hr>
+<h2 id="Q22-ZK-客户端（Curator）：为什么用-Curator-而不是原生客户端"><a href="#Q22-ZK-客户端（Curator）：为什么用-Curator-而不是原生客户端" class="headerlink" title="Q22. ZK 客户端（Curator）：为什么用 Curator 而不是原生客户端"></a>Q22. ZK 客户端（Curator）：为什么用 Curator 而不是原生客户端</h2><p><strong>原生 ZooKeeper 客户端的痛点</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 原生客户端创建会话（复杂且易错）</span><br><span class="hljs-type">ZooKeeper</span> <span class="hljs-variable">zk</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ZooKeeper</span>(<span class="hljs-string">&quot;localhost:2181&quot;</span>, <span class="hljs-number">30000</span>, event -&gt; &#123;<br>    <span class="hljs-keyword">if</span> (event.getState() == Event.KeeperState.SyncConnected) &#123;<br>        <span class="hljs-comment">// 连接成功，才能开始操作</span><br>        <span class="hljs-comment">// 但这里是异步回调，主线程怎么知道连接好了？</span><br>        <span class="hljs-comment">// 需要自己写 CountDownLatch 等待...</span><br>    &#125;<br>&#125;);<br><span class="hljs-comment">// 连接是异步的，这里可能还没连上就开始操作了</span><br>zk.getData(<span class="hljs-string">&quot;/path&quot;</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">null</span>); <span class="hljs-comment">// 可能抛异常</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>原生客户端存在的问题</strong>：</p>
+<ol>
+<li><strong>连接是异步的</strong>，需要手动等待连接建立</li>
+<li><strong>没有自动重试</strong>，网络抖动时请求失败需要自己处理</li>
+<li><strong>Watch 是一次性的</strong>，持续监听需要手动重注册，代码复杂且容易漏</li>
+<li><strong>没有高级抽象</strong>，分布式锁、Leader 选举、服务发现都要从零实现</li>
+<li><strong>Session 管理复杂</strong>，Session 过期后的恢复需要自己处理</li>
+</ol>
+<p><strong>Curator 的解决方案</strong>：</p>
+<p>Curator 是 Netflix 开源的 ZooKeeper 客户端封装库，现已成为 Apache 项目。它解决了原生客户端的所有痛点：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// Curator 的优雅使用</span><br><span class="hljs-type">CuratorFramework</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> CuratorFrameworkFactory.builder()<br>    .connectString(<span class="hljs-string">&quot;localhost:2181&quot;</span>)<br>    .sessionTimeoutMs(<span class="hljs-number">30000</span>)<br>    .connectionTimeoutMs(<span class="hljs-number">5000</span>)<br>    .retryPolicy(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ExponentialBackoffRetry</span>(<span class="hljs-number">1000</span>, <span class="hljs-number">3</span>)) <span class="hljs-comment">// 自动重试</span><br>    .namespace(<span class="hljs-string">&quot;myapp&quot;</span>)  <span class="hljs-comment">// 命名空间隔离（所有操作前自动加前缀）</span><br>    .build();<br>client.start(); <span class="hljs-comment">// 同步等待连接，简单！</span><br><br><span class="hljs-comment">// 自动重试的操作（网络抖动时自动重试）</span><br><span class="hljs-type">byte</span>[] data = client.getData().forPath(<span class="hljs-string">&quot;/config&quot;</span>); <span class="hljs-comment">// 失败自动重试3次</span><br><br><span class="hljs-comment">// NodeCache 自动重注册 Watch</span><br><span class="hljs-type">NodeCache</span> <span class="hljs-variable">cache</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NodeCache</span>(client, <span class="hljs-string">&quot;/config/db&quot;</span>);<br>cache.getListenable().addListener(() -&gt; &#123;<br>    <span class="hljs-comment">// Watch 触发，自动重注册，不用手写递归</span><br>    System.out.println(<span class="hljs-string">&quot;配置变化: &quot;</span> + <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(cache.getCurrentData().getData()));<br>&#125;);<br>cache.start();<br></code></pre></td></tr></table></figure>
+
+<p><strong>Curator 提供的高级抽象</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>Curator API</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分布式锁</td>
+<td>InterProcessMutex、InterProcessReadWriteLock</td>
+</tr>
+<tr>
+<td>Leader 选举</td>
+<td>LeaderLatch、LeaderSelector</td>
+</tr>
+<tr>
+<td>分布式队列</td>
+<td>DistributedQueue、DistributedPriorityQueue</td>
+</tr>
+<tr>
+<td>分布式屏障</td>
+<td>DistributedBarrier、DistributedDoubleBarrier</td>
+</tr>
+<tr>
+<td>服务发现</td>
+<td>ServiceDiscovery</td>
+</tr>
+<tr>
+<td>持续监听</td>
+<td>NodeCache、PathChildrenCache、TreeCache</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="Q23-Curator-的重试策略（RetryPolicy）和分布式锁（InterProcessMutex）"><a href="#Q23-Curator-的重试策略（RetryPolicy）和分布式锁（InterProcessMutex）" class="headerlink" title="Q23. Curator 的重试策略（RetryPolicy）和分布式锁（InterProcessMutex）"></a>Q23. Curator 的重试策略（RetryPolicy）和分布式锁（InterProcessMutex）</h2><p><strong>Curator 重试策略（RetryPolicy）</strong>：</p>
+<p>Curator 提供了多种重试策略，适应不同的业务需求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 指数退避重试（推荐）：重试间隔指数增长</span><br><span class="hljs-type">RetryPolicy</span> <span class="hljs-variable">policy1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ExponentialBackoffRetry</span>(<br>    <span class="hljs-number">1000</span>,  <span class="hljs-comment">// 初始等待时间（ms）</span><br>    <span class="hljs-number">3</span>,     <span class="hljs-comment">// 最大重试次数</span><br>    <span class="hljs-number">5000</span>   <span class="hljs-comment">// 最大等待时间上限（ms）</span><br>);<br><span class="hljs-comment">// 重试间隔：1000ms, 2000ms, 4000ms（不超过5000ms）</span><br><br><span class="hljs-comment">// 2. 固定间隔重试</span><br><span class="hljs-type">RetryPolicy</span> <span class="hljs-variable">policy2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RetryNTimes</span>(<br>    <span class="hljs-number">3</span>,     <span class="hljs-comment">// 最大重试次数</span><br>    <span class="hljs-number">1000</span>   <span class="hljs-comment">// 每次等待时间（ms）</span><br>);<br><br><span class="hljs-comment">// 3. 只重试一次</span><br><span class="hljs-type">RetryPolicy</span> <span class="hljs-variable">policy3</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RetryOneTime</span>(<span class="hljs-number">1000</span>); <span class="hljs-comment">// 等待1秒后重试一次</span><br><br><span class="hljs-comment">// 4. 直到超时为止</span><br><span class="hljs-type">RetryPolicy</span> <span class="hljs-variable">policy4</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RetryUntilElapsed</span>(<br>    <span class="hljs-number">5000</span>,  <span class="hljs-comment">// 最大总等待时间（ms）</span><br>    <span class="hljs-number">500</span>    <span class="hljs-comment">// 每次重试间隔（ms）</span><br>);<br><br><span class="hljs-comment">// 5. 不重试（调试时用）</span><br><span class="hljs-type">RetryPolicy</span> <span class="hljs-variable">policy5</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RetryPolicy</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">allowRetry</span><span class="hljs-params">(<span class="hljs-type">int</span> retryCount, <span class="hljs-type">long</span> elapsedTimeMs, RetrySleeper sleeper)</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><strong>InterProcessMutex 深度解析</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">InterProcessMutex</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InterProcessMutex</span>(client, <span class="hljs-string">&quot;/locks/order&quot;</span>);<br><br><span class="hljs-comment">// 方式一：阻塞等待（直到获得锁）</span><br>lock.acquire();<br><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-comment">// 临界区</span><br>&#125; <span class="hljs-keyword">finally</span> &#123;<br>    lock.release();<br>&#125;<br><br><span class="hljs-comment">// 方式二：超时等待（推荐）</span><br><span class="hljs-type">boolean</span> <span class="hljs-variable">acquired</span> <span class="hljs-operator">=</span> lock.acquire(<span class="hljs-number">10</span>, TimeUnit.SECONDS);<br><span class="hljs-keyword">if</span> (acquired) &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 临界区</span><br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        lock.release();<br>    &#125;<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;获取锁超时&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">// InterProcessMutex 的可重入特性（同一线程可以多次 acquire）</span><br>lock.acquire(<span class="hljs-number">5</span>, TimeUnit.SECONDS);<br>lock.acquire(<span class="hljs-number">5</span>, TimeUnit.SECONDS); <span class="hljs-comment">// 同一线程，直接通过（可重入）</span><br>lock.release();<br>lock.release(); <span class="hljs-comment">// 需要 release 两次，与 acquire 次数对应</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>InterProcessMutex 底层实现原理</strong>：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> acquire() 被调用时：<br><span class="hljs-bullet">   -</span> 在 /locks/order 下创建临时顺序节点：/locks/order/<span class="hljs-emphasis">_c_</span>xxx-lock-0000000001<br><span class="hljs-bullet">   -</span> 获取父节点所有子节点，排序<br><span class="hljs-bullet">   -</span> 如果自己的节点是最小的，获锁成功<br><span class="hljs-bullet">   -</span> 否则，Watch 比自己小一位的节点，进入等待<br><br><span class="hljs-bullet">2.</span> release() 被调用时：<br><span class="hljs-bullet">   -</span> 删除自己创建的临时顺序节点<br><span class="hljs-bullet">   -</span> 唤醒 Watch 了该节点的下一个等待者<br></code></pre></td></tr></table></figure>
+
+<p><strong>读写锁（InterProcessReadWriteLock）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">InterProcessReadWriteLock</span> <span class="hljs-variable">readWriteLock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InterProcessReadWriteLock</span>(client, <span class="hljs-string">&quot;/locks/data&quot;</span>);<br><br><span class="hljs-comment">// 读锁（共享，多个读者可以同时持有）</span><br><span class="hljs-type">InterProcessMutex</span> <span class="hljs-variable">readLock</span> <span class="hljs-operator">=</span> readWriteLock.readLock();<br>readLock.acquire();<br><br><span class="hljs-comment">// 写锁（独占，写者持有时，读者和其他写者都阻塞）</span><br><span class="hljs-type">InterProcessMutex</span> <span class="hljs-variable">writeLock</span> <span class="hljs-operator">=</span> readWriteLock.writeLock();<br>writeLock.acquire();<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Q24-ZK-在-Kafka-中的作用（已向-KRaft-迁移）"><a href="#Q24-ZK-在-Kafka-中的作用（已向-KRaft-迁移）" class="headerlink" title="Q24. ZK 在 Kafka 中的作用（已向 KRaft 迁移）"></a>Q24. ZK 在 Kafka 中的作用（已向 KRaft 迁移）</h2><p>历史上，Kafka 重度依赖 ZooKeeper 来管理集群元数据。理解这段历史有助于理解 ZK 的典型使用场景。</p>
+<p><strong>ZK 在 Kafka 中承担的功能</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">/kafka<br>├── /brokers<br>│   ├── /ids                 ← Broker 注册（临时节点）<br>│   │   ├── 0                ← Broker 0 的信息（host、port、版本）<br>│   │   ├── 1<br>│   │   └── 2<br>│   └── /topics              ← Topic 元数据<br>│       └── /order-topic<br>│           └── /partitions<br>│               └── /0/state ← Partition 0 的 Leader 和 ISR 信息<br>├── /controller              ← Kafka Controller（临时节点）<br>│   └── 1                    ← 当前 Controller 是 Broker 1<br>└── /admin<br>    └── /delete_topics       ← 待删除的 Topic 列表<br></code></pre></td></tr></table></figure>
+
+<p><strong>具体作用</strong>：</p>
+<ol>
+<li><strong>Broker 注册</strong>：Broker 启动时在 <code>/brokers/ids/</code> 下创建临时节点，宕机后自动删除</li>
+<li><strong>Controller 选举</strong>：所有 Broker 争抢创建 <code>/controller</code> 临时节点，成功者为 Controller（负责 Partition Leader 选举）</li>
+<li><strong>Topic 元数据管理</strong>：Topic 创建&#x2F;删除&#x2F;配置变更写入 ZK</li>
+<li><strong>Consumer 组管理</strong>（旧版本）：Consumer Offset 存储在 ZK（新版本已迁移到 <code>__consumer_offsets</code> Topic）</li>
+</ol>
+<p><strong>KRaft 迁移（Kafka 2.8+ &#x2F; 正式 GA 在 3.3+）</strong>：</p>
+<p>Kafka 社区推进了 <strong>KRaft（Kafka Raft Metadata Mode）</strong> 项目，用内置的 Raft 共识协议替代 ZooKeeper，解决了以下问题：</p>
+<ul>
+<li>ZK 成为外部依赖，增加了运维复杂度</li>
+<li>ZK 的扩展性限制了 Kafka 的 Partition 数量上限</li>
+<li>Controller 切换期间依赖 ZK 导致恢复时间较长</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Kafka 3.x 无 ZK 模式启动（KRaft 模式）</span><br><span class="hljs-comment"># 生成 Cluster UUID</span><br>kafka-storage.sh random-uuid<br><br><span class="hljs-comment"># 格式化存储目录</span><br>kafka-storage.sh format -t &lt;uuid&gt; -c config/kraft/server.properties<br><br><span class="hljs-comment"># 启动（不再需要 ZooKeeper）</span><br>kafka-server-start.sh config/kraft/server.properties<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试建议</strong>：提到 ZK 在 Kafka 的作用时，要同时提到 KRaft 迁移，显示你的知识是最新的。</p>
+<hr>
+<h2 id="Q25-面试高频：ZK-Leader-宕机，服务调用会受到什么影响？"><a href="#Q25-面试高频：ZK-Leader-宕机，服务调用会受到什么影响？" class="headerlink" title="Q25. 面试高频：ZK Leader 宕机，服务调用会受到什么影响？"></a>Q25. 面试高频：ZK Leader 宕机，服务调用会受到什么影响？</h2><p>这道题考察你对 ZK 可用性的深刻理解，是区分背八股文和真正理解的分水岭。</p>
+<p><strong>影响分析（不可用时间窗口）</strong>：</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs avrasm">时间线：<br><br><span class="hljs-symbol">T0:</span> Leader 宕机<br><span class="hljs-symbol">T1:</span> Follower 检测到 Leader 心跳超时（tickTime * syncLimit，默认 <span class="hljs-number">2</span>s * <span class="hljs-number">5</span> = <span class="hljs-number">10</span>s）<br>    注意：实际可能更快，因为 TCP 断连会立刻触发<br><span class="hljs-symbol">T2:</span> Follower 进入 LOOKING 状态，开始 FastLeaderElection<br><span class="hljs-symbol">T3:</span> 新 Leader 选出（通常 <span class="hljs-number">200</span>ms ~ <span class="hljs-number">2</span>s）<br><span class="hljs-symbol">T4:</span> 新 Leader 与 Follower 完成数据同步（几百 ms ~ 几秒，取决于未同步数据量）<br><span class="hljs-symbol">T5:</span> 集群恢复正常服务<br><br>不可用时间窗口 = T5 - T0，通常 <span class="hljs-number">1</span>s ~ <span class="hljs-number">30</span>s（极端情况更长）<br></code></pre></td></tr></table></figure>
+
+<p><strong>不同操作的影响程度</strong>：</p>
+<p><strong>写操作（100% 受影响）</strong>：</p>
+<p>Leader 宕机后，所有写操作（create、setData、delete）都会失败，客户端收到 <code>ConnectionLoss</code> 或 <code>SessionExpiredException</code>。业务系统如果依赖 ZK 写操作（如服务注册、配置更新），这段时间会失败。</p>
+<p><strong>读操作（Follower 仍可提供）</strong>：</p>
+<p>如果客户端连接的是 Follower，Follower 在选举期间仍然可以处理读请求（返回本地缓存数据，但可能是稍旧的数据）。</p>
+<p><strong>Watch 通知（可能延迟或丢失）</strong>：</p>
+<p>选举期间，新的 Watch 事件通知可能延迟。如果 Watch 事件发生在选举期间，理论上可能丢失（ZK 不保证 100% 不丢通知，但实际极少丢失）。</p>
+<p><strong>服务调用的影响（以 Dubbo + ZK 注册中心为例）</strong>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs">场景一：ZK 宕机前已完成服务发现<br>  → 服务消费者本地缓存了提供者列表<br>  → ZK 选举期间，消费者继续用本地缓存调用提供者<br>  → 几乎无感知（前提：提供者本身仍在运行）<br><br>场景二：ZK 宕机时，有新服务实例上线/下线<br>  → 新实例的注册失败（写操作失败）<br>  → 旧实例下线信息未广播（Watch 无法触发）<br>  → 消费者可能调用到已下线的提供者，出现调用失败<br><br>场景三：ZK 宕机时，消费者也在重启<br>  → 消费者无法从 ZK 获取提供者列表<br>  → 服务无法初始化，消费者启动失败<br></code></pre></td></tr></table></figure>
+
+<p><strong>最佳实践（降低 ZK 不可用的影响）</strong>：</p>
+<ol>
+<li><strong>本地缓存</strong>：客户端框架（Dubbo、Spring Cloud ZK）应该将服务列表缓存到本地文件，ZK 不可用时从本地文件恢复</li>
+<li><strong>优雅降级</strong>：ZK 不可用期间，只影响注册&#x2F;发现，不影响已建立的调用链路</li>
+<li><strong>奇数节点 + 异地容灾</strong>：3个机房各放 1~2 个 ZK 节点，避免单机房故障导致整个集群不可用</li>
+<li><strong>监控告警</strong>：监控 ZK 选举次数，选举频繁说明集群不稳定</li>
+</ol>
+<p><strong>一句话总结回答</strong>：Leader 宕机后，ZK 集群进入选举阶段，选举期间（通常 1~30 秒）所有写操作失败，读操作可能返回旧数据。对于已完成服务发现并有本地缓存的服务消费者，影响较小；对于正在注册或需要实时感知服务变更的场景，会有短暂不可用。这也是为什么生产环境推荐 ZK 集群 + 本地缓存兜底的组合方案。</p>
+<hr>
+<h2 id="总结：面试重点速查表"><a href="#总结：面试重点速查表" class="headerlink" title="总结：面试重点速查表"></a>总结：面试重点速查表</h2><table>
+<thead>
+<tr>
+<th>分类</th>
+<th>核心考点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据模型</td>
+<td>ZNode 4种类型、1MB限制、树形结构</td>
+</tr>
+<tr>
+<td>核心机制</td>
+<td>Watch 一次性原理、Session 临时节点绑定</td>
+</tr>
+<tr>
+<td>一致性协议</td>
+<td>ZAB &#x3D; 崩溃恢复 + 消息广播；ZXID &#x3D; epoch + counter</td>
+</tr>
+<tr>
+<td>Leader 选举</td>
+<td>epoch &gt; ZXID &gt; myid；选举期间不可用</td>
+</tr>
+<tr>
+<td>分布式锁</td>
+<td>临时顺序节点 + Watch 前一个（解决羊群效应）</td>
+</tr>
+<tr>
+<td>与竞品对比</td>
+<td>ZK(CP) vs Eureka(AP)；ZAB vs Raft；ZK锁(公平) vs Redis锁(性能)</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>写瓶颈在Leader；读可能脏读；推荐奇数节点</td>
+</tr>
+<tr>
+<td>工程实践</td>
+<td>Curator 必用；RetryPolicy；LeaderLatch；NodeCache</td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<p>如果本文帮到了你，欢迎点赞收藏，有问题可以在评论区交流。面试加油！</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87/" class="category-chain-item">面试八股文</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/%E5%85%AB%E8%82%A1%E6%96%87/" class="print-no-link">#八股文</a>
+      
+        <a href="/tags/Zookeeper/" class="print-no-link">#Zookeeper</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%8D%8F%E8%B0%83/" class="print-no-link">#分布式协调</a>
+      
+        <a href="/tags/ZAB%E5%8D%8F%E8%AE%AE/" class="print-no-link">#ZAB协议</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" class="print-no-link">#分布式锁</a>
+      
+        <a href="/tags/Leader%E9%80%89%E4%B8%BE/" class="print-no-link">#Leader选举</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Zookeeper 面试八股文 25 道｜深度详解版（傻子都能看懂）</div>
+      <div>https://whyalwaysme.lol/2026/09/05/2026-09-05-zookeeper-interview-deep/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年9月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/05/2026-09-05-spring-cloud-interview-deep/" title="Spring Cloud &amp; 微服务面试八股文 30 道｜深度详解版（傻子都能看懂）">
+                        <span class="hidden-mobile">Spring Cloud &amp; 微服务面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
