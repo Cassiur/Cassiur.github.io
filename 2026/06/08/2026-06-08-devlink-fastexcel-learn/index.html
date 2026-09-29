@@ -27,7 +27,7 @@
 <meta property="og:description" content="技术派 FastExcel 并发导出：线程池7参数设计、CountDownLatch分片合并，源码级解析。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T15:30:00.000Z">
-<meta property="article:modified_time" content="2026-09-05T08:28:21.281Z">
+<meta property="article:modified_time" content="2026-09-29T05:59:03.209Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="CountDownLatch">
 <meta property="article:tag" content="DevLink">
@@ -135,6 +135,18 @@
           
           
             <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
               <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
                 <span>归档</span>
@@ -230,7 +242,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.4k 字
+          4.5k 字
         
       </span>
     
@@ -241,7 +253,7 @@
         
         
         
-          37 分钟
+          38 分钟
         
       </span>
     
@@ -283,69 +295,36 @@
             
               <div class="markdown-body">
                 
-                <h1 id="技术派项目学习笔记（四）·-高标准：FastExcel-并发导出与线程池（源码级深度解析）"><a href="#技术派项目学习笔记（四）·-高标准：FastExcel-并发导出与线程池（源码级深度解析）" class="headerlink" title="技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）"></a>技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）</h1><blockquote>
+                <blockquote>
+<p><strong>源码口径更新（2026-09-29）</strong>：本文保留学习笔记与原理示例。项目实际实现、个人增量和测试边界请先看<a href="/projects/">项目总览</a>；示例数字不代表可复核的项目实测。</p>
+</blockquote>
+<h1 id="技术派项目学习笔记（四）·-高标准：FastExcel-并发导出与线程池（源码级深度解析）"><a href="#技术派项目学习笔记（四）·-高标准：FastExcel-并发导出与线程池（源码级深度解析）" class="headerlink" title="技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）"></a>技术派项目学习笔记（四）· 高标准：FastExcel 并发导出与线程池（源码级深度解析）</h1><blockquote>
 <p><strong>本篇是「高标准严要求」版本</strong>，基于 <code>StatisticsSettingServiceImpl.java</code> 逐行解析，不遗漏任何细节。适合面试前通读，确保被拷问时能对答如流。</p>
+</blockquote>
+<blockquote>
+<p><strong>证据更新（2026-09-29）</strong>：下文的并发设计有源码依据；旧版“百万行 3.5 秒→1.4 秒”没有真实数据库生产路径的可复核基准，已撤回性能结论。</p>
 </blockquote>
 <hr>
 <h2 id="一、先搞懂：为什么要做”并发导出”？"><a href="#一、先搞懂：为什么要做”并发导出”？" class="headerlink" title="一、先搞懂：为什么要做”并发导出”？"></a>一、先搞懂：为什么要做”并发导出”？</h2><h3 id="1-1-不用并发时的问题"><a href="#1-1-不用并发时的问题" class="headerlink" title="1.1 不用并发时的问题"></a>1.1 不用并发时的问题</h3><p>假设你要导出 <strong>100 万条数据</strong>到 Excel：</p>
-<figure class="highlight fix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs fix"><span class="hljs-attr">不用并发（单线程）：</span><br><span class="hljs-attr">  ① 查询 100 万条数据（查数据库，很慢）</span><br><span class="hljs-attr">  ② 用 FastExcel 写出到文件（也很慢）</span><br><span class="hljs-attr">  ③ 两步串行，总共耗时 </span>=<span class="hljs-string"> 查数据时间 + 写文件时间</span><br><span class="hljs-string">  </span><br><span class="hljs-string">  实测：约 3.5 秒</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight fix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs fix"><span class="hljs-attr">不用并发（单线程）：</span><br><span class="hljs-attr">  ① 查询 100 万条数据（查数据库，很慢）</span><br><span class="hljs-attr">  ② 用 FastExcel 写出到文件（也很慢）</span><br><span class="hljs-attr">  ③ 两步串行，总共耗时 </span>=<span class="hljs-string"> 查数据时间 + 写文件时间</span><br><span class="hljs-string">  </span><br><span class="hljs-string">  实际耗时：需要在目标数据库与数据集上测量</span><br></code></pre></td></tr></table></figure>
 
 <p><strong>问题</strong>：</p>
 <ul>
 <li>数据库查询是 <strong>IO 密集型</strong>（等待数据库返回，CPU 空闲）</li>
 <li>可以用<strong>多线程并发查询</strong>，充分利用 CPU 和数据库连接</li>
 </ul>
-<h3 id="1-2-用并发之后的效果"><a href="#1-2-用并发之后的效果" class="headerlink" title="1.2 用并发之后的效果"></a>1.2 用并发之后的效果</h3><figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs tap">用并发（多线程）：<br>  ① 把<span class="hljs-number"> 100 </span>万条数据分成<span class="hljs-number"> 5 </span>片，每片<span class="hljs-number"> 20 </span>万条<br>  ②<span class="hljs-number"> 5 </span>个线程同时查询数据库（并发查）<br>  ③ 所有线程查完后，汇总数据<br>  ④ 单线程 FastExcel 写出（POI 非线程安全）<br>  <br>  实测：约 1.4 秒（提升 2.5 倍）<br></code></pre></td></tr></table></figure>
+<h3 id="1-2-用并发之后的效果"><a href="#1-2-用并发之后的效果" class="headerlink" title="1.2 用并发之后的效果"></a>1.2 用并发之后的效果</h3><figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs tap">用并发（多线程）：<br>  ① 把<span class="hljs-number"> 100 </span>万条数据分成<span class="hljs-number"> 5 </span>片，每片<span class="hljs-number"> 20 </span>万条<br>  ②<span class="hljs-number"> 5 </span>个线程同时查询数据库（并发查）<br>  ③ 所有线程查完后，汇总数据<br>  ④ 单线程 FastExcel 写出（POI 非线程安全）<br>  <br>  实际耗时：目前没有可复核的端到端基准<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h2 id="二、FastExcel-是什么？为什么不用-EasyExcel？"><a href="#二、FastExcel-是什么？为什么不用-EasyExcel？" class="headerlink" title="二、FastExcel 是什么？为什么不用 EasyExcel？"></a>二、FastExcel 是什么？为什么不用 EasyExcel？</h2><h3 id="2-1-FastExcel-简介"><a href="#2-1-FastExcel-简介" class="headerlink" title="2.1 FastExcel 简介"></a>2.1 FastExcel 简介</h3><p><strong>FastExcel</strong> 是 <strong>EasyExcel 的现代化重构版</strong>（EasyExcel 已经停止维护了）。</p>
-<table>
-<thead>
-<tr>
-<th>对比</th>
-<th>EasyExcel</th>
-<th>FastExcel</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>维护状态</strong></td>
-<td>❌ 已停止维护（2023 年起）</td>
-<td>✅ 活跃维护</td>
-</tr>
-<tr>
-<td><strong>性能</strong></td>
-<td>基于 POI（较慢）</td>
-<td>重写，性能更好</td>
-</tr>
-<tr>
-<td><strong>内存占用</strong></td>
-<td>流式写，内存占用低</td>
-<td>更低的内存占用</td>
-</tr>
-<tr>
-<td><strong>API 风格</strong></td>
-<td>偏旧</td>
-<td>现代化 API</td>
-</tr>
-<tr>
-<td><strong>线程安全</strong></td>
-<td>❌ 非线程安全</td>
-<td>❌ 非线程安全（底层仍是 POI）</td>
-</tr>
-</tbody></table>
+<h2 id="二、FastExcel-是什么？为什么不用-EasyExcel？"><a href="#二、FastExcel-是什么？为什么不用-EasyExcel？" class="headerlink" title="二、FastExcel 是什么？为什么不用 EasyExcel？"></a>二、FastExcel 是什么？为什么不用 EasyExcel？</h2><h3 id="2-1-FastExcel-简介"><a href="#2-1-FastExcel-简介" class="headerlink" title="2.1 FastExcel 简介"></a>2.1 FastExcel 简介</h3><p>当前仓库在 <code>pom.xml</code> 中引入 <code>cn.idev:fastexcel:1.0.0</code>，导出路径调用 <code>FastExcel.write(...)</code>。本项目没有在同一数据集和环境下对 EasyExcel、FastExcel 做性能或内存基准，也没有完整的 API 兼容性验证；不应把库间差异写成已验证的项目成果。</p>
 <h3 id="2-2-FastExcel-的核心优势：流式写"><a href="#2-2-FastExcel-的核心优势：流式写" class="headerlink" title="2.2 FastExcel 的核心优势：流式写"></a>2.2 FastExcel 的核心优势：流式写</h3><p><strong>传统 POI 的问题</strong>（Apache POI）：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 错误写法：一次性加载所有数据到内存</span><br>List&lt;User&gt; users = userDao.selectAll();  <span class="hljs-comment">// 100 万条数据</span><br><span class="hljs-type">XSSFWorkbook</span> <span class="hljs-variable">workbook</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">XSSFWorkbook</span>();<br><span class="hljs-type">XSSFSheet</span> <span class="hljs-variable">sheet</span> <span class="hljs-operator">=</span> workbook.createSheet(<span class="hljs-string">&quot;用户数据&quot;</span>);<br><span class="hljs-keyword">for</span> (User user : users) &#123;<br>    <span class="hljs-type">XSSFRow</span> <span class="hljs-variable">row</span> <span class="hljs-operator">=</span> sheet.createRow(rowNum++);<br>    row.createCell(<span class="hljs-number">0</span>).setCellValue(user.getName());<br>    <span class="hljs-comment">// 问题：100 万条数据都在内存里！ → OOM！</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>FastExcel 的流式写</strong>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ✅ 正确写法：流式写，不占用大量内存</span><br>FastExcel.write(outputStream, User.class)<br>    .sheet(<span class="hljs-string">&quot;用户数据&quot;</span>)<br>    .doWrite(users);  <span class="hljs-comment">// FastExcel 内部分批刷盘，不 OOM</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 示例：使用 FastExcel API 写出；仍需测量实际内存</span><br>FastExcel.write(outputStream, User.class)<br>    .sheet(<span class="hljs-string">&quot;用户数据&quot;</span>)<br>    .doWrite(users);  <span class="hljs-comment">// users 列表仍会占用内存</span><br></code></pre></td></tr></table></figure>
 
-<p><strong>原理</strong>：FastExcel 底层用 <strong>SXSSFWorkbook</strong>（POI 的流式写实现）：</p>
-<ul>
-<li>数据先写到<strong>磁盘临时文件</strong></li>
-<li>内存里只保留<strong>最新的 100 行</strong>（可配置）</li>
-<li>超过 100 行的数据刷到磁盘，释放内存</li>
-</ul>
-<h3 id="2-3-FastExcel-是非线程安全的！"><a href="#2-3-FastExcel-是非线程安全的！" class="headerlink" title="2.3 FastExcel 是非线程安全的！"></a>2.3 FastExcel 是非线程安全的！</h3><p><strong>关键知识点</strong>：FastExcel 底层依赖 <code>SXSSFWorkbook</code>，而 <code>SXSSFWorkbook</code> <strong>不是线程安全的</strong>。</p>
+<p><strong>验证边界</strong>：上述示例先把 <code>users</code> 全部放入内存；项目当前也是先汇总 <code>allData</code> 再写出。内存峰值需按数据量实测，不能从写入 API 推出不会 OOM。</p>
+<h3 id="2-3-FastExcel-是非线程安全的！"><a href="#2-3-FastExcel-是非线程安全的！" class="headerlink" title="2.3 FastExcel 是非线程安全的！"></a>2.3 FastExcel 是非线程安全的！</h3><p><strong>项目设计</strong>：当前导出路径仅由一个调用点写出同一个工作簿；项目未验证并发写同一工作簿的行为。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ❌ 错误写法：多线程同时写一个 Excel 文件</span><br><span class="hljs-type">ExecutorService</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">8</span>);<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">8</span>; i++) &#123;<br>    pool.submit(() -&gt; &#123;<br>        <span class="hljs-comment">// 多线程同时调用 FastExcel.write() → 并发写同一个 Sheet → 数据错乱！</span><br>        FastExcel.write(outputStream, User.class).sheet(<span class="hljs-string">&quot;用户数据&quot;</span>).doWrite(shardData);<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>正确做法</strong>：</p>
@@ -522,12 +501,12 @@
 <h2 id="六、面试高频追问（高标准版）"><a href="#六、面试高频追问（高标准版）" class="headerlink" title="六、面试高频追问（高标准版）"></a>六、面试高频追问（高标准版）</h2><h3 id="Q1：为什么数据查询用多线程，但-FastExcel-写出用单线程？"><a href="#Q1：为什么数据查询用多线程，但-FastExcel-写出用单线程？" class="headerlink" title="Q1：为什么数据查询用多线程，但 FastExcel 写出用单线程？"></a>Q1：为什么数据查询用多线程，但 FastExcel 写出用单线程？</h3><p><strong>答</strong>：</p>
 <ul>
 <li><strong>数据查询</strong>是 IO 密集型（等数据库返回，CPU 空闲），可以用多线程并发查询，提升吞吐量</li>
-<li><strong>FastExcel 写出</strong>底层依赖 <code>SXSSFWorkbook</code>，<strong>非线程安全</strong>（并发写同一个 Sheet 会导致数据错乱），所以必须用单线程写出</li>
+<li><strong>FastExcel 写出</strong>在当前实现中由单个调用点完成；并发写同一工作簿未验证</li>
 </ul>
 <p><strong>扩展</strong>：如果要进一步提升写出速度，可以：</p>
 <ol>
 <li>按分片<strong>生成多个 Excel 文件</strong>（每个线程写一个文件）</li>
-<li>最后用 <code>POI</code> 的 <code>Sheet</code> 合并 API 合并成一个文件<br>（但项目里没这么做，因为 1.4 秒已经够快了）</li>
+<li>最后用 <code>POI</code> 的 <code>Sheet</code> 合并 API 合并成一个文件<br>（项目里尚未实现，是否需要取决于真实负载与测量结果）</li>
 </ol>
 <h3 id="Q2：PageParam-newPageInstance-的分页参数是怎么计算的？"><a href="#Q2：PageParam-newPageInstance-的分页参数是怎么计算的？" class="headerlink" title="Q2：PageParam.newPageInstance() 的分页参数是怎么计算的？"></a>Q2：<code>PageParam.newPageInstance()</code> 的分页参数是怎么计算的？</h3><p><strong>答</strong>：<code>PageParam.newPageInstance(pageNum, pageSize)</code> 的内部实现是：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// PageParam 的 offset 计算：</span><br>offset = (pageNum - <span class="hljs-number">1</span>) * pageSize;<br></code></pre></td></tr></table></figure>

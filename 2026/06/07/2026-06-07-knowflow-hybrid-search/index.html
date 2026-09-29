@@ -19,21 +19,21 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="KnowFlow混合检索核心设计：KNN向量+BM25关键词+RRF重排序原理与面试深挖。">
+    <meta name="description" content="KnowFlow混合检索核心设计：KNN 向量召回 + BM25 加权重排原理与面试深挖。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="KnowFlow ②：ES 混合检索（KNN 向量 + BM25 关键词 + RRF 重排序）面试深挖">
+<meta property="og:title" content="KnowFlow ②：ES 混合检索（KNN 向量 + BM25 Rescore）面试深挖">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-knowflow-hybrid-search/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="KnowFlow混合检索核心设计：KNN向量+BM25关键词+RRF重排序原理与面试深挖。">
+<meta property="og:description" content="KnowFlow混合检索核心设计：KNN 向量召回 + BM25 加权重排原理与面试深挖。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T14:10:00.000Z">
-<meta property="article:modified_time" content="2026-09-05T08:28:14.134Z">
+<meta property="article:modified_time" content="2026-09-29T05:54:39.486Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="BM25">
 <meta property="article:tag" content="Elasticsearch">
 <meta property="article:tag" content="KnowFlow">
 <meta property="article:tag" content="RAG">
-<meta property="article:tag" content="RRF">
+<meta property="article:tag" content="Rescore">
 <meta property="article:tag" content="向量检索">
 <meta property="article:tag" content="混合检索">
 <meta property="article:tag" content="面试">
@@ -42,7 +42,7 @@
   
   
   
-  <title>KnowFlow ②：ES 混合检索（KNN 向量 + BM25 关键词 + RRF 重排序）面试深挖 - WhyAlwaysMe 的树洞</title>
+  <title>KnowFlow ②：ES 混合检索（KNN 向量 + BM25 Rescore）面试深挖 - WhyAlwaysMe 的树洞</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -136,6 +136,18 @@
           
           
             <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
               <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
                 <span>归档</span>
@@ -208,7 +220,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="KnowFlow ②：ES 混合检索（KNN 向量 + BM25 关键词 + RRF 重排序）面试深挖"></span>
+            <span id="subtitle" data-typed-text="KnowFlow ②：ES 混合检索（KNN 向量 + BM25 Rescore）面试深挖"></span>
           
         </div>
 
@@ -231,7 +243,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.3k 字
+          2.8k 字
         
       </span>
     
@@ -242,7 +254,7 @@
         
         
         
-          28 分钟
+          24 分钟
         
       </span>
     
@@ -279,12 +291,15 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">KnowFlow ②：ES 混合检索（KNN 向量 + BM25 关键词 + RRF 重排序）面试深挖</h1>
+            <h1 id="seo-header">KnowFlow ②：ES 混合检索（KNN 向量 + BM25 Rescore）面试深挖</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="KnowFlow-②：ES-混合检索（KNN-向量-BM25-关键词-RRF-重排序）"><a href="#KnowFlow-②：ES-混合检索（KNN-向量-BM25-关键词-RRF-重排序）" class="headerlink" title="KnowFlow ②：ES 混合检索（KNN 向量 + BM25 关键词 + RRF 重排序）"></a>KnowFlow ②：ES 混合检索（KNN 向量 + BM25 关键词 + RRF 重排序）</h1><blockquote>
+                <blockquote>
+<p><strong>源码口径更新（2026-09-29）</strong>：本文保留学习笔记与原理示例。项目实际实现、个人增量和测试边界请先看<a href="/projects/">项目总览</a>；示例数字不代表可复核的项目实测。</p>
+</blockquote>
+<h1 id="KnowFlow-②：ES-混合检索（KNN-向量-BM25-Rescore）"><a href="#KnowFlow-②：ES-混合检索（KNN-向量-BM25-Rescore）" class="headerlink" title="KnowFlow ②：ES 混合检索（KNN 向量 + BM25 Rescore）"></a>KnowFlow ②：ES 混合检索（KNN 向量 + BM25 Rescore）</h1><blockquote>
 <p>项目：KnowFlow 企业级 RAG 知识库系统 | 整理时间：2026-06-07 | 适用于后端实习&#x2F;校招面试</p>
 </blockquote>
 <hr>
@@ -327,7 +342,7 @@
 </tbody></table>
 <p><strong>结论：两个都要，取长补短。</strong></p>
 <hr>
-<h2 id="二、KnowFlow-的混合检索架构（核心设计）"><a href="#二、KnowFlow-的混合检索架构（核心设计）" class="headerlink" title="二、KnowFlow 的混合检索架构（核心设计）"></a>二、KnowFlow 的混合检索架构（核心设计）</h2><h3 id="2-1-整体流程图"><a href="#2-1-整体流程图" class="headerlink" title="2.1 整体流程图"></a>2.1 整体流程图</h3><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">用户输入：<span class="hljs-string">&quot;MySQL 同步慢怎么查？&quot;</span><br>│<br>├─ 第一步：生成查询向量（调用 <span class="hljs-variable">Embedding</span> <span class="hljs-variable">API</span>）<br>│   ↓<br>│   <span class="hljs-punctuation">[</span><span class="hljs-number">0.12</span><span class="hljs-operator">,</span> <span class="hljs-operator">-</span><span class="hljs-number">0.34</span><span class="hljs-operator">,</span> <span class="hljs-operator">...,</span> <span class="hljs-number">0.78</span><span class="hljs-punctuation">]</span>  <span class="hljs-punctuation">(</span><span class="hljs-number">2048</span>维<span class="hljs-punctuation">)</span><br>│<br>├─ 第二步：<span class="hljs-variable">KNN</span> 向量召回（<span class="hljs-variable">ES</span> 的 <span class="hljs-variable">knn</span> 查询）<br>│   从 <span class="hljs-variable">ES</span> 里找向量最相似的 <span class="hljs-built_in">Top</span><span class="hljs-operator">-</span><span class="hljs-built_in">K</span> 个文本块<br>│   （<span class="hljs-built_in">K</span> <span class="hljs-operator">=</span> <span class="hljs-variable">topK</span> × <span class="hljs-number">30</span>，放大召回窗口，比如要 <span class="hljs-number">5</span> 个结果就先召回 <span class="hljs-number">150</span> 个）<br>│<br>├─ 第三步：<span class="hljs-variable">BM25</span> 关键词重排序（<span class="hljs-variable">ES</span> 的 <span class="hljs-variable">rescore</span>）<br>│   对 <span class="hljs-variable">KNN</span> 召回的 <span class="hljs-number">150</span> 个结果，用 <span class="hljs-variable">BM25</span> 算关键词相关度<br>│   把向量相似但关键词不匹配的往后排<br>│<br>├─ 第四步：<span class="hljs-variable">RRF</span> 融合打分<br>│   综合向量分数和 <span class="hljs-variable">BM25</span> 分数，算出最终排序<br>│<br>└─ 第五步：权限过滤（不能让用户搜到别人的私有文档！）<br>    只返回 <span class="hljs-variable">userId</span> 匹配 <span class="hljs-operator">/</span> <span class="hljs-variable">isPublic</span><span class="hljs-operator">=</span><span class="hljs-variable">true</span> <span class="hljs-operator">/</span> <span class="hljs-variable">orgTag</span> 匹配 的结果<br></code></pre></td></tr></table></figure>
+<h2 id="二、KnowFlow-的混合检索架构（核心设计）"><a href="#二、KnowFlow-的混合检索架构（核心设计）" class="headerlink" title="二、KnowFlow 的混合检索架构（核心设计）"></a>二、KnowFlow 的混合检索架构（核心设计）</h2><h3 id="2-1-整体流程图"><a href="#2-1-整体流程图" class="headerlink" title="2.1 整体流程图"></a>2.1 整体流程图</h3><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">用户输入：<span class="hljs-string">&quot;MySQL 同步慢怎么查？&quot;</span><br>│<br>├─ 第一步：生成查询向量（调用 <span class="hljs-variable">Embedding</span> <span class="hljs-variable">API</span>）<br>│   ↓<br>│   <span class="hljs-punctuation">[</span><span class="hljs-number">0.12</span><span class="hljs-operator">,</span> <span class="hljs-operator">-</span><span class="hljs-number">0.34</span><span class="hljs-operator">,</span> <span class="hljs-operator">...,</span> <span class="hljs-number">0.78</span><span class="hljs-punctuation">]</span>  <span class="hljs-punctuation">(</span><span class="hljs-number">2048</span>维<span class="hljs-punctuation">)</span><br>│<br>├─ 第二步：<span class="hljs-variable">KNN</span> 向量召回（<span class="hljs-variable">ES</span> 的 <span class="hljs-variable">knn</span> 查询）<br>│   从 <span class="hljs-variable">ES</span> 里找向量最相似的 <span class="hljs-built_in">Top</span><span class="hljs-operator">-</span><span class="hljs-built_in">K</span> 个文本块<br>│   （<span class="hljs-built_in">K</span> <span class="hljs-operator">=</span> <span class="hljs-variable">topK</span> × <span class="hljs-number">30</span>，放大召回窗口，比如要 <span class="hljs-number">5</span> 个结果就先召回 <span class="hljs-number">150</span> 个）<br>│<br>├─ 第三步：<span class="hljs-variable">BM25</span> 关键词重排序（<span class="hljs-variable">ES</span> 的 <span class="hljs-variable">rescore</span>）<br>│   对 <span class="hljs-variable">KNN</span> 召回的 <span class="hljs-number">150</span> 个结果，用 <span class="hljs-variable">BM25</span> 算关键词相关度<br>│   把向量相似但关键词不匹配的往后排<br>│<br>└─ 第四步：返回 <span class="hljs-built_in">Top</span><span class="hljs-operator">-</span><span class="hljs-built_in">K</span><br>    权限条件同时作用于 <span class="hljs-variable">KNN</span> 和文本查询分支；<span class="hljs-variable">ES</span> 会把两路按 <span class="hljs-variable">OR</span> 合并<br></code></pre></td></tr></table></figure>
 
 <h3 id="2-2-ES-索引结构（面试可能问）"><a href="#2-2-ES-索引结构（面试可能问）" class="headerlink" title="2.2 ES 索引结构（面试可能问）"></a>2.2 ES 索引结构（面试可能问）</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// knowledge_base 索引的 mapping（简化版）</span><br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;mappings&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;properties&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;textContent&quot;</span><span class="hljs-punctuation">:</span>  <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ik_max_word&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>  <span class="hljs-comment">// 原文内容，用于 BM25</span><br>      <span class="hljs-attr">&quot;vector&quot;</span><span class="hljs-punctuation">:</span>       <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;dense_vector&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;dims&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2048</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>       <span class="hljs-comment">// 向量，用于 KNN</span><br>      <span class="hljs-attr">&quot;fileMd5&quot;</span><span class="hljs-punctuation">:</span>     <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>                            <span class="hljs-comment">// 所属文件</span><br>      <span class="hljs-attr">&quot;chunkId&quot;</span><span class="hljs-punctuation">:</span>      <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>                            <span class="hljs-comment">// 文本块 ID</span><br>      <span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span>       <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>                            <span class="hljs-comment">// 上传者 ID</span><br>      <span class="hljs-attr">&quot;orgTag&quot;</span><span class="hljs-punctuation">:</span>       <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>                            <span class="hljs-comment">// 组织标签</span><br>      <span class="hljs-attr">&quot;public&quot;</span><span class="hljs-punctuation">:</span>       <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;boolean&quot;</span> <span class="hljs-punctuation">&#125;</span>                             <span class="hljs-comment">// 是否公开</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
 
@@ -335,22 +350,10 @@
 <p>💡 <strong>为什么 <code>textContent</code> 和 <code>vector</code> 存在同一个索引里？</strong><br>答：这样 KNN 召回和 BM25 重排序可以在一次查询里完成，不用先向量搜一次、再关键词搜一次、再合并结果，省一次网络往返，延迟更低。</p>
 </blockquote>
 <hr>
-<h2 id="三、源码深度解析：HybridSearchService-java"><a href="#三、源码深度解析：HybridSearchService-java" class="headerlink" title="三、源码深度解析：HybridSearchService.java"></a>三、源码深度解析：<code>HybridSearchService.java</code></h2><h3 id="3-1-KNN-向量召回-权限过滤"><a href="#3-1-KNN-向量召回-权限过滤" class="headerlink" title="3.1 KNN 向量召回 + 权限过滤"></a>3.1 KNN 向量召回 + 权限过滤</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs java">SearchResponse&lt;EsDocument&gt; response = esClient.search(s -&gt; &#123;<br>    s.index(<span class="hljs-string">&quot;knowledge_base&quot;</span>);<br><br>    <span class="hljs-comment">// ★ 核心：KNN 向量召回</span><br>    s.knn(kn -&gt; kn<br>        .field(<span class="hljs-string">&quot;vector&quot;</span>)                  <span class="hljs-comment">// 对 vector 字段做最近邻搜索</span><br>        .queryVector(queryVector)          <span class="hljs-comment">// 用户输入生成的查询向量</span><br>        .k(recallK)                     <span class="hljs-comment">// 召回窗口：topK × 30</span><br>        .numCandidates(recallK)          <span class="hljs-comment">// 候选数，ES 内部用 HNSW 算法加速</span><br>    );<br><br>    <span class="hljs-comment">// ★ 权限过滤：只能搜到有权限的文档</span><br>    s.query(q -&gt; q.bool(b -&gt; b<br>        .must(mst -&gt; mst.match(m -&gt; m<br>            .field(<span class="hljs-string">&quot;textContent&quot;</span>)<br>            .query(query)))           <span class="hljs-comment">// 必须包含关键词（粗筛）</span><br>        .filter(f -&gt; f.bool(bf -&gt; bf<br>            <span class="hljs-comment">// 三个条件满足任意一个即可（should = OR）</span><br>            .should(s1 -&gt; s1.term(t -&gt; t.field(<span class="hljs-string">&quot;userId&quot;</span>).value(userDbId)))  <span class="hljs-comment">// 自己的文档</span><br>            .should(s2 -&gt; s2.term(t -&gt; t.field(<span class="hljs-string">&quot;public&quot;</span>).value(<span class="hljs-literal">true</span>)))       <span class="hljs-comment">// 公开文档</span><br>            .should(s3 -&gt; &#123;  <span class="hljs-comment">// 同组织的文档</span><br>                <span class="hljs-keyword">if</span> (userEffectiveTags.size() == <span class="hljs-number">1</span>) &#123;<br>                    <span class="hljs-keyword">return</span> s3.term(t -&gt; t.field(<span class="hljs-string">&quot;orgTag&quot;</span>).value(userEffectiveTags.get(<span class="hljs-number">0</span>)));<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    <span class="hljs-comment">// 多个组织标签，全部 should</span><br>                    userEffectiveTags.forEach(tag -&gt; <br>                        bf.should(sh -&gt; sh.term(t -&gt; t.field(<span class="hljs-string">&quot;orgTag&quot;</span>).value(tag))));<br>                    <span class="hljs-keyword">return</span> bf;<br>                &#125;<br>            &#125;)<br>        ))<br>    ));<br>    s.size(topK);<br>    <span class="hljs-keyword">return</span> s;<br>&#125;, EsDocument.class);<br></code></pre></td></tr></table></figure>
+<h2 id="三、源码深度解析：HybridSearchService-java"><a href="#三、源码深度解析：HybridSearchService-java" class="headerlink" title="三、源码深度解析：HybridSearchService.java"></a>三、源码深度解析：<code>HybridSearchService.java</code></h2><h3 id="3-1-KNN-向量召回-权限过滤"><a href="#3-1-KNN-向量召回-权限过滤" class="headerlink" title="3.1 KNN 向量召回 + 权限过滤"></a>3.1 KNN 向量召回 + 权限过滤</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Query</span> <span class="hljs-variable">permission</span> <span class="hljs-operator">=</span> permissionFilter(userDbId, userEffectiveTags);<br><span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> permissionSearchRequest(query, queryVector, topK, permission);<br><span class="hljs-comment">// request.knn().get(0).filter() 与 request.query().bool().filter()</span><br><span class="hljs-comment">// 都包含同一权限条件：本人、公开、所属组织三者至少满足一个。</span><br>SearchResponse&lt;EsDocument&gt; response = esClient.search(request, EsDocument.class);<br></code></pre></td></tr></table></figure>
 
-<h3 id="3-2-RRF（倒数秩融合）是什么鬼？"><a href="#3-2-RRF（倒数秩融合）是什么鬼？" class="headerlink" title="3.2 RRF（倒数秩融合）是什么鬼？"></a>3.2 RRF（倒数秩融合）是什么鬼？</h3><p><strong>先说说为什么需要 RRF：</strong></p>
-<p>KNN 给每个结果打一个分数（向量相似度，范围 0~1），BM25 也给每个结果打一个分数（关键词匹配度，范围不确定）。<strong>这两个分数的量级不一样，不能直接相加。</strong></p>
-<p>RRF 的思路非常巧妙：<strong>不看具体分数，只看排名。</strong></p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs makefile">RRF 公式：<br>score = 1/(k + rank_kNN) + 1/(k + rank_BM25)<br><br>其中 k 是一个常数（通常取 60），防止排名第一的分数太大<br>rank_kNN  = 这个结果在 KNN 召回中的排名（第 1 名=1，第 2 名=2...）<br>rank_BM25 = 这个结果在 BM25 排序中的排名<br></code></pre></td></tr></table></figure>
-
-<p><strong>举个例子：</strong></p>
-<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs subunit">结果 X 在：<br>  KNN 排名  = 第 3 名 → 1/(60<span class="hljs-string">+3</span>) = 0.0159<br>  BM25 排名 = 第 1 名 → 1/(60<span class="hljs-string">+1</span>) = 0.0164<br>  RRF 总分 = 0.0323 ← 两个排名都靠前，最终排名高！<br><br>结果 Y 在：<br>  KNN 排名  = 第 1 名 → 1/(60<span class="hljs-string">+1</span>) = 0.0164<br>  BM25 排名 = 第 50 名 → 1/(60<span class="hljs-string">+50</span>) = 0.0091<br>  RRF 总分 = 0.0255 ← KNN 靠前但 BM25 不认可，最终排名被拉低<br></code></pre></td></tr></table></figure>
-
-<p><strong>ES 里不需要自己实现 RRF</strong>，用 <code>rescore</code> 就能组合 KNN 分数和 BM25 分数：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// ES Java API 中的 rescore（倒数秩融合的近似实现）</span><br>s.rescore(r -&gt; r<br>    .windowSize(recallK)              <span class="hljs-comment">// 对召回的 150 个结果重新打分</span><br>    .query(rq -&gt; rq<br>        .queryWeight(<span class="hljs-number">0.2d</span>)           <span class="hljs-comment">// 保留 20% 的 KNN 分数</span><br>        .rescoreQueryWeight(<span class="hljs-number">1.0d</span>)    <span class="hljs-comment">// BM25 分数占 100%（主导）</span><br>        .query(rqq -&gt; rqq.match(m -&gt; m<br>            .field(<span class="hljs-string">&quot;textContent&quot;</span>)<br>            .query(query)<br>            .operator(Operator.And)   <span class="hljs-comment">// 关键词取 AND，更严格</span><br>        ))<br>    )<br>);<br></code></pre></td></tr></table></figure>
-
-<blockquote>
-<p>💡 <strong>面试追问</strong>：”queryWeight 和 rescoreQueryWeight 为什么要这样设？”<br>答：向量召回负责”找相关的”，BM25 负责”确认关键词匹配程度”。企业专有词汇在向量空间里可能训练不充分，所以 BM25 权重设高一点（1.0），向量分数作为辅助信号（0.2），这样能保证精确匹配不被语义相似但关键词不匹配的结果挤掉。</p>
-</blockquote>
+<h3 id="3-2"><a href="#3-2" class="headerlink" title="3.2&#96;&#96;&#96;"></a>3.2&#96;&#96;&#96;</h3><h3 id="3-2-当前实现是-BM25-加权-Rescore"><a href="#3-2-当前实现是-BM25-加权-Rescore" class="headerlink" title="3.2 当前实现是 BM25 加权 Rescore"></a>3.2 当前实现是 BM25 加权 Rescore</h3><p><code>HybridSearchService</code> 在一个 Elasticsearch 请求中设置顶层 <code>knn</code> 和文本 <code>query</code>，Elasticsearch 将两路候选按 OR 合并。随后 <code>rescore</code> 在窗口内按 <code>queryWeight=0.2</code> 保留原始分数，再以 <code>rescoreQueryWeight=1.0</code> 加入 BM25 <code>match</code> 分数。这里没有独立的两份排名，也没有按 <code>1/(k+rank)</code> 计算，所以<strong>不是 RRF</strong>。</p>
+<p>顶层文本查询中的权限过滤不会自动约束顶层 KNN。当前源码给两路分别使用同一权限过滤条件；3 项请求结构回归测试已通过；真实 Elasticsearch 端到端隔离测试仍待补充。<code>topK × 30</code> 是候选窗口设置，不代表有准确率或召回率提升的实测结论。</p>
 <hr>
 <h2 id="四、权限过滤的多租户设计（KnowFlow-的核心业务）"><a href="#四、权限过滤的多租户设计（KnowFlow-的核心业务）" class="headerlink" title="四、权限过滤的多租户设计（KnowFlow 的核心业务）"></a>四、权限过滤的多租户设计（KnowFlow 的核心业务）</h2><h3 id="4-1-三种权限级别"><a href="#4-1-三种权限级别" class="headerlink" title="4.1 三种权限级别"></a>4.1 三种权限级别</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java">用户能搜到哪些文档？<br><br>┌─ 自己上传的文档 ──────────────────────┐<br>│  <span class="hljs-type">WHERE</span> <span class="hljs-variable">userId</span> <span class="hljs-operator">=</span> 当前用户数据库 ID     │<br>└────────────────────────────────────────┘<br>           OR<br>┌─ 标记为公开的文档 ────────────────────┐<br>│  <span class="hljs-type">WHERE</span> <span class="hljs-variable">isPublic</span> <span class="hljs-operator">=</span> <span class="hljs-literal">true</span>                │<br>└────────────────────────────────────────┘<br>           OR<br>┌─ 同组织的文档（含父级组织！）─────────┐<br>│  WHERE orgTag <span class="hljs-title function_">IN</span> <span class="hljs-params">(用户所有有效标签)</span>   │<br>│  比如用户在 <span class="hljs-string">&quot;技术部-后端组&quot;</span>            │<br>│  他能看到：<span class="hljs-string">&quot;技术部&quot;</span> 和 <span class="hljs-string">&quot;后端组&quot;</span> 的文档│<br>└────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
@@ -412,7 +415,7 @@
 <hr>
 <h2 id="七、面试八股文高频题"><a href="#七、面试八股文高频题" class="headerlink" title="七、面试八股文高频题"></a>七、面试八股文高频题</h2><h3 id="Q1：ES-的-KNN-搜索底层是什么算法？"><a href="#Q1：ES-的-KNN-搜索底层是什么算法？" class="headerlink" title="Q1：ES 的 KNN 搜索底层是什么算法？"></a>Q1：ES 的 KNN 搜索底层是什么算法？</h3><p><strong>答</strong>：ES 8.x 的 <code>dense_vector</code> 字段使用 <strong>HNSW（Hierarchical Navigable Small World）</strong> 算法，是一种基于图的近似最近邻搜索算法。查询复杂度约 O(log N)，比暴力搜索 O(N) 快很多。牺牲少量精度（recall 约 95~99%）换取大幅速度提升。</p>
 <h3 id="Q2：为什么-KNN-的-k-要设成-topK-×-30？"><a href="#Q2：为什么-KNN-的-k-要设成-topK-×-30？" class="headerlink" title="Q2：为什么 KNN 的 k 要设成 topK × 30？"></a>Q2：为什么 KNN 的 k 要设成 topK × 30？</h3><p><strong>答</strong>：KNN 是近似搜索，会有一些误召回或漏召回。把召回窗口放大（比如要 5 个最终结果，先召回 150 个），然后在这 150 个里面用 BM25 精确重排序，这样最终Top-K 的质量更高。这叫 <strong>“召回+重排”两阶段检索</strong>，是搜索系统的标准做法。</p>
-<h3 id="Q3：RRF-和直接加权求和（score-kNN-score-BM25）比，好在哪？"><a href="#Q3：RRF-和直接加权求和（score-kNN-score-BM25）比，好在哪？" class="headerlink" title="Q3：RRF 和直接加权求和（score_kNN + score_BM25）比，好在哪？"></a>Q3：RRF 和直接加权求和（score_kNN + score_BM25）比，好在哪？</h3><p><strong>答</strong>：直接加权求和要求两个分数在相同的数值范围内（比如都是 0~1），但 KNN 距离分数和 BM25 分数的分布完全不同，直接相加需要手动做归一化，很麻烦而且容易调不好。RRF 基于排名，不需要归一化，更鲁棒，这也是 TREC 比赛里证明过的方法。</p>
+<h3 id="Q3：当前-Rescore-与-RRF-有什么区别？"><a href="#Q3：当前-Rescore-与-RRF-有什么区别？" class="headerlink" title="Q3：当前 Rescore 与 RRF 有什么区别？"></a>Q3：当前 Rescore 与 RRF 有什么区别？</h3><p><strong>答</strong>：当前实现把原始查询分数乘以 0.2，再加上 BM25 重排分数；RRF 只看两份结果各自的名次。项目没有实现 RRF，也没有成套检索评测，不能声称 RRF 带来效果提升。</p>
 <h3 id="Q4：如果文档库里有-1-亿条数据，KNN-搜索会变慢吗？"><a href="#Q4：如果文档库里有-1-亿条数据，KNN-搜索会变慢吗？" class="headerlink" title="Q4：如果文档库里有 1 亿条数据，KNN 搜索会变慢吗？"></a>Q4：如果文档库里有 1 亿条数据，KNN 搜索会变慢吗？</h3><p><strong>答</strong>：HNSW 的查询复杂度是 O(log N)，1 亿条也只会访问图中很少的节点，速度影响不大。但索引会占用较多内存（向量要全部加载到内存里才能快）。<strong>解决思路</strong>：如果向量维度高（2048 维），可以考虑用 PQ（Product Quantization）压缩，或者升级到 ES 的 <code>int8_hnsw</code> 量化索引，内存占用降到 1&#x2F;4。</p>
 <h3 id="Q5：多租户场景下，怎么防止-A-租户通过精心构造的查询”撞库”到-B-租户的数据？"><a href="#Q5：多租户场景下，怎么防止-A-租户通过精心构造的查询”撞库”到-B-租户的数据？" class="headerlink" title="Q5：多租户场景下，怎么防止 A 租户通过精心构造的查询”撞库”到 B 租户的数据？"></a>Q5：多租户场景下，怎么防止 A 租户通过精心构造的查询”撞库”到 B 租户的数据？</h3><p><strong>答</strong>：三层防护：</p>
 <ol>
@@ -422,12 +425,12 @@
 </ol>
 <hr>
 <h2 id="八、简历上怎么讲这句话（可直接用）"><a href="#八、简历上怎么讲这句话（可直接用）" class="headerlink" title="八、简历上怎么讲这句话（可直接用）"></a>八、简历上怎么讲这句话（可直接用）</h2><blockquote>
-<p><strong>原句参考</strong>：”为解决单一语义检索在企业专有词汇场景下召回率不足的痛点，设计基于 Elasticsearch 的混合检索架构：结合大模型 Embedding（2048 维）实现 KNN 向量召回，配合 BM25 关键词匹配，最终通过 RRF（倒数秩融合）算法对多路召回进行重排序，显著提升私有知识库的检索准确度。”</p>
+<p><strong>可核实表述</strong>：使用 Elasticsearch 的 KNN 与文本查询召回候选，再以 BM25 Rescore 调整排序；权限过滤同时加在两路查询上。尚无可靠的离线评测数据可量化准确率提升。</p>
 </blockquote>
 <p><strong>面试时被问到，按这个顺序讲：</strong></p>
 <ol>
 <li><strong>先说痛点</strong>：纯向量检索在企业场景不行，专有名词向量模型没见过，召回不准；</li>
-<li><strong>说方案</strong>：KNN 向量召回（负责语义相似）+ BM25 关键词匹配（负责精确匹配），两路结果用 RRF 融合；</li>
+<li><strong>说方案</strong>：KNN 向量召回（负责语义相似）+ BM25 关键词匹配（负责精确匹配），ES 合并两路候选，再用 BM25 Rescore 加权重排；</li>
 <li><strong>说细节</strong>：KNN 的 k 放大 30 倍再重排，防止近似搜索的误差；权限过滤放 filter 上下文利用缓存；</li>
 <li><strong>说降级</strong>：Embedding 服务挂了自动降级到纯 BM25，系统不挂。</li>
 </ol>
@@ -478,11 +481,11 @@
       
         <a href="/tags/BM25/" class="print-no-link">#BM25</a>
       
-        <a href="/tags/RRF/" class="print-no-link">#RRF</a>
-      
         <a href="/tags/%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2/" class="print-no-link">#混合检索</a>
       
         <a href="/tags/RAG/" class="print-no-link">#RAG</a>
+      
+        <a href="/tags/Rescore/" class="print-no-link">#Rescore</a>
       
     </div>
   
@@ -494,7 +497,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>KnowFlow ②：ES 混合检索（KNN 向量 + BM25 关键词 + RRF 重排序）面试深挖</div>
+      <div>KnowFlow ②：ES 混合检索（KNN 向量 + BM25 Rescore）面试深挖</div>
       <div>https://whyalwaysme.lol/2026/06/07/2026-06-07-knowflow-hybrid-search/</div>
     </div>
     <div class="license-meta">

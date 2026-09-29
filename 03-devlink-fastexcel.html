@@ -26,8 +26,8 @@
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
 <meta property="og:description" content="DevLink③：FastExcel 并发导出 + 线程池调优（完整版）    @page { size: A4; margin: 20mm 18mm 20mm 18mm;     @top-center { content: &quot;DevLink③ FastExcel 并发导出&quot;; font-size: 9pt; color: #666; }     @bottom-center { co">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2026-06-07T12:49:21.561Z">
-<meta property="article:modified_time" content="2026-06-07T12:49:21.561Z">
+<meta property="article:published_time" content="2026-09-29T05:59:03.210Z">
+<meta property="article:modified_time" content="2026-09-29T05:59:03.210Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary_large_image">
@@ -113,6 +113,18 @@
               <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
                 <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
               </a>
             </li>
           
@@ -320,25 +332,19 @@
 <h1><span class="module-tag">模块一</span> 为什么要并发导出？</h1>
 
 <h2>1.1 场景：导出 100 万条数据到 Excel</h2>
+<div class="warn">证据更新（2026-09-29）：以下展示的是分片查询与串行写出的设计机制。仓库没有连接真实数据库、走生产导出路径的可复现百万行端到端基准，因此不报告耗时或提升倍数。</div>
 <div class="visual">❌ <b>不用并发（慢在哪里）？</b>
 
-  ① 查 DB：SELECT * FROM request_count（<b>3 秒</b>）
-     → 100 万条数据从磁盘加载到内存，慢在 IO 等待
-  ② 写 Excel：FastExcel.write(data)（<b>0.5 秒</b>）
-     → 写磁盘，相对较快
-
-  <b>总耗时 ≈ 3.5 秒</b>
-  （用户点击"导出"后，要等 3.5 秒才能下载文件）
+  ① 分页查询 DB；各页查询依次完成
+  ② 主线程写 Excel
+  总耗时由数据库、数据量、网络与写出环境共同决定
 
 ✅ <b>用并发（快在哪里）？</b>
 
-  ① 拆成 <b>10 个分片</b>，10 个线程 <b>同时查 DB</b>（<b>0.4 秒</b>）
-     → 原来 1 个线程查 3 秒，现在 10 个线程并行查，每个查 10 万条
-     → 理想情况：3秒 / 10 = 0.3秒，加上线程调度开销 ≈ 0.4秒
-  ② 等所有分片查完，FastExcel <b>一次性写</b>（<b>0.5 秒</b>）
-     → 写 Excel 不是瓶颈，单线程写就够
-
-  <b>总耗时 ≈ 1.4 秒（提升 2.5 倍！）</b></div>
+  ① 拆成多个分片，线程池并发查 DB
+  ② 等所有分片完成并按顺序汇总
+  ③ 由单线程 FastExcel 写出
+  是否缩短端到端时间，需要同环境基准验证</div>
 
 <div class="tip">✅ <b>核心思想：</b>查 DB 是瓶颈（IO 密集），用多线程并发查；
   写 Excel 不是瓶颈（CPU + 磁盘 IO），单线程写就够，而且必须单线程（线程安全）。</div>
@@ -355,14 +361,8 @@
   <p class="b">项目的做法：多线程只负责"查数据"，全部查完后由主线程"写 Excel"。</p>
 </div>
 
-<h2>1.3 性能对比：不同数据量的耗时</h2>
-<table>
-  <tr><th>数据量</th><th>不用并发</th><th>用并发（10 线程）</th><th>提升倍数</th></tr>
-  <tr><td>10 万条</td><td>≈ 0.4 秒</td><td>≈ 0.2 秒</td><td>2 倍</td></tr>
-  <tr><td>100 万条</td><td>≈ 3.5 秒</td><td>≈ 1.4 秒</td><td>2.5 倍</td></tr>
-  <tr><td>500 万条</td><td>≈ 18 秒</td><td>≈ 6 秒</td><td>3 倍</td></tr>
-  <tr><td>1000 万条</td><td>≈ 35 秒（可能 OOM）</td><td>≈ 10 秒（可能 OOM）</td><td>3.5 倍</td></tr>
-</table>
+<h2>1.3 如何验证性能</h2>
+<p>在相同数据库、数据集、导出路径和机器环境下，分别多次运行串行与并发方案，记录查询、汇总、写出和总耗时的分布，并观察内存与数据库负载。当前没有这样的可复核结果。</p>
 
 <div class="warn">⚠️ <b>注意：</b>并发查 DB 只能加速"查数据"阶段。
   如果数据量太大（1000 万条），即使并发查，<b>内存存不下</b>也会 OOM。
@@ -460,8 +460,8 @@ int shardCount = (int) Math.ceil((double) total / BATCH_SIZE);
 // 例子：total = 100万，BATCH_SIZE = 10万 → shardCount = 10 个分片
 
 // 为什么要分片？
-//  → 1 个线程查 100 万条太慢（3 秒）
-//  → 拆成 10 个分片，每个查 10 万条，10 个线程并行查（0.4 秒）</pre>
+//  → 串行分页查询可能受 DB 往返耗时影响
+//  → 分片可并发查询；具体收益以真实数据库基准为准</pre>
 
 <h2>3.2 第 2 步：创建自定义线程池（关键配置！）</h2>
 <pre class="block">// 文件位置：同上（第 60-66 行左右）
@@ -704,8 +704,8 @@ for (Future&lt;?&gt; f : futures) {
 <div class="q"><strong>Q5：FastExcel 和 EasyExcel 的关系？</strong></div>
 <div class="ans">
   <ul>
-    <li>FastExcel 是 EasyExcel 的 <b>fork 版本</b>（原版 EasyExcel 停止维护）</li>
-    <li>API <b>完全兼容</b>，可以无缝替换（改个 Maven 依赖就行）</li>
+    <li>当前仓库在 <code>pom.xml</code> 中使用 <code>cn.idev:fastexcel:1.0.0</code></li>
+    <li>项目未验证与 EasyExcel 的完整 API 兼容性，迁移前需要逐项测试</li>
     <li>核心优化：<b>SAX 模式解析</b>（逐行读，不加载全量到内存）</li>
     <li>支持 <b>流式写</b>（<code>excelWriter.write(batch)</code> 可以多次调用，每次写一批）</li>
   </ul>
@@ -764,6 +764,7 @@ for (Future&lt;?&gt; f : futures) {
 
 </body>
 </html>
+
 
   
 

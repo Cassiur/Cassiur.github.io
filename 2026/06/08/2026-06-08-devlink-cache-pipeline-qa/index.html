@@ -27,7 +27,7 @@
 <meta property="og:description" content="技术派缓存+Pipeline 22道面试题：本地缓存淘汰策略、一致性、RedisTemplate细节。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T10:56:00.000Z">
-<meta property="article:modified_time" content="2026-09-05T08:28:20.070Z">
+<meta property="article:modified_time" content="2026-09-29T05:51:16.171Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Caffeine">
 <meta property="article:tag" content="DevLink">
@@ -126,6 +126,18 @@
               <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
                 <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
               </a>
             </li>
           
@@ -241,7 +253,7 @@
         
         
         
-          64 分钟
+          65 分钟
         
       </span>
     
@@ -283,7 +295,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="技术派缓存-Pipeline-面试题深度解析（22-问·附源码）"><a href="#技术派缓存-Pipeline-面试题深度解析（22-问·附源码）" class="headerlink" title="技术派缓存 + Pipeline 面试题深度解析（22 问·附源码）"></a>技术派缓存 + Pipeline 面试题深度解析（22 问·附源码）</h1><blockquote>
+                <blockquote>
+<p><strong>源码口径更新（2026-09-29）</strong>：本文保留学习笔记与原理示例。项目实际实现、个人增量和测试边界请先看<a href="/projects/">项目总览</a>；示例数字不代表可复核的项目实测。</p>
+</blockquote>
+<h1 id="技术派缓存-Pipeline-面试题深度解析（22-问·附源码）"><a href="#技术派缓存-Pipeline-面试题深度解析（22-问·附源码）" class="headerlink" title="技术派缓存 + Pipeline 面试题深度解析（22 问·附源码）"></a>技术派缓存 + Pipeline 面试题深度解析（22 问·附源码）</h1><blockquote>
 <p>简历原文：<em>针对高并发互动场景（如点赞、评论、阅读），引入 Caffeine 本地缓存拦截热点聚合数据（侧边栏、热文榜），利用 Redis Hash + hIncr 原子操作聚合用户&#x2F;文章的点赞数、评论数、阅读数等高频写计数，并通过 Pipeline 批量提交减少 RTT，有效降低直接落库压力</em></p>
 <p>下面每道题都<strong>贴出项目源码</strong>，确保你答出来的东西是”真的做过”，而不是背八股。</p>
 </blockquote>

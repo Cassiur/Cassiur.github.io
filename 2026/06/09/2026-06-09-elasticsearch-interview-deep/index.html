@@ -27,7 +27,7 @@
 <meta property="og:description" content="Elasticsearch 50题：倒排索引、分词器、分布式查询、聚合与向量KNN检索原理。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-09T06:30:00.000Z">
-<meta property="article:modified_time" content="2026-09-05T08:28:32.047Z">
+<meta property="article:modified_time" content="2026-09-29T05:54:39.490Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Elasticsearch">
 <meta property="article:tag" content="倒排索引">
@@ -135,6 +135,18 @@
           
           
             <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
               <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
                 <span>归档</span>
@@ -230,7 +242,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          24k 字
+          23k 字
         
       </span>
     
@@ -241,7 +253,7 @@
         
         
         
-          198 分钟
+          190 分钟
         
       </span>
     
@@ -1674,80 +1686,11 @@
 <li>经验做法：<code>num_candidates</code> 取 <code>k</code> 的几倍到十几倍（比如 k&#x3D;10 时 num_candidates 取 50~100），根据召回率要求和延迟预算去调</li>
 </ul>
 <hr>
-<h3 id="Q52：如何把-kNN-向量召回和-BM25-关键词检索结合起来做混合检索？（rescore-方案，本项目实际用法）"><a href="#Q52：如何把-kNN-向量召回和-BM25-关键词检索结合起来做混合检索？（rescore-方案，本项目实际用法）" class="headerlink" title="Q52：如何把 kNN 向量召回和 BM25 关键词检索结合起来做混合检索？（rescore 方案，本项目实际用法）"></a>Q52：如何把 kNN 向量召回和 BM25 关键词检索结合起来做混合检索？（rescore 方案，本项目实际用法）</h3><p><strong>一句话总结</strong>：本项目的做法是 <strong>KNN 召回候选集 → 把权限过滤下推进 kNN 查询本身 → 用 BM25 对候选窗口内的文档做 rescore 重打分</strong>，用 <code>query_weight</code> &#x2F; <code>rescore_query_weight</code> 线性加权得到最终排序——这是”<strong>在同一批候选里重新打分</strong>“，<strong>不是 RRF</strong>。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>第一步：权限过滤下推到 kNN 查询里</strong>（而不是召回之后再过滤）：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;knn&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;content_vector&quot;</span>,<br>    <span class="hljs-string">&quot;query_vector&quot;</span>: [0.12, -0.03, ...],<br>    <span class="hljs-string">&quot;k&quot;</span>: 50,<br>    <span class="hljs-string">&quot;num_candidates&quot;</span>: 200,<br>    <span class="hljs-string">&quot;filter&quot;</span>: &#123;                                <span class="hljs-comment"># 过滤条件下推进 kNN 查询本身</span><br>      <span class="hljs-string">&quot;term&quot;</span>: &#123; <span class="hljs-string">&quot;visible_to_group&quot;</span>: <span class="hljs-string">&quot;user_123_dept&quot;</span> &#125;<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<ul>
-<li>把权限条件写进 <code>knn.filter</code>，是让 ES 在做近似最近邻搜索时就把”不该被这个用户看到的文档”排除掉，而不是先召回 k 条再在应用层过滤——后者会导致召回数量不足 k 条（因为召回的 k 条里可能一部分被过滤掉了却补不回来），前者能保证最终返回的近邻始终是”用户有权限看到的文档里最相似的那些”</li>
-</ul>
-<p><strong>第二步：在候选窗口内用 BM25 做 rescore 重打分</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash">GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;knn&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;field&quot;</span>: <span class="hljs-string">&quot;content_vector&quot;</span>,<br>    <span class="hljs-string">&quot;query_vector&quot;</span>: [0.12, -0.03, ...],<br>    <span class="hljs-string">&quot;k&quot;</span>: 50,<br>    <span class="hljs-string">&quot;num_candidates&quot;</span>: 200,<br>    <span class="hljs-string">&quot;filter&quot;</span>: &#123; <span class="hljs-string">&quot;term&quot;</span>: &#123; <span class="hljs-string">&quot;visible_to_group&quot;</span>: <span class="hljs-string">&quot;user_123_dept&quot;</span> &#125; &#125;<br>  &#125;,<br>  <span class="hljs-string">&quot;rescore&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;window_size&quot;</span>: 50,                          <span class="hljs-comment"># 只对本次召回的这 50 条候选重新打分，不扩大候选范围</span><br>    <span class="hljs-string">&quot;query&quot;</span>: &#123;<br>      <span class="hljs-string">&quot;rescore_query&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;match&quot;</span>: &#123; <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;用户输入的原始查询文本&quot;</span> &#125;<br>      &#125;,<br>      <span class="hljs-string">&quot;query_weight&quot;</span>: 0.3,                       <span class="hljs-comment"># 原始（向量召回）分数的权重</span><br>      <span class="hljs-string">&quot;rescore_query_weight&quot;</span>: 0.7                 <span class="hljs-comment"># BM25 rescore 分数的权重</span><br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<ul>
-<li><code>rescore</code> 的语义是：<strong>先拿到一份已经排好序的候选列表</strong>（这里是 kNN 按向量相似度排好序的 <code>window_size</code> 条），<strong>只对这个候选窗口内的文档</strong>执行第二个（通常更贵、更精细的）查询重新打分，最终分数 &#x3D; <code>原始分数 × query_weight + rescore查询分数 × rescore_query_weight</code>（线性加权），再按新分数重新排序这个窗口</li>
-<li>好处是<strong>只对候选窗口内的少量文档</strong>做代价较高的第二次打分，而不是对全量索引跑一遍，性能可控；代价是需要人工调 <code>query_weight</code> &#x2F; <code>rescore_query_weight</code> 这两个权重，而且向量相似度分数和 BM25 分数<strong>量纲不同</strong>，权重不好调准</li>
-</ul>
-<p><strong>为什么这不是 RRF（很容易被面试官追问的对比点）</strong>：</p>
-<table>
-<thead>
-<tr>
-<th>对比项</th>
-<th>rescore（本项目用的方案）</th>
-<th>RRF（Reciprocal Rank Fusion）</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>输入</td>
-<td><strong>一份</strong>已排序的候选列表（kNN 召回的 window_size 条）</td>
-<td><strong>两份独立</strong>的、各自完整排序的结果列表（比如一份 kNN 排行榜 + 一份 BM25 排行榜）</td>
-</tr>
-<tr>
-<td>计算方式</td>
-<td>用第二个查询对同一批候选<strong>重新计算分数</strong>，和原始分数<strong>线性加权求和</strong></td>
-<td>不看原始分数，只看<strong>排名位置</strong>，按 <code>score = Σ 1/(k_rrf + rank_i)</code> 把两份排行榜的名次融合成一份新排行榜</td>
-</tr>
-<tr>
-<td>是否需要分数同量纲</td>
-<td><strong>需要</strong>：两个分数直接加权求和，量纲&#x2F;分布不一致会导致权重难调</td>
-<td><strong>不需要</strong>：只用排名（rank），天然规避了向量分数和 BM25 分数量纲不同的问题</td>
-</tr>
-<tr>
-<td>候选范围</td>
-<td>只在<strong>已召回的候选窗口</strong>内重排序</td>
-<td>两份列表各自<strong>独立召回</strong>，融合时可以覆盖两边各自的头部结果</td>
-</tr>
-<tr>
-<td>ES 支持形式</td>
-<td><code>rescore</code> 参数（GA 已久，成熟稳定）</td>
-<td><code>retriever: rrf</code>（ES 8.8+ 引入，早期版本是技术预览特性）</td>
-</tr>
-</tbody></table>
-<pre><code class=" mermaid">flowchart TD
-    Q[&quot;用户查询文本&quot;] --&gt; EMB[&quot;向量化 Embedding&quot;]
-    Q --&gt; BM[&quot;原始查询文本（供 rescore 用）&quot;]
-
-    EMB --&gt; KNN[&quot;KNN 近似最近邻召回&lt;br/&gt;k=50, num_candidates=200&quot;]
-    PERM[&quot;用户权限条件&quot;] --&gt;|&quot;filter 下推进 knn 查询&quot;| KNN
-
-    KNN --&gt; WIN[&quot;候选窗口 window_size=50&lt;br/&gt;（已按向量相似度排好序）&quot;]
-
-    BM --&gt; RESCORE[&quot;BM25 rescore：只对候选窗口内的文档重新打分&quot;]
-    WIN --&gt; RESCORE
-
-    RESCORE --&gt; COMBINE[&quot;最终分数 = 原始分×query_weight + BM25分×rescore_query_weight（线性加权）&quot;]
-    COMBINE --&gt; RESULT[&quot;返回给用户的最终排序结果&quot;]
-</code></pre>
-
-<blockquote>
-<p><strong>这不是 RRF</strong>：上面全程只有<strong>一份</strong>候选列表在被处理（KNN 召回出来的候选窗口），BM25 只是对这份候选<strong>重新打分</strong>、和原分数<strong>线性加权</strong>；RRF 则是分别拿到 kNN 和 BM25 <strong>两份独立、各自完整</strong>的排行榜，再按 <code>1/(k+排名)</code> 把两份名次融合成一份——两者输入结构和融合逻辑都不同，不要在面试里说成一回事。</p>
-</blockquote>
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 <strong>为什么权限过滤要下推到 knn.filter 而不是召回后再过滤</strong>（避免召回数量被过滤掉一部分、结果不足 k 条）</li>
-<li>可以讲讲 <strong>rescore 和 RRF 的本质区别</strong>（重打分候选窗口 + 线性加权 vs 融合两个独立排行榜的名次）</li>
-<li>可以讲讲 <strong>query_weight &#x2F; rescore_query_weight 怎么调</strong>（结合实际项目里做过的 A&#x2F;B 或离线评估：向量召回权重更看重语义相关性，BM25 权重更看重关键词精确命中，具体权重需要结合业务查询的关键词密集程度反复调优，不是拍脑袋定的固定值）</li>
-<li>可以讲讲 <strong>num_candidates 和 window_size 的取舍</strong>（num_candidates 决定 kNN 阶段召回质量，window_size 决定 rescore 阶段重排的候选范围，两者都是”用更多计算换更高精度”的旋钮，需要结合延迟预算调）</li>
-</ul>
+<h3 id="Q52：KnowFlow-如何把-KNN-与-BM25-结合，并守住权限边界？"><a href="#Q52：KnowFlow-如何把-KNN-与-BM25-结合，并守住权限边界？" class="headerlink" title="Q52：KnowFlow 如何把 KNN 与 BM25 结合，并守住权限边界？"></a>Q52：KnowFlow 如何把 KNN 与 BM25 结合，并守住权限边界？</h3><p><code>HybridSearchService.permissionSearchRequest</code> 在同一 ES 请求中设置顶层 <code>knn</code> 与文本 <code>query</code>。ES 会按 OR 合并两路候选，随后对窗口内结果执行 BM25 <code>rescore</code>：原始分数权重 <code>0.2</code>，重排查询权重 <code>1.0</code>。这属于分数加权重排，<strong>不是 RRF</strong>。RRF 需要对独立排行榜按名次计算 <code>Σ1/(k+rank)</code>。</p>
+<p>权限过滤必须同时放进 <code>knn.filter</code> 和文本 <code>query.bool.filter</code>。只在文本分支过滤，向量分支仍可能召回无权访问的文档。当前源码为两路复用同一条件：本人文档、公开文档、所属组织文档至少满足一个。新增的 3 项请求结构回归测试通过；真实 ES 集成验证仍待完成。</p>
+<p><code>topK × 30</code> 是 KNN 候选窗口配置，不等于准确率或召回率的实测提升。项目缺少可复核的检索评测集，因此面试时应讲清机制与风险，不报检索效果百分比。</p>
+<p><strong>追问：为什么不能只在返回结果后过滤？</strong> 这样可能得到不足 <code>topK</code> 条结果，也不能避免无权文档参与向量候选与评分。应在每条召回路径进入候选池前加权限条件。</p>
+<p><strong>追问：如何验证？</strong> 除请求结构单测，还应在真实 ES 索引中放入本人、公开、同组织和其他私有文档，分别使用只命中向量或只命中文本的查询，断言其他私有文档永不出现。衡量排序收益需要独立标注集与 Recall@K&#x2F;MRR 等指标。</p>
 <hr>
 <h2 id="💪-实战演练（真实面试场景）"><a href="#💪-实战演练（真实面试场景）" class="headerlink" title="💪 实战演练（真实面试场景）"></a>💪 实战演练（真实面试场景）</h2><blockquote>
 <p>🎯 <strong>面试技巧</strong>：面试时遇到 Elasticsearch 问题，不要只背概念，要结合<strong>实际项目经验</strong>回答。</p>
