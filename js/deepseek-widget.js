@@ -156,9 +156,9 @@
   // ─── 气泡逻辑 ─────────────────────────────────────────────────────────────
   var bubbleTimer = null;
 
-  document.addEventListener('mouseup', function (e) {
+  function updateSelection(e) {
     // 忽略 widget 内部的选择
-    if (e.target.closest('#ds-overlay') || e.target.closest('#ds-fab') || e.target.closest('#ds-bubble')) return;
+    if (e && e.target.closest && (e.target.closest('#ds-overlay') || e.target.closest('#ds-fab') || e.target.closest('#ds-bubble'))) return;
 
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(function () {
@@ -171,13 +171,23 @@
       var range = sel.getRangeAt(0);
       var rect  = range.getBoundingClientRect();
       var bx = Math.min(rect.left + rect.width / 2 - 60, window.innerWidth - 160);
-      var by = rect.top + window.scrollY - 44;
-      if (by < 8) by = rect.bottom + window.scrollY + 8;
+      var by = rect.top - 44;
+      if (by < 8) by = rect.bottom + 8;
+      by = Math.max(8, Math.min(by, window.innerHeight - 48));
       bubble.style.left = Math.max(8, bx) + 'px';
       bubble.style.top  = by + 'px';
       bubble.style.display = 'block';
     }, 120);
+  }
+  document.addEventListener('mouseup', updateSelection);
+  document.addEventListener('touchend', updateSelection, {passive: true});
+  document.addEventListener('selectionchange', function () {
+    if (!document.querySelector('#ds-overlay')) updateSelection();
   });
+  window.addEventListener('scroll', function () {
+    clearTimeout(bubbleTimer);
+    bubble.style.display = 'none';
+  }, {passive: true});
 
   document.addEventListener('mousedown', function (e) {
     if (e.target !== bubble) {

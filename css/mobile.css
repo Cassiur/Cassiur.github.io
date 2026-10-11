@@ -1,0 +1,35 @@
+/* Project overrides: keep theme updates independent from mobile fixes. */
+.mobile-toc { display: none; }
+@media screen and (max-width: 991px) {
+  .mobile-toc { display: block; position: relative; z-index: 1; margin: 1rem 0 1.5rem; padding: .75rem 1rem; border: 1px solid var(--line-color); border-radius: .5rem; }
+  .mobile-toc summary { cursor: pointer; min-height: 28px; font-weight: 600; }
+  .mobile-toc nav { max-height: 45vh; overflow-y: auto; }
+  .mobile-toc a { display: block; padding: .65rem 0; overflow-wrap: anywhere; }
+  .mobile-toc a[data-level="3"] { padding-left: 1rem; }
+}
+@media screen and (max-width: 767px) {
+  .navbar .navbar-brand { max-width: calc(100% - 60px); font-size: 1rem; white-space: normal; line-height: 1.4; overflow-wrap: anywhere; }
+  .navbar .navbar-toggler { min-width: 44px; min-height: 44px; padding: 8px; }
+  .navbar-collapse { max-height: 75vh; max-height: 75dvh; overflow-y: auto; }
+  .post-content, .page-content { padding-left: 1rem; padding-right: 1rem; }
+  .markdown-body, .page-content { line-height: 1.8; overflow-wrap: anywhere; }
+  #seo-header, .markdown-body h1, .page-content h1 { font-size: 1.65rem; }
+  .markdown-body h2, .page-content h2 { font-size: 1.4rem; }
+  .markdown-body h3, .page-content h3 { font-size: 1.2rem; }
+  .markdown-body table, .page-content table { display: block; width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .markdown-body > table th, .markdown-body > table td, .page-content > table th, .page-content > table td { min-width: 6rem; }
+  .markdown-body .highlight, .markdown-body .code-wrapper, .markdown-body pre { max-width: 100%; overflow-x: auto; }
+  .markdown-body .highlight table { display: table; width: auto; max-width: none; }
+  .markdown-body pre, .markdown-body pre code { overflow-wrap: normal; word-break: normal; }
+  .markdown-body img { max-width: 100%; height: auto; }
+  body #ds-fab { left: max(12px, env(safe-area-inset-left)); bottom: max(12px, env(safe-area-inset-bottom)); }
+  body #ds-overlay { box-sizing: border-box; padding: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  body #ds-modal, body #ds-settings { box-sizing: border-box; width: 100%; max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); }
+  body #ds-modal { overflow-y: auto; }
+  body #ds-settings { overflow-y: auto; padding: 20px; }
+  body #ds-q, body #ds-key-input { font-size: 16px; }
+  body #ds-close { min-width: 44px; min-height: 44px; }
+  body #ds-btn-row { flex-wrap: wrap; }
+  body #ds-submit, body #ds-stop, body #ds-settings-btn, body #ds-save-key { min-height: 44px; }
+  body #ds-ctx { overflow-wrap: anywhere; }
+}

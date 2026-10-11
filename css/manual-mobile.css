@@ -1,0 +1,12 @@
+/* Standalone reading handbooks, screen only to preserve A4 printing. */
+@media screen and (max-width: 767px) {
+  body { width: 100%; padding: 16px; font-size: 16px; overflow-wrap: anywhere; }
+  h1 { font-size: 1.65rem; margin-top: 32px; }
+  h2 { font-size: 1.35rem; }
+  h3 { font-size: 1.15rem; }
+  table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  th, td { min-width: 7rem; }
+  pre, pre.block { max-width: 100%; white-space: pre; overflow-x: auto; overflow-wrap: normal; word-break: normal; padding: 12px; }
+  pre code { white-space: inherit; }
+  img, svg { max-width: 100%; height: auto; }
+}
