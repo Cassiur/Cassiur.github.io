@@ -27,7 +27,7 @@
 <meta property="og:description" content="计算机网络30+题：TCP三次握手&#x2F;四次挥手、HTTP&#x2F;HTTPS工作原理、DNS解析全流程。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T10:50:00.000Z">
-<meta property="article:modified_time" content="2026-09-05T08:28:19.501Z">
+<meta property="article:modified_time" content="2026-10-11T08:56:43.930Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="DNS">
 <meta property="article:tag" content="HTTP">
@@ -79,6 +79,7 @@
   
 <link rel="stylesheet" href="/css/mobile.css">
 <link rel="stylesheet" href="/css/reading.css">
+<link rel="stylesheet" href="/css/diagrams.css">
 
 
 
@@ -307,15 +308,15 @@
 <hr>
 <h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
 <li><a href="#1-%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B">网络模型</a></li>
-<li><a href="#2-tcp-%E5%8D%8F%E8%AE%AE">TCP 协议</a></li>
-<li><a href="#3-udp-%E5%8D%8F%E8%AE%AE">UDP 协议</a></li>
-<li><a href="#4-http-%E5%8D%8F%E8%AE%AE">HTTP 协议</a></li>
-<li><a href="#5-https-%E5%8D%8F%E8%AE%AE">HTTPS 协议</a></li>
-<li><a href="#6-dns-%E5%8D%8F%E8%AE%AE">DNS 协议</a></li>
-<li><a href="#7-arp-%E5%8D%8F%E8%AE%AE">ARP 协议</a></li>
-<li><a href="#8-ip-%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%AD%90%E7%BD%91">IP 协议与子网</a></li>
-<li><a href="#9-http-%E7%8A%B6%E6%80%81%E7%A0%81">HTTP 状态码</a></li>
-<li><a href="#10-cookie-%E4%B8%8E-session">Cookie 与 Session</a></li>
+<li><a href="#2-TCP-%E5%8D%8F%E8%AE%AE">TCP 协议</a></li>
+<li><a href="#3-UDP-%E5%8D%8F%E8%AE%AE">UDP 协议</a></li>
+<li><a href="#4-HTTP-%E5%8D%8F%E8%AE%AE">HTTP 协议</a></li>
+<li><a href="#5-HTTPS-%E5%8D%8F%E8%AE%AE">HTTPS 协议</a></li>
+<li><a href="#6-DNS-%E5%8D%8F%E8%AE%AE">DNS 协议</a></li>
+<li><a href="#7-ARP-%E5%8D%8F%E8%AE%AE">ARP 协议</a></li>
+<li><a href="#8-IP-%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%AD%90%E7%BD%91">IP 协议与子网</a></li>
+<li><a href="#9-HTTP-%E7%8A%B6%E6%80%81%E7%A0%81">HTTP 状态码</a></li>
+<li><a href="#10-Cookie-%E4%B8%8E-Session">Cookie 与 Session</a></li>
 <li><a href="#11-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8">网络安全</a></li>
 <li><a href="#12-%E9%AB%98%E9%A2%91%E9%9D%A2%E8%AF%95%E9%A2%98">高频面试题</a></li>
 </ol>
@@ -2397,21 +2398,6 @@
 
 
 
-  <script>
-  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
-    mermaid.initialize({"theme":"default"});
-
-    Fluid.utils.listenDOMLoaded(function() {
-      Fluid.events.registerRefreshCallback(function() {
-        if ('mermaid' in window) {
-          mermaid.init();
-        }
-      });
-    });
-  });
-</script>
-
-
 
 
 
@@ -2653,6 +2639,7 @@
   
 <script src="/js/deepseek-widget.js"></script>
 <script src="/js/reading.js"></script>
+<script src="/js/diagrams.js"></script>
 
 
 

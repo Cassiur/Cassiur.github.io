@@ -27,7 +27,7 @@
 <meta property="og:description" content="JVM 50题深度版：内存区域、GC算法、类加载机制、JIT编译与性能调优。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:10:00.000Z">
-<meta property="article:modified_time" content="2026-09-05T08:28:13.523Z">
+<meta property="article:modified_time" content="2026-10-11T09:01:25.366Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="GC">
 <meta property="article:tag" content="JIT">
@@ -78,6 +78,7 @@
   
 <link rel="stylesheet" href="/css/mobile.css">
 <link rel="stylesheet" href="/css/reading.css">
+<link rel="stylesheet" href="/css/diagrams.css">
 
 
 
@@ -1190,8 +1191,8 @@
 <pre><code class=" mermaid">flowchart LR
     L[&quot;① 加载 Loading\n读取 .class 字节流\n生成 Class 对象&quot;] --&gt; V[&quot;② 验证 Verification\n校验字节码合法性&quot;]
     V --&gt; P[&quot;③ 准备 Preparation\nstatic int a = 10;\n此时 a = 0（赋零值）\n（static final 常量除外，直接赋真值）&quot;]
-    P --&gt; R[&quot;④ 解析 Resolution\n符号引用 → 直接引用\n如 \&quot;java.lang.Object\&quot; → 指针&quot;]
-    R --&gt; I[&quot;⑤ 初始化 Initialization\n执行 &lt;clinit&gt;() 方法\n此时 a = 10（赋代码中的真实值）&quot;]
+    P --&gt; R[&quot;④ 解析 Resolution\n符号引用 → 直接引用\n如 #quot;java.lang.Object#quot; → 指针&quot;]
+    R --&gt; I[&quot;⑤ 初始化 Initialization\n执行 #60;clinit#62;() 方法\n此时 a = 10（赋代码中的真实值）&quot;]
 </code></pre>
 
 <hr>
@@ -2189,8 +2190,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-redis-interview-deep/" title="Redis 面试八股文 30 道｜深度详解版（傻子都能看懂）">
-                        <span class="hidden-mobile">Redis 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                      <a href="/2026/06/07/2026-06-07-mysql-50-interview/" title="MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）">
+                        <span class="hidden-mobile">MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -2254,21 +2255,6 @@
 
 
 
-
-
-  <script>
-  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
-    mermaid.initialize({"theme":"default"});
-
-    Fluid.utils.listenDOMLoaded(function() {
-      Fluid.events.registerRefreshCallback(function() {
-        if ('mermaid' in window) {
-          mermaid.init();
-        }
-      });
-    });
-  });
-</script>
 
 
 
@@ -2512,6 +2498,7 @@
   
 <script src="/js/deepseek-widget.js"></script>
 <script src="/js/reading.js"></script>
+<script src="/js/diagrams.js"></script>
 
 
 

@@ -79,6 +79,7 @@
   
 <link rel="stylesheet" href="/css/mobile.css">
 <link rel="stylesheet" href="/css/reading.css">
+<link rel="stylesheet" href="/css/diagrams.css">
 
 
 
@@ -2207,21 +2208,6 @@
 
 
 
-  <script>
-  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
-    mermaid.initialize({"theme":"default"});
-
-    Fluid.utils.listenDOMLoaded(function() {
-      Fluid.events.registerRefreshCallback(function() {
-        if ('mermaid' in window) {
-          mermaid.init();
-        }
-      });
-    });
-  });
-</script>
-
-
 
 
 
@@ -2463,6 +2449,7 @@
   
 <script src="/js/deepseek-widget.js"></script>
 <script src="/js/reading.js"></script>
+<script src="/js/diagrams.js"></script>
 
 
 
