@@ -8,7 +8,7 @@
   function load() {
     if (!library) library = new Promise(function (resolve, reject) {
       var script = document.createElement('script');
-      script.src = '/js/vendor/mermaid-10.9.8.min.js';
+      script.src = '/js/vendor/mermaid-10.9.3.min.js';
       script.onload = function () { resolve(window.mermaid); };
       script.onerror = function () { library = null; reject(new Error('图表组件加载失败')); };
       document.head.appendChild(script);
