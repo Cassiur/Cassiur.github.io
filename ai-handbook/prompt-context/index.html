@@ -1,0 +1,863 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="Prompt、上下文与结构化输出的20个通用问题，包含核心回答、原理边界与追问。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI 应用工程八股文（2）：Prompt、上下文与结构化输出 20 问">
+<meta property="og:url" content="https://whyalwaysme.lol/ai-handbook/prompt-context/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="Prompt、上下文与结构化输出的20个通用问题，包含核心回答、原理边界与追问。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-01T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-01T15:56:23.819Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="AI工程">
+<meta property="article:tag" content="大模型">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>AI 应用工程八股文（2）：Prompt、上下文与结构化输出 20 问 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mobile.css">
+<link rel="stylesheet" href="/css/reading.css">
+<link rel="stylesheet" href="/css/diagrams.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="AI 应用工程八股文（2）：Prompt、上下文与结构化输出 20 问"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-11-01 13:00" pubdate>
+          2026年11月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          29 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">AI 应用工程八股文（2）：Prompt、上下文与结构化输出 20 问</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><a href="/interview/agent-skills/">总目录：AI 应用工程 160 问</a></p>
+<p>本篇讨论Prompt、上下文与结构化输出。每题先解释概念与原理，再指出适用边界和追问，面向日常学习、方案讨论和通用技术面试。</p>
+<p>文中的设计建议与教学示例用于说明方法，不代表某个产品已经实现，也不等于所有厂商接口的共同承诺。协议、API与模型能力涉及版本时，应以明确版本和对应官方资料为准。</p>
+<h2 id="问题目录"><a href="#问题目录" class="headerlink" title="问题目录"></a>问题目录</h2><ul>
+<li><a href="#q1">Q1：Prompt Engineering与Context Engineering有什么区别？</a></li>
+<li><a href="#q2">Q2：系统指令、用户请求、工具结果的角色如何区分？</a></li>
+<li><a href="#q3">Q3：好的提示词通常需要哪些部分？</a></li>
+<li><a href="#q4">Q4：Zero-shot、Few-shot、In-context Learning有什么区别？</a></li>
+<li><a href="#q5">Q5：如何写“信息不足时不要编造”？</a></li>
+<li><a href="#q6">Q6：JSON模式与Structured Outputs有什么区别？</a></li>
+<li><a href="#q7">Q7：Structured Outputs与Function Calling该怎么选？</a></li>
+<li><a href="#q8">Q8：Strict模式究竟保证什么？</a></li>
+<li><a href="#q9">Q9：Schema怎样设计才能方便模型填写？</a></li>
+<li><a href="#q10">Q10：为什么约束解码后仍要服务端校验？</a></li>
+<li><a href="#q11">Q11：如何处理输出截断、拒绝和部分JSON？</a></li>
+<li><a href="#q12">Q12：如何管理多轮对话历史？</a></li>
+<li><a href="#q13">Q13：对话摘要有什么风险？</a></li>
+<li><a href="#q14">Q14：长上下文能替代RAG吗？</a></li>
+<li><a href="#q15">Q15：上下文压缩有哪些方法？</a></li>
+<li><a href="#q16">Q16：如何处理上下文中的冲突资料？</a></li>
+<li><a href="#q17">Q17：Prompt Caching、响应缓存、语义缓存有什么区别？</a></li>
+<li><a href="#q18">Q18：如何设计便于缓存的上下文？</a></li>
+<li><a href="#q19">Q19：怎样做Prompt版本管理与A&#x2F;B测试？</a></li>
+<li><a href="#q20">Q20：多模态输入的上下文需要注意什么？</a></li>
+</ul>
+<h2 id="核心问答"><a href="#核心问答" class="headerlink" title="核心问答"></a>核心问答</h2><p><a id="q1"></a></p>
+<h3 id="Q1：Prompt-Engineering与Context-Engineering有什么区别？"><a href="#Q1：Prompt-Engineering与Context-Engineering有什么区别？" class="headerlink" title="Q1：Prompt Engineering与Context Engineering有什么区别？"></a>Q1：Prompt Engineering与Context Engineering有什么区别？</h3><p>Prompt Engineering强调如何表达指令、示例和输出要求；Context Engineering还要管理检索材料、历史、工具定义、记忆、状态和预算如何进入上下文。二者有重叠，后者不能简单理解为把提示词写得更长。工程目标是提供当前任务需要且可信的信息。</p>
+<p><strong>追问：效果下降先改文字，还是检查提供了错误资料？先定位失败阶段。</strong></p>
+<p><a id="q2"></a></p>
+<h3 id="Q2：系统指令、用户请求、工具结果的角色如何区分？"><a href="#Q2：系统指令、用户请求、工具结果的角色如何区分？" class="headerlink" title="Q2：系统指令、用户请求、工具结果的角色如何区分？"></a>Q2：系统指令、用户请求、工具结果的角色如何区分？</h3><p>应用应按平台支持的消息角色和信任边界组织输入。用户表达目标，工具返回证据或执行状态；网页和文档里的文字不应自动变成新的授权。角色有助于组织上下文，但安全还要靠执行层验证，不能仅依赖模型理解层级。</p>
+<p><strong>误区：把外部文本拼到高优先级指令中，可能提升其被误当指令的风险。</strong></p>
+<p><a id="q3"></a></p>
+<h3 id="Q3：好的提示词通常需要哪些部分？"><a href="#Q3：好的提示词通常需要哪些部分？" class="headerlink" title="Q3：好的提示词通常需要哪些部分？"></a>Q3：好的提示词通常需要哪些部分？</h3><p>明确任务、必要背景、输入边界、输出结构、判定标准，以及缺少资料或冲突时的行为。优先删除无关内容，加入能区分正确与错误的例子。提示应随任务和模型迭代，并有版本和回归样本，而不是使用统一万能模板。</p>
+<p><strong>追问：加“你是专家”能保证专业正确吗？角色描述不能替代资料和验证。</strong></p>
+<p><a id="q4"></a></p>
+<h3 id="Q4：Zero-shot、Few-shot、In-context-Learning有什么区别？"><a href="#Q4：Zero-shot、Few-shot、In-context-Learning有什么区别？" class="headerlink" title="Q4：Zero-shot、Few-shot、In-context Learning有什么区别？"></a>Q4：Zero-shot、Few-shot、In-context Learning有什么区别？</h3><p>Zero-shot不提供任务示例，Few-shot提供少量示例；In-context Learning描述模型在上下文中利用指令和示例调整表现，不会因此永久修改基础权重。示例要覆盖边界、反例和输出要求，避免只展示非常相似的成功样本。</p>
+<p><strong>追问：示例越多越好吗？它会增加成本，也可能引入偏差或挤占关键资料。</strong></p>
+<p><a id="q5"></a></p>
+<h3 id="Q5：如何写“信息不足时不要编造”？"><a href="#Q5：如何写“信息不足时不要编造”？" class="headerlink" title="Q5：如何写“信息不足时不要编造”？"></a>Q5：如何写“信息不足时不要编造”？</h3><p>需要把行为变得可执行：哪些信息属于必需项、何时先澄清、何时给有限结论、如何标出缺失证据。例如明确金额与日期不全时不创建交易，只返回缺少字段。单写一句“禁止幻觉”无法替代数据检查和业务约束。</p>
+<p><strong>追问：如何测拒答？加入真实不可回答、资料冲突和答案缺失样本。</strong></p>
+<p><a id="q6"></a></p>
+<h3 id="Q6：JSON模式与Structured-Outputs有什么区别？"><a href="#Q6：JSON模式与Structured-Outputs有什么区别？" class="headerlink" title="Q6：JSON模式与Structured Outputs有什么区别？"></a>Q6：JSON模式与Structured Outputs有什么区别？</h3><p>只保证或倾向生成合法JSON，与输出满足指定结构是两个层次。结构化输出通常通过受支持的Schema和约束生成提高字段与类型可靠性，但不同厂商和模型支持的Schema子集不同。即使结构正确，字段内容仍可能错误。</p>
+<p><strong>误区：合法JSON等于业务合法。应用还要检查权限、范围、枚举语义与关联关系。</strong></p>
+<p><a id="q7"></a></p>
+<h3 id="Q7：Structured-Outputs与Function-Calling该怎么选？"><a href="#Q7：Structured-Outputs与Function-Calling该怎么选？" class="headerlink" title="Q7：Structured Outputs与Function Calling该怎么选？"></a>Q7：Structured Outputs与Function Calling该怎么选？</h3><p>要模型直接输出一份可解析报告时，考虑结构化响应；要模型请求外部动作时，考虑工具调用。工具参数也可以受Schema约束，所以两者不是互斥概念。重点是输出被谁消费、是否触发副作用，以及调用结果如何返回模型。</p>
+<p><strong>追问：把任意JSON都解释成动作，会失去显式工具边界。</strong></p>
+<p><a id="q8"></a></p>
+<h3 id="Q8：Strict模式究竟保证什么？"><a href="#Q8：Strict模式究竟保证什么？" class="headerlink" title="Q8：Strict模式究竟保证什么？"></a>Q8：Strict模式究竟保证什么？</h3><p>它是某些接口对受支持Schema的约束机制，主要改善结构与参数形状。不能保证模型选对工具、引用真实、数值正确或具有执行权限。还要处理拒绝、截断、连接失败及不支持的Schema；具体条件按目标厂商文档核对。</p>
+<p><strong>追问：required、nullable、additionalProperties的要求是否各厂商相同？不是。</strong></p>
+<p><a id="q9"></a></p>
+<h3 id="Q9：Schema怎样设计才能方便模型填写？"><a href="#Q9：Schema怎样设计才能方便模型填写？" class="headerlink" title="Q9：Schema怎样设计才能方便模型填写？"></a>Q9：Schema怎样设计才能方便模型填写？</h3><p>优先明确名称、类型、枚举和单位，减少不必要嵌套和自由文本，清楚说明缺失值如何表示。区分“字段缺失”“明确为空”“无此概念”。Schema不应暴露密钥、私有配置或不必要敏感枚举；业务关系仍需服务端验证。</p>
+<p><strong>追问：开始时间必须早于结束时间，这种跨字段约束在哪里检查？执行层。</strong></p>
+<p><a id="q10"></a></p>
+<h3 id="Q10：为什么约束解码后仍要服务端校验？"><a href="#Q10：为什么约束解码后仍要服务端校验？" class="headerlink" title="Q10：为什么约束解码后仍要服务端校验？"></a>Q10：为什么约束解码后仍要服务端校验？</h3><p>约束生成覆盖的是支持的语法和结构范围，不会自动理解真实用户权限、数据库状态和业务规则。解析后应执行类型与范围校验、身份绑定、对象所有权检查、状态前置条件检查，并给出清晰错误。高风险动作不能因模型输出格式正确而跳过授权。</p>
+<p><strong>追问：订单ID存在，但属于别人，Schema仍然可能完全合法。</strong></p>
+<p><a id="q11"></a></p>
+<h3 id="Q11：如何处理输出截断、拒绝和部分JSON？"><a href="#Q11：如何处理输出截断、拒绝和部分JSON？" class="headerlink" title="Q11：如何处理输出截断、拒绝和部分JSON？"></a>Q11：如何处理输出截断、拒绝和部分JSON？</h3><p>先检查结束原因与传输是否完整，再决定能否解析。拒绝不应被当普通业务结果；截断可以在预算允许时重新请求，但应防重复副作用。不要从未完成JSON中勉强抽几个字段直接执行写操作。</p>
+<p><strong>追问：完整HTTP 200不代表业务完成或结构完整。</strong></p>
+<p><a id="q12"></a></p>
+<h3 id="Q12：如何管理多轮对话历史？"><a href="#Q12：如何管理多轮对话历史？" class="headerlink" title="Q12：如何管理多轮对话历史？"></a>Q12：如何管理多轮对话历史？</h3><p>根据当前任务选择相关历史，保留用户约束、已确认事实、工具结果和未完成状态。可以摘要较旧内容，但关键实体、授权与事务状态最好有结构化存储。避免把所有聊天直接拼接，或删掉决定后续行为的工具返回。</p>
+<p><strong>追问：对话消息与业务状态谁更可信？执行结果与服务端状态不能由摘要覆盖。</strong></p>
+<p><a id="q13"></a></p>
+<h3 id="Q13：对话摘要有什么风险？"><a href="#Q13：对话摘要有什么风险？" class="headerlink" title="Q13：对话摘要有什么风险？"></a>Q13：对话摘要有什么风险？</h3><p>摘要可能遗漏否定、时间、条件和信息来源，也可能把猜测写成事实。因此应保留原始记录或引用，区分用户陈述和模型推断，提供可刷新摘要的机制。审批、权限与付款状态不应只存成自然语言摘要。</p>
+<p><strong>追问：压缩后如何判断损失可接受？用需要历史约束的回归任务验证。</strong></p>
+<p><a id="q14"></a></p>
+<h3 id="Q14：长上下文能替代RAG吗？"><a href="#Q14：长上下文能替代RAG吗？" class="headerlink" title="Q14：长上下文能替代RAG吗？"></a>Q14：长上下文能替代RAG吗？</h3><p>长窗口可容纳更多资料，但仍要考虑成本、延迟、更新、权限和信息定位。RAG通过选择资料减少输入，长上下文可以承接更丰富的检索结果。哪种更好取决于资料规模、任务形态及评测，不能一概而论。</p>
+<p><strong>追问：为什么把全部文档都塞进去，正确率还可能下降？噪声与相关信息利用能力需要测试。</strong></p>
+<p><a id="q15"></a></p>
+<h3 id="Q15：上下文压缩有哪些方法？"><a href="#Q15：上下文压缩有哪些方法？" class="headerlink" title="Q15：上下文压缩有哪些方法？"></a>Q15：上下文压缩有哪些方法？</h3><p>可以去重、过滤、按任务重排、提取相关段落、摘要或将结构化状态移到外部。不同压缩方法损失不同：抽取保留原文却可能漏上下文，摘要更短却可能改写事实。应保留来源与版本，并检查压缩前后任务表现。</p>
+<p><strong>误区：压缩Token比例高就说明优化成功。</strong></p>
+<p><a id="q16"></a></p>
+<h3 id="Q16：如何处理上下文中的冲突资料？"><a href="#Q16：如何处理上下文中的冲突资料？" class="headerlink" title="Q16：如何处理上下文中的冲突资料？"></a>Q16：如何处理上下文中的冲突资料？</h3><p>比较来源可信度、生效时间、适用对象和版本，不以出现顺序决定真伪。若规则无法消解冲突，就说明冲突并请求核实。应用可以优先提供有效版本，同时保留审计依据，不让模型凭措辞自信度裁决。</p>
+<p><strong>追问：最新文档是否总能覆盖旧文档？仍要看适用范围和变更规则。</strong></p>
+<p><a id="q17"></a></p>
+<h3 id="Q17：Prompt-Caching、响应缓存、语义缓存有什么区别？"><a href="#Q17：Prompt-Caching、响应缓存、语义缓存有什么区别？" class="headerlink" title="Q17：Prompt Caching、响应缓存、语义缓存有什么区别？"></a>Q17：Prompt Caching、响应缓存、语义缓存有什么区别？</h3><p>Prompt Caching通常复用输入前缀的计算；响应缓存复用历史输出；语义缓存按近似含义查找已有结果。后两者更需要检查权限、时效和问题是否真正等价。输入计算被缓存，不意味着模型以后不需要接收相关上下文。</p>
+<p><strong>追问：命中缓存节省多少费用、保留多久？看具体服务文档，不能固定数字。</strong></p>
+<p><a id="q18"></a></p>
+<h3 id="Q18：如何设计便于缓存的上下文？"><a href="#Q18：如何设计便于缓存的上下文？" class="headerlink" title="Q18：如何设计便于缓存的上下文？"></a>Q18：如何设计便于缓存的上下文？</h3><p>在服务支持前缀缓存时，可把稳定说明与工具定义放在前面，将经常变化的请求内容放在后面，保持序列化稳定。优化应通过命中率、延迟和实际费用验证；不要为了缓存而省略关键状态或保留过期权限。</p>
+<p><strong>追问：工具列表变化、Schema顺序变化可能影响匹配，需要记录配置版本。</strong></p>
+<p><a id="q19"></a></p>
+<h3 id="Q19：怎样做Prompt版本管理与A-B测试？"><a href="#Q19：怎样做Prompt版本管理与A-B测试？" class="headerlink" title="Q19：怎样做Prompt版本管理与A&#x2F;B测试？"></a>Q19：怎样做Prompt版本管理与A&#x2F;B测试？</h3><p>保存模板、示例、模型版本、采样配置和测试集版本。先用同一组保留样本离线比较，再在适当流量中灰度，观察质量、拒答、成本和失败。不要只选改善最明显的几个案例，也不要让Prompt调优反复泄漏测试集。</p>
+<p><strong>追问：模型换了但Prompt没改，是否还需要回归？需要，行为仍可能变化。</strong></p>
+<p><a id="q20"></a></p>
+<h3 id="Q20：多模态输入的上下文需要注意什么？"><a href="#Q20：多模态输入的上下文需要注意什么？" class="headerlink" title="Q20：多模态输入的上下文需要注意什么？"></a>Q20：多模态输入的上下文需要注意什么？</h3><p>图片、音频、文档解析结果都有各自的计量与信息损失。OCR可能丢表格、单位或布局，图像中的文字也可能携带不可信指令。处理时说明来源、必要的图文对应关系和质量不足情况，避免把视觉推断写成确定事实。</p>
+<p><strong>追问：用户只授权分析某张图片，不表示授权保存或外发所有附件。</strong></p>
+<h2 id="一个结构化输出例子：为什么仍然需要业务校验"><a href="#一个结构化输出例子：为什么仍然需要业务校验" class="headerlink" title="一个结构化输出例子：为什么仍然需要业务校验"></a>一个结构化输出例子：为什么仍然需要业务校验</h2><p>以下Schema仅展示字段设计；厂商支持哪些关键字，应以对应文档为准。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;object&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;properties&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;answer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;string&quot;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;evidenceIds&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;array&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;items&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;string&quot;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;needsClarification&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;boolean&quot;</span><span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;required&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;answer&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;evidenceIds&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;needsClarification&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;additionalProperties&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>模型返回了正确类型的evidenceIds，仍可能引用不存在、无权访问或无法支持答案的文档。应用可以继续检查：ID是否来自本次允许的检索集合、资料版本是否有效、重要主张是否被支持、需要澄清时是否仍擅自给出确定结论。</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>检查例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>传输</td>
+<td>响应是否完整、是否超时</td>
+</tr>
+<tr>
+<td>生成状态</td>
+<td>是否拒绝或被Token上限截断</td>
+</tr>
+<tr>
+<td>结构</td>
+<td>字段、类型与允许的键</td>
+</tr>
+<tr>
+<td>业务</td>
+<td>证据存在、版本有效、答案符合任务</td>
+</tr>
+<tr>
+<td>权限</td>
+<td>当前用户能够访问对应证据</td>
+</tr>
+</tbody></table>
+<p>这些检查各自解决不同问题，不应合并成一句“开strict就好了”。</p>
+<h2 id="复习与自检"><a href="#复习与自检" class="headerlink" title="复习与自检"></a>复习与自检</h2><p>把每题压缩成30秒定义，再用两分钟说明机制、代价和失败场景。遇到依赖厂商或协议版本的结论，记录适用范围，不背成普遍定律。</p>
+<ol>
+<li>能否与相近概念清楚区分？</li>
+<li>能否给出一个正常流程和一个失败流程？</li>
+<li>能否说明这个方案解决不了什么？</li>
+<li>能否设计一个验证自己判断的实验或测试？</li>
+</ol>
+<h2 id="参考资料与版本"><a href="#参考资料与版本" class="headerlink" title="参考资料与版本"></a>参考资料与版本</h2><p>资料核对日期：2026年11月1日。论文用于概念出处，产品文档用于对应实现；本文的设计判断需要结合具体系统验证。MCP章节固定使用2025-11-25规范，不将其宣称为所有实现或最新版本。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI Structured Outputs</a></li>
+<li><a target="_blank" rel="noopener" href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs">Claude Structured Outputs</a></li>
+<li><a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/prompt-caching">Prompt caching</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2307.03172">Lost in the Middle</a></li>
+</ul>
+<h2 id="继续阅读"><a href="#继续阅读" class="headerlink" title="继续阅读"></a>继续阅读</h2><ul>
+<li>上一篇：<a href="/ai-handbook/llm-foundations/">LLM 基础与训练推理</a></li>
+<li>下一篇：<a href="/ai-handbook/rag-retrieval/">RAG、向量检索与知识库</a></li>
+<li><a href="/interview/agent-skills/">返回总目录</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI%E5%BA%94%E7%94%A8%E5%B7%A5%E7%A8%8B/" class="category-chain-item">AI应用工程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/" class="print-no-link">#AI</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="print-no-link">#大模型</a>
+      
+        <a href="/tags/AI%E5%B7%A5%E7%A8%8B/" class="print-no-link">#AI工程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>AI 应用工程八股文（2）：Prompt、上下文与结构化输出 20 问</div>
+      <div>https://whyalwaysme.lol/ai-handbook/prompt-context/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年11月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/ai-handbook/rag-retrieval/" title="AI 应用工程八股文（3）：RAG、向量检索与知识库 20 问">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">AI 应用工程八股文（3）：RAG、向量检索与知识库 20 问</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/ai-handbook/mcp-protocol/" title="AI 应用工程八股文（5）：MCP 协议、生命周期、传输与鉴权 20 问">
+                        <span class="hidden-mobile">AI 应用工程八股文（5）：MCP 协议、生命周期、传输与鉴权 20 问</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
+<script src="/js/reading.js"></script>
+<script src="/js/diagrams.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

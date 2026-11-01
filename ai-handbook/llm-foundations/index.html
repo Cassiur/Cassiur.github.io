@@ -1,0 +1,835 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="LLM 基础与训练推理的20个通用问题，包含核心回答、原理边界与追问。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI 应用工程八股文（1）：LLM 基础与训练推理 20 问">
+<meta property="og:url" content="https://whyalwaysme.lol/ai-handbook/llm-foundations/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="LLM 基础与训练推理的20个通用问题，包含核心回答、原理边界与追问。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-01T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-01T15:56:23.818Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="AI工程">
+<meta property="article:tag" content="大模型">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>AI 应用工程八股文（1）：LLM 基础与训练推理 20 问 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mobile.css">
+<link rel="stylesheet" href="/css/reading.css">
+<link rel="stylesheet" href="/css/diagrams.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="AI 应用工程八股文（1）：LLM 基础与训练推理 20 问"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-11-01 13:00" pubdate>
+          2026年11月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          30 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">AI 应用工程八股文（1）：LLM 基础与训练推理 20 问</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><a href="/interview/agent-skills/">总目录：AI 应用工程 160 问</a></p>
+<p>本篇讨论LLM 基础与训练推理。每题先解释概念与原理，再指出适用边界和追问，面向日常学习、方案讨论和通用技术面试。</p>
+<p>文中的设计建议与教学示例用于说明方法，不代表某个产品已经实现，也不等于所有厂商接口的共同承诺。协议、API与模型能力涉及版本时，应以明确版本和对应官方资料为准。</p>
+<h2 id="问题目录"><a href="#问题目录" class="headerlink" title="问题目录"></a>问题目录</h2><ul>
+<li><a href="#q1">Q1：什么是大语言模型？生成式模型与判别式模型有什么区别？</a></li>
+<li><a href="#q2">Q2：Token是什么？为什么不能按字数估计所有成本？</a></li>
+<li><a href="#q3">Q3：Embedding与Token ID有什么区别？</a></li>
+<li><a href="#q4">Q4：Transformer的核心组件是什么？</a></li>
+<li><a href="#q5">Q5：Self-Attention中的Q、K、V分别是什么？</a></li>
+<li><a href="#q6">Q6：Encoder、Decoder和Encoder–Decoder怎么区分？</a></li>
+<li><a href="#q7">Q7：为什么模型需要位置信息？RoPE解决什么问题？</a></li>
+<li><a href="#q8">Q8：预训练、SFT、RLHF、DPO有什么区别？</a></li>
+<li><a href="#q9">Q9：LoRA为什么能减少微调成本？</a></li>
+<li><a href="#q10">Q10：QLoRA与LoRA、推理量化有什么关系？</a></li>
+<li><a href="#q11">Q11：temperature、top-p、top-k如何理解？</a></li>
+<li><a href="#q12">Q12：为什么会产生幻觉？降低temperature能解决吗？</a></li>
+<li><a href="#q13">Q13：上下文窗口、输出上限和长期记忆有什么区别？</a></li>
+<li><a href="#q14">Q14：Prefill和Decode分别在做什么？</a></li>
+<li><a href="#q15">Q15：KV Cache缓存了什么？显存怎么估计？</a></li>
+<li><a href="#q16">Q16：MHA、MQA、GQA有什么区别？</a></li>
+<li><a href="#q17">Q17：FlashAttention与PagedAttention有什么区别？</a></li>
+<li><a href="#q18">Q18：模型参数量、激活参数、显存需求有什么关系？</a></li>
+<li><a href="#q19">Q19：模型推理能力与“展示思维链”有什么区别？</a></li>
+<li><a href="#q20">Q20：怎样选择模型，而不是只看排行榜？</a></li>
+</ul>
+<h2 id="核心问答"><a href="#核心问答" class="headerlink" title="核心问答"></a>核心问答</h2><p><a id="q1"></a></p>
+<h3 id="Q1：什么是大语言模型？生成式模型与判别式模型有什么区别？"><a href="#Q1：什么是大语言模型？生成式模型与判别式模型有什么区别？" class="headerlink" title="Q1：什么是大语言模型？生成式模型与判别式模型有什么区别？"></a>Q1：什么是大语言模型？生成式模型与判别式模型有什么区别？</h3><p>语言模型对序列的概率分布建模，常见自回归模型把联合概率分解为逐个Token的条件概率。生成式应用据此产生后续内容；判别式任务更直接地预测类别或分数。模型能完成分类，不代表其底层训练目标就是传统分类器；不同架构和训练目标也不能一概而论。</p>
+<p><strong>追问：为什么“下一个Token预测”能支持问答？训练中的统计与表征能力可以迁移，但不意味着模型具有经过验证的事实库。</strong></p>
+<p><a id="q2"></a></p>
+<h3 id="Q2：Token是什么？为什么不能按字数估计所有成本？"><a href="#Q2：Token是什么？为什么不能按字数估计所有成本？" class="headerlink" title="Q2：Token是什么？为什么不能按字数估计所有成本？"></a>Q2：Token是什么？为什么不能按字数估计所有成本？</h3><p>Token是分词器处理后的单位，可以是词、子词、字符片段或字节相关单元。同一段文本在不同分词器下长度不同，中英文、代码、图片或音频的计量也可能不同。上下文预算与费用应依据目标模型的计量规则估计，不能固定认为一个汉字或一个单词等于一个Token。</p>
+<p><strong>追问：截断文档应按字符还是Token？先考虑语义边界，再使用目标分词器检查预算。</strong></p>
+<p><a id="q3"></a></p>
+<h3 id="Q3：Embedding与Token-ID有什么区别？"><a href="#Q3：Embedding与Token-ID有什么区别？" class="headerlink" title="Q3：Embedding与Token ID有什么区别？"></a>Q3：Embedding与Token ID有什么区别？</h3><p>Token ID是词表中的离散编号；Embedding是向量表示。模型内部Token嵌入、隐藏状态与检索模型输出的句向量用途不同，不能任取某个隐藏层就当作高质量语义检索向量。检索Embedding还涉及训练目标、归一化、维度与距离度量。</p>
+<p><strong>误区：向量维度更大就一定更准确。需要在目标语料、任务和成本下评测。</strong></p>
+<p><a id="q4"></a></p>
+<h3 id="Q4：Transformer的核心组件是什么？"><a href="#Q4：Transformer的核心组件是什么？" class="headerlink" title="Q4：Transformer的核心组件是什么？"></a>Q4：Transformer的核心组件是什么？</h3><p>典型模块包括注意力、前馈网络、残差连接、归一化和位置相关信息。注意力让当前位置聚合其他位置的信息；前馈网络对位置上的表示进行非线性变换。具体模型的归一化位置、激活、位置编码和注意力变体会不同。</p>
+<p><strong>追问：Transformer并不等于Decoder-only；原始论文使用Encoder–Decoder架构。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.03762">原始论文</a></strong></p>
+<p><a id="q5"></a></p>
+<h3 id="Q5：Self-Attention中的Q、K、V分别是什么？"><a href="#Q5：Self-Attention中的Q、K、V分别是什么？" class="headerlink" title="Q5：Self-Attention中的Q、K、V分别是什么？"></a>Q5：Self-Attention中的Q、K、V分别是什么？</h3><p>Q用于表达当前位置要匹配什么，K用于与查询匹配，V是被加权聚合的信息。缩放点积注意力常写作softmax(QK转置&#x2F;√d_k)V，并结合可见位置的掩码。Q、K、V通常来自可学习投影，不是三个外部数据库。</p>
+<p><strong>追问：为什么缩放？避免点积随维度增长而使softmax过于饱和；多头用于不同表示子空间。</strong></p>
+<p><a id="q6"></a></p>
+<h3 id="Q6：Encoder、Decoder和Encoder–Decoder怎么区分？"><a href="#Q6：Encoder、Decoder和Encoder–Decoder怎么区分？" class="headerlink" title="Q6：Encoder、Decoder和Encoder–Decoder怎么区分？"></a>Q6：Encoder、Decoder和Encoder–Decoder怎么区分？</h3><p>Encoder常以双向上下文构造输入表征；自回归Decoder通常使用因果掩码，只依赖允许看到的历史；Encoder–Decoder将输入编码，再由Decoder结合编码结果生成输出。分类、检索和生成的适配方式取决于模型训练与接口。</p>
+<p><strong>误区：所有叫Decoder的模型都有对Encoder输出的交叉注意力。</strong></p>
+<p><a id="q7"></a></p>
+<h3 id="Q7：为什么模型需要位置信息？RoPE解决什么问题？"><a href="#Q7：为什么模型需要位置信息？RoPE解决什么问题？" class="headerlink" title="Q7：为什么模型需要位置信息？RoPE解决什么问题？"></a>Q7：为什么模型需要位置信息？RoPE解决什么问题？</h3><p>纯注意力的匹配本身不足以表达序列位置，因此需要位置相关机制。RoPE把旋转变换施加到查询和键，使注意力关系包含位置差异。它不等于无限长度支持；长上下文外推还取决于训练分布、缩放方法与实现。</p>
+<p><strong>追问：宣称支持很长窗口，是否等于能稳定利用窗口中所有信息？需要长文本任务评测。</strong></p>
+<p><a id="q8"></a></p>
+<h3 id="Q8：预训练、SFT、RLHF、DPO有什么区别？"><a href="#Q8：预训练、SFT、RLHF、DPO有什么区别？" class="headerlink" title="Q8：预训练、SFT、RLHF、DPO有什么区别？"></a>Q8：预训练、SFT、RLHF、DPO有什么区别？</h3><p>预训练学习广泛的序列统计与能力；SFT使用输入输出示例训练目标行为；典型RLHF流程包含偏好数据、奖励建模与策略优化；DPO在特定偏好建模假设下直接用成对偏好优化策略。它们分别处理不同阶段的问题，实际训练配方可能组合多种方法。</p>
+<p><strong>追问：DPO不是“无数据对齐”，也不保证事实正确。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2203.02155">RLHF论文</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.18290">DPO论文</a></strong></p>
+<p><a id="q9"></a></p>
+<h3 id="Q9：LoRA为什么能减少微调成本？"><a href="#Q9：LoRA为什么能减少微调成本？" class="headerlink" title="Q9：LoRA为什么能减少微调成本？"></a>Q9：LoRA为什么能减少微调成本？</h3><p>LoRA冻结基础权重，训练低秩更新，可写作W’&#x3D;W+BA，低秩r远小于原矩阵维度。减少的是可训练参数及相关训练状态，不代表所有基础权重都不占显存。部分部署可以合并更新，是否合并及其影响要看实现。</p>
+<p><strong>追问：r越大一定更好？容量、过拟合、显存和任务难度需要平衡。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2106.09685">LoRA论文</a></strong></p>
+<p><a id="q10"></a></p>
+<h3 id="Q10：QLoRA与LoRA、推理量化有什么关系？"><a href="#Q10：QLoRA与LoRA、推理量化有什么关系？" class="headerlink" title="Q10：QLoRA与LoRA、推理量化有什么关系？"></a>Q10：QLoRA与LoRA、推理量化有什么关系？</h3><p>QLoRA在量化的冻结基础模型上训练低秩适配器，以降低微调显存需求。推理量化则关注推理时权重或激活的表示与计算。二者可以关联，但不是“训练所有4位参数”的同义词，也不表示任何模型量化后都无损。</p>
+<p><strong>追问：量化误差影响哪些任务？应测长文本、工具参数、数值和目标业务样本。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.14314">QLoRA论文</a></strong></p>
+<p><a id="q11"></a></p>
+<h3 id="Q11：temperature、top-p、top-k如何理解？"><a href="#Q11：temperature、top-p、top-k如何理解？" class="headerlink" title="Q11：temperature、top-p、top-k如何理解？"></a>Q11：temperature、top-p、top-k如何理解？</h3><p>temperature调整采样分布的尖锐程度；top-p在累计概率覆盖的候选集合中采样；top-k限制候选数量。组合行为取决于采样顺序和接口支持。它们调的是解码，不是直接修改知识或提高正确率。</p>
+<p><strong>误区：temperature&#x3D;0就完全可复现。服务端实现、数值计算和版本变化仍可能影响结果。</strong></p>
+<p><a id="q12"></a></p>
+<h3 id="Q12：为什么会产生幻觉？降低temperature能解决吗？"><a href="#Q12：为什么会产生幻觉？降低temperature能解决吗？" class="headerlink" title="Q12：为什么会产生幻觉？降低temperature能解决吗？"></a>Q12：为什么会产生幻觉？降低temperature能解决吗？</h3><p>模型优化的生成目标并不天然等于事实校验；缺少信息、错误上下文、含糊问题和训练偏差都可能导致无依据输出。降低随机性可能使答案稳定，却也可能稳定地产生错误。应补充可靠证据、明确拒答边界，并验证关键结果。</p>
+<p><strong>追问：将错误归因到资料、检索、上下文还是生成，才能选择对应改进。</strong></p>
+<p><a id="q13"></a></p>
+<h3 id="Q13：上下文窗口、输出上限和长期记忆有什么区别？"><a href="#Q13：上下文窗口、输出上限和长期记忆有什么区别？" class="headerlink" title="Q13：上下文窗口、输出上限和长期记忆有什么区别？"></a>Q13：上下文窗口、输出上限和长期记忆有什么区别？</h3><p>上下文窗口限制一次调用能处理的输入与输出等Token预算，具体计量因接口而异；输出上限限制生成长度；长期记忆是应用在多次调用间存储和选择信息的机制。窗口大不代表跨会话永久记住，也不表示资料无需检索或权限控制。</p>
+<p><strong>追问：推理Token是否占用预算？必须查看具体模型说明，不能套用统一公式。</strong></p>
+<p><a id="q14"></a></p>
+<h3 id="Q14：Prefill和Decode分别在做什么？"><a href="#Q14：Prefill和Decode分别在做什么？" class="headerlink" title="Q14：Prefill和Decode分别在做什么？"></a>Q14：Prefill和Decode分别在做什么？</h3><p>Prefill处理输入序列并建立后续生成所需状态；Decode逐步生成新Token并更新缓存。长输入、长输出与高并发对资源的压力不同。首字慢和持续生成慢应分阶段定位，不能用单一tokens&#x2F;s描述全部体验。</p>
+<p><strong>追问：TTFT与排队、输入长度、缓存命中有什么关系？参见部署篇。</strong></p>
+<p><a id="q15"></a></p>
+<h3 id="Q15：KV-Cache缓存了什么？显存怎么估计？"><a href="#Q15：KV-Cache缓存了什么？显存怎么估计？" class="headerlink" title="Q15：KV Cache缓存了什么？显存怎么估计？"></a>Q15：KV Cache缓存了什么？显存怎么估计？</h3><p>它保存注意力计算中历史Token的Key和Value，避免每一步重复构造历史状态。粗略大小与层数、已缓存Token数、KV头数、头维度、数据精度及并发数有关，K与V各一份；实际还受分页、共享和量化影响。</p>
+<p><strong>误区：KV Cache是最终回答缓存，或者一定与查询头数量相同。</strong></p>
+<p><a id="q16"></a></p>
+<h3 id="Q16：MHA、MQA、GQA有什么区别？"><a href="#Q16：MHA、MQA、GQA有什么区别？" class="headerlink" title="Q16：MHA、MQA、GQA有什么区别？"></a>Q16：MHA、MQA、GQA有什么区别？</h3><p>MHA通常每个查询头有对应K&#x2F;V头；MQA让多个查询头共享一组K&#x2F;V；GQA让查询头分组共享K&#x2F;V。后两者可减少KV相关内存与带宽需求，但具体质量与性能依赖训练和实现。它们与模型API是否支持并行工具调用不是一回事。</p>
+<p><strong>追问：为什么同样参数量模型的长上下文并发容量可能不同？KV结构是因素之一。</strong></p>
+<p><a id="q17"></a></p>
+<h3 id="Q17：FlashAttention与PagedAttention有什么区别？"><a href="#Q17：FlashAttention与PagedAttention有什么区别？" class="headerlink" title="Q17：FlashAttention与PagedAttention有什么区别？"></a>Q17：FlashAttention与PagedAttention有什么区别？</h3><p>FlashAttention针对注意力计算的内存层级访问进行优化，避免显式读写完整注意力矩阵；PagedAttention更关注服务时KV缓存的分页管理、共享与碎片。它们解决的问题不同，可以出现在同一推理系统中。</p>
+<p><strong>误区：FlashAttention把一般精确全注意力的理论计算复杂度直接变成线性。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2205.14135">论文一</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2309.06180">论文二</a></strong></p>
+<p><a id="q18"></a></p>
+<h3 id="Q18：模型参数量、激活参数、显存需求有什么关系？"><a href="#Q18：模型参数量、激活参数、显存需求有什么关系？" class="headerlink" title="Q18：模型参数量、激活参数、显存需求有什么关系？"></a>Q18：模型参数量、激活参数、显存需求有什么关系？</h3><p>总参数量描述存储的权重规模；MoE等结构一次Token计算只激活部分专家，因此激活参数可能更少。权重存储、激活、KV缓存、运行时工作区和并行通信都会影响显存。不能只用参数量乘数据类型字节数预测整个部署需求。</p>
+<p><strong>追问：MoE激活参数少，是否意味着全部专家权重都不需存储或调度？不意味着。</strong></p>
+<p><a id="q19"></a></p>
+<h3 id="Q19：模型推理能力与“展示思维链”有什么区别？"><a href="#Q19：模型推理能力与“展示思维链”有什么区别？" class="headerlink" title="Q19：模型推理能力与“展示思维链”有什么区别？"></a>Q19：模型推理能力与“展示思维链”有什么区别？</h3><p>模型可以在内部进行较多计算，但应用不需要也不应假定可以取得完整内部过程。业务更需要可核对的依据、工具调用、计算结果与简短理由。生成的长解释不一定忠实反映内部计算，也不能作为正确性证明。</p>
+<p><strong>追问：如何审计决策？记录输入版本、可见步骤与外部证据，而非依赖模型自述。</strong></p>
+<p><a id="q20"></a></p>
+<h3 id="Q20：怎样选择模型，而不是只看排行榜？"><a href="#Q20：怎样选择模型，而不是只看排行榜？" class="headerlink" title="Q20：怎样选择模型，而不是只看排行榜？"></a>Q20：怎样选择模型，而不是只看排行榜？</h3><p>先定义目标任务、质量门槛、延迟、成本、数据要求、上下文与工具能力，再用代表性样本做对比。保持评测输入和评分规则一致，记录模型版本与调用配置，并区分简单任务和困难任务。公开榜单可以筛选候选，不能替代本地业务验证。</p>
+<p><strong>追问：便宜模型失败重试更多，是否真的更省？比较每个成功任务的总成本。</strong></p>
+<h2 id="公式与计算：把三个常见问题算明白"><a href="#公式与计算：把三个常见问题算明白" class="headerlink" title="公式与计算：把三个常见问题算明白"></a>公式与计算：把三个常见问题算明白</h2><h3 id="自回归概率"><a href="#自回归概率" class="headerlink" title="自回归概率"></a>自回归概率</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">P(x1, x2, ..., xn) = ∏ P(xt | x1, ..., x(t-1))<br></code></pre></td></tr></table></figure>
+
+<p>训练时可以用真实历史构造多个位置的预测目标；推理时新增Token通常依赖之前生成的Token。所谓“训练可并行、生成有串行依赖”，讨论的是这两个阶段，不是说所有训练计算没有任何依赖。</p>
+<h3 id="注意力矩阵形状"><a href="#注意力矩阵形状" class="headerlink" title="注意力矩阵形状"></a>注意力矩阵形状</h3><p>单头示意：Q和K的形状为n×d_k，QK转置得到n×n的匹配矩阵；归一化后乘n×d_v的V得到n×d_v输出。原始实现显式存储n×n矩阵，对长序列带来内存压力；FlashAttention改变内存访问与计算组织，并不因此把一般精确注意力的运算量直接变成O(n)。</p>
+<h3 id="KV缓存估算"><a href="#KV缓存估算" class="headerlink" title="KV缓存估算"></a>KV缓存估算</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">粗略字节数 ≈ 2 × 层数 × 缓存Token数 × KV头数 × 每头维度 × 每元素字节数<br></code></pre></td></tr></table></figure>
+
+<p>其中2代表K和V。多请求先按各自长度计算再相加；共享前缀、分页开销、缓存量化和分布式切分会改变实际值。这个式子不包括权重、激活与运行时工作区，不能直接当GPU容量规划结果。</p>
+<h2 id="复习与自检"><a href="#复习与自检" class="headerlink" title="复习与自检"></a>复习与自检</h2><p>把每题压缩成30秒定义，再用两分钟说明机制、代价和失败场景。遇到依赖厂商或协议版本的结论，记录适用范围，不背成普遍定律。</p>
+<ol>
+<li>能否与相近概念清楚区分？</li>
+<li>能否给出一个正常流程和一个失败流程？</li>
+<li>能否说明这个方案解决不了什么？</li>
+<li>能否设计一个验证自己判断的实验或测试？</li>
+</ol>
+<h2 id="参考资料与版本"><a href="#参考资料与版本" class="headerlink" title="参考资料与版本"></a>参考资料与版本</h2><p>资料核对日期：2026年11月1日。论文用于概念出处，产品文档用于对应实现；本文的设计判断需要结合具体系统验证。MCP章节固定使用2025-11-25规范，不将其宣称为所有实现或最新版本。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.03762">Transformer</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2104.09864">RoFormer &#x2F; RoPE</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.13245">GQA</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2106.09685">LoRA</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.14314">QLoRA</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2203.02155">RLHF</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.18290">DPO</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2205.14135">FlashAttention</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2309.06180">PagedAttention</a></li>
+</ul>
+<h2 id="继续阅读"><a href="#继续阅读" class="headerlink" title="继续阅读"></a>继续阅读</h2><ul>
+<li>下一篇：<a href="/ai-handbook/prompt-context/">Prompt、上下文与结构化输出</a></li>
+<li><a href="/interview/agent-skills/">返回总目录</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI%E5%BA%94%E7%94%A8%E5%B7%A5%E7%A8%8B/" class="category-chain-item">AI应用工程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/" class="print-no-link">#AI</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="print-no-link">#大模型</a>
+      
+        <a href="/tags/AI%E5%B7%A5%E7%A8%8B/" class="print-no-link">#AI工程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>AI 应用工程八股文（1）：LLM 基础与训练推理 20 问</div>
+      <div>https://whyalwaysme.lol/ai-handbook/llm-foundations/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年11月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/ai-handbook/rag-retrieval/" title="AI 应用工程八股文（3）：RAG、向量检索与知识库 20 问">
+                        <span class="hidden-mobile">AI 应用工程八股文（3）：RAG、向量检索与知识库 20 问</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
+<script src="/js/reading.js"></script>
+<script src="/js/diagrams.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

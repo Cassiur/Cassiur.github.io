@@ -1,0 +1,835 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="评测、安全、可观测性与治理的20个通用问题，包含核心回答、原理边界与追问。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI 应用工程八股文（7）：评测、安全、可观测性与治理 20 问">
+<meta property="og:url" content="https://whyalwaysme.lol/ai-handbook/evaluation-security/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="评测、安全、可观测性与治理的20个通用问题，包含核心回答、原理边界与追问。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-01T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-01T15:56:23.823Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="AI工程">
+<meta property="article:tag" content="大模型">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>AI 应用工程八股文（7）：评测、安全、可观测性与治理 20 问 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mobile.css">
+<link rel="stylesheet" href="/css/reading.css">
+<link rel="stylesheet" href="/css/diagrams.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="AI 应用工程八股文（7）：评测、安全、可观测性与治理 20 问"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-11-01 13:00" pubdate>
+          2026年11月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          29 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">AI 应用工程八股文（7）：评测、安全、可观测性与治理 20 问</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><a href="/interview/agent-skills/">总目录：AI 应用工程 160 问</a></p>
+<p>本篇讨论评测、安全、可观测性与治理。每题先解释概念与原理，再指出适用边界和追问，面向日常学习、方案讨论和通用技术面试。</p>
+<p>文中的设计建议与教学示例用于说明方法，不代表某个产品已经实现，也不等于所有厂商接口的共同承诺。协议、API与模型能力涉及版本时，应以明确版本和对应官方资料为准。</p>
+<h2 id="问题目录"><a href="#问题目录" class="headerlink" title="问题目录"></a>问题目录</h2><ul>
+<li><a href="#q1">Q1：为什么LLM应用需要专门评测？</a></li>
+<li><a href="#q2">Q2：评测集怎么构建？</a></li>
+<li><a href="#q3">Q3：准确率、通过率、任务成功率怎样定义？</a></li>
+<li><a href="#q4">Q4：LLM-as-a-Judge有哪些优点与风险？</a></li>
+<li><a href="#q5">Q5：成对比较、绝对评分和规则检查怎么配合？</a></li>
+<li><a href="#q6">Q6：Agent的评测为什么要看轨迹？</a></li>
+<li><a href="#q7">Q7：如何设计回归与失败注入？</a></li>
+<li><a href="#q8">Q8：离线评测、影子流量、灰度与A&#x2F;B有什么区别？</a></li>
+<li><a href="#q9">Q9：什么是Prompt Injection？和越狱有什么区别？</a></li>
+<li><a href="#q10">Q10：怎样建立分层防护？</a></li>
+<li><a href="#q11">Q11：敏感信息泄露有哪些路径？</a></li>
+<li><a href="#q12">Q12：最小权限如何落到Agent系统？</a></li>
+<li><a href="#q13">Q13：SSRF、路径穿越与命令注入为什么仍然重要？</a></li>
+<li><a href="#q14">Q14：审批、审计与授权有什么区别？</a></li>
+<li><a href="#q15">Q15：Trace、Log和Metric分别记录什么？</a></li>
+<li><a href="#q16">Q16：AI应用应该监控哪些延迟与成本指标？</a></li>
+<li><a href="#q17">Q17：为什么不能把模型自述当成审计事实？</a></li>
+<li><a href="#q18">Q18：怎样做模型或知识库版本追溯？</a></li>
+<li><a href="#q19">Q19：评测结果怎样避免“看起来很漂亮”？</a></li>
+<li><a href="#q20">Q20：如何建立发布门槛与回滚条件？</a></li>
+</ul>
+<h2 id="核心问答"><a href="#核心问答" class="headerlink" title="核心问答"></a>核心问答</h2><p><a id="q1"></a></p>
+<h3 id="Q1：为什么LLM应用需要专门评测？"><a href="#Q1：为什么LLM应用需要专门评测？" class="headerlink" title="Q1：为什么LLM应用需要专门评测？"></a>Q1：为什么LLM应用需要专门评测？</h3><p>传统单元测试适合确定性组件，但模型输出具有多样性，正确答案可能不唯一。需要把任务成功标准、数据分布、评分方法与置信范围明确下来，再结合组件测试和端到端评测。只凭几次聊天体验，很难判断版本是否真正改善。</p>
+<p><strong>追问：哪些要求是硬约束，哪些可以用偏好评分？不要全部混成一个总分。</strong></p>
+<p><a id="q2"></a></p>
+<h3 id="Q2：评测集怎么构建？"><a href="#Q2：评测集怎么构建？" class="headerlink" title="Q2：评测集怎么构建？"></a>Q2：评测集怎么构建？</h3><p>从真实任务分布抽样，覆盖常见、困难、边界、不可回答和安全场景，记录来源、许可与脱敏方式。每条应有清晰目标、必要证据与评分标准。训练、调优与最终保留集应分开，避免反复针对测试集改Prompt后再报告泛化。</p>
+<p><strong>追问：全部用模型生成的问题，能代表真实用户吗？需要校验覆盖与分布。</strong></p>
+<p><a id="q3"></a></p>
+<h3 id="Q3：准确率、通过率、任务成功率怎样定义？"><a href="#Q3：准确率、通过率、任务成功率怎样定义？" class="headerlink" title="Q3：准确率、通过率、任务成功率怎样定义？"></a>Q3：准确率、通过率、任务成功率怎样定义？</h3><p>先定义单位和分母：一条回答、一次会话、一个工具调用还是完整任务。明确部分正确、拒答、超时和失败是否计入。报告样本量、时间区间和配置；“提高10%”与“提高10个百分点”是不同说法。</p>
+<p><strong>追问：成功率只统计返回结果的任务，会怎样低估超时失败？</strong></p>
+<p><a id="q4"></a></p>
+<h3 id="Q4：LLM-as-a-Judge有哪些优点与风险？"><a href="#Q4：LLM-as-a-Judge有哪些优点与风险？" class="headerlink" title="Q4：LLM-as-a-Judge有哪些优点与风险？"></a>Q4：LLM-as-a-Judge有哪些优点与风险？</h3><p>它能降低大规模主观评价的人力成本，但可能偏好措辞、长度或某些模型风格，也可能漏掉事实错误。应使用明确rubric、代表性人工标注校准，检查一致性与偏差。对确定性规则优先用程序检查，不全部交给模型打分。</p>
+<p><strong>追问：评审模型与生成模型同源，是否可能共享盲点？可能，需要交叉验证。</strong></p>
+<p><a id="q5"></a></p>
+<h3 id="Q5：成对比较、绝对评分和规则检查怎么配合？"><a href="#Q5：成对比较、绝对评分和规则检查怎么配合？" class="headerlink" title="Q5：成对比较、绝对评分和规则检查怎么配合？"></a>Q5：成对比较、绝对评分和规则检查怎么配合？</h3><p>成对比较适合判断两版输出相对偏好，绝对评分适合按维度检查质量，规则检查适合字段、权限和业务状态等硬要求。可以先判硬约束，再比较质量。展示顺序、身份标签与长度差异要控制，防止评价偏差。</p>
+<p><strong>追问：文字更流畅但引用不支持结论的答案，不应因为风格得分高而通过。</strong></p>
+<p><a id="q6"></a></p>
+<h3 id="Q6：Agent的评测为什么要看轨迹？"><a href="#Q6：Agent的评测为什么要看轨迹？" class="headerlink" title="Q6：Agent的评测为什么要看轨迹？"></a>Q6：Agent的评测为什么要看轨迹？</h3><p>最终答案可能碰巧正确，却经历越权读取、重复执行或不必要成本。轨迹评测检查工具选择、参数、依赖顺序、授权、恢复与终止，同时保留业务后置条件检查。不同有效路径可以共存，不能把唯一参考轨迹当唯一正确路线。</p>
+<p><strong>追问：允许合理替代路径，怎样仍然严格限制高风险动作？</strong></p>
+<p><a id="q7"></a></p>
+<h3 id="Q7：如何设计回归与失败注入？"><a href="#Q7：如何设计回归与失败注入？" class="headerlink" title="Q7：如何设计回归与失败注入？"></a>Q7：如何设计回归与失败注入？</h3><p>针对真实失败沉淀用例，注入限流、超时、格式错误、部分成功、取消、重启和外部状态改变。对读取与写入分别验证恢复；对不可重放动作使用替身。每次模型、提示、索引、工具或策略变化都应按影响范围回归。</p>
+<p><strong>追问：仅模拟“调用前失败”，会漏掉“执行后响应丢失”。</strong></p>
+<p><a id="q8"></a></p>
+<h3 id="Q8：离线评测、影子流量、灰度与A-B有什么区别？"><a href="#Q8：离线评测、影子流量、灰度与A-B有什么区别？" class="headerlink" title="Q8：离线评测、影子流量、灰度与A&#x2F;B有什么区别？"></a>Q8：离线评测、影子流量、灰度与A&#x2F;B有什么区别？</h3><p>离线便于固定样本复现；影子运行可观察新方案但不影响真实结果；灰度控制少量真实影响；A&#x2F;B比较并行版本的表现。对写入系统，影子流量必须阻止真实副作用。线上反馈还受用户分布和时间变化影响。</p>
+<p><strong>追问：把相同请求同时发给两个真实扣款工具，为什么不是安全A&#x2F;B？</strong></p>
+<p><a id="q9"></a></p>
+<h3 id="Q9：什么是Prompt-Injection？和越狱有什么区别？"><a href="#Q9：什么是Prompt-Injection？和越狱有什么区别？" class="headerlink" title="Q9：什么是Prompt Injection？和越狱有什么区别？"></a>Q9：什么是Prompt Injection？和越狱有什么区别？</h3><p>Prompt Injection通常指不可信输入试图改变系统指令或行动；越狱常指绕过模型既有行为限制。二者可重叠。间接注入可以藏在文档、网页、工具描述、图片文字或返回结果里，攻击不一定出现在用户直接输入中。</p>
+<p><strong>追问：把检索文档包在标签里有帮助，但不是完整安全边界。<a target="_blank" rel="noopener" href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP</a></strong></p>
+<p><a id="q10"></a></p>
+<h3 id="Q10：怎样建立分层防护？"><a href="#Q10：怎样建立分层防护？" class="headerlink" title="Q10：怎样建立分层防护？"></a>Q10：怎样建立分层防护？</h3><p>将来源与信任等级分开，限制模型可见数据与工具范围，执行前验证身份、对象权限和参数，高影响动作按实际授权确认。使用沙箱、网络控制和输出检查，并评测对抗样本。单个分类器或提示不能承诺防住所有注入。</p>
+<p><strong>追问：即使模型被诱导提出危险调用，执行层仍应能阻断。</strong></p>
+<p><a id="q11"></a></p>
+<h3 id="Q11：敏感信息泄露有哪些路径？"><a href="#Q11：敏感信息泄露有哪些路径？" class="headerlink" title="Q11：敏感信息泄露有哪些路径？"></a>Q11：敏感信息泄露有哪些路径？</h3><p>提示、文档、日志、工具返回、错误堆栈、第三方模型请求和缓存都可能包含敏感信息。需明确数据流向、保留期限与访问控制，按需脱敏并限制外发。API Key不应放入模型可见上下文，也不能认为HTTPS自动解决服务商数据使用问题。</p>
+<p><strong>追问：Schema枚举或字段名也可能泄漏内部业务信息。</strong></p>
+<p><a id="q12"></a></p>
+<h3 id="Q12：最小权限如何落到Agent系统？"><a href="#Q12：最小权限如何落到Agent系统？" class="headerlink" title="Q12：最小权限如何落到Agent系统？"></a>Q12：最小权限如何落到Agent系统？</h3><p>按用户、工具、对象、动作、阶段与有效期约束权限，读取与写入凭据分开，默认不暴露不需要的能力。查询结果和导出也要检查权限。模型输出userId、路径或目标URL只是待验证输入，不能直接决定授权。</p>
+<p><strong>追问：只给只读数据库账号，是否就没有泄漏风险？大规模读取仍可能越界。</strong></p>
+<p><a id="q13"></a></p>
+<h3 id="Q13：SSRF、路径穿越与命令注入为什么仍然重要？"><a href="#Q13：SSRF、路径穿越与命令注入为什么仍然重要？" class="headerlink" title="Q13：SSRF、路径穿越与命令注入为什么仍然重要？"></a>Q13：SSRF、路径穿越与命令注入为什么仍然重要？</h3><p>LLM工具最终调用普通软件接口，传统漏洞不会消失。模型提供URL、路径或命令时，需要规范化、网络目的地限制、文件权限和结构化参数；还要考虑重定向、符号链接、DNS与执行时变化。把文本“清洗一下”不是万能方案。</p>
+<p><strong>追问：前缀路径检查和简单域名字符串匹配分别可能遗漏什么？</strong></p>
+<p><a id="q14"></a></p>
+<h3 id="Q14：审批、审计与授权有什么区别？"><a href="#Q14：审批、审计与授权有什么区别？" class="headerlink" title="Q14：审批、审计与授权有什么区别？"></a>Q14：审批、审计与授权有什么区别？</h3><p>授权判断当前主体是否有权做动作；审批对某个具体动作作出允许决策；审计记录发生了什么。三者互补，记录日志不能让无权操作变得合法，用户确认也不应扩大原有权限。审批与执行间还需要重新检查关键条件。</p>
+<p><strong>追问：谁批准、批准什么、何时执行、结果如何，分别怎样关联？</strong></p>
+<p><a id="q15"></a></p>
+<h3 id="Q15：Trace、Log和Metric分别记录什么？"><a href="#Q15：Trace、Log和Metric分别记录什么？" class="headerlink" title="Q15：Trace、Log和Metric分别记录什么？"></a>Q15：Trace、Log和Metric分别记录什么？</h3><p>Trace关联一次任务跨模型、检索和工具的调用关系；Log记录离散事件和诊断信息；Metric聚合成功率、延迟、成本等指标。记录应带版本与关联ID，同时控制敏感内容和高基数。可观察性需要回答“哪一步为什么失败”，而不只是保存全部聊天。</p>
+<p><strong>追问：完整Prompt默认入日志可能带来什么隐私与成本问题？</strong></p>
+<p><a id="q16"></a></p>
+<h3 id="Q16：AI应用应该监控哪些延迟与成本指标？"><a href="#Q16：AI应用应该监控哪些延迟与成本指标？" class="headerlink" title="Q16：AI应用应该监控哪些延迟与成本指标？"></a>Q16：AI应用应该监控哪些延迟与成本指标？</h3><p>分开监控排队、检索、模型首字、输出间隔、工具执行和完整任务耗时，报告分位数而不只平均值。成本纳入输入、输出、缓存、检索、重排、工具、重试与人工返工。不同层的成功与失败要有明确分类。</p>
+<p><strong>追问：TTFT下降但完整完成时间上升，用户体验是否一定改善？</strong></p>
+<p><a id="q17"></a></p>
+<h3 id="Q17：为什么不能把模型自述当成审计事实？"><a href="#Q17：为什么不能把模型自述当成审计事实？" class="headerlink" title="Q17：为什么不能把模型自述当成审计事实？"></a>Q17：为什么不能把模型自述当成审计事实？</h3><p>模型可以声称调用了工具、运行了测试或检查了资料，但真正证据是执行记录、产物、版本和可重复验证的结果。解释文本可帮助阅读，不能替代可信系统状态。模型不能通过一句“用户已授权”创造授权记录。</p>
+<p><strong>追问：UI展示完成时，应依赖哪些可观察后置条件？</strong></p>
+<p><a id="q18"></a></p>
+<h3 id="Q18：怎样做模型或知识库版本追溯？"><a href="#Q18：怎样做模型或知识库版本追溯？" class="headerlink" title="Q18：怎样做模型或知识库版本追溯？"></a>Q18：怎样做模型或知识库版本追溯？</h3><p>记录模型标识、调用配置、Prompt与Schema版本、资料版本、索引和Embedding版本、工具与策略版本。诊断时区分环境变动与模型随机性，必要时保留脱敏输入及受控重放。外部服务模型若不可固定版本，也要披露复现限制。</p>
+<p><strong>追问：同一个模型别名长期指向完全不变的模型吗？不能假定。</strong></p>
+<p><a id="q19"></a></p>
+<h3 id="Q19：评测结果怎样避免“看起来很漂亮”？"><a href="#Q19：评测结果怎样避免“看起来很漂亮”？" class="headerlink" title="Q19：评测结果怎样避免“看起来很漂亮”？"></a>Q19：评测结果怎样避免“看起来很漂亮”？</h3><p>报告完整分母、失败分类、样本来源、基线与可比条件，关注困难切片与方差。不要将开发集成绩当独立测试，也不要只展示最佳运行。小样本提升可能不稳，需结合区间估计、重复实验和实际业务意义判断。</p>
+<p><strong>追问：总体提高但关键风险样本退步，是否允许上线？取决于明确门槛。</strong></p>
+<p><a id="q20"></a></p>
+<h3 id="Q20：如何建立发布门槛与回滚条件？"><a href="#Q20：如何建立发布门槛与回滚条件？" class="headerlink" title="Q20：如何建立发布门槛与回滚条件？"></a>Q20：如何建立发布门槛与回滚条件？</h3><p>先确定不能违反的安全与业务规则，再设质量、延迟、成本等门槛。将配置、模型与索引作为可追踪发布单元，灰度监控，出现越权、重复副作用或关键正确性退化时能停止或回退。回滚模型不等于回滚已产生的数据变更。</p>
+<p><strong>追问：外部副作用已发生时，还需要补偿与对账。</strong></p>
+<h2 id="评测报告应该长什么样"><a href="#评测报告应该长什么样" class="headerlink" title="评测报告应该长什么样"></a>评测报告应该长什么样</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">任务定义：根据允许访问的资料回答问题，证据不足时说明限制<br>版本：模型、提示、索引、Embedding、工具、策略<br>数据：来源、样本数、切片、标注方式、开发/保留集划分<br>硬门槛：访问控制、无未授权执行、敏感信息处理<br>质量：答案正确、证据支持、引用有效、合理拒答<br>运行：完整延迟分位数、费用、超时、重试与人工返工<br>结论：与基线相比的收益、退化切片与未验证范围<br></code></pre></td></tr></table></figure>
+
+<h3 id="一个常见分母错误"><a href="#一个常见分母错误" class="headerlink" title="一个常见分母错误"></a>一个常见分母错误</h3><p>假设100次请求中80次返回答案，另20次超时；80个答案中72个正确。只算已返回答案的准确率是72&#x2F;80&#x3D;90%，按全部请求计算正确完成率则是72&#x2F;100&#x3D;72%。二者都可以报告，但不能把前者写成全任务成功率。</p>
+<p>同样，“准确率从70%到80%”增加10个百分点，相对提高约14.3%。无论采用哪个表述，都应提供样本与计算口径。这些数字只用于教学演算。</p>
+<h2 id="复习与自检"><a href="#复习与自检" class="headerlink" title="复习与自检"></a>复习与自检</h2><p>把每题压缩成30秒定义，再用两分钟说明机制、代价和失败场景。遇到依赖厂商或协议版本的结论，记录适用范围，不背成普遍定律。</p>
+<ol>
+<li>能否与相近概念清楚区分？</li>
+<li>能否给出一个正常流程和一个失败流程？</li>
+<li>能否说明这个方案解决不了什么？</li>
+<li>能否设计一个验证自己判断的实验或测试？</li>
+</ol>
+<h2 id="参考资料与版本"><a href="#参考资料与版本" class="headerlink" title="参考资料与版本"></a>参考资料与版本</h2><p>资料核对日期：2026年11月1日。论文用于概念出处，产品文档用于对应实现；本文的设计判断需要结合具体系统验证。MCP章节固定使用2025-11-25规范，不将其宣称为所有实现或最新版本。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">Evaluation best practices</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2306.05685">MT-Bench &#x2F; LLM-as-a-Judge</a></li>
+<li><a target="_blank" rel="noopener" href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP Prompt Injection</a></li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">OpenTelemetry GenAI语义约定</a></li>
+<li><a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices">MCP Security</a></li>
+</ul>
+<h2 id="继续阅读"><a href="#继续阅读" class="headerlink" title="继续阅读"></a>继续阅读</h2><ul>
+<li>上一篇：<a href="/ai-handbook/agents-skills/">Agent、Skills、记忆与编排</a></li>
+<li>下一篇：<a href="/ai-handbook/serving-system-design/">推理服务、性能与系统设计</a></li>
+<li><a href="/interview/agent-skills/">返回总目录</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI%E5%BA%94%E7%94%A8%E5%B7%A5%E7%A8%8B/" class="category-chain-item">AI应用工程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/" class="print-no-link">#AI</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="print-no-link">#大模型</a>
+      
+        <a href="/tags/AI%E5%B7%A5%E7%A8%8B/" class="print-no-link">#AI工程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>AI 应用工程八股文（7）：评测、安全、可观测性与治理 20 问</div>
+      <div>https://whyalwaysme.lol/ai-handbook/evaluation-security/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年11月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/ai-handbook/serving-system-design/" title="AI 应用工程八股文（8）：推理服务、性能与系统设计 20 问">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">AI 应用工程八股文（8）：推理服务、性能与系统设计 20 问</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/ai-handbook/function-calling/" title="AI 应用工程八股文（4）：Function Calling 与工具执行 20 问">
+                        <span class="hidden-mobile">AI 应用工程八股文（4）：Function Calling 与工具执行 20 问</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
+<script src="/js/reading.js"></script>
+<script src="/js/diagrams.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

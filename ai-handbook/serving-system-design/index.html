@@ -1,0 +1,841 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="推理服务、性能与系统设计的20个通用问题，包含核心回答、原理边界与追问。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI 应用工程八股文（8）：推理服务、性能与系统设计 20 问">
+<meta property="og:url" content="https://whyalwaysme.lol/ai-handbook/serving-system-design/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="推理服务、性能与系统设计的20个通用问题，包含核心回答、原理边界与追问。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-01T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-01T15:56:23.823Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="AI工程">
+<meta property="article:tag" content="大模型">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>AI 应用工程八股文（8）：推理服务、性能与系统设计 20 问 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mobile.css">
+<link rel="stylesheet" href="/css/reading.css">
+<link rel="stylesheet" href="/css/diagrams.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="AI 应用工程八股文（8）：推理服务、性能与系统设计 20 问"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-11-01 13:00" pubdate>
+          2026年11月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          30 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">AI 应用工程八股文（8）：推理服务、性能与系统设计 20 问</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><a href="/interview/agent-skills/">总目录：AI 应用工程 160 问</a></p>
+<p>本篇讨论推理服务、性能与系统设计。每题先解释概念与原理，再指出适用边界和追问，面向日常学习、方案讨论和通用技术面试。</p>
+<p>文中的设计建议与教学示例用于说明方法，不代表某个产品已经实现，也不等于所有厂商接口的共同承诺。协议、API与模型能力涉及版本时，应以明确版本和对应官方资料为准。</p>
+<h2 id="问题目录"><a href="#问题目录" class="headerlink" title="问题目录"></a>问题目录</h2><ul>
+<li><a href="#q1">Q1：TTFT、TPOT、吞吐与端到端延迟怎么区分？</a></li>
+<li><a href="#q2">Q2：静态Batch与Continuous Batching有什么区别？</a></li>
+<li><a href="#q3">Q3：Prefill与Decode分离有什么意义？</a></li>
+<li><a href="#q4">Q4：量化、蒸馏和剪枝各解决什么？</a></li>
+<li><a href="#q5">Q5：Speculative Decoding为什么可能加速？</a></li>
+<li><a href="#q6">Q6：张量并行、流水线并行和数据并行怎么区分？</a></li>
+<li><a href="#q7">Q7：为什么AI网关需要限流、配额和背压？</a></li>
+<li><a href="#q8">Q8：模型路由、Fallback与熔断怎么设计？</a></li>
+<li><a href="#q9">Q9：缓存如何避免跨租户泄漏和过期回答？</a></li>
+<li><a href="#q10">Q10：SSE与WebSocket怎么选？</a></li>
+<li><a href="#q11">Q11：设计一个企业知识库，先问哪些问题？</a></li>
+<li><a href="#q12">Q12：设计一个支持写操作的业务Agent，核心边界是什么？</a></li>
+<li><a href="#q13">Q13：设计百万文档入库流水线，怎样处理失败？</a></li>
+<li><a href="#q14">Q14：设计大规模导出与报告生成，如何控制资源？</a></li>
+<li><a href="#q15">Q15：设计实时语音或多模态助手，增加哪些问题？</a></li>
+<li><a href="#q16">Q16：设计Text-to-SQL，为什么不能让模型直连生产库？</a></li>
+<li><a href="#q17">Q17：设计Agent工具平台，怎样管理注册与版本？</a></li>
+<li><a href="#q18">Q18：设计聊天历史与长期记忆，数据怎么分层？</a></li>
+<li><a href="#q19">Q19：设计多模型接入层，接口怎样抽象？</a></li>
+<li><a href="#q20">Q20：系统设计面试怎样组织答案？</a></li>
+</ul>
+<h2 id="核心问答"><a href="#核心问答" class="headerlink" title="核心问答"></a>核心问答</h2><p><a id="q1"></a></p>
+<h3 id="Q1：TTFT、TPOT、吞吐与端到端延迟怎么区分？"><a href="#Q1：TTFT、TPOT、吞吐与端到端延迟怎么区分？" class="headerlink" title="Q1：TTFT、TPOT、吞吐与端到端延迟怎么区分？"></a>Q1：TTFT、TPOT、吞吐与端到端延迟怎么区分？</h3><p>TTFT衡量到首个输出Token的时间，TPOT关注后续每Token时间，吞吐衡量单位时间处理量，端到端延迟包含排队、前后处理、模型与工具步骤。测量边界要明确，客户端网络与服务端内部指标也不能直接混用。</p>
+<p><strong>追问：更高吞吐可能通过更大批处理实现，却损害单请求延迟。</strong></p>
+<p><a id="q2"></a></p>
+<h3 id="Q2：静态Batch与Continuous-Batching有什么区别？"><a href="#Q2：静态Batch与Continuous-Batching有什么区别？" class="headerlink" title="Q2：静态Batch与Continuous Batching有什么区别？"></a>Q2：静态Batch与Continuous Batching有什么区别？</h3><p>静态批次通常等一批请求一起处理，生成长度不同时可能存在等待；连续批处理在迭代过程中管理活跃请求，让完成的请求退出、新请求加入。它提高资源利用的机会，但还需要公平调度、显存预算与取消管理。</p>
+<p><strong>追问：长请求是否会挤压短请求？调度政策影响尾延迟。</strong></p>
+<p><a id="q3"></a></p>
+<h3 id="Q3：Prefill与Decode分离有什么意义？"><a href="#Q3：Prefill与Decode分离有什么意义？" class="headerlink" title="Q3：Prefill与Decode分离有什么意义？"></a>Q3：Prefill与Decode分离有什么意义？</h3><p>两阶段在计算、内存带宽与请求调度上需求不同，分离可以分别优化资源和吞吐，但增加KV传输、协调与部署复杂度。是否值得取决于硬件、网络、输入输出长度与流量分布，不能只根据概念判断必然更快。</p>
+<p><strong>追问：拆开之后，KV转移成本和排队变化怎样测量？</strong></p>
+<p><a id="q4"></a></p>
+<h3 id="Q4：量化、蒸馏和剪枝各解决什么？"><a href="#Q4：量化、蒸馏和剪枝各解决什么？" class="headerlink" title="Q4：量化、蒸馏和剪枝各解决什么？"></a>Q4：量化、蒸馏和剪枝各解决什么？</h3><p>量化降低数值表示精度，蒸馏让较小模型学习目标模型行为，剪枝减少部分参数或结构。它们影响不同资源与质量，实际加速还取决于硬件和内核支持。参数文件更小不必然等于端到端响应更快。</p>
+<p><strong>追问：工具调用、长文本与小概率边界是否受到不同程度影响？</strong></p>
+<p><a id="q5"></a></p>
+<h3 id="Q5：Speculative-Decoding为什么可能加速？"><a href="#Q5：Speculative-Decoding为什么可能加速？" class="headerlink" title="Q5：Speculative Decoding为什么可能加速？"></a>Q5：Speculative Decoding为什么可能加速？</h3><p>利用较便宜的草稿过程提出多个Token，再由目标模型验证，减少串行生成的瓶颈。收益依赖草稿成本、接受率、批量与硬件等条件；实现需要维持相应算法的分布性质。不能把未经验证的草稿直接当目标模型输出。</p>
+<p><strong>追问：草稿很差或目标模型批次很大时，收益可能下降。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2211.17192">原始研究</a></strong></p>
+<p><a id="q6"></a></p>
+<h3 id="Q6：张量并行、流水线并行和数据并行怎么区分？"><a href="#Q6：张量并行、流水线并行和数据并行怎么区分？" class="headerlink" title="Q6：张量并行、流水线并行和数据并行怎么区分？"></a>Q6：张量并行、流水线并行和数据并行怎么区分？</h3><p>张量并行拆分层内运算，流水线并行拆分层阶段，数据并行用副本处理不同请求或训练样本。推理部署要比较通信、显存、负载与容错；多卡不一定线性提速。训练与推理里的调度及状态需求也不同。</p>
+<p><strong>追问：单机多卡与跨机器高延迟网络，适合的并行组合为什么可能不同？</strong></p>
+<p><a id="q7"></a></p>
+<h3 id="Q7：为什么AI网关需要限流、配额和背压？"><a href="#Q7：为什么AI网关需要限流、配额和背压？" class="headerlink" title="Q7：为什么AI网关需要限流、配额和背压？"></a>Q7：为什么AI网关需要限流、配额和背压？</h3><p>模型与工具容量有限，网关应区分用户、租户、并发、Token或成本预算，对过载进行排队、拒绝或降级。只限制请求数可能忽略长输入长输出。背压需要向上游传递处理能力，避免无限队列造成延迟与内存失控。</p>
+<p><strong>追问：429和内部超时分别怎样分类、重试与计费？</strong></p>
+<p><a id="q8"></a></p>
+<h3 id="Q8：模型路由、Fallback与熔断怎么设计？"><a href="#Q8：模型路由、Fallback与熔断怎么设计？" class="headerlink" title="Q8：模型路由、Fallback与熔断怎么设计？"></a>Q8：模型路由、Fallback与熔断怎么设计？</h3><p>可以按任务难度、权限、模态和质量要求路由；下游故障时熔断，选择满足最低要求的替代方案。Fallback不是静默把重要任务转给质量不足的模型。需要记录模型切换，并防止同一任务在多提供商重复产生副作用。</p>
+<p><strong>追问：降级为只提供资料或草稿，是否比伪造完整结果更合适？</strong></p>
+<p><a id="q9"></a></p>
+<h3 id="Q9：缓存如何避免跨租户泄漏和过期回答？"><a href="#Q9：缓存如何避免跨租户泄漏和过期回答？" class="headerlink" title="Q9：缓存如何避免跨租户泄漏和过期回答？"></a>Q9：缓存如何避免跨租户泄漏和过期回答？</h3><p>缓存键应包含影响结果的权限、用户或租户、资料版本与配置等必要因素，失效规则要覆盖权限变更与删除。语义缓存还需判断近似问题是否真的可共用答案。不能将公开问题和私有问题仅按Embedding相似度混合命中。</p>
+<p><strong>追问：同一个用户离职或失去权限后，旧缓存如何失效？</strong></p>
+<p><a id="q10"></a></p>
+<h3 id="Q10：SSE与WebSocket怎么选？"><a href="#Q10：SSE与WebSocket怎么选？" class="headerlink" title="Q10：SSE与WebSocket怎么选？"></a>Q10：SSE与WebSocket怎么选？</h3><p>SSE适合服务端向客户端持续发送事件，WebSocket支持双向消息。选择要考虑客户端、代理、认证、连接恢复和交互需求。无论哪种方式，都需要定义事件边界、请求关联、取消和终态；网络流分片不能直接等于一个完整业务事件。</p>
+<p><strong>追问：客户端断开后模型是否继续生成、继续计费，需要应用与服务能力配合。</strong></p>
+<p><a id="q11"></a></p>
+<h3 id="Q11：设计一个企业知识库，先问哪些问题？"><a href="#Q11：设计一个企业知识库，先问哪些问题？" class="headerlink" title="Q11：设计一个企业知识库，先问哪些问题？"></a>Q11：设计一个企业知识库，先问哪些问题？</h3><p>先明确用户、资料类型和规模、更新频率、权限、查询负载、延迟、准确性与预算。再决定解析、索引、检索、生成和反馈链路。先画最小可用路径并标出失败点，而不是一开始列十个中间件。</p>
+<p><strong>追问：哪些质量要求必须人工验收？哪些可以自动度量？</strong></p>
+<p><a id="q12"></a></p>
+<h3 id="Q12：设计一个支持写操作的业务Agent，核心边界是什么？"><a href="#Q12：设计一个支持写操作的业务Agent，核心边界是什么？" class="headerlink" title="Q12：设计一个支持写操作的业务Agent，核心边界是什么？"></a>Q12：设计一个支持写操作的业务Agent，核心边界是什么？</h3><p>把模型提议与实际执行分开；只暴露允许动作，绑定可信身份，检查对象与版本，必要时获取具体确认。持久化运行与动作状态，写入有幂等、失败可查询，所有结果有审计与后置验证。模型不可成为权限与事实的唯一来源。</p>
+<p><strong>追问：批准后对象内容改变，是否还执行原操作？需检查前置条件。</strong></p>
+<p><a id="q13"></a></p>
+<h3 id="Q13：设计百万文档入库流水线，怎样处理失败？"><a href="#Q13：设计百万文档入库流水线，怎样处理失败？" class="headerlink" title="Q13：设计百万文档入库流水线，怎样处理失败？"></a>Q13：设计百万文档入库流水线，怎样处理失败？</h3><p>用稳定文档和版本ID管理采集、解析、向量化与索引状态；分阶段异步处理，限制资源并发，记录可重试与永久失败。支持幂等消费、隔离异常文档、重建和删除传播。不要把队列已消费等同于文档可被查询。</p>
+<p><strong>追问：解析成功、向量化失败时，需要回滚全部还是从检查点继续？按一致性目标设计。</strong></p>
+<p><a id="q14"></a></p>
+<h3 id="Q14：设计大规模导出与报告生成，如何控制资源？"><a href="#Q14：设计大规模导出与报告生成，如何控制资源？" class="headerlink" title="Q14：设计大规模导出与报告生成，如何控制资源？"></a>Q14：设计大规模导出与报告生成，如何控制资源？</h3><p>先异步创建任务，再分批读取与写出，限制并发与内存，保存进度和结果位置。处理取消、失败重试、文件有效期与下载权限。若报告含模型生成，还应区分数据事实、生成解释和校验结果。</p>
+<p><strong>追问：汇总所有分片后再写出，会带来怎样的内存峰值？</strong></p>
+<p><a id="q15"></a></p>
+<h3 id="Q15：设计实时语音或多模态助手，增加哪些问题？"><a href="#Q15：设计实时语音或多模态助手，增加哪些问题？" class="headerlink" title="Q15：设计实时语音或多模态助手，增加哪些问题？"></a>Q15：设计实时语音或多模态助手，增加哪些问题？</h3><p>需要处理输入流、识别&#x2F;理解、生成、合成与播放的时序，支持打断、回声、网络波动和延迟预算。不同阶段的部分结果可能变化，不能把临时识别文本直接触发不可逆动作。还要控制音视频授权、存储与外发。</p>
+<p><strong>追问：用户打断后，正在播放、生成与工具执行分别如何取消？</strong></p>
+<p><a id="q16"></a></p>
+<h3 id="Q16：设计Text-to-SQL，为什么不能让模型直连生产库？"><a href="#Q16：设计Text-to-SQL，为什么不能让模型直连生产库？" class="headerlink" title="Q16：设计Text-to-SQL，为什么不能让模型直连生产库？"></a>Q16：设计Text-to-SQL，为什么不能让模型直连生产库？</h3><p>模型生成SQL后仍需检查语法、表与列权限、查询范围、成本与结果大小。优先只读受限账号、超时和审计，高风险写操作走独立流程。对歧义指标先澄清，必要时使用语义层定义，不能让模型发明业务口径。</p>
+<p><strong>追问：只允许SELECT仍可能读取敏感信息或拖垮数据库。</strong></p>
+<p><a id="q17"></a></p>
+<h3 id="Q17：设计Agent工具平台，怎样管理注册与版本？"><a href="#Q17：设计Agent工具平台，怎样管理注册与版本？" class="headerlink" title="Q17：设计Agent工具平台，怎样管理注册与版本？"></a>Q17：设计Agent工具平台，怎样管理注册与版本？</h3><p>工具注册包含契约、说明、权限、风险、配额、负责人和版本；发布前进行参数、业务与对抗测试。调用方通过稳定接口适配不同实现，变更有兼容与下线策略。发现工具和授予权限分开，服务目录不是万能权限目录。</p>
+<p><strong>追问：工具描述被恶意更改，是否需要重新审查与缓存失效？</strong></p>
+<p><a id="q18"></a></p>
+<h3 id="Q18：设计聊天历史与长期记忆，数据怎么分层？"><a href="#Q18：设计聊天历史与长期记忆，数据怎么分层？" class="headerlink" title="Q18：设计聊天历史与长期记忆，数据怎么分层？"></a>Q18：设计聊天历史与长期记忆，数据怎么分层？</h3><p>将原始消息、任务状态、摘要、用户确认偏好和检索资料分别存储，规定权限、保留与删除。热路径只加载相关内容；恢复时依据持久化事实，而不是模型猜测。考虑导出、删除、版本和同步，避免派生向量遗留。</p>
+<p><strong>追问：用户要求忘记一个信息，哪些存储和缓存需要同步处理？</strong></p>
+<p><a id="q19"></a></p>
+<h3 id="Q19：设计多模型接入层，接口怎样抽象？"><a href="#Q19：设计多模型接入层，接口怎样抽象？" class="headerlink" title="Q19：设计多模型接入层，接口怎样抽象？"></a>Q19：设计多模型接入层，接口怎样抽象？</h3><p>抽象领域需要的能力，例如消息、流式事件、工具请求、使用量与错误；保留厂商特有能力与不支持项，避免最低公分母抽象吞掉重要语义。统一内部状态，但不能简单替换URL就假定参数、结束原因和工具格式完全兼容。</p>
+<p><strong>追问：一个提供商不支持某Schema或图像输入时，如何明确拒绝或降级？</strong></p>
+<p><a id="q20"></a></p>
+<h3 id="Q20：系统设计面试怎样组织答案？"><a href="#Q20：系统设计面试怎样组织答案？" class="headerlink" title="Q20：系统设计面试怎样组织答案？"></a>Q20：系统设计面试怎样组织答案？</h3><p>按需求与约束、数据模型、主链路、关键取舍、失败恢复、安全、可观察性和扩容顺序展开。给出可验证假设，而不是凭空报QPS、准确率和压缩比例。先说明简单方案何时够用，再讨论规模增加后的瓶颈。</p>
+<p><strong>追问：扩容前先确认瓶颈在模型、检索、工具、网络还是排队。</strong></p>
+<h2 id="设计题通用画法"><a href="#设计题通用画法" class="headerlink" title="设计题通用画法"></a>设计题通用画法</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs text">客户端<br>  → 身份/租户/配额<br>  → 任务编排与持久化状态<br>      → 资料与检索服务<br>      → 模型适配层<br>      → 策略/审批 → 工具执行 → 幂等与业务存储<br>  → 状态与结果验证<br>  → 流式事件/结果下载<br><br>横切：超时、取消、日志脱敏、Trace、评测版本、告警、回滚<br></code></pre></td></tr></table></figure>
+
+<p>这是一张讨论边界的草图，不要求每个小项目都拆成独立服务。单体可以先实现相同职责边界，等规模和团队需求出现后再拆分。</p>
+<h2 id="容量与成本：三个有条件的估算"><a href="#容量与成本：三个有条件的估算" class="headerlink" title="容量与成本：三个有条件的估算"></a>容量与成本：三个有条件的估算</h2><h3 id="端到端时间"><a href="#端到端时间" class="headerlink" title="端到端时间"></a>端到端时间</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">总时间 ≈ 排队 + 输入处理 + 检索 + 模型阶段 + 工具阶段 + 结果处理<br></code></pre></td></tr></table></figure>
+
+<p>独立并行步骤应按关键路径分析，不能把所有阶段机械求和；多轮工具还会增加模型往返。测量时记录时间戳与调用关系，区分服务端与客户端观察。</p>
+<h3 id="稳态并发"><a href="#稳态并发" class="headerlink" title="稳态并发"></a>稳态并发</h3><p>在满足稳定系统等条件时，Little定律给出L&#x3D;λW：平均系统内请求数等于到达率乘平均停留时间。它帮助做粗估，不代表峰值、长尾或显存需求已经解决。模型服务还有Token长度、缓存与批处理等变量。</p>
+<h3 id="每个成功任务的成本"><a href="#每个成功任务的成本" class="headerlink" title="每个成功任务的成本"></a>每个成功任务的成本</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">成功任务平均成本 = 统计窗口内全部相关成本 / 成功完成的任务数<br></code></pre></td></tr></table></figure>
+
+<p>分子应包含失败与重试，而不是只统计成功调用的Token。是否纳入固定硬件、存储和人工成本需要声明。使用这个口径比较路由与缓存，往往比“单次调用更便宜”更接近业务结果。</p>
+<h2 id="复习与自检"><a href="#复习与自检" class="headerlink" title="复习与自检"></a>复习与自检</h2><p>把每题压缩成30秒定义，再用两分钟说明机制、代价和失败场景。遇到依赖厂商或协议版本的结论，记录适用范围，不背成普遍定律。</p>
+<ol>
+<li>能否与相近概念清楚区分？</li>
+<li>能否给出一个正常流程和一个失败流程？</li>
+<li>能否说明这个方案解决不了什么？</li>
+<li>能否设计一个验证自己判断的实验或测试？</li>
+</ol>
+<h2 id="参考资料与版本"><a href="#参考资料与版本" class="headerlink" title="参考资料与版本"></a>参考资料与版本</h2><p>资料核对日期：2026年11月1日。论文用于概念出处，产品文档用于对应实现；本文的设计判断需要结合具体系统验证。MCP章节固定使用2025-11-25规范，不将其宣称为所有实现或最新版本。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2309.06180">vLLM设计论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/">vLLM官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2211.17192">Speculative Decoding</a></li>
+<li><a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/multipage/server-sent-events.html">SSE规范</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/rfc6455">WebSocket RFC6455</a></li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">OpenTelemetry GenAI</a></li>
+</ul>
+<h2 id="继续阅读"><a href="#继续阅读" class="headerlink" title="继续阅读"></a>继续阅读</h2><ul>
+<li>上一篇：<a href="/ai-handbook/evaluation-security/">评测、安全、可观测性与治理</a></li>
+<li><a href="/interview/agent-skills/">返回总目录</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI%E5%BA%94%E7%94%A8%E5%B7%A5%E7%A8%8B/" class="category-chain-item">AI应用工程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/" class="print-no-link">#AI</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="print-no-link">#大模型</a>
+      
+        <a href="/tags/AI%E5%B7%A5%E7%A8%8B/" class="print-no-link">#AI工程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>AI 应用工程八股文（8）：推理服务、性能与系统设计 20 问</div>
+      <div>https://whyalwaysme.lol/ai-handbook/serving-system-design/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年11月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/ai-handbook/mcp-protocol/" title="AI 应用工程八股文（5）：MCP 协议、生命周期、传输与鉴权 20 问">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">AI 应用工程八股文（5）：MCP 协议、生命周期、传输与鉴权 20 问</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/ai-handbook/evaluation-security/" title="AI 应用工程八股文（7）：评测、安全、可观测性与治理 20 问">
+                        <span class="hidden-mobile">AI 应用工程八股文（7）：评测、安全、可观测性与治理 20 问</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
+<script src="/js/reading.js"></script>
+<script src="/js/diagrams.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
