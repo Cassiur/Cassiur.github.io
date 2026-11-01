@@ -1,0 +1,795 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="分布式可靠性与一致性 12 问：包含机制、失败场景与验证方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式可靠性与一致性 12 问">
+<meta property="og:url" content="https://whyalwaysme.lol/question-bank/reliability/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="分布式可靠性与一致性 12 问：包含机制、失败场景与验证方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-01T16:10:00.000Z">
+<meta property="article:modified_time" content="2026-11-01T16:12:59.961Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Java后端">
+<meta property="article:tag" content="工程实践">
+<meta property="article:tag" content="题库整理">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>分布式可靠性与一致性 12 问 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mobile.css">
+<link rel="stylesheet" href="/css/reading.css">
+<link rel="stylesheet" href="/css/diagrams.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="分布式可靠性与一致性 12 问"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-11-02 00:10" pubdate>
+          2026年11月2日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">分布式可靠性与一致性 12 问</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><a href="/question-bank/">题库总目录</a> · <a href="/interview/agent-skills/">AI应用工程160问</a></p>
+<p>本篇围绕工程中容易被忽略的边界组织问题。每题包含核心解释、失败场景与验证方法；示例是教学设计，不是作者的生产事故或性能报告。具体API、参数与预览特性的状态以所用版本为准。</p>
+<h2 id="问题索引"><a href="#问题索引" class="headerlink" title="问题索引"></a>问题索引</h2><ul>
+<li><a href="#q1">Q1：数据库写入与消息发送为什么会出现双写问题？</a></li>
+<li><a href="#q2">Q2：Transactional Outbox怎样工作？</a></li>
+<li><a href="#q3">Q3：CDC与轮询Outbox有什么区别？</a></li>
+<li><a href="#q4">Q4：幂等键怎样选才不会误去重？</a></li>
+<li><a href="#q5">Q5：数据库唯一键为什么常比“先查再插”可靠？</a></li>
+<li><a href="#q6">Q6：至少一次投递怎样实现业务只生效一次？</a></li>
+<li><a href="#q7">Q7：分布式锁为什么还需要fencing或对象版本？</a></li>
+<li><a href="#q8">Q8：重试、退避、超时与总预算怎样协调？</a></li>
+<li><a href="#q9">Q9：为什么要有UNKNOWN状态？</a></li>
+<li><a href="#q10">Q10：Saga补偿为什么不等于数据库回滚？</a></li>
+<li><a href="#q11">Q11：消息顺序与并发吞吐怎样取舍？</a></li>
+<li><a href="#q12">Q12：补偿、对账和可观察性怎样形成闭环？</a></li>
+</ul>
+<h2 id="核心问答"><a href="#核心问答" class="headerlink" title="核心问答"></a>核心问答</h2><p><a id="q1"></a></p>
+<h3 id="Q1：数据库写入与消息发送为什么会出现双写问题？"><a href="#Q1：数据库写入与消息发送为什么会出现双写问题？" class="headerlink" title="Q1：数据库写入与消息发送为什么会出现双写问题？"></a>Q1：数据库写入与消息发送为什么会出现双写问题？</h3><p>**核心解释：**数据库提交与Broker接受消息是两个独立事件。先提交可能在发消息前崩溃，先发消息可能在数据库提交前被消费。普通本地事务不会自动覆盖远端Broker。</p>
+<p>**失败场景：**事务方法里调用send不等于两者原子提交；重试还可能产生重复消息。</p>
+<p>**验证方法：**画出两个提交点及中间崩溃窗口，为每个窗口说明消息、数据与恢复状态。</p>
+<p><a id="q2"></a></p>
+<h3 id="Q2：Transactional-Outbox怎样工作？"><a href="#Q2：Transactional-Outbox怎样工作？" class="headerlink" title="Q2：Transactional Outbox怎样工作？"></a>Q2：Transactional Outbox怎样工作？</h3><p>**核心解释：**在同一数据库事务中写业务记录与待发事件，再由投递器读取事件并发布。它把“业务提交但没有持久化待发意图”的窗口缩小到同一事务边界；投递器仍可能重复发送。</p>
+<p>**失败场景：**不能把Outbox描述成自动实现全链路恰好一次。消费者仍要幂等，投递状态、积压和清理也要管理。</p>
+<p>**验证方法：**注入数据库提交后进程退出、发送成功后标记失败、重复投递，验证可恢复性与不重复业务效果。</p>
+<p><a id="q3"></a></p>
+<h3 id="Q3：CDC与轮询Outbox有什么区别？"><a href="#Q3：CDC与轮询Outbox有什么区别？" class="headerlink" title="Q3：CDC与轮询Outbox有什么区别？"></a>Q3：CDC与轮询Outbox有什么区别？</h3><p>**核心解释：**轮询定期查询待发记录，需要索引、锁和批量策略；CDC从数据库变更日志捕获事件，需要连接器、位点、Schema及恢复管理。二者都要考虑保留、积压和重复，不能只按“实时”二字选型。</p>
+<p>**失败场景：**CDC连接器位点丢失或日志已过期时，需要明确重建与补数方式。</p>
+<p>**验证方法：**测试暂停与恢复、事件格式变更和积压，核对最终事件数量与业务版本，而不只观察连接器存活。</p>
+<p><a id="q4"></a></p>
+<h3 id="Q4：幂等键怎样选才不会误去重？"><a href="#Q4：幂等键怎样选才不会误去重？" class="headerlink" title="Q4：幂等键怎样选才不会误去重？"></a>Q4：幂等键怎样选才不会误去重？</h3><p>**核心解释：**键应对应业务意图，例如订单与操作版本，并绑定参数摘要与调用者范围。相同键与相同参数可复用结果，相同键不同参数应返回冲突。键的保存期限也要覆盖实际重试窗口。</p>
+<p>**失败场景：**随机生成新键的每次重试无法去重；仅用用户ID又可能把同一用户不同操作合并。</p>
+<p>**验证方法：**测试同键同参、同键异参、并发相同操作、键过期后的迟到重试。</p>
+<p><a id="q5"></a></p>
+<h3 id="Q5：数据库唯一键为什么常比“先查再插”可靠？"><a href="#Q5：数据库唯一键为什么常比“先查再插”可靠？" class="headerlink" title="Q5：数据库唯一键为什么常比“先查再插”可靠？"></a>Q5：数据库唯一键为什么常比“先查再插”可靠？</h3><p>**核心解释：**唯一约束在并发提交时提供冲突判定；先查询不存在再插入存在竞争窗口。仍需将去重、状态变更和结果记录放在合理事务内，并正确处理唯一冲突，而非把所有异常当成功。</p>
+<p>**失败场景：**唯一键能限制某条记录重复，不自动协调外部HTTP或邮件副作用。</p>
+<p>**验证方法：**用屏障同时发起两个操作，断言业务只变化一次、重复请求得到正确的已完成或处理中结果。</p>
+<p><a id="q6"></a></p>
+<h3 id="Q6：至少一次投递怎样实现业务只生效一次？"><a href="#Q6：至少一次投递怎样实现业务只生效一次？" class="headerlink" title="Q6：至少一次投递怎样实现业务只生效一次？"></a>Q6：至少一次投递怎样实现业务只生效一次？</h3><p>**核心解释：**把消息身份、业务前置状态和业务写入协调起来，成功持久化后再确认消息；重复消息根据既有状态返回。涉及多个存储或外部系统时需要更多协调或补偿。</p>
+<p>**失败场景：**先写幂等标记后业务失败可能导致永久漏处理；先业务成功后单独写标记可能重复执行。</p>
+<p>**验证方法：**在标记和业务每个提交点注入失败，检查最终是否可以恢复且不丢合法操作。</p>
+<p><a id="q7"></a></p>
+<h3 id="Q7：分布式锁为什么还需要fencing或对象版本？"><a href="#Q7：分布式锁为什么还需要fencing或对象版本？" class="headerlink" title="Q7：分布式锁为什么还需要fencing或对象版本？"></a>Q7：分布式锁为什么还需要fencing或对象版本？</h3><p>**核心解释：**锁租约可能在客户端长暂停或网络异常时过期，旧持有者恢复后仍可能写入。Fencing让受保护资源拒绝过期持有者的较旧令牌，或通过对象版本&#x2F;条件写拒绝陈旧更新。</p>
+<p>**失败场景：**只有客户端拿到递增数字，而下游从不验证它，不能提供fencing效果。</p>
+<p>**验证方法：**暂停旧持有者到租约过期，让新持有者完成写入，再恢复旧持有者，验证陈旧写被拒绝。</p>
+<p><a id="q8"></a></p>
+<h3 id="Q8：重试、退避、超时与总预算怎样协调？"><a href="#Q8：重试、退避、超时与总预算怎样协调？" class="headerlink" title="Q8：重试、退避、超时与总预算怎样协调？"></a>Q8：重试、退避、超时与总预算怎样协调？</h3><p>**核心解释：**单次超时不能超过剩余总截止时间；只对允许且可能恢复的失败有限重试，配合退避和抖动。所有层同时默认重试会放大流量，导致原故障更严重。</p>
+<p>**失败场景：**写操作的超时可能意味着结果未知，不能直接按读取失败重试。</p>
+<p>**验证方法：**记录每次尝试、剩余预算与幂等键，模拟下游限流或慢响应，检查总耗时与实际副作用。</p>
+<p><a id="q9"></a></p>
+<h3 id="Q9：为什么要有UNKNOWN状态？"><a href="#Q9：为什么要有UNKNOWN状态？" class="headerlink" title="Q9：为什么要有UNKNOWN状态？"></a>Q9：为什么要有UNKNOWN状态？</h3><p>**核心解释：**连接中断后可能无法立即知道外部操作是否完成。UNKNOWN承认这个事实，允许通过查询、回调或对账恢复。把未知强行当失败再重试，或强行当成功结束，都可能造成业务损害。</p>
+<p>**失败场景：**用户看到“请求失败”不一定代表“业务没有发生”，界面应表达可查询的处理中或未知结果。</p>
+<p>**验证方法：**模拟服务已提交但响应丢失，验证恢复过程不会产生第二次操作。</p>
+<p><a id="q10"></a></p>
+<h3 id="Q10：Saga补偿为什么不等于数据库回滚？"><a href="#Q10：Saga补偿为什么不等于数据库回滚？" class="headerlink" title="Q10：Saga补偿为什么不等于数据库回滚？"></a>Q10：Saga补偿为什么不等于数据库回滚？</h3><p>**核心解释：**Saga把多个局部事务和补偿步骤组织起来。补偿是新的业务动作，可能不完全恢复原状态，也可能失败或需要人工处理。它需要幂等、顺序与审计，不能宣称撤销所有外部影响。</p>
+<p>**失败场景：**发出的邮件、市场价格变化或外部已消费数据通常不能靠一条反向SQL完全撤销。</p>
+<p>**验证方法：**对每个步骤与补偿步骤注入失败，验证最终状态、重试、人工处理入口和审计。</p>
+<p><a id="q11"></a></p>
+<h3 id="Q11：消息顺序与并发吞吐怎样取舍？"><a href="#Q11：消息顺序与并发吞吐怎样取舍？" class="headerlink" title="Q11：消息顺序与并发吞吐怎样取舍？"></a>Q11：消息顺序与并发吞吐怎样取舍？</h3><p>**核心解释：**先确定需要全局顺序还是同业务键顺序，再选择分区、路由与消费执行方式。扩大并发可能打破同键处理顺序；即使到达有序，异步执行完成也可能乱序。</p>
+<p>**失败场景：**锁住单进程处理不能自动覆盖多消费者；死信重放也可能改变原始顺序。</p>
+<p>**验证方法：**为同一对象发送版本1、2、3，故意让执行时间不同，验证版本检查与最终状态。</p>
+<p><a id="q12"></a></p>
+<h3 id="Q12：补偿、对账和可观察性怎样形成闭环？"><a href="#Q12：补偿、对账和可观察性怎样形成闭环？" class="headerlink" title="Q12：补偿、对账和可观察性怎样形成闭环？"></a>Q12：补偿、对账和可观察性怎样形成闭环？</h3><p>**核心解释：**持久化操作身份、外部关联、状态和时间；周期性找出长期未完成、未知或不一致项，按规则查询、补偿或人工处理。监控积压、重试与失败年龄，不能只监控接口成功率。</p>
+<p><strong>失败场景：</strong>“最终一致”需要持续恢复机制与适用故障前提，不是允许永远不一致的说法。</p>
+<p>**验证方法：**停止投递器、制造重复和结果未知，再恢复服务，按业务事实核对而非只数日志。</p>
+<h2 id="Outbox示意：这个事务覆盖什么"><a href="#Outbox示意：这个事务覆盖什么" class="headerlink" title="Outbox示意：这个事务覆盖什么"></a>Outbox示意：这个事务覆盖什么</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">数据库事务：更新订单 + 插入Outbox事件 → COMMIT<br>投递器：读取事件 → 发布到Broker → 标记或记录发布结果<br>消费者：校验与幂等业务变更 → 成功后确认<br></code></pre></td></tr></table></figure>
+
+<p>数据库事务覆盖第一行，不覆盖所有后续行。投递器在“发布成功、记录前”退出时可能重复投递，因此测试要覆盖这一窗口。</p>
+<h2 id="官方参考与版本"><a href="#官方参考与版本" class="headerlink" title="官方参考与版本"></a>官方参考与版本</h2><p>核对日期：2026年11月2日。JavaAPI以链接中的版本为例；数据库与组件按各自版本理解。这里提出的组合设计与验证步骤仍需针对实际系统测试。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html">Debezium Outbox</a></li>
+<li><a target="_blank" rel="noopener" href="https://kafka.apache.org/20/design/design/">Kafka事务与外部系统边界</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/docs/reliability">RabbitMQ可靠性</a></li>
+<li><a target="_blank" rel="noopener" href="https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/">Redis分布式锁</a></li>
+</ul>
+<p><a href="/question-bank/">返回题库总目录</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%90%8E%E7%AB%AF%E5%B7%A5%E7%A8%8B%E9%A2%98%E5%BA%93/" class="category-chain-item">后端工程题库</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Java%E5%90%8E%E7%AB%AF/" class="print-no-link">#Java后端</a>
+      
+        <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" class="print-no-link">#工程实践</a>
+      
+        <a href="/tags/%E9%A2%98%E5%BA%93%E6%95%B4%E7%90%86/" class="print-no-link">#题库整理</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>分布式可靠性与一致性 12 问</div>
+      <div>https://whyalwaysme.lol/question-bank/reliability/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年11月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/question-bank/modern-java/" title="现代 Java 与并发工程 12 问">
+                        <span class="hidden-mobile">现代 Java 与并发工程 12 问</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
+<script src="/js/reading.js"></script>
+<script src="/js/diagrams.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

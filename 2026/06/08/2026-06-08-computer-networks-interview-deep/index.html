@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="计算机网络30+题：TCP三次握手&#x2F;四次挥手、HTTP&#x2F;HTTPS工作原理、DNS解析全流程。">
+    <meta name="description" content="计算机网络面试八股文——30+题深度解析（TCP&#x2F;IP&#x2F;HTTP&#x2F;HTTPS全覆盖）：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="计算机网络面试八股文——30+题深度解析（TCP&#x2F;IP&#x2F;HTTP&#x2F;HTTPS全覆盖）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/08/2026-06-08-computer-networks-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="计算机网络30+题：TCP三次握手&#x2F;四次挥手、HTTP&#x2F;HTTPS工作原理、DNS解析全流程。">
+<meta property="og:description" content="计算机网络面试八股文——30+题深度解析（TCP&#x2F;IP&#x2F;HTTP&#x2F;HTTPS全覆盖）：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-08T10:50:00.000Z">
-<meta property="article:modified_time" content="2026-10-11T08:56:43.930Z">
+<meta property="article:modified_time" content="2026-11-01T16:19:15.627Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="DNS">
 <meta property="article:tag" content="HTTP">
@@ -249,7 +249,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          25k 字
+          26k 字
         
       </span>
     
@@ -260,7 +260,7 @@
         
         
         
-          213 分钟
+          218 分钟
         
       </span>
     
@@ -303,6 +303,13 @@
               <div class="markdown-body">
                 
                 <blockquote>
+<p>**阅读提示（2026-11-02整理）：**先阅读核心回答，再按需展开补充示例；参数、默认值和源码实现以实际版本为准，教学示例不等于生产验证。</p>
+</blockquote>
+<p><a href="/question-bank/">题库总目录</a> · <a href="/question-bank/modern-java/">现代Java</a> · <a href="/question-bank/reliability/">可靠性</a> · <a href="/question-bank/testing/">测试</a> · <a href="/question-bank/troubleshooting/">排障</a></p>
+<blockquote>
+<p>**示例口径：**第一人称示范回答应换成自己的真实经历；教学场景和未提供测试依据的性能数字，不作为作者经历或生产测量证据。</p>
+</blockquote>
+<blockquote>
 <p><strong>写在前面</strong>：计算机网络是面试必问的基础知识点，本文覆盖 TCP&#x2F;IP、HTTP&#x2F;HTTPS、三次握手四次挥手、DNS、ARP、子网掩码、UDP vs TCP 等核心知识点，每题都有「一句话总结 + 深度解析 + 面试加分回答」，帮你彻底搞懂计网面试。</p>
 </blockquote>
 <hr>
@@ -321,7 +328,60 @@
 <li><a href="#12-%E9%AB%98%E9%A2%91%E9%9D%A2%E8%AF%95%E9%A2%98">高频面试题</a></li>
 </ol>
 <hr>
-<h2 id="1-网络模型"><a href="#1-网络模型" class="headerlink" title="1. 网络模型"></a>1. 网络模型</h2><h3 id="Q1：OSI-七层模型和-TCP-IP-四层模型的区别？"><a href="#Q1：OSI-七层模型和-TCP-IP-四层模型的区别？" class="headerlink" title="Q1：OSI 七层模型和 TCP&#x2F;IP 四层模型的区别？"></a>Q1：OSI 七层模型和 TCP&#x2F;IP 四层模型的区别？</h3><p><strong>一句话总结</strong>：OSI 是理论模型（七层），TCP&#x2F;IP 是实际使用的模型（四层），面试时主要考 TCP&#x2F;IP。</p>
+<h2 id="1-网络模型"><a href="#1-网络模型" class="headerlink" title="1. 网络模型"></a>1. 网络模型</h2><h2 id="核心问题索引"><a href="#核心问题索引" class="headerlink" title="核心问题索引"></a>核心问题索引</h2><ul>
+<li><a href="#qb-1">Q1：OSI 七层模型和 TCP&#x2F;IP 四层模型的区别？</a></li>
+<li><a href="#qb-2">Q2：各层的数据名称是什么？</a></li>
+<li><a href="#qb-3">Q3：TCP 三次握手的过程？</a></li>
+<li><a href="#qb-4">Q4：TCP 四次挥手的过程？</a></li>
+<li><a href="#qb-5">Q5：TCP 如何保证可靠传输？</a></li>
+<li><a href="#qb-6">Q6：TCP 和 UDP 的区别？</a></li>
+<li><a href="#qb-7">Q7：UDP 的应用场景有哪些？</a></li>
+<li><a href="#qb-8">Q8：HTTP 的请求方法有哪些？</a></li>
+<li><a href="#qb-9">Q9：HTTP 的请求结构和响应结构？</a></li>
+<li><a href="#qb-10">Q10：HTTP&#x2F;1.0、HTTP&#x2F;1.1、HTTP&#x2F;2、HTTP&#x2F;3 的区别？</a></li>
+<li><a href="#qb-11">Q11：HTTPS 的工作原理？</a></li>
+<li><a href="#qb-12">Q12：对称加密和非对称加密的区别？</a></li>
+<li><a href="#qb-13">Q13：DNS 的解析过程？</a></li>
+<li><a href="#qb-14">Q14：ARP 协议的作用和工作原理？</a></li>
+<li><a href="#qb-15">Q15：IP 地址的分类？</a></li>
+<li><a href="#qb-16">Q16：子网掩码的作用？如何计算子网？</a></li>
+<li><a href="#qb-17">Q17：常见的 HTTP 状态码有哪些？</a></li>
+<li><a href="#qb-18">Q18：Cookie 和 Session 的区别？</a></li>
+<li><a href="#qb-19">Q19：什么是 CSRF 攻击？如何防御？</a></li>
+<li><a href="#qb-20">Q20：什么是 XSS 攻击？如何防御？</a></li>
+<li><a href="#qb-21">Q21：从浏览器输入 URL 到页面加载完成，发生了什么？</a></li>
+<li><a href="#qb-22">Q22：什么是长连接和短连接？</a></li>
+<li><a href="#qb-23">Q23：什么是 WebSocket？和 HTTP 的区别？</a></li>
+<li><a href="#qb-24">Q24：什么是 HTTP 长轮询和短轮询？</a></li>
+<li><a href="#qb-25">Q25：什么是 RESTful API？</a></li>
+<li><a href="#qb-26">Q26：HTTP 缓存机制（Cache-Control、ETag）？</a></li>
+<li><a href="#qb-27">Q27：TCP 拥塞控制的四种算法？</a></li>
+<li><a href="#qb-28">Q28：ICMP 协议是干什么的？Ping 的原理？</a></li>
+<li><a href="#qb-29">Q29：HTTP&#x2F;2 的多路复用是什么？和 HTTP&#x2F;1.1 比有什么优势？</a></li>
+<li><a href="#qb-30">Q30：网络故障排查的常用工具和命令？</a></li>
+<li><a href="#qb-31">Q31：HTTP&#x2F;3 和 QUIC 协议是什么？解决了 HTTP&#x2F;2 的什么问题？</a></li>
+<li><a href="#qb-32">Q32：DNS 的解析过程是什么？（递归查询 vs 迭代查询）</a></li>
+<li><a href="#qb-33">Q33：HTTPS 的证书链验证过程？</a></li>
+<li><a href="#qb-34">Q34：TCP 的 keep-alive 和 HTTP 的 keep-alive 区别？</a></li>
+<li><a href="#qb-35">Q35：WebSocket 的原理和适用场景？</a></li>
+<li><a href="#qb-36">Q36：RESTful API 的设计规范？</a></li>
+<li><a href="#qb-37">Q37：跨域（CORS）的原理和解决方案？</a></li>
+<li><a href="#qb-38">Q38：CDN 的原理和缓存策略？</a></li>
+<li><a href="#qb-39">Q39：网络分层模型（OSI 七层 vs TCP&#x2F;IP 四层）？</a></li>
+<li><a href="#qb-40">Q40：ARP 协议的原理（IP 转 MAC）？</a></li>
+<li><a href="#qb-41">Q41：DHCP 协议的原理（动态分配 IP）？</a></li>
+<li><a href="#qb-42">Q42：NAT（网络地址转换）的原理？</a></li>
+<li><a href="#qb-43">Q43：对称加密 vs 非对称加密？</a></li>
+<li><a href="#qb-44">Q44：中间人攻击（MITM）的原理和防范？</a></li>
+<li><a href="#qb-45">Q45：VPN 的原理？</a></li>
+<li><a href="#qb-46">Q46：网络性能优化（DNS 预解析、TCP 优化、HTTP&#x2F;2 推送）？</a></li>
+<li><a href="#qb-47">Q47：实际网络故障排查案例？</a></li>
+<li><a href="#qb-48">Q48：HTTP 状态码全家桶（1xx ~ 5xx）？</a></li>
+<li><a href="#qb-49">Q49：HTTP 请求头和响应头的常用字段？</a></li>
+<li><a href="#qb-50">Q50：网络安全（XSS、CSRF、SQL 注入）的原理和防范？</a></li>
+</ul>
+<p><a id="qb-1"></a></p>
+<h3 id="Q1：OSI-七层模型和-TCP-IP-四层模型的区别？"><a href="#Q1：OSI-七层模型和-TCP-IP-四层模型的区别？" class="headerlink" title="Q1：OSI 七层模型和 TCP&#x2F;IP 四层模型的区别？"></a>Q1：OSI 七层模型和 TCP&#x2F;IP 四层模型的区别？</h3><p><strong>一句话总结</strong>：OSI 是理论模型（七层），TCP&#x2F;IP 是实际使用的模型（四层），面试时主要考 TCP&#x2F;IP。</p>
 <p><strong>深度解析</strong>：</p>
 <p>想象你要给朋友寄一封信：</p>
 <figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">OSI</span> 七层模型（理论版，太复杂）：<br>应用层  → 你写的内容<br>表示层  → 翻译成对方能懂的语言<br>会话层  → 建立对话连接<br>传输层  → 选择挂号信还是平信<br>网络层  → 填写收件地址<br>数据链路层 → 选择运输公司<br>物理层  → 实际的运输工具<br><br><span class="hljs-symbol">TCP</span>/<span class="hljs-built_in">IP</span> 四层模型（实际版，简化了）：<br>应用层  → 你写的内容 + 翻译成对方能懂的语言 + 建立对话连接<br>传输层  → 选择挂号信还是平信<br>网络层  → 填写收件地址<br>网络接口层 → 选择运输公司 + 实际的运输工具<br></code></pre></td></tr></table></figure>
@@ -419,6 +479,7 @@
 <p>OSI 七层模型是理论模型，实际互联网使用的是 TCP&#x2F;IP 四层模型。面试时如果说 OSI，要能说清楚每一层的功能和协议；如果说 TCP&#x2F;IP，要能说清楚每一层的作用。另外，有些资料会把 TCP&#x2F;IP 分成五层（把网络接口层拆成数据链路层和物理层），这是等价的。</p>
 </blockquote>
 <hr>
+<p><a id="qb-2"></a></p>
 <h3 id="Q2：各层的数据名称是什么？"><a href="#Q2：各层的数据名称是什么？" class="headerlink" title="Q2：各层的数据名称是什么？"></a>Q2：各层的数据名称是什么？</h3><p><strong>一句话总结</strong>：不同层对数据有不同的叫法，从应用到物理依次是：<strong>报文&#x2F;消息 → 报文段 → 数据报 → 帧 → 比特流</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">应用层  → 报文（Message）<br>传输层  → 报文段（<span class="hljs-meta">Segment</span>，TCP）或 用户数据报（Datagram，UDP）<br>网络层  → 数据报（Packet，<span class="hljs-built_in">IP</span>）<br>数据链路层 → 帧（Frame）<br>物理层  → 比特流（<span class="hljs-meta">Bits</span>）<br></code></pre></td></tr></table></figure>
@@ -428,7 +489,8 @@
 <p>数据名称的区分是面试常考题。TCP 的数据叫”报文段”（Segment），IP 的数据叫”数据报”（Packet），以太网的数据叫”帧”（Frame）。这些名称反映了不同层对数据的处理方式。</p>
 </blockquote>
 <hr>
-<h2 id="2-TCP-协议"><a href="#2-TCP-协议" class="headerlink" title="2. TCP 协议"></a>2. TCP 协议</h2><h3 id="Q3：TCP-三次握手的过程？"><a href="#Q3：TCP-三次握手的过程？" class="headerlink" title="Q3：TCP 三次握手的过程？"></a>Q3：TCP 三次握手的过程？</h3><p><strong>一句话总结</strong>：客户端和服务器之间建立连接需要三个步骤：<strong>客户端发 SYN → 服务器回 SYN+ACK → 客户端发 ACK</strong>。</p>
+<h2 id="2-TCP-协议"><a href="#2-TCP-协议" class="headerlink" title="2. TCP 协议"></a>2. TCP 协议</h2><p><a id="qb-3"></a></p>
+<h3 id="Q3：TCP-三次握手的过程？"><a href="#Q3：TCP-三次握手的过程？" class="headerlink" title="Q3：TCP 三次握手的过程？"></a>Q3：TCP 三次握手的过程？</h3><p><strong>一句话总结</strong>：客户端和服务器之间建立连接需要三个步骤：<strong>客户端发 SYN → 服务器回 SYN+ACK → 客户端发 ACK</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p>想象你要和朋友打电话：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs routeros">第一次握手（SYN）：<br>你：<span class="hljs-string">&quot;喂，能听到我说话吗？&quot;</span>（客户端发送 <span class="hljs-attribute">SYN</span>=1，seq=x）<br>→ 证明客户端发送能力正常<br><br>第二次握手（SYN+ACK）：<br>朋友：<span class="hljs-string">&quot;能听到，你能听到我说话吗？&quot;</span>（服务器发送 <span class="hljs-attribute">SYN</span>=1，ACK=1，seq=y，ack=x+1）<br>→ 证明服务器接收和发送能力正常<br><br>第三次握手（ACK）：<br>你：<span class="hljs-string">&quot;我也能听到你！&quot;</span>（客户端发送 <span class="hljs-attribute">ACK</span>=1，seq=x+1，ack=y+1）<br>→ 证明客户端接收能力正常<br><br>三次握手完成，连接建立，可以开始传输数据了。<br></code></pre></td></tr></table></figure>
@@ -449,6 +511,7 @@
 <p>另外，第三次握手可以携带数据（HTTP 请求），这是 TCP 的”快速打开”（TFO）特性的基础。半连接队列&#x2F;全连接队列和 SYN Cookie 是三次握手最容易被追问的深水区，面试时最好主动提一句。</p>
 </blockquote>
 <hr>
+<p><a id="qb-4"></a></p>
 <h3 id="Q4：TCP-四次挥手的过程？"><a href="#Q4：TCP-四次挥手的过程？" class="headerlink" title="Q4：TCP 四次挥手的过程？"></a>Q4：TCP 四次挥手的过程？</h3><p><strong>一句话总结</strong>：断开连接需要四个步骤：<strong>客户端发 FIN → 服务器回 ACK → 服务器发 FIN → 客户端回 ACK</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p>想象你和朋友打电话要挂断：</p>
@@ -505,6 +568,7 @@
 </code></pre>
 
 <hr>
+<p><a id="qb-5"></a></p>
 <h3 id="Q5：TCP-如何保证可靠传输？"><a href="#Q5：TCP-如何保证可靠传输？" class="headerlink" title="Q5：TCP 如何保证可靠传输？"></a>Q5：TCP 如何保证可靠传输？</h3><p><strong>一句话总结</strong>：TCP 通过<strong>校验和、序列号、确认应答、超时重传、流量控制、拥塞控制</strong>六大机制保证可靠传输。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">① 校验和（<span class="hljs-variable">Checksum</span>）：<br>   发送方计算校验和，接收方验证，<br>   如果数据在传输过程中损坏，校验和不匹配，接收方会丢弃数据包并要求重传。<br><br>② 序列号（<span class="hljs-built_in">Sequence</span> <span class="hljs-built_in">Number</span>）：<br>   每个字节的数据都有唯一的序列号，<br>   接收方可以根据序列号重新排序，确保数据按顺序到达。<br>   也可以识别重复的数据包（序列号相同就是重复的）。<br><br>③ 确认应答（<span class="hljs-variable">ACK</span>）：<br>   接收方收到数据后，发送 <span class="hljs-variable">ACK</span> 确认，<br>   告诉发送方<span class="hljs-string">&quot;我已经收到序列号 X 之前的所有数据了&quot;</span>。<br>   如果发送方在规定时间内没收到 <span class="hljs-variable">ACK</span>，就会重传。<br><br>④ 超时重传（<span class="hljs-variable">Timeout</span> <span class="hljs-variable">Retransmission</span>）：<br>   发送方发送数据后启动定时器，<br>   如果在定时器到期前没收到 <span class="hljs-variable">ACK</span>，就重传数据。<br>   <span class="hljs-variable">RTT</span>（<span class="hljs-built_in">Round</span><span class="hljs-operator">-</span><span class="hljs-variable">Trip</span> <span class="hljs-variable">Time</span>）：往返时间，动态调整超时时间。<br><br>⑤ 流量控制（<span class="hljs-variable">Flow</span> <span class="hljs-built_in">Control</span>）：<br>   通过滑动窗口机制，接收方告诉发送方自己的接收窗口大小，<br>   发送方根据接收窗口大小调整发送速度，防止接收方缓冲区溢出。<br><br>⑥ 拥塞控制（<span class="hljs-variable">Congestion</span> <span class="hljs-built_in">Control</span>）：<br>   通过慢启动、拥塞避免、快重传、快恢复四大算法，<br>   调整发送方的拥塞窗口大小，防止网络拥塞。<br></code></pre></td></tr></table></figure>
@@ -526,6 +590,7 @@
 <p>TCP 的可靠传输机制是面试超级高频题。要能说清楚：① 校验和 ② 序列号 ③ 确认应答 ④ 超时重传 ⑤ 流量控制（滑动窗口）⑥ 拥塞控制（四大算法）。其中拥塞控制的四大算法（慢启动、拥塞避免、快重传、快恢复）是重点，要能说清楚每个算法的作用；同时要知道 Linux 默认用的是 CUBIC 而非 Reno。</p>
 </blockquote>
 <hr>
+<p><a id="qb-6"></a></p>
 <h3 id="Q6：TCP-和-UDP-的区别？"><a href="#Q6：TCP-和-UDP-的区别？" class="headerlink" title="Q6：TCP 和 UDP 的区别？"></a>Q6：TCP 和 UDP 的区别？</h3><p><strong>一句话总结</strong>：TCP 是<strong>可靠、面向连接、有序、慢</strong>的传输协议，UDP 是<strong>不可靠、无连接、无序、快</strong>的传输协议。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
@@ -582,7 +647,8 @@
 <p>TCP 和 UDP 的区别是面试必考题。要能从<strong>连接性、可靠性、有序性、效率、首部开销</strong>等多个维度对比。另外，有些场景会同时使用 TCP 和 UDP，比如 HTTP&#x2F;3 基于 QUIC 协议（基于 UDP），既保留了 UDP 的快，又通过 QUIC 实现了可靠传输（类似 TCP 的功能）。</p>
 </blockquote>
 <hr>
-<h2 id="3-UDP-协议"><a href="#3-UDP-协议" class="headerlink" title="3. UDP 协议"></a>3. UDP 协议</h2><h3 id="Q7：UDP-的应用场景有哪些？"><a href="#Q7：UDP-的应用场景有哪些？" class="headerlink" title="Q7：UDP 的应用场景有哪些？"></a>Q7：UDP 的应用场景有哪些？</h3><p><strong>一句话总结</strong>：UDP 适合<strong>实时性要求高、能容忍少量丢包</strong>的场景，比如视频通话、直播、DNS、DHCP。</p>
+<h2 id="3-UDP-协议"><a href="#3-UDP-协议" class="headerlink" title="3. UDP 协议"></a>3. UDP 协议</h2><p><a id="qb-7"></a></p>
+<h3 id="Q7：UDP-的应用场景有哪些？"><a href="#Q7：UDP-的应用场景有哪些？" class="headerlink" title="Q7：UDP 的应用场景有哪些？"></a>Q7：UDP 的应用场景有哪些？</h3><p><strong>一句话总结</strong>：UDP 适合<strong>实时性要求高、能容忍少量丢包</strong>的场景，比如视频通话、直播、DNS、DHCP。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs routeros">应用场景：<br>① 视频通话、直播：<br>   实时性要求高，丢几帧画面不影响观看体验，<br>   如果用 TCP，丢包后要重传，会导致延迟增加。<br><br>②<span class="hljs-built_in"> DNS </span>查询：<br>  <span class="hljs-built_in"> DNS </span>查询通常是小数据包（请求和响应都很小），<br>   用 TCP 的话，建立连接的开销太大，<br>   用 UDP 更快（虽然可能丢包，但可以重试）。<br><br>③ DHCP：<br>   客户端在获取<span class="hljs-built_in"> IP </span>地址时，还没有<span class="hljs-built_in"> IP </span>地址，<br>   无法使用 TCP（TCP 需要<span class="hljs-built_in"> IP </span>地址），<br>   只能用 UDP 广播。<br><br>④ 在线游戏：<br>   实时性要求高，丢几个数据包影响不大，<br>   游戏通常会自己实现可靠传输机制（只在必要时重传）。<br><br>⑤ QUIC 协议（HTTP/3）：<br>   基于 UDP 实现了可靠传输、拥塞控制等功能，<br>   既保留了 UDP 的快，又解决了 UDP 的不可靠问题。<br></code></pre></td></tr></table></figure>
 
@@ -591,7 +657,8 @@
 <p>UDP 不是”完全不可靠”，而是”尽最大努力交付”。应用层可以自己在 UDP 基础上实现可靠传输机制（比如 QUIC 协议）。面试时如果能说出”UDP 适用于实时性要求高的场景，应用层可以自己实现可靠传输”，会非常加分。</p>
 </blockquote>
 <hr>
-<h2 id="4-HTTP-协议"><a href="#4-HTTP-协议" class="headerlink" title="4. HTTP 协议"></a>4. HTTP 协议</h2><h3 id="Q8：HTTP-的请求方法有哪些？"><a href="#Q8：HTTP-的请求方法有哪些？" class="headerlink" title="Q8：HTTP 的请求方法有哪些？"></a>Q8：HTTP 的请求方法有哪些？</h3><p><strong>一句话总结</strong>：HTTP&#x2F;1.1 定义了 8 种请求方法，最常用的是 <strong>GET、POST、PUT、DELETE</strong>（RESTful 风格）。</p>
+<h2 id="4-HTTP-协议"><a href="#4-HTTP-协议" class="headerlink" title="4. HTTP 协议"></a>4. HTTP 协议</h2><p><a id="qb-8"></a></p>
+<h3 id="Q8：HTTP-的请求方法有哪些？"><a href="#Q8：HTTP-的请求方法有哪些？" class="headerlink" title="Q8：HTTP 的请求方法有哪些？"></a>Q8：HTTP 的请求方法有哪些？</h3><p><strong>一句话总结</strong>：HTTP&#x2F;1.1 定义了 8 种请求方法，最常用的是 <strong>GET、POST、PUT、DELETE</strong>（RESTful 风格）。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -658,6 +725,7 @@
 <p>RESTful 风格的核心是”URL 表示资源，HTTP 方法表示操作”。面试时如果能说出 Richardson 成熟度模型（Level 0~3），会非常加分。另外，PUT 和 PATCH 的区别是：PUT 是全量更新（客户端提供完整的资源），PATCH 是部分更新（客户端只提供需要修改的字段）。</p>
 </blockquote>
 <hr>
+<p><a id="qb-9"></a></p>
 <h3 id="Q9：HTTP-的请求结构和响应结构？"><a href="#Q9：HTTP-的请求结构和响应结构？" class="headerlink" title="Q9：HTTP 的请求结构和响应结构？"></a>Q9：HTTP 的请求结构和响应结构？</h3><p><strong>一句话总结</strong>：HTTP 请求&#x2F;响应由<strong>起始行、请求头&#x2F;响应头、空行、消息体</strong>四部分组成。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>HTTP 请求结构</strong>：</p>
@@ -745,6 +813,7 @@
 <p>HTTP 是无状态的协议（每个请求都是独立的），所以需要用 Cookie&#x2F;Session 来维护状态。面试时如果能说出”HTTP&#x2F;1.1 默认开启 keep-alive（长连接），一个 TCP 连接可以发送多个 HTTP 请求”，会非常加分。</p>
 </blockquote>
 <hr>
+<p><a id="qb-10"></a></p>
 <h3 id="Q10：HTTP-1-0、HTTP-1-1、HTTP-2、HTTP-3-的区别？"><a href="#Q10：HTTP-1-0、HTTP-1-1、HTTP-2、HTTP-3-的区别？" class="headerlink" title="Q10：HTTP&#x2F;1.0、HTTP&#x2F;1.1、HTTP&#x2F;2、HTTP&#x2F;3 的区别？"></a>Q10：HTTP&#x2F;1.0、HTTP&#x2F;1.1、HTTP&#x2F;2、HTTP&#x2F;3 的区别？</h3><p><strong>一句话总结</strong>：HTTP&#x2F;1.1 支持了<strong>长连接和管道化</strong>，HTTP&#x2F;2 支持了<strong>多路复用和头部压缩</strong>，HTTP&#x2F;3 基于 <strong>UDP（QUIC 协议）</strong> 解决了队头阻塞问题。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
@@ -787,7 +856,8 @@
 <p>HTTP&#x2F;2 的多路复用是”解决了 HTTP 层的队头阻塞，但 TCP 层的队头阻塞还在”。HTTP&#x2F;3 基于 QUIC 协议（Google 开发），彻底解决了队头阻塞问题。面试时如果能说出”HTTP&#x2F;3 的连接迁移特性（客户端切换网络时，连接不中断）”，会非常加分。另外要注意：HTTP&#x2F;2 的服务器推送（Server Push）由于实际收益有限、缓存管理复杂，Chrome 从 106 版本起已经移除支持，其他主流浏览器也相继放弃，面试时如果被问到”服务器推送”，应该说明它已被废弃，取而代之的是 <code>Link: rel=preload</code> 等资源提示手段。</p>
 </blockquote>
 <hr>
-<h2 id="5-HTTPS-协议"><a href="#5-HTTPS-协议" class="headerlink" title="5. HTTPS 协议"></a>5. HTTPS 协议</h2><h3 id="Q11：HTTPS-的工作原理？"><a href="#Q11：HTTPS-的工作原理？" class="headerlink" title="Q11：HTTPS 的工作原理？"></a>Q11：HTTPS 的工作原理？</h3><p><strong>一句话总结</strong>：HTTPS &#x3D; HTTP + SSL&#x2F;TLS，通过<strong>非对称加密交换会话密钥</strong>，然后用<strong>对称加密传输数据</strong>，既安全又高效。</p>
+<h2 id="5-HTTPS-协议"><a href="#5-HTTPS-协议" class="headerlink" title="5. HTTPS 协议"></a>5. HTTPS 协议</h2><p><a id="qb-11"></a></p>
+<h3 id="Q11：HTTPS-的工作原理？"><a href="#Q11：HTTPS-的工作原理？" class="headerlink" title="Q11：HTTPS 的工作原理？"></a>Q11：HTTPS 的工作原理？</h3><p><strong>一句话总结</strong>：HTTPS &#x3D; HTTP + SSL&#x2F;TLS，通过<strong>非对称加密交换会话密钥</strong>，然后用<strong>对称加密传输数据</strong>，既安全又高效。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs markdown">HTTPS 握手过程（简化版）：<br>① 客户端发送 ClientHello：<br><span class="hljs-bullet">   -</span> 支持的 SSL/TLS 版本<br><span class="hljs-bullet">   -</span> 支持的加密算法<br><span class="hljs-bullet">   -</span> 随机数 A<br><br>② 服务器发送 ServerHello：<br><span class="hljs-bullet">   -</span> 确定的 SSL/TLS 版本<br><span class="hljs-bullet">   -</span> 确定的加密算法<br><span class="hljs-bullet">   -</span> 随机数 B<br><span class="hljs-bullet">   -</span> 服务器的证书（包含公钥）<br><br>③ 客户端验证证书：<br><span class="hljs-bullet">   -</span> 验证证书是否可信（是否是 CA 签发的）<br><span class="hljs-bullet">   -</span> 验证证书是否过期<br><span class="hljs-bullet">   -</span> 验证证书中的域名是否匹配<br><br>④ 客户端生成会话密钥：<br><span class="hljs-bullet">   -</span> 用服务器的公钥加密会话密钥（随机数 C）<br><span class="hljs-bullet">   -</span> 发送给服务器。<br><br>⑤ 服务器用私钥解密，得到会话密钥。<br><br>⑥ 双方用会话密钥（对称加密）进行后续通信<br></code></pre></td></tr></table></figure>
 
@@ -816,6 +886,7 @@
 <p>HTTPS 握手过程中，证书验证是重点。证书由 CA（证书颁发机构）签发，客户端内置了可信 CA 的根证书，用根证书验证服务器证书的有效性。另外，HTTPS 默认端口是 443，HTTP 默认端口是 80。</p>
 </blockquote>
 <hr>
+<p><a id="qb-12"></a></p>
 <h3 id="Q12：对称加密和非对称加密的区别？"><a href="#Q12：对称加密和非对称加密的区别？" class="headerlink" title="Q12：对称加密和非对称加密的区别？"></a>Q12：对称加密和非对称加密的区别？</h3><p><strong>一句话总结</strong>：对称加密用<strong>同一个密钥</strong>加解密（快），非对称加密用<strong>公钥加密、私钥解密</strong>（慢，但安全）。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
@@ -855,7 +926,8 @@
 <p>对称加密的密钥分发问题是”如何用不安全的方式安全地传递密钥”，这是密码学中的经典问题。非对称加密解决了这个问题（公钥可以公开传输，私钥保密）。但实际中，非对称加密很慢，所以 HTTPS 结合了两者的优点。</p>
 </blockquote>
 <hr>
-<h2 id="6-DNS-协议"><a href="#6-DNS-协议" class="headerlink" title="6. DNS 协议"></a>6. DNS 协议</h2><h3 id="Q13：DNS-的解析过程？"><a href="#Q13：DNS-的解析过程？" class="headerlink" title="Q13：DNS 的解析过程？"></a>Q13：DNS 的解析过程？</h3><p><strong>一句话总结</strong>：DNS 解析是<strong>递归查询 + 迭代查询</strong>结合的过程，从浏览器缓存到本地 DNS 服务器，再到根域名服务器，最终找到目标 IP 地址。</p>
+<h2 id="6-DNS-协议"><a href="#6-DNS-协议" class="headerlink" title="6. DNS 协议"></a>6. DNS 协议</h2><p><a id="qb-13"></a></p>
+<h3 id="Q13：DNS-的解析过程？"><a href="#Q13：DNS-的解析过程？" class="headerlink" title="Q13：DNS 的解析过程？"></a>Q13：DNS 的解析过程？</h3><p><strong>一句话总结</strong>：DNS 解析是<strong>递归查询 + 迭代查询</strong>结合的过程，从浏览器缓存到本地 DNS 服务器，再到根域名服务器，最终找到目标 IP 地址。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs routeros">DNS 解析全过程（详细版）：<br>① 浏览器缓存：<br>   浏览器会缓存<span class="hljs-built_in"> DNS </span>解析结果（通常 60 秒）。<br><br>② 操作系统缓存：<br>   如果浏览器缓存没有，查操作系统的<span class="hljs-built_in"> DNS </span>缓存（Windows 用 ipconfig /displaydns 查看）。<br><br>③ hosts 文件：<br>   如果操作系统缓存没有，查 hosts 文件（C:\Windows\System32\drivers\etc\hosts）。<br><br>④ 本地<span class="hljs-built_in"> DNS </span>服务器（递归查询）：<br>   如果前面都没有，向本地<span class="hljs-built_in"> DNS </span>服务器（通常是 ISP 提供的，或者公共<span class="hljs-built_in"> DNS </span>如 8.8.8.8）发起查询。<br>   本地<span class="hljs-built_in"> DNS </span>服务器会帮客户端完成后续的迭代查询。<br><br>⑤ 根域名服务器（迭代查询）：<br>   本地<span class="hljs-built_in"> DNS </span>服务器向根域名服务器（.）查询，<br>   根域名服务器返回顶级域名服务器（.com）的地址。<br><br>⑥ 顶级域名服务器（迭代查询）：<br>   本地<span class="hljs-built_in"> DNS </span>服务器向顶级域名服务器（.com）查询，<br>   顶级域名服务器返回权威域名服务器（example.com）的地址。<br><br>⑦ 权威域名服务器（迭代查询）：<br>   本地<span class="hljs-built_in"> DNS </span>服务器向权威域名服务器（example.com）查询，<br>   权威域名服务器返回目标域名（www.example.com）的<span class="hljs-built_in"> IP </span>地址。<br><br>⑧ 本地<span class="hljs-built_in"> DNS </span>服务器把<span class="hljs-built_in"> IP </span>地址返回给客户端，并缓存结果。<br><br>⑨ 客户端收到<span class="hljs-built_in"> IP </span>地址，开始发送 HTTP 请求。<br></code></pre></td></tr></table></figure>
 
@@ -889,7 +961,8 @@
 <p>DNS 解析过程是面试高频题。要能说清楚：① 浏览器缓存 ② 操作系统缓存 ③ hosts 文件 ④ 本地 DNS 服务器（递归查询）⑤ 根域名服务器 → 顶级域名服务器 → 权威域名服务器（迭代查询）。另外，DNS 默认用 UDP（端口 53），但如果响应数据超过 512 字节，会用 TCP。</p>
 </blockquote>
 <hr>
-<h2 id="7-ARP-协议"><a href="#7-ARP-协议" class="headerlink" title="7. ARP 协议"></a>7. ARP 协议</h2><h3 id="Q14：ARP-协议的作用和工作原理？"><a href="#Q14：ARP-协议的作用和工作原理？" class="headerlink" title="Q14：ARP 协议的作用和工作原理？"></a>Q14：ARP 协议的作用和工作原理？</h3><p><strong>一句话总结</strong>：ARP（地址解析协议）用于<strong>根据 IP 地址获取 MAC 地址</strong>，解决”我知道你的 IP，但不知道你的 MAC 地址”的问题。</p>
+<h2 id="7-ARP-协议"><a href="#7-ARP-协议" class="headerlink" title="7. ARP 协议"></a>7. ARP 协议</h2><p><a id="qb-14"></a></p>
+<h3 id="Q14：ARP-协议的作用和工作原理？"><a href="#Q14：ARP-协议的作用和工作原理？" class="headerlink" title="Q14：ARP 协议的作用和工作原理？"></a>Q14：ARP 协议的作用和工作原理？</h3><p><strong>一句话总结</strong>：ARP（地址解析协议）用于<strong>根据 IP 地址获取 MAC 地址</strong>，解决”我知道你的 IP，但不知道你的 MAC 地址”的问题。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">ARP</span> 工作流程：<br>① 主机 A（<span class="hljs-number">192</span>.<span class="hljs-number">168</span>.<span class="hljs-number">1</span>.<span class="hljs-number">100</span>）想和主机 B（<span class="hljs-number">192</span>.<span class="hljs-number">168</span>.<span class="hljs-number">1</span>.<span class="hljs-number">200</span>）通信，<br>   但只知道 <span class="hljs-keyword">B</span> 的 <span class="hljs-built_in">IP</span> 地址，不知道 <span class="hljs-keyword">B</span> 的 MAC 地址。<br><br>② 主机 A 检查自己的 ARP 缓存表，<br>   看有没有 <span class="hljs-number">192</span>.<span class="hljs-number">168</span>.<span class="hljs-number">1</span>.<span class="hljs-number">200</span> 对应的 MAC 地址。<br><br>③ 如果缓存表没有，主机 A 广播 ARP 请求：<br>   <span class="hljs-string">&quot;谁的 IP 地址是 192.168.1.200？请告诉我你的 MAC 地址。&quot;</span><br><br>④ 主机 <span class="hljs-keyword">B</span> 收到 ARP 请求，发现是自己的 <span class="hljs-built_in">IP</span> 地址，<br>   单播 ARP 响应：<span class="hljs-string">&quot;我是 192.168.1.200，我的 MAC 地址是 xx:xx:xx:xx:xx:xx。&quot;</span><br><br>⑤ 主机 A 收到 ARP 响应，把主机 <span class="hljs-keyword">B</span> 的 <span class="hljs-built_in">IP</span>-MAC 映射存入 ARP 缓存表。<br><br>⑥ 后续通信直接查 ARP 缓存表，不需要再发 ARP 请求。<br></code></pre></td></tr></table></figure>
 
@@ -901,7 +974,8 @@
 <p>ARP 欺骗（ARP Spoofing）是常见的中间人攻击：攻击者发送伪造的 ARP 响应，告诉主机 A”我是 192.168.1.1（网关）”，告诉主机 B”我是 192.168.1.200”，这样主机 A 和 B 的通信都会经过攻击者。防御方法：使用静态 ARP、开启 ARP 检查（DAI）等。</p>
 </blockquote>
 <hr>
-<h2 id="8-IP-协议与子网"><a href="#8-IP-协议与子网" class="headerlink" title="8. IP 协议与子网"></a>8. IP 协议与子网</h2><h3 id="Q15：IP-地址的分类？"><a href="#Q15：IP-地址的分类？" class="headerlink" title="Q15：IP 地址的分类？"></a>Q15：IP 地址的分类？</h3><p><strong>一句话总结</strong>：IP 地址分为 <strong>A、B、C、D、E 五类</strong>，其中 A、B、C 是常用类，D 类用于组播，E 类保留。</p>
+<h2 id="8-IP-协议与子网"><a href="#8-IP-协议与子网" class="headerlink" title="8. IP 协议与子网"></a>8. IP 协议与子网</h2><p><a id="qb-15"></a></p>
+<h3 id="Q15：IP-地址的分类？"><a href="#Q15：IP-地址的分类？" class="headerlink" title="Q15：IP 地址的分类？"></a>Q15：IP 地址的分类？</h3><p><strong>一句话总结</strong>：IP 地址分为 <strong>A、B、C、D、E 五类</strong>，其中 A、B、C 是常用类，D 类用于组播，E 类保留。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -957,6 +1031,7 @@
 <p>IP 地址分类是现代互联网的早期设计，但浪费严重（比如 B 类网络有 65534 个主机地址，但大多数企业用不完）。现代互联网使用 CIDR（无类别域间路由）来代替分类，可以灵活分配网络前缀长度（如 192.168.1.0&#x2F;24 表示前 24 位是网络号）。</p>
 </blockquote>
 <hr>
+<p><a id="qb-16"></a></p>
 <h3 id="Q16：子网掩码的作用？如何计算子网？"><a href="#Q16：子网掩码的作用？如何计算子网？" class="headerlink" title="Q16：子网掩码的作用？如何计算子网？"></a>Q16：子网掩码的作用？如何计算子网？</h3><p><strong>一句话总结</strong>：子网掩码用于<strong>区分 IP 地址的网络号和主机号</strong>，通过借位可以把一个大网络划分成多个小网络（子网）。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs dns">子网掩码的作用：<br>IP 地址：<span class="hljs-number">192.168.1.100</span>  → <span class="hljs-number">11000000</span>.<span class="hljs-number">10101000</span>.<span class="hljs-number">00000001</span>.<span class="hljs-number">01100100</span><br>子网掩码：<span class="hljs-number">255.255.255.0</span>  → <span class="hljs-number">11111111</span>.<span class="hljs-number">11111111</span>.<span class="hljs-number">11111111</span>.<span class="hljs-number">00000000</span><br>                      AND 运算<br>网络地址：<span class="hljs-number">192.168.1.0</span>    → <span class="hljs-number">11000000</span>.<span class="hljs-number">10101000</span>.<span class="hljs-number">00000001</span>.<span class="hljs-number">00000000</span><br>                      （网络号）          （主机号）<br><br>子网掩码中，<span class="hljs-number">1</span> 的部分对应网络号，<span class="hljs-number">0</span> 的部分对应主机号。<br></code></pre></td></tr></table></figure>
@@ -972,7 +1047,8 @@
 <p>子网划分是面试常考题。要能计算：① 给定 IP 地址和子网掩码，求网络地址 ② 给定网络地址和需要的主机数，求子网掩码 ③ 给定网络地址和子网数，求每个子网的范围。另外，全 0 和全 1 的主机号通常不使用（全 0 是网络地址，全 1 是广播地址），所以可用主机数 &#x3D; 2^主机号位数 - 2。</p>
 </blockquote>
 <hr>
-<h2 id="9-HTTP-状态码"><a href="#9-HTTP-状态码" class="headerlink" title="9. HTTP 状态码"></a>9. HTTP 状态码</h2><h3 id="Q17：常见的-HTTP-状态码有哪些？"><a href="#Q17：常见的-HTTP-状态码有哪些？" class="headerlink" title="Q17：常见的 HTTP 状态码有哪些？"></a>Q17：常见的 HTTP 状态码有哪些？</h3><p><strong>一句话总结</strong>：HTTP 状态码分为 <strong>1xx（信息）、2xx（成功）、3xx（重定向）、4xx（客户端错误）、5xx（服务器错误）</strong> 五类。</p>
+<h2 id="9-HTTP-状态码"><a href="#9-HTTP-状态码" class="headerlink" title="9. HTTP 状态码"></a>9. HTTP 状态码</h2><p><a id="qb-17"></a></p>
+<h3 id="Q17：常见的-HTTP-状态码有哪些？"><a href="#Q17：常见的-HTTP-状态码有哪些？" class="headerlink" title="Q17：常见的 HTTP 状态码有哪些？"></a>Q17：常见的 HTTP 状态码有哪些？</h3><p><strong>一句话总结</strong>：HTTP 状态码分为 <strong>1xx（信息）、2xx（成功）、3xx（重定向）、4xx（客户端错误）、5xx（服务器错误）</strong> 五类。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>2xx 成功</strong>：</p>
 <table>
@@ -1119,7 +1195,8 @@
 <p>301 和 302 的区别是：301 是永久重定向（浏览器会缓存重定向地址，下次直接访问新地址），302 是临时重定向（浏览器不会缓存）。另外，401 和 403 的区别是：401 是”未认证”（用户没登录），403 是”无权限”（用户登录了，但没有权限访问这个资源）。</p>
 </blockquote>
 <hr>
-<h2 id="10-Cookie-与-Session"><a href="#10-Cookie-与-Session" class="headerlink" title="10. Cookie 与 Session"></a>10. Cookie 与 Session</h2><h3 id="Q18：Cookie-和-Session-的区别？"><a href="#Q18：Cookie-和-Session-的区别？" class="headerlink" title="Q18：Cookie 和 Session 的区别？"></a>Q18：Cookie 和 Session 的区别？</h3><p><strong>一句话总结</strong>：Cookie 是<strong>客户端存储</strong>会话信息，Session 是<strong>服务器存储</strong>会话信息，Session 通常依赖 Cookie 传递 SessionID。</p>
+<h2 id="10-Cookie-与-Session"><a href="#10-Cookie-与-Session" class="headerlink" title="10. Cookie 与 Session"></a>10. Cookie 与 Session</h2><p><a id="qb-18"></a></p>
+<h3 id="Q18：Cookie-和-Session-的区别？"><a href="#Q18：Cookie-和-Session-的区别？" class="headerlink" title="Q18：Cookie 和 Session 的区别？"></a>Q18：Cookie 和 Session 的区别？</h3><p><strong>一句话总结</strong>：Cookie 是<strong>客户端存储</strong>会话信息，Session 是<strong>服务器存储</strong>会话信息，Session 通常依赖 Cookie 传递 SessionID。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">Cookie：<br><span class="hljs-bullet">- </span>存储在客户端（浏览器）<br><span class="hljs-bullet">- </span>每次请求都会自动带上 Cookie（在请求头的 Cookie 字段）<br><span class="hljs-bullet">- </span>大小限制（约 4KB）<br><span class="hljs-bullet">- </span>可以被客户端修改（不安全，需要签名或加密）<br><span class="hljs-bullet">- </span>可以设置过期时间（持久化 Cookie）或会话 Cookie（浏览器关闭就删除）<br><br>Session：<br><span class="hljs-bullet">- </span>存储在服务器（内存、Redis 等）<br><span class="hljs-bullet">- </span>客户端只存储 SessionID（通常通过 Cookie 传递）<br><span class="hljs-bullet">- </span>大小无限制（取决于服务器内存）<br><span class="hljs-bullet">- </span>不能被客户端直接修改（安全）<br><span class="hljs-bullet">- </span>通常有过期时间（如 30 分钟无活动就失效）<br></code></pre></td></tr></table></figure>
 
@@ -1134,7 +1211,8 @@
 <p>Cookie 和 Session 的区别是面试必考题。要能说清楚：① 存储位置 ② 安全性 ③ 大小限制 ④ 过期策略。另外，分布式系统中，Session 需要存储在 Redis 等集中式存储中（Session 共享），或者改用 JWT（JSON Web Token）来实现无状态认证。</p>
 </blockquote>
 <hr>
-<h2 id="11-网络安全"><a href="#11-网络安全" class="headerlink" title="11. 网络安全"></a>11. 网络安全</h2><h3 id="Q19：什么是-CSRF-攻击？如何防御？"><a href="#Q19：什么是-CSRF-攻击？如何防御？" class="headerlink" title="Q19：什么是 CSRF 攻击？如何防御？"></a>Q19：什么是 CSRF 攻击？如何防御？</h3><p><strong>一句话总结</strong>：CSRF（跨站请求伪造）是攻击者<strong>诱导用户点击恶意链接，利用用户的登录状态发起恶意请求</strong>，防御方法是<strong>验证 Referer、使用 CSRF Token、双重 Cookie 验证</strong>。</p>
+<h2 id="11-网络安全"><a href="#11-网络安全" class="headerlink" title="11. 网络安全"></a>11. 网络安全</h2><p><a id="qb-19"></a></p>
+<h3 id="Q19：什么是-CSRF-攻击？如何防御？"><a href="#Q19：什么是-CSRF-攻击？如何防御？" class="headerlink" title="Q19：什么是 CSRF 攻击？如何防御？"></a>Q19：什么是 CSRF 攻击？如何防御？</h3><p><strong>一句话总结</strong>：CSRF（跨站请求伪造）是攻击者<strong>诱导用户点击恶意链接，利用用户的登录状态发起恶意请求</strong>，防御方法是<strong>验证 Referer、使用 CSRF Token、双重 Cookie 验证</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs stylus">CSRF 攻击流程：<br>① 用户登录了银行网站（www<span class="hljs-selector-class">.bank</span>.com），<br>   银行网站设置了 Cookie（包含用户身份信息）。<br><br>② 攻击者构造了一个恶意网页，<br>   里面有一个表单（或图片标签）会自动提交到银行网站：<br>   &lt;<span class="hljs-selector-tag">img</span> <span class="hljs-attribute">src</span>=<span class="hljs-string">&quot;http://www.bank.com/transfer?to=attacker&amp;amount=10000&quot;</span>&gt;<br><br>③ 用户访问了攻击者的恶意网页，<br>   浏览器会自动带上银行网站的 Cookie，<br>   银行网站以为这是用户的合法请求，执行了转账操作。<br><br>④ 攻击成功（用户不知情的情况下，钱被转走了）。<br></code></pre></td></tr></table></figure>
 
@@ -1146,6 +1224,7 @@
 <p>CSRF 和 XSS 的区别是：CSRF 是利用用户的登录状态发起恶意请求（用户不知情），XSS 是注入恶意脚本到网站中（其他用户访问时，脚本在他们的浏览器中执行）。防御 CSRF 的核心是”验证请求是否来自合法的用户操作”，防御 XSS 的核心是”对用户输入进行转义”。</p>
 </blockquote>
 <hr>
+<p><a id="qb-20"></a></p>
 <h3 id="Q20：什么是-XSS-攻击？如何防御？"><a href="#Q20：什么是-XSS-攻击？如何防御？" class="headerlink" title="Q20：什么是 XSS 攻击？如何防御？"></a>Q20：什么是 XSS 攻击？如何防御？</h3><p><strong>一句话总结</strong>：XSS（跨站脚本攻击）是攻击者<strong>注入恶意脚本到网站中，其他用户访问时，脚本在他们的浏览器中执行</strong>，防御方法是<strong>对用户输入进行转义、使用 CSP、HttpOnly Cookie</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs xml">XSS 攻击流程：<br>① 攻击者在评论区输入恶意脚本：<br>   <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-title function_">alert</span>(<span class="hljs-string">&#x27;XSS&#x27;</span>)</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>   或者更复杂的脚本（窃取 Cookie、钓鱼等）。<br><br>② 网站没有对用户输入进行转义，直接把恶意脚本存储到数据库中。<br><br>③ 其他用户访问这个页面时，<br>   浏览器会执行恶意脚本（因为脚本是网站返回的，浏览器认为是合法的）。<br><br>④ 攻击成功（恶意脚本可以窃取用户的 Cookie、模拟用户操作等）。<br></code></pre></td></tr></table></figure>
@@ -1161,7 +1240,8 @@
 <p>XSS 和 CSRF 的区别是：XSS 是”注入恶意脚本到网站中，其他用户访问时执行”，CSRF 是”利用用户的登录状态发起恶意请求”。防御 XSS 的核心是”对用户输入进行转义和验证”，防御 CSRF 的核心是”验证请求是否来自合法的用户操作”。另外，现代前端框架（如 React、Vue）默认会对插值进行转义，防止 XSS。</p>
 </blockquote>
 <hr>
-<h2 id="12-高频面试题"><a href="#12-高频面试题" class="headerlink" title="12. 高频面试题"></a>12. 高频面试题</h2><h3 id="Q21：从浏览器输入-URL-到页面加载完成，发生了什么？"><a href="#Q21：从浏览器输入-URL-到页面加载完成，发生了什么？" class="headerlink" title="Q21：从浏览器输入 URL 到页面加载完成，发生了什么？"></a>Q21：从浏览器输入 URL 到页面加载完成，发生了什么？</h3><p><strong>一句话总结</strong>：<strong>DNS 解析 → TCP 三次握手 → 发送 HTTP 请求 → 服务器处理请求并返回 HTTP 响应 → 浏览器解析渲染页面 → TCP 四次挥手</strong>。</p>
+<h2 id="12-高频面试题"><a href="#12-高频面试题" class="headerlink" title="12. 高频面试题"></a>12. 高频面试题</h2><p><a id="qb-21"></a></p>
+<h3 id="Q21：从浏览器输入-URL-到页面加载完成，发生了什么？"><a href="#Q21：从浏览器输入-URL-到页面加载完成，发生了什么？" class="headerlink" title="Q21：从浏览器输入 URL 到页面加载完成，发生了什么？"></a>Q21：从浏览器输入 URL 到页面加载完成，发生了什么？</h3><p><strong>一句话总结</strong>：<strong>DNS 解析 → TCP 三次握手 → 发送 HTTP 请求 → 服务器处理请求并返回 HTTP 响应 → 浏览器解析渲染页面 → TCP 四次挥手</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs markdown">① DNS 解析：<br>   浏览器缓存 → 操作系统缓存 → hosts 文件 → 本地 DNS 服务器 → 根域名服务器 → 顶级域名服务器 → 权威域名服务器。<br><br>② 建立 TCP 连接：<br>   三次握手（SYN → SYN+ACK → ACK）。<br><br>③ 发送 HTTP 请求：<br>   浏览器构造 HTTP 请求（请求行、请求头、请求体），<br>   通过 TCP 连接发送给服务器。<br><br>④ 服务器处理请求：<br>   服务器收到 HTTP 请求，根据 URL 和请求方法，<br>   调用相应的处理逻辑（如 Controller 方法），<br>   生成 HTTP 响应。<br><br>⑤ 服务器返回 HTTP 响应：<br>   服务器构造 HTTP 响应（状态行、响应头、响应体），<br>   通过 TCP 连接发送给浏览器。<br><br>⑥ 浏览器解析渲染页面：<br><span class="hljs-bullet">   -</span> 解析 HTML，构建 DOM 树<br><span class="hljs-bullet">   -</span> 解析 CSS，构建 CSSOM 树<br><span class="hljs-bullet">   -</span> 合并 DOM 树和 CSSOM 树，构建渲染树（Render Tree）<br><span class="hljs-bullet">   -</span> 布局（Layout）：计算每个节点的位置和大小<br><span class="hljs-bullet">   -</span> 绘制（Paint）：将渲染树绘制到屏幕上<br><span class="hljs-bullet">   -</span> 合成（Composite）：将各层合成后显示<br><br>⑦ 关闭 TCP 连接：<br>   四次挥手（FIN → ACK → FIN → ACK）。<br></code></pre></td></tr></table></figure>
 
@@ -1170,6 +1250,7 @@
 <p>这个问题的回答要能体现”深度”：比如 DNS 解析的详细过程、TCP 三次握手的状态变化、浏览器渲染页面的详细步骤（HTML 解析、CSS 解析、JavaScript 执行、渲染树构建、布局、绘制、合成）、TCP 四次挥手的状态变化等。如果能说出”浏览器在同一时间对同一域名的 TCP 连接数有限制（通常是 6 个）”，会非常加分。</p>
 </blockquote>
 <hr>
+<p><a id="qb-22"></a></p>
 <h3 id="Q22：什么是长连接和短连接？"><a href="#Q22：什么是长连接和短连接？" class="headerlink" title="Q22：什么是长连接和短连接？"></a>Q22：什么是长连接和短连接？</h3><p><strong>一句话总结</strong>：短连接是<strong>每次请求都建立新的 TCP 连接</strong>，长连接是<strong>多个请求复用同一个 TCP 连接</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs nix">短连接（HTTP<span class="hljs-symbol">/1.0</span> 默认）：<br>① 建立 TCP 连接（三次握手）<br>② 发送 HTTP 请求<br>③ 服务器返回 HTTP 响应<br>④ 关闭 TCP 连接（四次挥手）<br>⑤ 下一个请求，重复①~④<br><br>缺点：每次请求都要建立 TCP 连接，开销大（三次握手、四次挥手）。<br><br>长连接（HTTP<span class="hljs-symbol">/1.1</span> 默认，keep-alive）：<br>① 建立 TCP 连接（三次握手）<br>② 发送 HTTP 请求 <span class="hljs-number">1</span><br>③ 服务器返回 HTTP 响应 <span class="hljs-number">1</span><br>④ 发送 HTTP 请求 <span class="hljs-number">2</span>（复用同一个 TCP 连接）<br>⑤ 服务器返回 HTTP 响应 <span class="hljs-number">2</span><br>...<br>⑥ 关闭 TCP 连接（四次挥手）<br><br>优点：减少了 TCP 连接的建立和关闭开销，提高了性能。<br></code></pre></td></tr></table></figure>
@@ -1179,6 +1260,7 @@
 <p>HTTP&#x2F;1.1 默认开启 keep-alive（长连接），HTTP&#x2F;1.0 默认是短连接（但可以通过 <code>Connection: keep-alive</code> 请求头来启用长连接）。另外，长连接不是”永久连接”，服务器通常会有超时时间（如 5 秒无活动就关闭连接）。如果需要”永久连接”，可以用 WebSocket。</p>
 </blockquote>
 <hr>
+<p><a id="qb-23"></a></p>
 <h3 id="Q23：什么是-WebSocket？和-HTTP-的区别？"><a href="#Q23：什么是-WebSocket？和-HTTP-的区别？" class="headerlink" title="Q23：什么是 WebSocket？和 HTTP 的区别？"></a>Q23：什么是 WebSocket？和 HTTP 的区别？</h3><p><strong>一句话总结</strong>：WebSocket 是<strong>全双工通信协议</strong>（客户端和服务器可以同时发送数据），HTTP 是<strong>请求-响应模式</strong>（客户端发送请求，服务器返回响应）。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">HTTP：<br><span class="hljs-bullet">- </span>请求-响应模式（半双工：同一时间只能单向通信）<br><span class="hljs-bullet">- </span>客户端发送请求，服务器返回响应<br><span class="hljs-bullet">- </span>服务器不能主动推送数据给客户端（只能用长轮询、Server-Sent Events 等变通方法）<br><br>WebSocket：<br><span class="hljs-bullet">- </span>全双工通信（客户端和服务器可以同时发送数据）<br><span class="hljs-bullet">- </span>建立连接后，客户端和服务器都可以主动发送数据<br><span class="hljs-bullet">- </span>适合实时通信场景（聊天、股票行情、游戏等）<br></code></pre></td></tr></table></figure>
@@ -1191,6 +1273,7 @@
 <p>WebSocket 和 HTTP 的关系：WebSocket 握手时用 HTTP（升级协议），握手完成后就不再用 HTTP 了。另外，WebSocket 默认端口是 80（ws:&#x2F;&#x2F;）和 443（wss:&#x2F;&#x2F;，加密的 WebSocket），和 HTTP&#x2F;HTTPS 相同，所以不容易被防火墙拦截。</p>
 </blockquote>
 <hr>
+<p><a id="qb-24"></a></p>
 <h3 id="Q24：什么是-HTTP-长轮询和短轮询？"><a href="#Q24：什么是-HTTP-长轮询和短轮询？" class="headerlink" title="Q24：什么是 HTTP 长轮询和短轮询？"></a>Q24：什么是 HTTP 长轮询和短轮询？</h3><p><strong>一句话总结</strong>：短轮询是<strong>客户端定时发送请求询问服务器是否有新数据</strong>，长轮询是<strong>服务器收到请求后，如果有新数据就立即返回，如果没有就 hold 住请求直到有新数据或超时</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs gradle">短轮询（<span class="hljs-keyword">Short</span> Polling）：<br>① 客户端每隔一段时间（如 <span class="hljs-number">5</span> 秒）发送一次请求。<br>② 服务器立即返回响应（不管有没有新数据）。<br>③ 缺点：浪费资源（可能很多次请求都没有新数据）。<br><br>长轮询（<span class="hljs-keyword">Long</span> Polling）：<br>① 客户端发送请求。<br>② 服务器收到请求后，如果有新数据，立即返回响应；<br>   如果没有新数据，就 hold 住请求（不立即返回），<br>   直到有新数据或超时（如 <span class="hljs-number">30</span> 秒）才返回响应。<br>③ 客户端收到响应后，立即发送下一个请求。<br>④ 优点：减少了无效请求，实时性更好。<br></code></pre></td></tr></table></figure>
@@ -1200,6 +1283,7 @@
 <p>长轮询和 WebSocket 的区别是：长轮询还是”请求-响应”模式（服务器返回响应后，连接就关闭了，需要客户端重新发起请求），WebSocket 是”长连接”（连接建立后一直保持，服务器可以主动推送数据）。长轮询的优点是兼容性好（不需要浏览器支持 WebSocket），缺点是复杂度高（服务器要管理大量 hold 住的连接）。</p>
 </blockquote>
 <hr>
+<p><a id="qb-25"></a></p>
 <h3 id="Q25：什么是-RESTful-API？"><a href="#Q25：什么是-RESTful-API？" class="headerlink" title="Q25：什么是 RESTful API？"></a>Q25：什么是 RESTful API？</h3><p><strong>一句话总结</strong>：RESTful API 是<strong>符合 REST 架构风格</strong>的 API 设计，核心是”<strong>URL 表示资源，HTTP 方法表示操作</strong>“。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs routeros">RESTful API 的设计原则：<br>① URL 表示资源（名词），不要用动词：<br>   ✅ 推荐：<span class="hljs-built_in">GET</span> /users/1（获取 <span class="hljs-attribute">id</span>=1 的用户）<br>   ❌ 不推荐：<span class="hljs-built_in">GET</span> /getUser?<span class="hljs-attribute">id</span>=1<br><br>② 用 HTTP 方法表示操作：<br>   <span class="hljs-built_in">GET</span> /users/1       → 获取用户<br>   POST <span class="hljs-built_in">/users </span>        → 创建用户<br>   PUT /users/1       → 更新用户（全量）<br>   PATCH /users/1     → 更新用户（部分）<br>   DELETE /users/1    → 删除用户<br><br>③ 用 HTTP 状态码表示结果：<br>   200 OK              → 请求成功<br>   201 Created         → 资源创建成功<br>   400 Bad Request     → 请求参数错误<br>   401 Unauthorized    → 未认证<br>   404 <span class="hljs-keyword">Not</span> Found       → 资源不存在<br>   500 Internal<span class="hljs-built_in"> Server </span><span class="hljs-built_in">Error</span> → 服务器内部错误<br><br>④ 用查询参数实现过滤、排序、分页：<br>   <span class="hljs-built_in">GET</span> /users?<span class="hljs-attribute">age</span>=25&amp;sort=name&amp;page=1&amp;limit=10<br><br>⑤ 返回 JSON 格式（统一格式）：<br>   &#123;<br>     <span class="hljs-string">&quot;code&quot;</span>: 200,<br>     <span class="hljs-string">&quot;message&quot;</span>: <span class="hljs-string">&quot;成功&quot;</span>,<br>     <span class="hljs-string">&quot;data&quot;</span>: &#123; <span class="hljs-string">&quot;id&quot;</span>: 1, <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;张三&quot;</span> &#125;<br>   &#125;<br></code></pre></td></tr></table></figure>
@@ -1297,7 +1381,8 @@
 <p><strong>最后的最后</strong>：计算机网络的知识点很多，但面试时重点考察的是 <strong>TCP（三次握手、四次挥手、可靠传输）、HTTP&#x2F;HTTPS（请求方法、状态码、HTTPS 原理）、DNS、网络安全（CSRF&#x2F;XSS）</strong>。把这几块彻底搞懂，面试就稳了一大半！</p>
 <p>如有错误欢迎指正，祝大家 Offer 拿到手软！ 🎉</p>
 </blockquote>
-<h3 id="第-26-题：HTTP-缓存机制（Cache-Control、ETag）？"><a href="#第-26-题：HTTP-缓存机制（Cache-Control、ETag）？" class="headerlink" title="第 26 题：HTTP 缓存机制（Cache-Control、ETag）？"></a>第 26 题：HTTP 缓存机制（Cache-Control、ETag）？</h3><p><strong>一句话总结</strong>：HTTP 缓存通过 <strong>Cache-Control（强缓存）</strong> 和 <strong>ETag&#x2F;Last-Modified（协商缓存）</strong> 两级机制减少网络传输。</p>
+<p><a id="第-26-题：HTTP-缓存机制（Cache-Control、ETag）？"></a><br><a id="qb-26"></a></p>
+<h3 id="Q26：HTTP-缓存机制（Cache-Control、ETag）？"><a href="#Q26：HTTP-缓存机制（Cache-Control、ETag）？" class="headerlink" title="Q26：HTTP 缓存机制（Cache-Control、ETag）？"></a>Q26：HTTP 缓存机制（Cache-Control、ETag）？</h3><p><strong>一句话总结</strong>：HTTP 缓存通过 <strong>Cache-Control（强缓存）</strong> 和 <strong>ETag&#x2F;Last-Modified（协商缓存）</strong> 两级机制减少网络传输。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">【强缓存】→ 浏览器自己判断，不发请求到服务器<br>  <span class="hljs-variable">Cache</span><span class="hljs-operator">-</span><span class="hljs-built_in">Control</span><span class="hljs-operator">:</span> <span class="hljs-variable">max</span><span class="hljs-operator">-</span><span class="hljs-variable">age</span><span class="hljs-operator">=</span><span class="hljs-number">3600</span>   → <span class="hljs-number">3600</span> 秒内直接用本地缓存<br>  <span class="hljs-variable">Expires</span><span class="hljs-operator">:</span> <span class="hljs-variable">Thu</span><span class="hljs-operator">,</span> <span class="hljs-number">01</span> <span class="hljs-variable">Dec</span> <span class="hljs-number">2026</span> <span class="hljs-number">00</span><span class="hljs-operator">:</span><span class="hljs-number">00</span><span class="hljs-operator">:</span><span class="hljs-number">00</span> <span class="hljs-variable">GMT</span>  → <span class="hljs-variable">HTTP</span><span class="hljs-operator">/</span><span class="hljs-number">1.0</span> 的方式（已被 <span class="hljs-variable">Cache</span><span class="hljs-operator">-</span><span class="hljs-built_in">Control</span> 取代）<br><br>  效果：状态码 <span class="hljs-number">200</span> <span class="hljs-punctuation">(</span><span class="hljs-variable">from</span> <span class="hljs-variable">memory</span><span class="hljs-operator">/</span><span class="hljs-variable">disk</span><span class="hljs-punctuation">)</span>，不发送请求<br><br>【协商缓存】→ 浏览器问服务器<span class="hljs-string">&quot;我本地的缓存还能用吗？&quot;</span><br>  <span class="hljs-variable">ETag</span>：文件哈希值（更精确，内容变 <span class="hljs-variable">ETag</span> 才变）<br>  <span class="hljs-built_in">Last</span><span class="hljs-operator">-</span><span class="hljs-variable">Modified</span>：文件最后修改时间（精度秒级，可能不准）<br><br>  请求：<span class="hljs-built_in">If</span><span class="hljs-operator">-</span><span class="hljs-built_in">None</span><span class="hljs-operator">-</span><span class="hljs-variable">Match</span><span class="hljs-operator">:</span> <span class="hljs-string">&quot;abc123&quot;</span>  → 服务器对比 <span class="hljs-variable">ETag</span><br>        <span class="hljs-built_in">If</span><span class="hljs-operator">-</span><span class="hljs-variable">Modified</span><span class="hljs-operator">-</span><span class="hljs-variable">Since</span><span class="hljs-operator">:</span> <span class="hljs-operator">...</span>    → 服务器对比 <span class="hljs-built_in">Last</span><span class="hljs-operator">-</span><span class="hljs-variable">Modified</span><br><br>  响应：<br>    没变 → <span class="hljs-number">304</span> <span class="hljs-built_in">Not</span> <span class="hljs-variable">Modified</span>（不传文件体，只传 <span class="hljs-variable">header</span>）<br>    变了 → <span class="hljs-number">200</span> <span class="hljs-variable">OK</span> <span class="hljs-operator">+</span> 新文件内容<br></code></pre></td></tr></table></figure>
 
@@ -1306,7 +1391,8 @@
 <p>“我们前端项目用 <code>Cache-Control: max-age=31536000</code>（1 年）配合文件哈希名（如 <code>app.a1b2c3d4.js</code>），实现长效缓存。HTML 文件设 <code>Cache-Control: no-cache</code>，让浏览器每次都来协商，确保用户能拿到最新的入口文件。另外，ETag 的算法要注意——如果用 inode 作为 ETag 的一部分，多台服务器的 inode 不同，会导致无意义的缓存失效。”</p>
 </blockquote>
 <hr>
-<h3 id="第-27-题：TCP-拥塞控制的四种算法？"><a href="#第-27-题：TCP-拥塞控制的四种算法？" class="headerlink" title="第 27 题：TCP 拥塞控制的四种算法？"></a>第 27 题：TCP 拥塞控制的四种算法？</h3><p><strong>一句话总结</strong>：TCP 拥塞控制通过 <strong>慢启动 → 拥塞避免 → 快速重传 → 快速恢复</strong> 四个算法动态调整发送窗口，避免网络过载。</p>
+<p><a id="第-27-题：TCP-拥塞控制的四种算法？"></a><br><a id="qb-27"></a></p>
+<h3 id="Q27：TCP-拥塞控制的四种算法？"><a href="#Q27：TCP-拥塞控制的四种算法？" class="headerlink" title="Q27：TCP 拥塞控制的四种算法？"></a>Q27：TCP 拥塞控制的四种算法？</h3><p><strong>一句话总结</strong>：TCP 拥塞控制通过 <strong>慢启动 → 拥塞避免 → 快速重传 → 快速恢复</strong> 四个算法动态调整发送窗口，避免网络过载。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs tap">【慢启动（Slow Start）】<br>  初始 cwnd =<span class="hljs-number"> 1 </span>MSS<br>  每收到一个 ACK → cwnd 翻倍（指数增长）<br>  目的：用最快速度探测网络容量<br><br>【拥塞避免（Congestion Avoidance）】<br>  当 cwnd &gt;= ssthresh（慢启动阈值，初始值因实现而异，并非固定的<span class="hljs-number"> 65535 </span>字节）<br>  → 每 RTT 只增加<span class="hljs-number"> 1 </span>MSS（线性增长）<br>  目的：避免增长太快导致拥塞<br><br>【快速重传（Fast Retransmit）】<br>  收到<span class="hljs-number"> 3 </span>个重复 ACK → 不等超时，立即重传（不等 RTO）<br>  例：发送 1,2,3,4 → 丢失<span class="hljs-number"> 3 </span>→ 接收方收到<span class="hljs-number"> 4 </span>后仍对已确认的<span class="hljs-number"> 2 </span>反复发送 ACK（表示&quot;我还在等 3&quot;）→ 累计<span class="hljs-number"> 3 </span>个重复 ACK → 发送方立即重传 3<br><br>【快速恢复（Fast Recovery）】<br>  快速重传后，不回到慢启动，而是：<br>  ssthresh = cwnd / 2<br>  cwnd = ssthresh +<span class="hljs-number"> 3 </span>MSS（3 个重复 ACK 说明有<span class="hljs-number"> 3 </span>个包到了）<br>  → 线性增长（不回到慢启动）<br></code></pre></td></tr></table></figure>
 
@@ -1329,7 +1415,8 @@
 <p>“TCP Reno 是最基础的拥塞控制模型（慢启动+拥塞避免+快速重传+快速恢复），但 Linux 从 2006 年（2.6.19 内核）起默认已经换成 CUBIC 了。弱网环境（如 4G&#x2F;5G 切换）建议用 BBR（Google 开发），它能区分’丢包是因为网络拥塞’还是’链路质量问题’，在弱网下吞吐量比 CUBIC 高 2~5 倍。我们视频服务在移动网络下切换到 BBR 后，卡顿率下降了 40%。”</p>
 </blockquote>
 <hr>
-<h3 id="第-28-题：ICMP-协议是干什么的？Ping-的原理？"><a href="#第-28-题：ICMP-协议是干什么的？Ping-的原理？" class="headerlink" title="第 28 题：ICMP 协议是干什么的？Ping 的原理？"></a>第 28 题：ICMP 协议是干什么的？Ping 的原理？</h3><p><strong>一句话总结</strong>：ICMP（Internet Control Message Protocol）是用来<strong>传递网络诊断和控制信息</strong>的协议；<code>ping</code> 用的是 ICMP Echo Request&#x2F;Reply 报文。</p>
+<p><a id="第-28-题：ICMP-协议是干什么的？Ping-的原理？"></a><br><a id="qb-28"></a></p>
+<h3 id="Q28：ICMP-协议是干什么的？Ping-的原理？"><a href="#Q28：ICMP-协议是干什么的？Ping-的原理？" class="headerlink" title="Q28：ICMP 协议是干什么的？Ping 的原理？"></a>Q28：ICMP 协议是干什么的？Ping 的原理？</h3><p><strong>一句话总结</strong>：ICMP（Internet Control Message Protocol）是用来<strong>传递网络诊断和控制信息</strong>的协议；<code>ping</code> 用的是 ICMP Echo Request&#x2F;Reply 报文。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs dos">【ICMP 常见报文类型】<br>  类型 <span class="hljs-number">0</span>：<span class="hljs-built_in">Echo</span> Reply（<span class="hljs-built_in">ping</span> 响应）<br>  类型 <span class="hljs-number">8</span>：<span class="hljs-built_in">Echo</span> Request（<span class="hljs-built_in">ping</span> 请求）<br>  类型 <span class="hljs-number">3</span>：Destination Unreachable（目标不可达）<br>  类型 <span class="hljs-number">11</span>：<span class="hljs-built_in">Time</span> Exceeded（TTL 过期，traceroute 用这个）<br><br>【<span class="hljs-built_in">ping</span> 的执行过程】<br>  <span class="hljs-number">1</span>. 本机发 ICMP <span class="hljs-built_in">Echo</span> Request（含序列号、TTL）<br>  <span class="hljs-number">2</span>. 目标主机回 ICMP <span class="hljs-built_in">Echo</span> Reply<br>  <span class="hljs-number">3</span>. 本机计算 RTT（Round Trip <span class="hljs-built_in">Time</span>）<br><br>【traceroute 原理】<br>  <span class="hljs-number">1</span>. 发 UDP 包，TTL=<span class="hljs-number">1</span> → 第一跳路由器丢包，回 ICMP <span class="hljs-built_in">Time</span> Exceeded<br>  <span class="hljs-number">2</span>. TTL=<span class="hljs-number">2</span> → 第二跳...<br>  <span class="hljs-number">3</span>. 直到到达目标（目标回 Port Unreachable）→ 追踪完成<br></code></pre></td></tr></table></figure>
 
@@ -1338,7 +1425,8 @@
 <p>“ICMP 在云环境里常被安全组误封——我们曾遇到跨 VPC Ping 不通的问题，排查了半天发现是安全组没放通 ICMP 协议（只放了 TCP 22 和 80）。另外，生产环境建议禁止 ICMP Timestamp Request（类型 13），因为它可以被用来做网络探测（暴露网络内部结构）。”</p>
 </blockquote>
 <hr>
-<h3 id="第-29-题：HTTP-2-的多路复用是什么？和-HTTP-1-1-比有什么优势？"><a href="#第-29-题：HTTP-2-的多路复用是什么？和-HTTP-1-1-比有什么优势？" class="headerlink" title="第 29 题：HTTP&#x2F;2 的多路复用是什么？和 HTTP&#x2F;1.1 比有什么优势？"></a>第 29 题：HTTP&#x2F;2 的多路复用是什么？和 HTTP&#x2F;1.1 比有什么优势？</h3><p><strong>一句话总结</strong>：HTTP&#x2F;2 通过 <strong>二进制分帧层</strong> 实现了<strong>多路复用</strong>（一个 TCP 连接上并发多个请求&#x2F;响应），解决了 HTTP&#x2F;1.1 的队头阻塞问题。</p>
+<p><a id="第-29-题：HTTP-2-的多路复用是什么？和-HTTP-1-1-比有什么优势？"></a><br><a id="qb-29"></a></p>
+<h3 id="Q29：HTTP-2-的多路复用是什么？和-HTTP-1-1-比有什么优势？"><a href="#Q29：HTTP-2-的多路复用是什么？和-HTTP-1-1-比有什么优势？" class="headerlink" title="Q29：HTTP&#x2F;2 的多路复用是什么？和 HTTP&#x2F;1.1 比有什么优势？"></a>Q29：HTTP&#x2F;2 的多路复用是什么？和 HTTP&#x2F;1.1 比有什么优势？</h3><p><strong>一句话总结</strong>：HTTP&#x2F;2 通过 <strong>二进制分帧层</strong> 实现了<strong>多路复用</strong>（一个 TCP 连接上并发多个请求&#x2F;响应），解决了 HTTP&#x2F;1.1 的队头阻塞问题。</p>
 <p><strong>深度解析</strong>：</p>
 <figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs nix">【HTTP<span class="hljs-symbol">/1.1</span> 的问题】<br>  方式 <span class="hljs-number">1</span>：一个 TCP 连接串行处理请求（慢）<br>  方式 <span class="hljs-number">2</span>：开多个 TCP 连接并发（浏览器限制最多 <span class="hljs-number">6</span> 个，且 TCP 连接开销大）<br><br>【HTTP<span class="hljs-symbol">/2</span> 的多路复用】<br>  把请求<span class="hljs-operator">/</span>响应拆成多个<span class="hljs-string">&quot;帧&quot;</span>（Frame）<br>  每个帧带<span class="hljs-string">&quot;流 ID&quot;</span>（Stream ID）<br>  → 同一个 TCP 连接上可以同时传多个流的帧（并发！）<br>  → 帧是二进制，解析更快<br><br>【头部压缩 HPACK】<br>  HTTP<span class="hljs-symbol">/1.1</span> 每次请求都要重复发送完整的请求头（User-Agent、Cookie 等），浪费带宽<br>  HTTP<span class="hljs-symbol">/2</span> 用 HPACK 算法压缩头部：<br>    → 双方维护一份相同的<span class="hljs-string">&quot;静态表 + 动态表&quot;</span>，重复出现的头部字段只传一个索引号<br>    → 新出现的字段用哈夫曼编码压缩后传输<br>  → 大幅减少了重复头部带来的带宽浪费<br><br>【队头阻塞问题】<br>  HTTP<span class="hljs-symbol">/2</span> 在 TCP 层面仍有队头阻塞！<br>  → 如果 TCP 包丢失，整个 TCP 连接都要等重传<br>  → HTTP<span class="hljs-operator">/</span><span class="hljs-number">3</span>（基于 QUIC，运行在 UDP 上）彻底解决了这个问题<br></code></pre></td></tr></table></figure>
 
@@ -1347,7 +1435,8 @@
 <p>“我们网站从 HTTP&#x2F;1.1 升级到 HTTP&#x2F;2 后，首屏加载时间从 2.8s 降到了 1.6s（主要收益是少了多次 TCP 握手和慢启动）。但要注意：HTTP&#x2F;2 的多路复用要求所有请求走同一个域名（共享一个 TCP 连接），如果你的静态资源分布在多个域名下，HTTP&#x2F;2 的优势会被抵消。我们的解法是把静态资源统一到 CDN 的一个域名下，并开启 HTTP&#x2F;2。”</p>
 </blockquote>
 <hr>
-<h3 id="第-30-题：网络故障排查的常用工具和命令？"><a href="#第-30-题：网络故障排查的常用工具和命令？" class="headerlink" title="第 30 题：网络故障排查的常用工具和命令？"></a>第 30 题：网络故障排查的常用工具和命令？</h3><p><strong>一句话总结</strong>：<strong>ping（连通性）→ traceroute&#x2F;tracert（路由路径）→ netstat&#x2F;ss（本机连接）→ tcpdump&#x2F;Wireshark（抓包分析）→ nslookup&#x2F;dig（DNS 解析）</strong>。</p>
+<p><a id="第-30-题：网络故障排查的常用工具和命令？"></a><br><a id="qb-30"></a></p>
+<h3 id="Q30：网络故障排查的常用工具和命令？"><a href="#Q30：网络故障排查的常用工具和命令？" class="headerlink" title="Q30：网络故障排查的常用工具和命令？"></a>Q30：网络故障排查的常用工具和命令？</h3><p><strong>一句话总结</strong>：<strong>ping（连通性）→ traceroute&#x2F;tracert（路由路径）→ netstat&#x2F;ss（本机连接）→ tcpdump&#x2F;Wireshark（抓包分析）→ nslookup&#x2F;dig（DNS 解析）</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -1407,7 +1496,8 @@
 <p><strong>计算机网络 30 题完结！</strong> 建议把这些题结合实践理解，光背八股效果有限。</p>
 </blockquote>
 <hr>
-<h3 id="第-31-题：HTTP-3-和-QUIC-协议是什么？解决了-HTTP-2-的什么问题？"><a href="#第-31-题：HTTP-3-和-QUIC-协议是什么？解决了-HTTP-2-的什么问题？" class="headerlink" title="第 31 题：HTTP&#x2F;3 和 QUIC 协议是什么？解决了 HTTP&#x2F;2 的什么问题？"></a>第 31 题：HTTP&#x2F;3 和 QUIC 协议是什么？解决了 HTTP&#x2F;2 的什么问题？</h3><h4 id="一句话结论"><a href="#一句话结论" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-31-题：HTTP-3-和-QUIC-协议是什么？解决了-HTTP-2-的什么问题？"></a><br><a id="qb-31"></a></p>
+<h3 id="Q31：HTTP-3-和-QUIC-协议是什么？解决了-HTTP-2-的什么问题？"><a href="#Q31：HTTP-3-和-QUIC-协议是什么？解决了-HTTP-2-的什么问题？" class="headerlink" title="Q31：HTTP&#x2F;3 和 QUIC 协议是什么？解决了 HTTP&#x2F;2 的什么问题？"></a>Q31：HTTP&#x2F;3 和 QUIC 协议是什么？解决了 HTTP&#x2F;2 的什么问题？</h3><h4 id="一句话结论"><a href="#一句话结论" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>HTTP&#x2F;3 基于 QUIC 协议</strong>（运行在 UDP 上），解决了 HTTP&#x2F;2 的<strong>队头阻塞</strong>问题（TCP 丢包会阻塞所有流），并实现了<strong>0-RTT 连接建立</strong>（比 TCP + TLS 快）。</p>
 </blockquote>
 <hr>
@@ -1450,7 +1540,8 @@
 <p>HTTP&#x2F;3 是<strong>未来的方向</strong>，但目前（2026 年）HTTP&#x2F;2 仍然是主流（HTTP&#x2F;3 的部署需要 CDN 和浏览器同时支持）。实际项目中，如果你的用户主要在<strong>弱网环境</strong>（如移动网络），可以优先考虑 HTTP&#x2F;3（QUIC 在丢包率高的网络下表现远好于 TCP）。另外，HTTP&#x2F;3 的 0-RTT 连接建立能显著减少<strong>首屏时间</strong>（尤其在 HTTPS 场景下）。</p>
 </blockquote>
 <hr>
-<h3 id="第-32-题：DNS-的解析过程是什么？（递归查询-vs-迭代查询）"><a href="#第-32-题：DNS-的解析过程是什么？（递归查询-vs-迭代查询）" class="headerlink" title="第 32 题：DNS 的解析过程是什么？（递归查询 vs 迭代查询）"></a>第 32 题：DNS 的解析过程是什么？（递归查询 vs 迭代查询）</h3><h4 id="一句话结论-1"><a href="#一句话结论-1" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-32-题：DNS-的解析过程是什么？（递归查询-vs-迭代查询）"></a><br><a id="qb-32"></a></p>
+<h3 id="Q32：DNS-的解析过程是什么？（递归查询-vs-迭代查询）"><a href="#Q32：DNS-的解析过程是什么？（递归查询-vs-迭代查询）" class="headerlink" title="Q32：DNS 的解析过程是什么？（递归查询 vs 迭代查询）"></a>Q32：DNS 的解析过程是什么？（递归查询 vs 迭代查询）</h3><h4 id="一句话结论-1"><a href="#一句话结论-1" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>DNS 解析过程</strong>：浏览器缓存 → 系统缓存 → 本地 DNS（递归查询）→ 根 DNS → 顶级域 DNS → 权威 DNS（迭代查询）。核心是<strong>递归查询</strong>（本地 DNS 帮你问到底）和<strong>迭代查询</strong>（每个 DNS 只返回下一个该问谁）。</p>
 </blockquote>
 <hr>
@@ -1485,7 +1576,8 @@
 <p>DNS 解析是<strong>网络优化的第一环</strong>。实际项目中，可以用<strong>DNS 预解析</strong>（<code>＜link rel=&quot;dns-prefetch&quot; href=&quot;//example.com&quot;＞</code>）提前解析域名，减少用户点击链接后的等待时间。另外，<strong>DNS 劫持</strong>是常见的安全问题（运营商劫持 DNS，返回假的 IP），解决方法是用 <strong>DNS over HTTPS（DoH）</strong> 或 <strong>DNS over TLS（DoT）</strong> 加密 DNS 查询。</p>
 </blockquote>
 <hr>
-<h3 id="第-33-题：HTTPS-的证书链验证过程？"><a href="#第-33-题：HTTPS-的证书链验证过程？" class="headerlink" title="第 33 题：HTTPS 的证书链验证过程？"></a>第 33 题：HTTPS 的证书链验证过程？</h3><h4 id="一句话结论-2"><a href="#一句话结论-2" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-33-题：HTTPS-的证书链验证过程？"></a><br><a id="qb-33"></a></p>
+<h3 id="Q33：HTTPS-的证书链验证过程？"><a href="#Q33：HTTPS-的证书链验证过程？" class="headerlink" title="Q33：HTTPS 的证书链验证过程？"></a>Q33：HTTPS 的证书链验证过程？</h3><h4 id="一句话结论-2"><a href="#一句话结论-2" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>HTTPS 证书链验证</strong>：浏览器用<strong>内置的根证书</strong>（CA）验证<strong>中间证书</strong>，再用中间证书验证<strong>服务器证书</strong>，形成一条信任链。只要链上每个证书都有效，就信任服务器。</p>
 </blockquote>
 <hr>
@@ -1503,7 +1595,8 @@
 <p>证书链验证是 HTTPS 的<strong>信任基础</strong>。面试中，如果问到”为什么我们能信任 HTTPS 网站？”，回答就是：<strong>因为浏览器内置了受信任的根证书（CA），通过这些根证书形成的信任链，我们可以验证任何服务器的身份</strong>。另外，实际部署 HTTPS 时，一定要配置<strong>完整的证书链</strong>（服务器证书 + 中间证书），否则旧版本的 Android 或 Java 客户端会报”证书不可信”的错误。</p>
 </blockquote>
 <hr>
-<h3 id="第-34-题：TCP-的-keep-alive-和-HTTP-的-keep-alive-区别？"><a href="#第-34-题：TCP-的-keep-alive-和-HTTP-的-keep-alive-区别？" class="headerlink" title="第 34 题：TCP 的 keep-alive 和 HTTP 的 keep-alive 区别？"></a>第 34 题：TCP 的 keep-alive 和 HTTP 的 keep-alive 区别？</h3><h4 id="一句话结论-3"><a href="#一句话结论-3" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-34-题：TCP-的-keep-alive-和-HTTP-的-keep-alive-区别？"></a><br><a id="qb-34"></a></p>
+<h3 id="Q34：TCP-的-keep-alive-和-HTTP-的-keep-alive-区别？"><a href="#Q34：TCP-的-keep-alive-和-HTTP-的-keep-alive-区别？" class="headerlink" title="Q34：TCP 的 keep-alive 和 HTTP 的 keep-alive 区别？"></a>Q34：TCP 的 keep-alive 和 HTTP 的 keep-alive 区别？</h3><h4 id="一句话结论-3"><a href="#一句话结论-3" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>TCP keep-alive</strong>：探测对端是否还活着（防止连接被中间设备断开）；<strong>HTTP keep-alive</strong>（HTTP&#x2F;1.0 的 <code>Connection: keep-alive</code>）<strong>：一个 TCP 连接上发送多个 HTTP 请求</strong>（避免重复建立 TCP 连接）。两者完全没关系！</p>
 </blockquote>
 <hr>
@@ -1548,7 +1641,8 @@
 <p>TCP keep-alive 和 HTTP keep-alive 是<strong>完全不同的两个东西</strong>（一个在传输层，一个在应用层），但名字很像，容易被混淆。实际项目中，<strong>HTTP 服务（如 Nginx）通常都会配置 keep-alive 超时时间</strong>（<code>keepalive_timeout</code>），避免空闲连接占用资源。而 TCP keep-alive 通常用于<strong>长连接场景</strong>（如 WebSocket、数据库连接池），防止连接被中间设备（NAT）断开。</p>
 </blockquote>
 <hr>
-<h3 id="第-35-题：WebSocket-的原理和适用场景？"><a href="#第-35-题：WebSocket-的原理和适用场景？" class="headerlink" title="第 35 题：WebSocket 的原理和适用场景？"></a>第 35 题：WebSocket 的原理和适用场景？</h3><h4 id="一句话结论-4"><a href="#一句话结论-4" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-35-题：WebSocket-的原理和适用场景？"></a><br><a id="qb-35"></a></p>
+<h3 id="Q35：WebSocket-的原理和适用场景？"><a href="#Q35：WebSocket-的原理和适用场景？" class="headerlink" title="Q35：WebSocket 的原理和适用场景？"></a>Q35：WebSocket 的原理和适用场景？</h3><h4 id="一句话结论-4"><a href="#一句话结论-4" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>WebSocket 是 HTML5 提供的全双工通信协议</strong>（基于 TCP），客户端和服务器可以<strong>互相主动发送消息</strong>（HTTP 只能客户端主动请求）。适用场景：<strong>实时聊天、股票行情推送、在线游戏</strong>。</p>
 </blockquote>
 <hr>
@@ -1593,7 +1687,8 @@
 <p>WebSocket 是<strong>实时通信</strong>的首选方案。但要注意：WebSocket 是<strong>有状态协议</strong>（每个连接都要服务器维护状态），如果用户量很大（如 100 万并发连接），服务器的内存压力会很大。这种场景下，可以考虑 <strong>WebSocket + 消息队列</strong>（如用 Redis Pub&#x2F;Sub 做消息分发）或者用 <strong>gRPC Bidirectional Streaming</strong>（基于 HTTP&#x2F;2，性能更好）。</p>
 </blockquote>
 <hr>
-<h3 id="第-36-题：RESTful-API-的设计规范？"><a href="#第-36-题：RESTful-API-的设计规范？" class="headerlink" title="第 36 题：RESTful API 的设计规范？"></a>第 36 题：RESTful API 的设计规范？</h3><h4 id="一句话结论-5"><a href="#一句话结论-5" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-36-题：RESTful-API-的设计规范？"></a><br><a id="qb-36"></a></p>
+<h3 id="Q36：RESTful-API-的设计规范？"><a href="#Q36：RESTful-API-的设计规范？" class="headerlink" title="Q36：RESTful API 的设计规范？"></a>Q36：RESTful API 的设计规范？</h3><h4 id="一句话结论-5"><a href="#一句话结论-5" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>RESTful API</strong> 的核心思想：用 <strong>URL 表示资源</strong>，<strong>HTTP 方法表示操作</strong>，<code>/users/1</code> 表示”ID 为 1 的用户”，<code>GET /users/1</code> 表示”获取这个用户”。</p>
 </blockquote>
 <hr>
@@ -1651,7 +1746,8 @@
 <p>RESTful API 是<strong>目前最主流的 API 设计风格</strong>。但实际项目中，不必死守 RESTful 规范——有些操作不适合用 CRUD（如”用户登录” <code>POST /sessions</code>、<code>POST /login</code> 更符合直觉）。另外，<strong>GraphQL</strong> 是 RESTful 的有力竞争者：它允许客户端指定需要哪些字段（避免 over-fetching 和 under-fetching），适合<strong>字段多、客户端需求多样</strong>的场景（如移动端和 Web 端需要的字段不同）。</p>
 </blockquote>
 <hr>
-<h3 id="第-37-题：跨域（CORS）的原理和解决方案？"><a href="#第-37-题：跨域（CORS）的原理和解决方案？" class="headerlink" title="第 37 题：跨域（CORS）的原理和解决方案？"></a>第 37 题：跨域（CORS）的原理和解决方案？</h3><h4 id="一句话结论-6"><a href="#一句话结论-6" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-37-题：跨域（CORS）的原理和解决方案？"></a><br><a id="qb-37"></a></p>
+<h3 id="Q37：跨域（CORS）的原理和解决方案？"><a href="#Q37：跨域（CORS）的原理和解决方案？" class="headerlink" title="Q37：跨域（CORS）的原理和解决方案？"></a>Q37：跨域（CORS）的原理和解决方案？</h3><h4 id="一句话结论-6"><a href="#一句话结论-6" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>跨域（CORS）</strong>：浏览器禁止页面向<strong>不同域名</strong>的服务器发请求（同源策略）。解决方式：① 服务器设置 CORS 响应头；② 用 Nginx 反向代理（把跨域变成同域）；③ JSONP（只支持 GET，已过时）。</p>
 </blockquote>
 <hr>
@@ -1694,7 +1790,8 @@
 <p>CORS 是浏览器的<strong>安全机制</strong>（服务器默认不限制跨域，是浏览器拦截了响应）。所以，如果你用 Postman 或 curl 测试，不会出现跨域错误（因为它们不是浏览器）。实际项目中，最方便的跨域解决方案是<strong>Nginx 反向代理</strong>（把跨域请求变成同域请求），这样就不需要在每个接口都配置 CORS 响应头了。</p>
 </blockquote>
 <hr>
-<h3 id="第-38-题：CDN-的原理和缓存策略？"><a href="#第-38-题：CDN-的原理和缓存策略？" class="headerlink" title="第 38 题：CDN 的原理和缓存策略？"></a>第 38 题：CDN 的原理和缓存策略？</h3><h4 id="一句话结论-7"><a href="#一句话结论-7" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-38-题：CDN-的原理和缓存策略？"></a><br><a id="qb-38"></a></p>
+<h3 id="Q38：CDN-的原理和缓存策略？"><a href="#Q38：CDN-的原理和缓存策略？" class="headerlink" title="Q38：CDN 的原理和缓存策略？"></a>Q38：CDN 的原理和缓存策略？</h3><h4 id="一句话结论-7"><a href="#一句话结论-7" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>CDN（Content Delivery Network）</strong>：把静态资源缓存到<strong>离用户最近的边缘节点</strong>，用户请求静态资源时，直接从边缘节点获取（不需要回源到 origin server），减少延迟、减轻源站压力。</p>
 </blockquote>
 <hr>
@@ -1742,7 +1839,8 @@
 <p>CDN 是<strong>前端性能优化</strong>的核心手段之一。实际项目中，CDN 通常和<strong>对象存储</strong>（如阿里云 OSS、腾讯云 COS）配合使用：静态资源上传到对象存储，CDN 回源到对象存储（不回源到你的服务器）。另外，<strong>CDN 也能防御 DDoS 攻击</strong>（攻击流量会被 CDN 的边缘节点吸收，不会打到源站）。</p>
 </blockquote>
 <hr>
-<h3 id="第-39-题：网络分层模型（OSI-七层-vs-TCP-IP-四层）？"><a href="#第-39-题：网络分层模型（OSI-七层-vs-TCP-IP-四层）？" class="headerlink" title="第 39 题：网络分层模型（OSI 七层 vs TCP&#x2F;IP 四层）？"></a>第 39 题：网络分层模型（OSI 七层 vs TCP&#x2F;IP 四层）？</h3><h4 id="一句话结论-8"><a href="#一句话结论-8" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-39-题：网络分层模型（OSI-七层-vs-TCP-IP-四层）？"></a><br><a id="qb-39"></a></p>
+<h3 id="Q39：网络分层模型（OSI-七层-vs-TCP-IP-四层）？"><a href="#Q39：网络分层模型（OSI-七层-vs-TCP-IP-四层）？" class="headerlink" title="Q39：网络分层模型（OSI 七层 vs TCP&#x2F;IP 四层）？"></a>Q39：网络分层模型（OSI 七层 vs TCP&#x2F;IP 四层）？</h3><h4 id="一句话结论-8"><a href="#一句话结论-8" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>OSI 七层模型</strong>（理论标准）：物理层 → 数据链路层 → 网络层 → 传输层 → 会话层 → 表示层 → 应用层；<strong>TCP&#x2F;IP 四层模型</strong>（实际实现）：网络接口层 → 网络层 → 传输层 → 应用层。面试重点掌握<strong>TCP&#x2F;IP 四层</strong>就够了。</p>
 </blockquote>
 <hr>
@@ -1787,7 +1885,8 @@
 <p>OSI 七层模型是<strong>理论标准</strong>（实际上没有严格执行），TCP&#x2F;IP 四层模型是<strong>实际实现</strong>（互联网的基础）。面试中，重点掌握<strong>每一层的核心协议</strong>（应用层：HTTP&#x2F;DNS；传输层：TCP&#x2F;UDP；网络层：IP&#x2F;ICMP）就足够了。另外，<strong>网络排错</strong>通常也是按层级从下往上查：先查物理层（网线插好了吗？），再查网络层（IP 配对了吗？），再查传输层（端口通了吗？），再查应用层（HTTP 状态码是 200 吗？）。</p>
 </blockquote>
 <hr>
-<h3 id="第-40-题：ARP-协议的原理（IP-转-MAC）？"><a href="#第-40-题：ARP-协议的原理（IP-转-MAC）？" class="headerlink" title="第 40 题：ARP 协议的原理（IP 转 MAC）？"></a>第 40 题：ARP 协议的原理（IP 转 MAC）？</h3><h4 id="一句话结论-9"><a href="#一句话结论-9" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-40-题：ARP-协议的原理（IP-转-MAC）？"></a><br><a id="qb-40"></a></p>
+<h3 id="Q40：ARP-协议的原理（IP-转-MAC）？"><a href="#Q40：ARP-协议的原理（IP-转-MAC）？" class="headerlink" title="Q40：ARP 协议的原理（IP 转 MAC）？"></a>Q40：ARP 协议的原理（IP 转 MAC）？</h3><h4 id="一句话结论-9"><a href="#一句话结论-9" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>ARP（Address Resolution Protocol）</strong>：根据 <strong>IP 地址获取 MAC 地址</strong>（因为数据链路层通信需要 MAC 地址，但应用层只知道 IP 地址）。核心流程：广播 ARP 请求 → 目标主机单播 ARP 响应。</p>
 </blockquote>
 <hr>
@@ -1805,7 +1904,8 @@
 <p>ARP 协议是<strong>局域网通信的基础</strong>。但要注意：<strong>ARP 协议不安全</strong>（没有认证机制），容易被 ARP 欺骗（ARP Spoofing）：攻击者伪造 ARP 响应，告诉主机 A”我就是 192.168.1.1”，从而劫持主机 A 的流量。防范方法是<strong>静态绑定 IP-MAC 映射</strong>（不靠 ARP，手动配置）或用 <strong>ARP 防火墙</strong>。</p>
 </blockquote>
 <hr>
-<h3 id="第-41-题：DHCP-协议的原理（动态分配-IP）？"><a href="#第-41-题：DHCP-协议的原理（动态分配-IP）？" class="headerlink" title="第 41 题：DHCP 协议的原理（动态分配 IP）？"></a>第 41 题：DHCP 协议的原理（动态分配 IP）？</h3><h4 id="一句话结论-10"><a href="#一句话结论-10" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-41-题：DHCP-协议的原理（动态分配-IP）？"></a><br><a id="qb-41"></a></p>
+<h3 id="Q41：DHCP-协议的原理（动态分配-IP）？"><a href="#Q41：DHCP-协议的原理（动态分配-IP）？" class="headerlink" title="Q41：DHCP 协议的原理（动态分配 IP）？"></a>Q41：DHCP 协议的原理（动态分配 IP）？</h3><h4 id="一句话结论-10"><a href="#一句话结论-10" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>DHCP（Dynamic Host Configuration Protocol）</strong>：自动给局域网内的主机分配 IP 地址（避免手动配置 IP 的麻烦）。核心流程：<strong>DISCOVER → OFFER → REQUEST → ACK</strong>（前后四步在 IP 层通常都是广播，因为客户端此时还没有自己的 IP 地址；但在数据链路层，服务器已经从 DISCOVER 中拿到了客户端的 MAC 地址，所以帧是直接发给客户端网卡的）。</p>
 </blockquote>
 <hr>
@@ -1823,7 +1923,8 @@
 <p>DHCP 是<strong>局域网自动配置 IP 的核心协议</strong>。实际项目中，如果你的服务器需要<strong>固定 IP</strong>（如数据库服务器、Redis 服务器），应该配置<strong>静态 IP</strong>（手动配置，不由 DHCP 分配），否则 IP 变化会导致其他服务连不上。另外，DHCP 也容易被攻击（DHCP Starvation Attack：攻击者大量申请 IP，把 DHCP 服务器的 IP 池耗尽），防范方法是<strong>DHCP Snooping</strong>（交换机只转发信任的 DHCP 服务器的响应）。</p>
 </blockquote>
 <hr>
-<h3 id="第-42-题：NAT（网络地址转换）的原理？"><a href="#第-42-题：NAT（网络地址转换）的原理？" class="headerlink" title="第 42 题：NAT（网络地址转换）的原理？"></a>第 42 题：NAT（网络地址转换）的原理？</h3><h4 id="一句话结论-11"><a href="#一句话结论-11" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-42-题：NAT（网络地址转换）的原理？"></a><br><a id="qb-42"></a></p>
+<h3 id="Q42：NAT（网络地址转换）的原理？"><a href="#Q42：NAT（网络地址转换）的原理？" class="headerlink" title="Q42：NAT（网络地址转换）的原理？"></a>Q42：NAT（网络地址转换）的原理？</h3><h4 id="一句话结论-11"><a href="#一句话结论-11" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>NAT（Network Address Translation）</strong>：把<strong>内网 IP</strong>（如 192.168.1.100）转成<strong>公网 IP</strong>（如 1.2.3.4），让多台内网主机共享一个公网 IP 上网。解决 IPv4 地址不足的问题。</p>
 </blockquote>
 <hr>
@@ -1844,7 +1945,8 @@
 <p>NAT 是<strong>IPv4 地址不足的临时解决方案</strong>（IPv6 有 128 位地址，不需要 NAT）。但 NAT 也有副作用：<strong>破坏了端到端通信</strong>（公网不能主动访问内网），导致 P2P 下载、IP 电话等应用需要<strong>NAT 穿透</strong>（STUN、TURN、ICE 协议）。另外，<strong>IPv6 不需要 NAT</strong>（每个设备都有公网 IP），这也是为什么 IPv6 是未来方向。</p>
 </blockquote>
 <hr>
-<h3 id="第-43-题：对称加密-vs-非对称加密？"><a href="#第-43-题：对称加密-vs-非对称加密？" class="headerlink" title="第 43 题：对称加密 vs 非对称加密？"></a>第 43 题：对称加密 vs 非对称加密？</h3><h4 id="一句话结论-12"><a href="#一句话结论-12" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-43-题：对称加密-vs-非对称加密？"></a><br><a id="qb-43"></a></p>
+<h3 id="Q43：对称加密-vs-非对称加密？"><a href="#Q43：对称加密-vs-非对称加密？" class="headerlink" title="Q43：对称加密 vs 非对称加密？"></a>Q43：对称加密 vs 非对称加密？</h3><h4 id="一句话结论-12"><a href="#一句话结论-12" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>对称加密</strong>：加密和解密用<strong>同一个密钥</strong>（快，但密钥分发困难）；<strong>非对称加密</strong>：加密用<strong>公钥</strong>，解密用<strong>私钥</strong>（慢，但解决了密钥分发问题）。HTTPS 同时用了两者（非对称加密协商会话密钥，对称加密传输数据）。</p>
 </blockquote>
 <hr>
@@ -1862,7 +1964,8 @@
 <p>对称加密和非对称加密是<strong>互补</strong>的：对称加密快但密钥分发困难，非对称加密慢但解决了密钥分发问题。HTTPS 的设计非常巧妙：用<strong>非对称加密安全地协商会话密钥</strong>，然后用<strong>对称加密高速传输数据</strong>。另外，<strong>RSA 正在被 ECC（椭圆曲线加密）取代</strong>（相同安全强度下，ECC 的密钥更短，性能更好）。TLS 1.3 已经把 RSA 密钥交换列为”不建议使用”。</p>
 </blockquote>
 <hr>
-<h3 id="第-44-题：中间人攻击（MITM）的原理和防范？"><a href="#第-44-题：中间人攻击（MITM）的原理和防范？" class="headerlink" title="第 44 题：中间人攻击（MITM）的原理和防范？"></a>第 44 题：中间人攻击（MITM）的原理和防范？</h3><h4 id="一句话结论-13"><a href="#一句话结论-13" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-44-题：中间人攻击（MITM）的原理和防范？"></a><br><a id="qb-44"></a></p>
+<h3 id="Q44：中间人攻击（MITM）的原理和防范？"><a href="#Q44：中间人攻击（MITM）的原理和防范？" class="headerlink" title="Q44：中间人攻击（MITM）的原理和防范？"></a>Q44：中间人攻击（MITM）的原理和防范？</h3><h4 id="一句话结论-13"><a href="#一句话结论-13" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>中间人攻击（MITM）</strong>：攻击者在通信双方之间插入自己（冒充服务器骗客户端、冒充客户端骗服务器），从而窃听或篡改通信内容。防范方法：<strong>HTTPS + 证书校验</strong>（客户端校验服务器的证书是否可信）。</p>
 </blockquote>
 <hr>
@@ -1898,7 +2001,8 @@
 <p>中间人攻击是<strong>公共 Wi-Fi 的最大威胁</strong>（攻击者可以在同一 Wi-Fi 下发起 ARP 欺骗，劫持其他用户的流量）。防范方法是：<strong>不要用公共 Wi-Fi 访问敏感网站</strong>（如网银），或者<strong>用 VPN</strong>（所有流量走加密隧道）。另外，Android 7.0+ 默认不信任用户安装的证书（防止恶意证书发起中间人攻击），这是一个很重要的安全改进。</p>
 </blockquote>
 <hr>
-<h3 id="第-45-题：VPN-的原理？"><a href="#第-45-题：VPN-的原理？" class="headerlink" title="第 45 题：VPN 的原理？"></a>第 45 题：VPN 的原理？</h3><h4 id="一句话结论-14"><a href="#一句话结论-14" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-45-题：VPN-的原理？"></a><br><a id="qb-45"></a></p>
+<h3 id="Q45：VPN-的原理？"><a href="#Q45：VPN-的原理？" class="headerlink" title="Q45：VPN 的原理？"></a>Q45：VPN 的原理？</h3><h4 id="一句话结论-14"><a href="#一句话结论-14" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>VPN（Virtual Private Network）</strong>：在公共网络上建立<strong>加密隧道</strong>，让远程用户像在局域网内一样访问内网资源。核心原理：<strong>数据包封装</strong>（把原始数据包加密后，封装在另一个数据包中传输）。</p>
 </blockquote>
 <hr>
@@ -1948,7 +2052,8 @@
 <p>VPN 的核心价值是<strong>远程办公</strong>（让员工在家也能安全访问公司内网）。但实际项目中，VPN 不是唯一选择——<strong>零信任架构（Zero Trust）</strong> 正在取代传统 VPN：不再默认信任内网设备，而是对每个访问请求都做身份认证和权限校验（无论请求来自内网还是外网）。Google 的 BeyondCorp 就是零信任架构的经典案例。</p>
 </blockquote>
 <hr>
-<h3 id="第-46-题：网络性能优化（DNS-预解析、TCP-优化、HTTP-2-推送）？"><a href="#第-46-题：网络性能优化（DNS-预解析、TCP-优化、HTTP-2-推送）？" class="headerlink" title="第 46 题：网络性能优化（DNS 预解析、TCP 优化、HTTP&#x2F;2 推送）？"></a>第 46 题：网络性能优化（DNS 预解析、TCP 优化、HTTP&#x2F;2 推送）？</h3><h4 id="一句话结论-15"><a href="#一句话结论-15" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-46-题：网络性能优化（DNS-预解析、TCP-优化、HTTP-2-推送）？"></a><br><a id="qb-46"></a></p>
+<h3 id="Q46：网络性能优化（DNS-预解析、TCP-优化、HTTP-2-推送）？"><a href="#Q46：网络性能优化（DNS-预解析、TCP-优化、HTTP-2-推送）？" class="headerlink" title="Q46：网络性能优化（DNS 预解析、TCP 优化、HTTP&#x2F;2 推送）？"></a>Q46：网络性能优化（DNS 预解析、TCP 优化、HTTP&#x2F;2 推送）？</h3><h4 id="一句话结论-15"><a href="#一句话结论-15" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>网络性能优化</strong>的核心思路：<strong>减少延迟</strong>（用 CDN、HTTP&#x2F;2 多路复用）、<strong>减少传输量</strong>（压缩、缓存）、<strong>减少连接建立开销</strong>（TCP 优化、TLS 1.3 0-RTT）。</p>
 </blockquote>
 <hr>
@@ -1972,7 +2077,8 @@
 <p>网络性能优化的<strong>最重要的是度量</strong>（不要盲目优化）。推荐用 <strong>WebPageTest</strong>（<a target="_blank" rel="noopener" href="https://www.webpagetest.org/%EF%BC%89%E6%88%96">https://www.webpagetest.org/）或</a> <strong>Chrome DevTools 的 Network 面板</strong>分析页面的加载性能（首屏时间、TTI、TPS 等），找到瓶颈再优化。另外，<strong>HTTP&#x2F;3（QUIC）</strong> 是未来的方向（0-RTT 连接建立 + 无队头阻塞），如果你的用户主要在移动网络，升级到 HTTP&#x2F;3 会有显著的性能提升。</p>
 </blockquote>
 <hr>
-<h3 id="第-47-题：实际网络故障排查案例？"><a href="#第-47-题：实际网络故障排查案例？" class="headerlink" title="第 47 题：实际网络故障排查案例？"></a>第 47 题：实际网络故障排查案例？</h3><h4 id="一句话结论-16"><a href="#一句话结论-16" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-47-题：实际网络故障排查案例？"></a><br><a id="qb-47"></a></p>
+<h3 id="Q47：实际网络故障排查案例？"><a href="#Q47：实际网络故障排查案例？" class="headerlink" title="Q47：实际网络故障排查案例？"></a>Q47：实际网络故障排查案例？</h3><h4 id="一句话结论-16"><a href="#一句话结论-16" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>网络故障排查</strong>的通用流程：<strong>从底层到高层逐一排查</strong>（物理层 → 数据链路层 → 网络层 → 传输层 → 应用层）。常用工具：<code>ping</code>（连通性）、<code>traceroute</code>（路由路径）、<code>netstat</code>（端口监听）、<code>tcpdump</code>（抓包分析）。</p>
 </blockquote>
 <hr>
@@ -1990,7 +2096,8 @@
 <p>网络故障排查是<strong>运维&#x2F;后端开发的必备技能</strong>。面试中，如果能说出<strong>从底层到高层逐一排查</strong>的思路，以及<strong>常用工具</strong>（ping、traceroute、netstat、tcpdump、Wireshark），就已经超过 80% 的候选人了。另外，<strong>tcpdump 抓包分析</strong>是最高级的排查手段（能看到每个数据包的详细信息），建议每个后端开发都学一下。</p>
 </blockquote>
 <hr>
-<h3 id="第-48-题：HTTP-状态码全家桶（1xx-5xx）？"><a href="#第-48-题：HTTP-状态码全家桶（1xx-5xx）？" class="headerlink" title="第 48 题：HTTP 状态码全家桶（1xx ~ 5xx）？"></a>第 48 题：HTTP 状态码全家桶（1xx ~ 5xx）？</h3><h4 id="一句话结论-17"><a href="#一句话结论-17" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-48-题：HTTP-状态码全家桶（1xx-5xx）？"></a><br><a id="qb-48"></a></p>
+<h3 id="Q48：HTTP-状态码全家桶（1xx-5xx）？"><a href="#Q48：HTTP-状态码全家桶（1xx-5xx）？" class="headerlink" title="Q48：HTTP 状态码全家桶（1xx ~ 5xx）？"></a>Q48：HTTP 状态码全家桶（1xx ~ 5xx）？</h3><h4 id="一句话结论-17"><a href="#一句话结论-17" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>HTTP 状态码</strong>分为 5 类：<strong>1xx（信息）</strong>、<strong>2xx（成功）</strong>、<strong>3xx（重定向）</strong>、<strong>4xx（客户端错误）</strong>、<strong>5xx（服务器错误）</strong>。面试最高频：200、301&#x2F;302、304、400、401、403、404、500、502、503、504。</p>
 </blockquote>
 <hr>
@@ -2103,7 +2210,8 @@
 <p>HTTP 状态码是<strong>前后端联调的基础</strong>。面试中，除了能说出常见状态码的含义，最好还能说出<strong>如何选择合适的状态码</strong>（如”用户未登录”应该用 401 还是 403？答案是 401，因为 403 是”无权限”，用户连登录都没登录，谈不上权限）。另外，<strong>429 Too Many Requests</strong> 是限流的标准响应码，实际项目中建议用这个状态码而不是自定义的（如 500 或 403）。</p>
 </blockquote>
 <hr>
-<h3 id="第-49-题：HTTP-请求头和响应头的常用字段？"><a href="#第-49-题：HTTP-请求头和响应头的常用字段？" class="headerlink" title="第 49 题：HTTP 请求头和响应头的常用字段？"></a>第 49 题：HTTP 请求头和响应头的常用字段？</h3><h4 id="一句话结论-18"><a href="#一句话结论-18" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-49-题：HTTP-请求头和响应头的常用字段？"></a><br><a id="qb-49"></a></p>
+<h3 id="Q49：HTTP-请求头和响应头的常用字段？"><a href="#Q49：HTTP-请求头和响应头的常用字段？" class="headerlink" title="Q49：HTTP 请求头和响应头的常用字段？"></a>Q49：HTTP 请求头和响应头的常用字段？</h3><h4 id="一句话结论-18"><a href="#一句话结论-18" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>常用请求头</strong>：<code>Host</code>（虚拟主机）、<code>User-Agent</code>（客户端标识）、<code>Accept</code>（接受的响应格式）、<code>Authorization</code>（认证信息）、<code>Cookie</code>（会话标识）；<strong>常用响应头</strong>：<code>Content-Type</code>（响应格式）、<code>Set-Cookie</code>（设置 Cookie）、<code>Cache-Control</code>（缓存策略）、<code>Location</code>（重定向目标）。</p>
 </blockquote>
 <hr>
@@ -2197,7 +2305,8 @@
 <p>HTTP 请求头和响应头是<strong>前后端通信的核心</strong>。面试中，如果问到”如何防止 XSS 攻击？”，其中一个答案是<strong>设置 Cookie 的 HttpOnly 属性</strong>（<code>Set-Cookie: sessionId=abc123; HttpOnly</code>）——这样 JavaScript 就无法读取 Cookie（阻止 XSS 攻击窃取 Cookie）。另外，<code>Content-Security-Policy</code>（CSP）响应头也是防范 XSS 的重要手段（限制页面可以加载哪些资源）。</p>
 </blockquote>
 <hr>
-<h3 id="第-50-题：网络安全（XSS、CSRF、SQL-注入）的原理和防范？"><a href="#第-50-题：网络安全（XSS、CSRF、SQL-注入）的原理和防范？" class="headerlink" title="第 50 题：网络安全（XSS、CSRF、SQL 注入）的原理和防范？"></a>第 50 题：网络安全（XSS、CSRF、SQL 注入）的原理和防范？</h3><h4 id="一句话结论-19"><a href="#一句话结论-19" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-50-题：网络安全（XSS、CSRF、SQL-注入）的原理和防范？"></a><br><a id="qb-50"></a></p>
+<h3 id="Q50：网络安全（XSS、CSRF、SQL-注入）的原理和防范？"><a href="#Q50：网络安全（XSS、CSRF、SQL-注入）的原理和防范？" class="headerlink" title="Q50：网络安全（XSS、CSRF、SQL 注入）的原理和防范？"></a>Q50：网络安全（XSS、CSRF、SQL 注入）的原理和防范？</h3><h4 id="一句话结论-19"><a href="#一句话结论-19" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>XSS（跨站脚本攻击）</strong>：攻击者在页面注入恶意脚本（偷 Cookie、钓鱼）；<strong>CSRF（跨站请求伪造）</strong>：攻击者诱导用户点击链接，利用用户的登录状态发起恶意请求；<strong>SQL 注入</strong>：攻击者构造恶意 SQL（绕过认证、拖库）。防范方法：<strong>输入校验 + 输出转义 + 预编译 SQL</strong>。</p>
 </blockquote>
 <hr>

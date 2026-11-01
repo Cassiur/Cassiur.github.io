@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="系统设计22题：从零设计秒杀&#x2F;短链&#x2F;推荐系统，覆盖限流熔断、分布式锁、CAP理论。">
+    <meta name="description" content="系统设计面试八股文（18问）：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="系统设计面试八股文（20题）">
+<meta property="og:title" content="系统设计面试八股文（18问）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/15/2026-06-15-system-design-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="系统设计22题：从零设计秒杀&#x2F;短链&#x2F;推荐系统，覆盖限流熔断、分布式锁、CAP理论。">
+<meta property="og:description" content="系统设计面试八股文（18问）：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-15T09:30:00.000Z">
-<meta property="article:modified_time" content="2026-09-05T08:28:36.699Z">
+<meta property="article:modified_time" content="2026-11-01T16:19:15.653Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="一致性哈希">
 <meta property="article:tag" content="八股文">
@@ -42,7 +42,7 @@
   
   
   
-  <title>系统设计面试八股文（20题） - WhyAlwaysMe 的树洞</title>
+  <title>系统设计面试八股文（18问） - WhyAlwaysMe 的树洞</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -226,7 +226,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="系统设计面试八股文（20题）"></span>
+            <span id="subtitle" data-typed-text="系统设计面试八股文（18问）"></span>
           
         </div>
 
@@ -249,7 +249,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          15k 字
+          16k 字
         
       </span>
     
@@ -260,7 +260,7 @@
         
         
         
-          130 分钟
+          133 分钟
         
       </span>
     
@@ -297,12 +297,19 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">系统设计面试八股文（20题）</h1>
+            <h1 id="seo-header">系统设计面试八股文（18问）</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="系统设计面试八股文（20-题）"><a href="#系统设计面试八股文（20-题）" class="headerlink" title="系统设计面试八股文（20 题）"></a>系统设计面试八股文（20 题）</h1><blockquote>
+                <blockquote>
+<p>**阅读提示（2026-11-02整理）：**先阅读核心回答，再按需展开补充示例；参数、默认值和源码实现以实际版本为准，教学示例不等于生产验证。</p>
+</blockquote>
+<p><a href="/question-bank/">题库总目录</a> · <a href="/question-bank/modern-java/">现代Java</a> · <a href="/question-bank/reliability/">可靠性</a> · <a href="/question-bank/testing/">测试</a> · <a href="/question-bank/troubleshooting/">排障</a></p>
+<blockquote>
+<p>**示例口径：**第一人称示范回答应换成自己的真实经历；教学场景和未提供测试依据的性能数字，不作为作者经历或生产测量证据。</p>
+</blockquote>
+<h1 id="系统设计面试八股文（18问）"><a href="#系统设计面试八股文（18问）" class="headerlink" title="系统设计面试八股文（18问）"></a>系统设计面试八股文（18问）</h1><blockquote>
 <p>📚 <strong>面试高频</strong>：本文覆盖系统设计核心知识点，从基础架构到高级设计，帮你系统掌握系统设计面试要点。</p>
 <p>🎯 <strong>面试加分</strong>：每个问题都包含深度解析和面试加分回答，让你在面试中脱颖而出。</p>
 <p>⚡ <strong>快速掌握</strong>：所有问题都附有通俗易懂的解释和实战经验分享。</p>
@@ -413,6 +420,27 @@
 </ol>
 </blockquote>
 <hr>
+<h2 id="核心问题索引"><a href="#核心问题索引" class="headerlink" title="核心问题索引"></a>核心问题索引</h2><ul>
+<li><a href="#qb-1">Q1：如何设计一个短链接系统（URL Shortener）？</a></li>
+<li><a href="#qb-2">Q2：如何设计一个限流器（Rate Limiter）？</a></li>
+<li><a href="#qb-3">Q3：如何设计一个分布式唯一 ID 生成系统？</a></li>
+<li><a href="#qb-4">Q4：如何设计一个秒杀系统？</a></li>
+<li><a href="#qb-5">Q5：如何设计一个消息队列（MQ）？</a></li>
+<li><a href="#qb-6">Q6：如何设计一个分布式文件系统（如 HDFS、S3）？</a></li>
+<li><a href="#qb-7">Q7：如何设计一个推荐系统？</a></li>
+<li><a href="#qb-8">Q8：如何设计一个搜索引擎（如 Google、百度）？</a></li>
+<li><a href="#qb-9">Q9：如何设计一个聊天系统（如微信、WhatsApp）？</a></li>
+<li><a href="#qb-10">Q10：如何设计一个分布式缓存系统（如 Redis Cluster）？</a></li>
+<li><a href="#qb-11">Q11：如何设计一个 API 网关（如 Kong、Zuul）？</a></li>
+<li><a href="#qb-12">Q12：如何设计一个微服务架构？</a></li>
+<li><a href="#qb-13">Q13：如何设计一个高可用系统？</a></li>
+<li><a href="#qb-14">Q14：如何设计分布式配置中心（Apollo&#x2F;Nacos）？</a></li>
+<li><a href="#qb-15">Q15：如何设计分布式日志系统（ELK）？</a></li>
+<li><a href="#qb-16">Q16：如何设计分布式监控告警系统（Prometheus + Grafana）？</a></li>
+<li><a href="#qb-17">Q17：如何设计高并发系统？</a></li>
+<li><a href="#qb-18">Q18：面试实战：如何回答系统设计问题？</a></li>
+</ul>
+<p><a id="qb-1"></a></p>
 <h3 id="Q1：如何设计一个短链接系统（URL-Shortener）？"><a href="#Q1：如何设计一个短链接系统（URL-Shortener）？" class="headerlink" title="Q1：如何设计一个短链接系统（URL Shortener）？"></a>Q1：如何设计一个短链接系统（URL Shortener）？</h3><p><strong>一句话总结</strong>：短链接系统的核心是将长链接映射到一个短链接，通过重定向实现访问，需要解决<strong>唯一 ID 生成、映射存储、重定向、高可用</strong>等问题。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 需求分析</strong>：</p>
@@ -467,6 +495,7 @@
 </ol>
 </blockquote>
 <hr>
+<p><a id="qb-2"></a></p>
 <h3 id="Q2：如何设计一个限流器（Rate-Limiter）？"><a href="#Q2：如何设计一个限流器（Rate-Limiter）？" class="headerlink" title="Q2：如何设计一个限流器（Rate Limiter）？"></a>Q2：如何设计一个限流器（Rate Limiter）？</h3><p><strong>一句话总结</strong>：限流器的核心是<strong>控制请求速率</strong>，防止系统被突发流量打垮，常见算法有<strong>固定窗口、滑动窗口、令牌桶、漏桶</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 限流的作用</strong>：</p>
@@ -511,6 +540,7 @@
 </ol>
 </blockquote>
 <hr>
+<p><a id="qb-3"></a></p>
 <h3 id="Q3：如何设计一个分布式唯一-ID-生成系统？"><a href="#Q3：如何设计一个分布式唯一-ID-生成系统？" class="headerlink" title="Q3：如何设计一个分布式唯一 ID 生成系统？"></a>Q3：如何设计一个分布式唯一 ID 生成系统？</h3><p><strong>一句话总结</strong>：分布式唯一 ID 生成系统需要保证<strong>全局唯一、有序、高性能、高可用</strong>，常见方案有<strong>UUID、数据库自增 ID、雪花算法、Redis、Leaf</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 唯一 ID 的要求</strong>：</p>
@@ -557,6 +587,7 @@
 </ol>
 </blockquote>
 <hr>
+<p><a id="Q18-如何设计秒杀系统？"></a><br><a id="qb-4"></a></p>
 <h3 id="Q4：如何设计一个秒杀系统？"><a href="#Q4：如何设计一个秒杀系统？" class="headerlink" title="Q4：如何设计一个秒杀系统？"></a>Q4：如何设计一个秒杀系统？</h3><p><strong>一句话总结</strong>：秒杀系统的核心是<strong>限流、削峰、异步处理</strong>，防止高并发流量打垮系统。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 需求分析</strong>：</p>
@@ -682,7 +713,116 @@
 </ul>
 </blockquote>
 <hr>
-<h3 id="Q6：如何设计一个消息队列（MQ）？"><a href="#Q6：如何设计一个消息队列（MQ）？" class="headerlink" title="Q6：如何设计一个消息队列（MQ）？"></a>Q6：如何设计一个消息队列（MQ）？</h3><p><strong>一句话总结</strong>：消息队列的核心是<strong>高性能、高可用、不丢消息、顺序性、幂等性</strong>。</p>
+<details>
+<summary>展开：如何设计秒杀系统？</summary>
+
+<p><strong>一句话总结</strong>：秒杀系统的核心是<strong>流量分层过滤、异步处理、流量削峰</strong>，保证系统不被瞬时流量打垮。</p>
+<h4 id="深度解析"><a href="#深度解析" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 秒杀系统的挑战</strong></p>
+<table>
+<thead>
+<tr>
+<th>挑战</th>
+<th>说明</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>瞬时流量高</td>
+<td>100 万人抢 100 件商品</td>
+<td>流量分层过滤、限流</td>
+</tr>
+<tr>
+<td>库存超卖</td>
+<td>100 件商品被 200 人抢到</td>
+<td>分布式锁、Redis 原子操作</td>
+</tr>
+<tr>
+<td>数据库压力</td>
+<td>大量下单请求打垮数据库</td>
+<td>异步处理、消息队列</td>
+</tr>
+<tr>
+<td>恶意刷单</td>
+<td>黄牛用脚本刷单</td>
+<td>验证码、风控系统</td>
+</tr>
+</tbody></table>
+<p><strong>2. 秒杀系统的架构设计</strong></p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs scss">┌─────────────────────────────────────────────────────────────┐<br>│                    秒杀系统架构                            │<br>├─────────────────────────────────────────────────────────────┤<br>│                                                             │<br>│  ┌─────────┐    ┌─────────┐    ┌─────────┐              │<br>│  │  User    │───▶│  CDN     │───▶│  LB      │          │<br>│  │  (用户)  │    │  (静态资源)│    │  (负载均衡)│          │<br>│  └─────────┘    └─────────┘    └─────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  Nginx           │              │<br>│                          │  (限流、黑白名单) │              │<br>│                          └─────────────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  API Gateway      │              │<br>│                          │  (鉴权、限流)     │              │<br>│                          └─────────────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  秒杀服务         │              │<br>│                          │  (校验库存、下单) │              │<br>│                          └─────────────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│              ┌────────────────────────────────────┐        │<br>│              │  Redis (库存预扣减) │ MQ (异步下单) │        │<br>│              └────────────────────────────────────┘        │<br>└─────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 流量分层过滤</strong></p>
+<p><strong>第 1 层：CDN 过滤静态资源</strong></p>
+<ul>
+<li>秒杀页面中的图片、CSS、JS 都放在 CDN 上</li>
+<li>用户请求 CDN，不打到后端服务器</li>
+</ul>
+<p><strong>第 2 层：Nginx 限流</strong></p>
+<ul>
+<li>限制每个 IP 的请求频率（如每个 IP 每秒只能请求 1 次）</li>
+<li>黑名单：封禁恶意 IP</li>
+</ul>
+<p><strong>第 3 层：API Gateway 鉴权和限流</strong></p>
+<ul>
+<li>鉴权：校验用户是否登录</li>
+<li>限流：限制每个用户的请求频率（如每个用户每秒只能请求 1 次）</li>
+</ul>
+<p><strong>第 4 层：秒杀服务校验库存</strong></p>
+<ul>
+<li>校验库存是否充足（基于 Redis）</li>
+<li>校验用户是否已经抢过（基于 Redis Set）</li>
+</ul>
+<p><strong>第 5 层：消息队列异步下单</strong></p>
+<ul>
+<li>下单请求放入消息队列，异步处理</li>
+<li>数据库批量插入订单（减少数据库连接）</li>
+</ul>
+<p><strong>4. 库存预扣减（Redis 原子操作）</strong></p>
+<p><strong>问题</strong>：100 万人抢 100 件商品，如何防止超卖？</p>
+<p><strong>解决方案</strong>：使用 Redis 的 <code>DECR</code> 原子操作预扣减库存</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> redis.clients.jedis.Jedis;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SeckillService</span> &#123;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Jedis</span> <span class="hljs-variable">jedis</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Jedis</span>(<span class="hljs-string">&quot;localhost&quot;</span>, <span class="hljs-number">6379</span>);<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">seckill</span><span class="hljs-params">(String userId, String productId)</span> &#123;<br>        <span class="hljs-comment">// 1. 校验用户是否已经抢过（Redis Set）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">userKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;seckill:users:&quot;</span> + productId;<br>        <span class="hljs-keyword">if</span> (jedis.sismember(userKey, userId)) &#123;<br>            System.out.println(<span class="hljs-string">&quot;您已经抢过啦！&quot;</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <br>        <span class="hljs-comment">// 2. 预扣减库存（Redis 原子操作 DECR）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">stockKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;seckill:stock:&quot;</span> + productId;<br>        <span class="hljs-type">Long</span> <span class="hljs-variable">remaining</span> <span class="hljs-operator">=</span> jedis.decr(stockKey);  <span class="hljs-comment">// 原子操作</span><br>        <br>        <span class="hljs-keyword">if</span> (remaining &lt; <span class="hljs-number">0</span>) &#123;<br>            System.out.println(<span class="hljs-string">&quot;库存不足！&quot;</span>);<br>            jedis.incr(stockKey);  <span class="hljs-comment">// 库存加回去</span><br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <br>        <span class="hljs-comment">// 3. 记录用户已经抢过</span><br>        jedis.sadd(userKey, userId);<br>        <br>        <span class="hljs-comment">// 4. 异步下单（放入消息队列）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">orderInfo</span> <span class="hljs-operator">=</span> userId + <span class="hljs-string">&quot;:&quot;</span> + productId;<br>        jedis.lpush(<span class="hljs-string">&quot;seckill:orders&quot;</span>, orderInfo);<br>        <br>        System.out.println(<span class="hljs-string">&quot;抢购成功！&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>5. 异步下单（消息队列）</strong></p>
+<p><strong>问题</strong>：100 万下单请求同时打到数据库，数据库会挂！</p>
+<p><strong>解决方案</strong>：下单请求放入消息队列，异步处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.kafka.annotation.KafkaListener;<br><span class="hljs-keyword">import</span> org.springframework.kafka.core.KafkaTemplate;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderService</span> &#123;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> KafkaTemplate&lt;String, String&gt; kafkaTemplate;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">OrderService</span><span class="hljs-params">(KafkaTemplate&lt;String, String&gt; kafkaTemplate)</span> &#123;<br>        <span class="hljs-built_in">this</span>.kafkaTemplate = kafkaTemplate;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 发送下单消息</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendOrder</span><span class="hljs-params">(String userId, String productId)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">orderInfo</span> <span class="hljs-operator">=</span> userId + <span class="hljs-string">&quot;:&quot;</span> + productId;<br>        kafkaTemplate.send(<span class="hljs-string">&quot;seckill-orders&quot;</span>, orderInfo);<br>    &#125;<br>    <br>    <span class="hljs-comment">// 消费下单消息（异步下单）</span><br>    <span class="hljs-meta">@KafkaListener(topics = &quot;seckill-orders&quot;, groupId = &quot;order-group&quot;)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processOrder</span><span class="hljs-params">(String orderInfo)</span> &#123;<br>        String[] parts = orderInfo.split(<span class="hljs-string">&quot;:&quot;</span>);<br>        <span class="hljs-type">String</span> <span class="hljs-variable">userId</span> <span class="hljs-operator">=</span> parts[<span class="hljs-number">0</span>];<br>        <span class="hljs-type">String</span> <span class="hljs-variable">productId</span> <span class="hljs-operator">=</span> parts[<span class="hljs-number">1</span>];<br>        <br>        <span class="hljs-comment">// 插入订单到数据库</span><br>        orderRepository.insert(userId, productId);<br>        <br>        <span class="hljs-comment">// 扣减数据库库存</span><br>        productRepository.decrementStock(productId);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>6. 防刷单（风控系统）</strong></p>
+<p><strong>验证码</strong>：</p>
+<ul>
+<li>秒杀前需要输入验证码（防止脚本刷单）</li>
+</ul>
+<p><strong>风控系统</strong>：</p>
+<ul>
+<li>检测异常用户（如同一 IP 注册 100 个账号）</li>
+<li>检测异常订单（如同一用户下单 100 次）</li>
+</ul>
+<h4 id="面试加分回答"><a href="#面试加分回答" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
+<blockquote>
+<p>“在实际项目中，我们设计秒杀系统的经验：</p>
+<ol>
+<li><strong>流量分层过滤</strong>：CDN → Nginx 限流 → API Gateway 鉴权限流 → 秒杀服务校验库存</li>
+<li><strong>库存预扣减</strong>：使用 Redis 的 <code>DECR</code> 原子操作预扣减库存，防止超卖</li>
+<li><strong>异步下单</strong>：下单请求放入 Kafka，异步处理（数据库批量插入订单）</li>
+<li><strong>防刷单</strong>：验证码 + 风控系统（检测异常用户和异常订单）</li>
+</ol>
+<p>效果：100 万人抢 100 件商品，系统平稳运行，没有超卖，数据库压力降低了 99%。”</p>
+</blockquote>
+<p><strong>面试高频追问</strong>：</p>
+<ul>
+<li><strong>Q</strong>: 如果 Redis 挂了怎么办？<ul>
+<li><strong>A</strong>: Redis 集群部署（主从 + 哨兵），主节点挂了自动切换到从节点。</li>
+</ul>
+</li>
+<li><strong>Q</strong>: 如何防止库存扣减成功但下单失败？<ul>
+<li><strong>A</strong>: 使用分布式事务（如 Seata），保证库存扣减和下单要么同时成功，要么同时失败。</li>
+</ul>
+</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q6：如何设计一个消息队列（MQ）？"></a><br><a id="qb-5"></a></p>
+<h3 id="Q5：如何设计一个消息队列（MQ）？"><a href="#Q5：如何设计一个消息队列（MQ）？" class="headerlink" title="Q5：如何设计一个消息队列（MQ）？"></a>Q5：如何设计一个消息队列（MQ）？</h3><p><strong>一句话总结</strong>：消息队列的核心是<strong>高性能、高可用、不丢消息、顺序性、幂等性</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 需求分析</strong>：</p>
 <ul>
@@ -730,7 +870,8 @@
 </ul>
 </blockquote>
 <hr>
-<h3 id="Q7：如何设计一个分布式文件系统（如-HDFS、S3）？"><a href="#Q7：如何设计一个分布式文件系统（如-HDFS、S3）？" class="headerlink" title="Q7：如何设计一个分布式文件系统（如 HDFS、S3）？"></a>Q7：如何设计一个分布式文件系统（如 HDFS、S3）？</h3><p><strong>一句话总结</strong>：分布式文件系统的核心是<strong>分块存储、多副本、高可用、高可靠</strong>。</p>
+<p><a id="Q7：如何设计一个分布式文件系统（如-HDFS、S3）？"></a><br><a id="Q19-如何设计分布式文件存储系统（FastDFS、MinIO）？"></a><br><a id="qb-6"></a></p>
+<h3 id="Q6：如何设计一个分布式文件系统（如-HDFS、S3）？"><a href="#Q6：如何设计一个分布式文件系统（如-HDFS、S3）？" class="headerlink" title="Q6：如何设计一个分布式文件系统（如 HDFS、S3）？"></a>Q6：如何设计一个分布式文件系统（如 HDFS、S3）？</h3><p><strong>一句话总结</strong>：分布式文件系统的核心是<strong>分块存储、多副本、高可用、高可靠</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 需求分析</strong>：</p>
 <ul>
@@ -781,7 +922,80 @@
 </ol>
 </blockquote>
 <hr>
-<h3 id="Q8：如何设计一个推荐系统？"><a href="#Q8：如何设计一个推荐系统？" class="headerlink" title="Q8：如何设计一个推荐系统？"></a>Q8：如何设计一个推荐系统？</h3><p><strong>一句话总结</strong>：推荐系统的核心是<strong>用户画像、物品画像、推荐算法、实时性</strong>。</p>
+<details>
+<summary>展开：如何设计分布式文件存储系统（FastDFS、MinIO）？</summary>
+
+<p><strong>一句话总结</strong>：分布式文件存储系统的核心是<strong>文件分块、元数据管理、副本机制</strong>，保证文件高可用和高可靠。</p>
+<h4 id="深度解析-1"><a href="#深度解析-1" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 为什么需要分布式文件存储系统？</strong></p>
+<p>传统文件存储方式的问题：</p>
+<ul>
+<li>文件存储在单机磁盘上，磁盘满了无法扩展</li>
+<li>文件没有备份，磁盘损坏文件丢失</li>
+<li>文件访问量大时，单机带宽不够</li>
+</ul>
+<p>分布式文件存储系统的优势：</p>
+<ul>
+<li>✅ <strong>水平扩展</strong>：文件分散存储在多台服务器上，容量不够就加机器</li>
+<li>✅ <strong>高可用</strong>：文件有多个副本，一台服务器挂了不影响访问</li>
+<li>✅ <strong>高性能</strong>：文件分散在多台服务器上，带宽聚合</li>
+</ul>
+<p><strong>2. FastDFS 架构设计</strong></p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">┌─────────────────────────────────────────────────────────────┐<br>│                    FastDFS 架构                             │<br>├─────────────────────────────────────────────────────────────┤<br>│                                                             │<br>│  ┌─────────┐    ┌─────────┐    ┌─────────┐              │<br>│  │  Client  │───▶│  Tracker │───▶│  <span class="hljs-keyword">Storage</span> │            │<br>│  │  (客户端) │    │  (跟踪服务器)│    │  (存储服务器)│            │<br>│  └─────────┘    └─────────┘    └─────────┘              │<br>│       │              │                │                      │<br>│       │              ▼                ▼                      │<br>│       │      ┌─────────────────────────────┐              │<br>│       │      │  <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Group</span> <span class="hljs-number">1</span>             │              │<br>│       │      │  ┌─────────┐ ┌─────────┐   │              │<br>│       │      │  │ <span class="hljs-keyword">Storage</span> │ │ <span class="hljs-keyword">Storage</span> │   │              │<br>│       │      │  │ (主)     │ │ (从)     │   │              │<br>│       │      │  └─────────┘ └─────────┘   │              │<br>│       │      └─────────────────────────────┘              │<br>└─────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<p><strong>核心组件</strong>：</p>
+<ul>
+<li><strong>Tracker Server</strong>：跟踪服务器，管理 Storage Server（类似注册中心）</li>
+<li><strong>Storage Server</strong>：存储服务器，存储文件和文件元数据</li>
+<li><strong>Group</strong>：组，一组 Storage Server 互为主从（文件副本）</li>
+</ul>
+<p><strong>3. FastDFS 文件上传流程</strong></p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-number">1.</span> Client 询问 Tracker <span class="hljs-keyword">Server</span>：哪个 <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 可以上传文件？<br><span class="hljs-number">2.</span> Tracker <span class="hljs-keyword">Server</span> 返回一个 <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 地址<br><span class="hljs-number">3.</span> Client 上传文件到 <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span><br><span class="hljs-number">4.</span> <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 生成文件 ID（组名 + 虚拟磁盘路径 + 两级目录 + 文件名）<br><span class="hljs-number">5.</span> <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 同步文件到同组的其他 <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span>（副本）<br><span class="hljs-number">6.</span> <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 返回文件 ID 给 Client<br></code></pre></td></tr></table></figure>
+
+<p><strong>文件 ID 示例</strong>：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs diff">group1/M00/00/00/wKgZhWuCXBOAUw7_AAAw0dKE5R8070.txt<br><br><span class="hljs-deletion">- group1：组名</span><br><span class="hljs-deletion">- M00：虚拟磁盘路径（对应 Storage Server 的 store_path0）</span><br><span class="hljs-deletion">- 00/00：两级目录（避免单个目录下文件过多）</span><br><span class="hljs-deletion">- wKgZhWuCXBOAUw7_AAAw0dKE5R8070.txt：文件名（由 Storage Server 生成）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>4. MinIO 架构设计</strong></p>
+<p>MinIO 是对象存储（类似 AWS S3），适合存储海量小文件（图片、视频、文档）。</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs arduino">┌─────────────────────────────────────────────────────────────┐<br>│                    MinIO 架构                               │<br>├─────────────────────────────────────────────────────────────┤<br>│                                                             │<br>│  ┌─────────┐    ┌─────────┐    ┌─────────┐              │<br>│  │  <span class="hljs-built_in">Client</span>  │───▶│  Load   │───▶│  MinIO   │            │<br>│  │  (客户端) │    │  Balancer│    │  <span class="hljs-built_in">Server</span>  │            │<br>│  └─────────┘    └─────────┘    └─────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  Erasure Code    │              │<br>│                          │  (纠删码)        │              │<br>│                          └─────────────────┘              │<br>└─────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<p><strong>核心特性</strong>：</p>
+<ul>
+<li><strong>纠删码（Erasure Code）</strong>：将文件分成 N 个数据块和 M 个校验块，允许最多 M 个块损坏</li>
+<li><strong>Bitrot 保护</strong>：自动检测数据损坏（基于哈希校验）</li>
+<li><strong>S3 兼容</strong>：API 兼容 AWS S3</li>
+</ul>
+<p><strong>5. 实战：Spring Boot 集成 MinIO</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- pom.xml --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>io.minio<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>minio<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>8.5.2<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> io.minio.MinioClient;<br><span class="hljs-keyword">import</span> io.minio.PutObjectArgs;<br><span class="hljs-keyword">import</span> org.springframework.web.multipart.MultipartFile;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MinIOService</span> &#123;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> MinioClient minioClient;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MinIOService</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">this</span>.minioClient = MinioClient.builder()<br>            .endpoint(<span class="hljs-string">&quot;http://localhost:9000&quot;</span>)  <span class="hljs-comment">// MinIO 地址</span><br>            .credentials(<span class="hljs-string">&quot;admin&quot;</span>, <span class="hljs-string">&quot;password&quot;</span>)    <span class="hljs-comment">// 账号密码</span><br>            .build();<br>    &#125;<br>    <br>    <span class="hljs-comment">// 上传文件</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">uploadFile</span><span class="hljs-params">(MultipartFile file, String bucketName)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-comment">// 1. 创建 Bucket（如果不存在）</span><br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">found</span> <span class="hljs-operator">=</span> minioClient.bucketExists(b -&gt; b.bucket(bucketName));<br>        <span class="hljs-keyword">if</span> (!found) &#123;<br>            minioClient.makeBucket(b -&gt; b.bucket(bucketName));<br>        &#125;<br>        <br>        <span class="hljs-comment">// 2. 上传文件</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">fileName</span> <span class="hljs-operator">=</span> System.currentTimeMillis() + <span class="hljs-string">&quot;_&quot;</span> + file.getOriginalFilename();<br>        minioClient.putObject(<br>            PutObjectArgs.builder()<br>                .bucket(bucketName)<br>                .object(fileName)<br>                .stream(file.getInputStream(), file.getSize(), -<span class="hljs-number">1</span>)<br>                .contentType(file.getContentType())<br>                .build()<br>        );<br>        <br>        <span class="hljs-comment">// 3. 返回文件 URL</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;http://localhost:9000/&quot;</span> + bucketName + <span class="hljs-string">&quot;/&quot;</span> + fileName;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="面试加分回答-1"><a href="#面试加分回答-1" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
+<blockquote>
+<p>“在实际项目中，我们使用 <strong>MinIO</strong> 存储用户上传的文件（头像、文档、视频）：</p>
+<ol>
+<li><strong>文件上传</strong>：前端上传文件到后端，后端转发到 MinIO</li>
+<li><strong>文件访问</strong>：MinIO 生成文件 URL，返回给前端</li>
+<li><strong>文件备份</strong>：MinIO 使用纠删码（Erasure Code），允许最多 4 个节点挂掉</li>
+<li><strong>文件权限</strong>：MinIO 支持预签名 URL（过期时间 1 小时），防止文件被盗链</li>
+</ol>
+<p>对比 <strong>FastDFS</strong>：FastDFS 适合小文件存储（&lt; 1MB），MinIO 适合任意大小文件存储（兼容 S3 API）。”</p>
+</blockquote>
+<p><strong>面试高频追问</strong>：</p>
+<ul>
+<li><strong>Q</strong>: 如何保证文件不丢失？<ul>
+<li><strong>A</strong>: FastDFS 有多副本（同组 Storage Server 互为主从）；MinIO 有纠删码（允许最多 M 个块损坏）。</li>
+</ul>
+</li>
+<li><strong>Q</strong>: 如何防止文件被盗链？<ul>
+<li><strong>A</strong>: MinIO 支持预签名 URL（过期时间 1 小时），只有合法用户才能访问文件。</li>
+</ul>
+</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q8：如何设计一个推荐系统？"></a><br><a id="qb-7"></a></p>
+<h3 id="Q7：如何设计一个推荐系统？"><a href="#Q7：如何设计一个推荐系统？" class="headerlink" title="Q7：如何设计一个推荐系统？"></a>Q7：如何设计一个推荐系统？</h3><p><strong>一句话总结</strong>：推荐系统的核心是<strong>用户画像、物品画像、推荐算法、实时性</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 推荐算法</strong>：</p>
 <p><strong>算法 1：协同过滤（Collaborative Filtering）</strong></p>
@@ -817,7 +1031,8 @@
 </ul>
 </blockquote>
 <hr>
-<h3 id="Q9：如何设计一个搜索引擎（如-Google、百度）？"><a href="#Q9：如何设计一个搜索引擎（如-Google、百度）？" class="headerlink" title="Q9：如何设计一个搜索引擎（如 Google、百度）？"></a>Q9：如何设计一个搜索引擎（如 Google、百度）？</h3><p><strong>一句话总结</strong>：搜索引擎的核心是<strong>爬取、索引、排序</strong>。</p>
+<p><a id="Q9：如何设计一个搜索引擎（如-Google、百度）？"></a><br><a id="qb-8"></a></p>
+<h3 id="Q8：如何设计一个搜索引擎（如-Google、百度）？"><a href="#Q8：如何设计一个搜索引擎（如-Google、百度）？" class="headerlink" title="Q8：如何设计一个搜索引擎（如 Google、百度）？"></a>Q8：如何设计一个搜索引擎（如 Google、百度）？</h3><p><strong>一句话总结</strong>：搜索引擎的核心是<strong>爬取、索引、排序</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 系统架构</strong>：</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">网页爬取 → 索引构建 → 倒排索引<br>                              ↓<br>                         搜索查询 → 排序 → 展示<br></code></pre></td></tr></table></figure>
@@ -853,7 +1068,8 @@
 </ol>
 </blockquote>
 <hr>
-<h3 id="Q10：如何设计一个聊天系统（如微信、WhatsApp）？"><a href="#Q10：如何设计一个聊天系统（如微信、WhatsApp）？" class="headerlink" title="Q10：如何设计一个聊天系统（如微信、WhatsApp）？"></a>Q10：如何设计一个聊天系统（如微信、WhatsApp）？</h3><p><strong>一句话总结</strong>：聊天系统的核心是<strong>实时消息传输、消息存储、消息推送、多端同步</strong>。</p>
+<p><a id="Q10：如何设计一个聊天系统（如微信、WhatsApp）？"></a><br><a id="qb-9"></a></p>
+<h3 id="Q9：如何设计一个聊天系统（如微信、WhatsApp）？"><a href="#Q9：如何设计一个聊天系统（如微信、WhatsApp）？" class="headerlink" title="Q9：如何设计一个聊天系统（如微信、WhatsApp）？"></a>Q9：如何设计一个聊天系统（如微信、WhatsApp）？</h3><p><strong>一句话总结</strong>：聊天系统的核心是<strong>实时消息传输、消息存储、消息推送、多端同步</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 需求分析</strong>：</p>
 <ul>
@@ -954,7 +1170,8 @@
 </ol>
 </blockquote>
 <hr>
-<h3 id="Q12：如何设计一个分布式缓存系统（如-Redis-Cluster）？"><a href="#Q12：如何设计一个分布式缓存系统（如-Redis-Cluster）？" class="headerlink" title="Q12：如何设计一个分布式缓存系统（如 Redis Cluster）？"></a>Q12：如何设计一个分布式缓存系统（如 Redis Cluster）？</h3><p><strong>一句话总结</strong>：分布式缓存系统的核心是<strong>数据分片、高可用、一致性哈希</strong>。</p>
+<p><a id="Q12：如何设计一个分布式缓存系统（如-Redis-Cluster）？"></a><br><a id="qb-10"></a></p>
+<h3 id="Q10：如何设计一个分布式缓存系统（如-Redis-Cluster）？"><a href="#Q10：如何设计一个分布式缓存系统（如-Redis-Cluster）？" class="headerlink" title="Q10：如何设计一个分布式缓存系统（如 Redis Cluster）？"></a>Q10：如何设计一个分布式缓存系统（如 Redis Cluster）？</h3><p><strong>一句话总结</strong>：分布式缓存系统的核心是<strong>数据分片、高可用、一致性哈希</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 需求分析</strong>：</p>
 <ul>
@@ -994,7 +1211,8 @@
 </ol>
 </blockquote>
 <hr>
-<h3 id="Q13：如何设计一个-API-网关（如-Kong、Zuul）？"><a href="#Q13：如何设计一个-API-网关（如-Kong、Zuul）？" class="headerlink" title="Q13：如何设计一个 API 网关（如 Kong、Zuul）？"></a>Q13：如何设计一个 API 网关（如 Kong、Zuul）？</h3><p><strong>一句话总结</strong>：API 网关的核心是<strong>路由、负载均衡、限流、认证、监控</strong>。</p>
+<p><a id="Q13：如何设计一个-API-网关（如-Kong、Zuul）？"></a><br><a id="qb-11"></a></p>
+<h3 id="Q11：如何设计一个-API-网关（如-Kong、Zuul）？"><a href="#Q11：如何设计一个-API-网关（如-Kong、Zuul）？" class="headerlink" title="Q11：如何设计一个 API 网关（如 Kong、Zuul）？"></a>Q11：如何设计一个 API 网关（如 Kong、Zuul）？</h3><p><strong>一句话总结</strong>：API 网关的核心是<strong>路由、负载均衡、限流、认证、监控</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 需求分析</strong>：</p>
 <ul>
@@ -1027,7 +1245,8 @@
 </ol>
 </blockquote>
 <hr>
-<h3 id="Q14：如何设计一个微服务架构？"><a href="#Q14：如何设计一个微服务架构？" class="headerlink" title="Q14：如何设计一个微服务架构？"></a>Q14：如何设计一个微服务架构？</h3><p><strong>一句话总结</strong>：微服务架构的核心是<strong>服务拆分、服务通信、服务治理、服务监控</strong>。</p>
+<p><a id="Q14：如何设计一个微服务架构？"></a><br><a id="qb-12"></a></p>
+<h3 id="Q12：如何设计一个微服务架构？"><a href="#Q12：如何设计一个微服务架构？" class="headerlink" title="Q12：如何设计一个微服务架构？"></a>Q12：如何设计一个微服务架构？</h3><p><strong>一句话总结</strong>：微服务架构的核心是<strong>服务拆分、服务通信、服务治理、服务监控</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 服务拆分</strong>：</p>
 <ul>
@@ -1057,7 +1276,8 @@
 </ol>
 </blockquote>
 <hr>
-<h3 id="Q15：如何设计一个高可用系统？"><a href="#Q15：如何设计一个高可用系统？" class="headerlink" title="Q15：如何设计一个高可用系统？"></a>Q15：如何设计一个高可用系统？</h3><p><strong>一句话总结</strong>：高可用系统的核心是<strong>消除单点故障、故障自动转移、健康检查、监控告警</strong>。</p>
+<p><a id="Q15：如何设计一个高可用系统？"></a><br><a id="qb-13"></a></p>
+<h3 id="Q13：如何设计一个高可用系统？"><a href="#Q13：如何设计一个高可用系统？" class="headerlink" title="Q13：如何设计一个高可用系统？"></a>Q13：如何设计一个高可用系统？</h3><p><strong>一句话总结</strong>：高可用系统的核心是<strong>消除单点故障、故障自动转移、健康检查、监控告警</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 消除单点故障</strong>：</p>
 <ul>
@@ -1216,8 +1436,9 @@
 </blockquote>
 <hr>
 <hr>
-<h3 id="Q14-如何设计分布式配置中心（Apollo-Nacos）？"><a href="#Q14-如何设计分布式配置中心（Apollo-Nacos）？" class="headerlink" title="Q14: 如何设计分布式配置中心（Apollo&#x2F;Nacos）？"></a>Q14: 如何设计分布式配置中心（Apollo&#x2F;Nacos）？</h3><p><strong>一句话总结</strong>：分布式配置中心的核心是集中管理配置、支持动态刷新、配置历史管理和灰度发布。</p>
-<h4 id="深度解析"><a href="#深度解析" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 为什么需要分布式配置中心？</strong></p>
+<p><a id="Q14-如何设计分布式配置中心（Apollo-Nacos）？"></a><br><a id="qb-14"></a></p>
+<h3 id="Q14：如何设计分布式配置中心（Apollo-Nacos）？"><a href="#Q14：如何设计分布式配置中心（Apollo-Nacos）？" class="headerlink" title="Q14：如何设计分布式配置中心（Apollo&#x2F;Nacos）？"></a>Q14：如何设计分布式配置中心（Apollo&#x2F;Nacos）？</h3><p><strong>一句话总结</strong>：分布式配置中心的核心是集中管理配置、支持动态刷新、配置历史管理和灰度发布。</p>
+<h4 id="深度解析-2"><a href="#深度解析-2" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 为什么需要分布式配置中心？</strong></p>
 <p>传统配置方式的问题：</p>
 <ul>
 <li>配置写在本地文件中，修改需要重启服务</li>
@@ -1303,7 +1524,7 @@
 
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Value;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ApolloController</span> &#123;<br>    <br>    <span class="hljs-meta">@Value(&quot;$&#123;timeout:1000&#125;&quot;)</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> timeout;<br>    <br>    <span class="hljs-meta">@GetMapping(&quot;/timeout&quot;)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getTimeout</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> timeout;  <span class="hljs-comment">// 配置修改后，自动刷新（无需重启）</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h4 id="面试加分回答"><a href="#面试加分回答" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
+<h4 id="面试加分回答-2"><a href="#面试加分回答-2" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
 <blockquote>
 <p>“在实际项目中，我们使用 <strong>Apollo</strong> 管理所有微服务的配置：</p>
 <ol>
@@ -1326,8 +1547,9 @@
 </li>
 </ul>
 <hr>
-<h3 id="Q15-如何设计分布式日志系统（ELK）？"><a href="#Q15-如何设计分布式日志系统（ELK）？" class="headerlink" title="Q15: 如何设计分布式日志系统（ELK）？"></a>Q15: 如何设计分布式日志系统（ELK）？</h3><p><strong>一句话总结</strong>：分布式日志系统的核心是日志收集、日志存储、日志搜索和日志分析，常用方案是 ELK（Elasticsearch + Logstash + Kibana）。</p>
-<h4 id="深度解析-1"><a href="#深度解析-1" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 为什么需要分布式日志系统？</strong></p>
+<p><a id="Q15-如何设计分布式日志系统（ELK）？"></a><br><a id="qb-15"></a></p>
+<h3 id="Q15：如何设计分布式日志系统（ELK）？"><a href="#Q15：如何设计分布式日志系统（ELK）？" class="headerlink" title="Q15：如何设计分布式日志系统（ELK）？"></a>Q15：如何设计分布式日志系统（ELK）？</h3><p><strong>一句话总结</strong>：分布式日志系统的核心是日志收集、日志存储、日志搜索和日志分析，常用方案是 ELK（Elasticsearch + Logstash + Kibana）。</p>
+<h4 id="深度解析-3"><a href="#深度解析-3" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 为什么需要分布式日志系统？</strong></p>
 <p>传统日志方式的问题：</p>
 <ul>
 <li>日志分散在各个服务器上，排查问题需要登录每台服务器</li>
@@ -1382,7 +1604,7 @@
 <p><strong>6. 日志告警（ElastAlert）</strong></p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># elastalert规则：ERROR 日志超过 100 条/分钟就告警</span><br><span class="hljs-attr">name:</span> <span class="hljs-string">app-error-threshold</span><br><span class="hljs-attr">type:</span> <span class="hljs-string">frequency</span><br><span class="hljs-attr">index:</span> <span class="hljs-string">app-logs-*</span><br><span class="hljs-attr">num_events:</span> <span class="hljs-number">100</span><br><span class="hljs-attr">timeframe:</span><br>  <span class="hljs-attr">minutes:</span> <span class="hljs-number">1</span><br><span class="hljs-attr">filter:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">term:</span><br>      <span class="hljs-attr">level:</span> <span class="hljs-string">&quot;ERROR&quot;</span><br><span class="hljs-attr">alert:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;email&quot;</span><br><span class="hljs-attr">email:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;admin@example.com&quot;</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="面试加分回答-1"><a href="#面试加分回答-1" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
+<h4 id="面试加分回答-3"><a href="#面试加分回答-3" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
 <blockquote>
 <p>“在实际项目中，我们使用 <strong>ELK</strong> 搭建日志系统：</p>
 <ol>
@@ -1410,8 +1632,9 @@
 </li>
 </ul>
 <hr>
-<h3 id="Q16-如何设计分布式监控告警系统（Prometheus-Grafana）？"><a href="#Q16-如何设计分布式监控告警系统（Prometheus-Grafana）？" class="headerlink" title="Q16: 如何设计分布式监控告警系统（Prometheus + Grafana）？"></a>Q16: 如何设计分布式监控告警系统（Prometheus + Grafana）？</h3><p><strong>一句话总结</strong>：分布式监控告警系统的核心是指标采集、指标存储、指标展示和告警，常用方案是 Prometheus + Grafana。</p>
-<h4 id="深度解析-2"><a href="#深度解析-2" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 为什么需要分布式监控告警系统？</strong></p>
+<p><a id="Q16-如何设计分布式监控告警系统（Prometheus-Grafana）？"></a><br><a id="qb-16"></a></p>
+<h3 id="Q16：如何设计分布式监控告警系统（Prometheus-Grafana）？"><a href="#Q16：如何设计分布式监控告警系统（Prometheus-Grafana）？" class="headerlink" title="Q16：如何设计分布式监控告警系统（Prometheus + Grafana）？"></a>Q16：如何设计分布式监控告警系统（Prometheus + Grafana）？</h3><p><strong>一句话总结</strong>：分布式监控告警系统的核心是指标采集、指标存储、指标展示和告警，常用方案是 Prometheus + Grafana。</p>
+<h4 id="深度解析-4"><a href="#深度解析-4" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 为什么需要分布式监控告警系统？</strong></p>
 <p>传统监控方式的问题：</p>
 <ul>
 <li>监控分散在各个系统中，没有统一视图</li>
@@ -1468,7 +1691,7 @@
 <p><strong>Alertmanager 配置</strong>（告警路由）：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">route:</span><br>  <span class="hljs-attr">receiver:</span> <span class="hljs-string">&#x27;email-notifications&#x27;</span>  <span class="hljs-comment"># 默认接收者</span><br>  <span class="hljs-attr">group_by:</span> [<span class="hljs-string">&#x27;alertname&#x27;</span>, <span class="hljs-string">&#x27;service&#x27;</span>]  <span class="hljs-comment"># 按告警名称和服务分组</span><br>  <span class="hljs-attr">group_wait:</span> <span class="hljs-string">10s</span>  <span class="hljs-comment"># 等待 10 秒，合并同一组的告警</span><br>  <span class="hljs-attr">group_interval:</span> <span class="hljs-string">5m</span>  <span class="hljs-comment"># 同一组告警，5 分钟内只发一次</span><br>  <span class="hljs-attr">repeat_interval:</span> <span class="hljs-string">1h</span>  <span class="hljs-comment"># 告警恢复后，1 小时内不再发送</span><br><br><span class="hljs-attr">receivers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&#x27;email-notifications&#x27;</span><br>    <span class="hljs-attr">email_configs:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">to:</span> <span class="hljs-string">&#x27;admin@example.com&#x27;</span><br>        <span class="hljs-attr">from:</span> <span class="hljs-string">&#x27;alert@example.com&#x27;</span><br>        <span class="hljs-attr">smarthost:</span> <span class="hljs-string">&#x27;smtp.example.com:587&#x27;</span><br>        <span class="hljs-attr">auth_username:</span> <span class="hljs-string">&#x27;alert@example.com&#x27;</span><br>        <span class="hljs-attr">auth_password:</span> <span class="hljs-string">&#x27;password&#x27;</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="面试加分回答-2"><a href="#面试加分回答-2" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
+<h4 id="面试加分回答-4"><a href="#面试加分回答-4" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
 <blockquote>
 <p>“在实际项目中，我们使用 <strong>Prometheus + Grafana</strong> 搭建监控告警系统：</p>
 <ol>
@@ -1495,8 +1718,9 @@
 </li>
 </ul>
 <hr>
-<h3 id="Q17-如何设计高并发系统？"><a href="#Q17-如何设计高并发系统？" class="headerlink" title="Q17: 如何设计高并发系统？"></a>Q17: 如何设计高并发系统？</h3><p><strong>一句话总结</strong>：高并发系统的设计核心是<strong>缓存、异步、分流、限流、降级</strong>，通过多层防护保证系统稳定。</p>
-<h4 id="深度解析-3"><a href="#深度解析-3" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 高并发系统的挑战</strong></p>
+<p><a id="Q17-如何设计高并发系统？"></a><br><a id="qb-17"></a></p>
+<h3 id="Q17：如何设计高并发系统？"><a href="#Q17：如何设计高并发系统？" class="headerlink" title="Q17：如何设计高并发系统？"></a>Q17：如何设计高并发系统？</h3><p><strong>一句话总结</strong>：高并发系统的设计核心是<strong>缓存、异步、分流、限流、降级</strong>，通过多层防护保证系统稳定。</p>
+<h4 id="深度解析-5"><a href="#深度解析-5" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 高并发系统的挑战</strong></p>
 <table>
 <thead>
 <tr>
@@ -1612,7 +1836,7 @@
 <li>触发熔断（后续请求直接失败，不调用服务）</li>
 <li>熔断一段时间后，尝试恢复（半开状态）</li>
 </ol>
-<h4 id="面试加分回答-3"><a href="#面试加分回答-3" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
+<h4 id="面试加分回答-5"><a href="#面试加分回答-5" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
 <blockquote>
 <p>“在实际项目中，我们设计高并发系统的经验：</p>
 <ol>
@@ -1636,177 +1860,8 @@
 </li>
 </ul>
 <hr>
-<h3 id="Q18-如何设计秒杀系统？"><a href="#Q18-如何设计秒杀系统？" class="headerlink" title="Q18: 如何设计秒杀系统？"></a>Q18: 如何设计秒杀系统？</h3><p><strong>一句话总结</strong>：秒杀系统的核心是<strong>流量分层过滤、异步处理、流量削峰</strong>，保证系统不被瞬时流量打垮。</p>
-<h4 id="深度解析-4"><a href="#深度解析-4" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 秒杀系统的挑战</strong></p>
-<table>
-<thead>
-<tr>
-<th>挑战</th>
-<th>说明</th>
-<th>解决方案</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>瞬时流量高</td>
-<td>100 万人抢 100 件商品</td>
-<td>流量分层过滤、限流</td>
-</tr>
-<tr>
-<td>库存超卖</td>
-<td>100 件商品被 200 人抢到</td>
-<td>分布式锁、Redis 原子操作</td>
-</tr>
-<tr>
-<td>数据库压力</td>
-<td>大量下单请求打垮数据库</td>
-<td>异步处理、消息队列</td>
-</tr>
-<tr>
-<td>恶意刷单</td>
-<td>黄牛用脚本刷单</td>
-<td>验证码、风控系统</td>
-</tr>
-</tbody></table>
-<p><strong>2. 秒杀系统的架构设计</strong></p>
-<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs scss">┌─────────────────────────────────────────────────────────────┐<br>│                    秒杀系统架构                            │<br>├─────────────────────────────────────────────────────────────┤<br>│                                                             │<br>│  ┌─────────┐    ┌─────────┐    ┌─────────┐              │<br>│  │  User    │───▶│  CDN     │───▶│  LB      │          │<br>│  │  (用户)  │    │  (静态资源)│    │  (负载均衡)│          │<br>│  └─────────┘    └─────────┘    └─────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  Nginx           │              │<br>│                          │  (限流、黑白名单) │              │<br>│                          └─────────────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  API Gateway      │              │<br>│                          │  (鉴权、限流)     │              │<br>│                          └─────────────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  秒杀服务         │              │<br>│                          │  (校验库存、下单) │              │<br>│                          └─────────────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│              ┌────────────────────────────────────┐        │<br>│              │  Redis (库存预扣减) │ MQ (异步下单) │        │<br>│              └────────────────────────────────────┘        │<br>└─────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
-
-<p><strong>3. 流量分层过滤</strong></p>
-<p><strong>第 1 层：CDN 过滤静态资源</strong></p>
-<ul>
-<li>秒杀页面中的图片、CSS、JS 都放在 CDN 上</li>
-<li>用户请求 CDN，不打到后端服务器</li>
-</ul>
-<p><strong>第 2 层：Nginx 限流</strong></p>
-<ul>
-<li>限制每个 IP 的请求频率（如每个 IP 每秒只能请求 1 次）</li>
-<li>黑名单：封禁恶意 IP</li>
-</ul>
-<p><strong>第 3 层：API Gateway 鉴权和限流</strong></p>
-<ul>
-<li>鉴权：校验用户是否登录</li>
-<li>限流：限制每个用户的请求频率（如每个用户每秒只能请求 1 次）</li>
-</ul>
-<p><strong>第 4 层：秒杀服务校验库存</strong></p>
-<ul>
-<li>校验库存是否充足（基于 Redis）</li>
-<li>校验用户是否已经抢过（基于 Redis Set）</li>
-</ul>
-<p><strong>第 5 层：消息队列异步下单</strong></p>
-<ul>
-<li>下单请求放入消息队列，异步处理</li>
-<li>数据库批量插入订单（减少数据库连接）</li>
-</ul>
-<p><strong>4. 库存预扣减（Redis 原子操作）</strong></p>
-<p><strong>问题</strong>：100 万人抢 100 件商品，如何防止超卖？</p>
-<p><strong>解决方案</strong>：使用 Redis 的 <code>DECR</code> 原子操作预扣减库存</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> redis.clients.jedis.Jedis;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SeckillService</span> &#123;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Jedis</span> <span class="hljs-variable">jedis</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Jedis</span>(<span class="hljs-string">&quot;localhost&quot;</span>, <span class="hljs-number">6379</span>);<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">seckill</span><span class="hljs-params">(String userId, String productId)</span> &#123;<br>        <span class="hljs-comment">// 1. 校验用户是否已经抢过（Redis Set）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">userKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;seckill:users:&quot;</span> + productId;<br>        <span class="hljs-keyword">if</span> (jedis.sismember(userKey, userId)) &#123;<br>            System.out.println(<span class="hljs-string">&quot;您已经抢过啦！&quot;</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <br>        <span class="hljs-comment">// 2. 预扣减库存（Redis 原子操作 DECR）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">stockKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;seckill:stock:&quot;</span> + productId;<br>        <span class="hljs-type">Long</span> <span class="hljs-variable">remaining</span> <span class="hljs-operator">=</span> jedis.decr(stockKey);  <span class="hljs-comment">// 原子操作</span><br>        <br>        <span class="hljs-keyword">if</span> (remaining &lt; <span class="hljs-number">0</span>) &#123;<br>            System.out.println(<span class="hljs-string">&quot;库存不足！&quot;</span>);<br>            jedis.incr(stockKey);  <span class="hljs-comment">// 库存加回去</span><br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <br>        <span class="hljs-comment">// 3. 记录用户已经抢过</span><br>        jedis.sadd(userKey, userId);<br>        <br>        <span class="hljs-comment">// 4. 异步下单（放入消息队列）</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">orderInfo</span> <span class="hljs-operator">=</span> userId + <span class="hljs-string">&quot;:&quot;</span> + productId;<br>        jedis.lpush(<span class="hljs-string">&quot;seckill:orders&quot;</span>, orderInfo);<br>        <br>        System.out.println(<span class="hljs-string">&quot;抢购成功！&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>5. 异步下单（消息队列）</strong></p>
-<p><strong>问题</strong>：100 万下单请求同时打到数据库，数据库会挂！</p>
-<p><strong>解决方案</strong>：下单请求放入消息队列，异步处理</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.kafka.annotation.KafkaListener;<br><span class="hljs-keyword">import</span> org.springframework.kafka.core.KafkaTemplate;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderService</span> &#123;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> KafkaTemplate&lt;String, String&gt; kafkaTemplate;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">OrderService</span><span class="hljs-params">(KafkaTemplate&lt;String, String&gt; kafkaTemplate)</span> &#123;<br>        <span class="hljs-built_in">this</span>.kafkaTemplate = kafkaTemplate;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 发送下单消息</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendOrder</span><span class="hljs-params">(String userId, String productId)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">orderInfo</span> <span class="hljs-operator">=</span> userId + <span class="hljs-string">&quot;:&quot;</span> + productId;<br>        kafkaTemplate.send(<span class="hljs-string">&quot;seckill-orders&quot;</span>, orderInfo);<br>    &#125;<br>    <br>    <span class="hljs-comment">// 消费下单消息（异步下单）</span><br>    <span class="hljs-meta">@KafkaListener(topics = &quot;seckill-orders&quot;, groupId = &quot;order-group&quot;)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processOrder</span><span class="hljs-params">(String orderInfo)</span> &#123;<br>        String[] parts = orderInfo.split(<span class="hljs-string">&quot;:&quot;</span>);<br>        <span class="hljs-type">String</span> <span class="hljs-variable">userId</span> <span class="hljs-operator">=</span> parts[<span class="hljs-number">0</span>];<br>        <span class="hljs-type">String</span> <span class="hljs-variable">productId</span> <span class="hljs-operator">=</span> parts[<span class="hljs-number">1</span>];<br>        <br>        <span class="hljs-comment">// 插入订单到数据库</span><br>        orderRepository.insert(userId, productId);<br>        <br>        <span class="hljs-comment">// 扣减数据库库存</span><br>        productRepository.decrementStock(productId);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>6. 防刷单（风控系统）</strong></p>
-<p><strong>验证码</strong>：</p>
-<ul>
-<li>秒杀前需要输入验证码（防止脚本刷单）</li>
-</ul>
-<p><strong>风控系统</strong>：</p>
-<ul>
-<li>检测异常用户（如同一 IP 注册 100 个账号）</li>
-<li>检测异常订单（如同一用户下单 100 次）</li>
-</ul>
-<h4 id="面试加分回答-4"><a href="#面试加分回答-4" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
-<blockquote>
-<p>“在实际项目中，我们设计秒杀系统的经验：</p>
-<ol>
-<li><strong>流量分层过滤</strong>：CDN → Nginx 限流 → API Gateway 鉴权限流 → 秒杀服务校验库存</li>
-<li><strong>库存预扣减</strong>：使用 Redis 的 <code>DECR</code> 原子操作预扣减库存，防止超卖</li>
-<li><strong>异步下单</strong>：下单请求放入 Kafka，异步处理（数据库批量插入订单）</li>
-<li><strong>防刷单</strong>：验证码 + 风控系统（检测异常用户和异常订单）</li>
-</ol>
-<p>效果：100 万人抢 100 件商品，系统平稳运行，没有超卖，数据库压力降低了 99%。”</p>
-</blockquote>
-<p><strong>面试高频追问</strong>：</p>
-<ul>
-<li><strong>Q</strong>: 如果 Redis 挂了怎么办？<ul>
-<li><strong>A</strong>: Redis 集群部署（主从 + 哨兵），主节点挂了自动切换到从节点。</li>
-</ul>
-</li>
-<li><strong>Q</strong>: 如何防止库存扣减成功但下单失败？<ul>
-<li><strong>A</strong>: 使用分布式事务（如 Seata），保证库存扣减和下单要么同时成功，要么同时失败。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3 id="Q19-如何设计分布式文件存储系统（FastDFS、MinIO）？"><a href="#Q19-如何设计分布式文件存储系统（FastDFS、MinIO）？" class="headerlink" title="Q19: 如何设计分布式文件存储系统（FastDFS、MinIO）？"></a>Q19: 如何设计分布式文件存储系统（FastDFS、MinIO）？</h3><p><strong>一句话总结</strong>：分布式文件存储系统的核心是<strong>文件分块、元数据管理、副本机制</strong>，保证文件高可用和高可靠。</p>
-<h4 id="深度解析-5"><a href="#深度解析-5" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 为什么需要分布式文件存储系统？</strong></p>
-<p>传统文件存储方式的问题：</p>
-<ul>
-<li>文件存储在单机磁盘上，磁盘满了无法扩展</li>
-<li>文件没有备份，磁盘损坏文件丢失</li>
-<li>文件访问量大时，单机带宽不够</li>
-</ul>
-<p>分布式文件存储系统的优势：</p>
-<ul>
-<li>✅ <strong>水平扩展</strong>：文件分散存储在多台服务器上，容量不够就加机器</li>
-<li>✅ <strong>高可用</strong>：文件有多个副本，一台服务器挂了不影响访问</li>
-<li>✅ <strong>高性能</strong>：文件分散在多台服务器上，带宽聚合</li>
-</ul>
-<p><strong>2. FastDFS 架构设计</strong></p>
-<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">┌─────────────────────────────────────────────────────────────┐<br>│                    FastDFS 架构                             │<br>├─────────────────────────────────────────────────────────────┤<br>│                                                             │<br>│  ┌─────────┐    ┌─────────┐    ┌─────────┐              │<br>│  │  Client  │───▶│  Tracker │───▶│  <span class="hljs-keyword">Storage</span> │            │<br>│  │  (客户端) │    │  (跟踪服务器)│    │  (存储服务器)│            │<br>│  └─────────┘    └─────────┘    └─────────┘              │<br>│       │              │                │                      │<br>│       │              ▼                ▼                      │<br>│       │      ┌─────────────────────────────┐              │<br>│       │      │  <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Group</span> <span class="hljs-number">1</span>             │              │<br>│       │      │  ┌─────────┐ ┌─────────┐   │              │<br>│       │      │  │ <span class="hljs-keyword">Storage</span> │ │ <span class="hljs-keyword">Storage</span> │   │              │<br>│       │      │  │ (主)     │ │ (从)     │   │              │<br>│       │      │  └─────────┘ └─────────┘   │              │<br>│       │      └─────────────────────────────┘              │<br>└─────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
-
-<p><strong>核心组件</strong>：</p>
-<ul>
-<li><strong>Tracker Server</strong>：跟踪服务器，管理 Storage Server（类似注册中心）</li>
-<li><strong>Storage Server</strong>：存储服务器，存储文件和文件元数据</li>
-<li><strong>Group</strong>：组，一组 Storage Server 互为主从（文件副本）</li>
-</ul>
-<p><strong>3. FastDFS 文件上传流程</strong></p>
-<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-number">1.</span> Client 询问 Tracker <span class="hljs-keyword">Server</span>：哪个 <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 可以上传文件？<br><span class="hljs-number">2.</span> Tracker <span class="hljs-keyword">Server</span> 返回一个 <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 地址<br><span class="hljs-number">3.</span> Client 上传文件到 <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span><br><span class="hljs-number">4.</span> <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 生成文件 ID（组名 + 虚拟磁盘路径 + 两级目录 + 文件名）<br><span class="hljs-number">5.</span> <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 同步文件到同组的其他 <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span>（副本）<br><span class="hljs-number">6.</span> <span class="hljs-keyword">Storage</span> <span class="hljs-keyword">Server</span> 返回文件 ID 给 Client<br></code></pre></td></tr></table></figure>
-
-<p><strong>文件 ID 示例</strong>：</p>
-<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs diff">group1/M00/00/00/wKgZhWuCXBOAUw7_AAAw0dKE5R8070.txt<br><br><span class="hljs-deletion">- group1：组名</span><br><span class="hljs-deletion">- M00：虚拟磁盘路径（对应 Storage Server 的 store_path0）</span><br><span class="hljs-deletion">- 00/00：两级目录（避免单个目录下文件过多）</span><br><span class="hljs-deletion">- wKgZhWuCXBOAUw7_AAAw0dKE5R8070.txt：文件名（由 Storage Server 生成）</span><br></code></pre></td></tr></table></figure>
-
-<p><strong>4. MinIO 架构设计</strong></p>
-<p>MinIO 是对象存储（类似 AWS S3），适合存储海量小文件（图片、视频、文档）。</p>
-<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs arduino">┌─────────────────────────────────────────────────────────────┐<br>│                    MinIO 架构                               │<br>├─────────────────────────────────────────────────────────────┤<br>│                                                             │<br>│  ┌─────────┐    ┌─────────┐    ┌─────────┐              │<br>│  │  <span class="hljs-built_in">Client</span>  │───▶│  Load   │───▶│  MinIO   │            │<br>│  │  (客户端) │    │  Balancer│    │  <span class="hljs-built_in">Server</span>  │            │<br>│  └─────────┘    └─────────┘    └─────────┘              │<br>│                                   │                        │<br>│                                   ▼                        │<br>│                          ┌─────────────────┐              │<br>│                          │  Erasure Code    │              │<br>│                          │  (纠删码)        │              │<br>│                          └─────────────────┘              │<br>└─────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
-
-<p><strong>核心特性</strong>：</p>
-<ul>
-<li><strong>纠删码（Erasure Code）</strong>：将文件分成 N 个数据块和 M 个校验块，允许最多 M 个块损坏</li>
-<li><strong>Bitrot 保护</strong>：自动检测数据损坏（基于哈希校验）</li>
-<li><strong>S3 兼容</strong>：API 兼容 AWS S3</li>
-</ul>
-<p><strong>5. 实战：Spring Boot 集成 MinIO</strong></p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- pom.xml --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>io.minio<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>minio<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>8.5.2<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> io.minio.MinioClient;<br><span class="hljs-keyword">import</span> io.minio.PutObjectArgs;<br><span class="hljs-keyword">import</span> org.springframework.web.multipart.MultipartFile;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MinIOService</span> &#123;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> MinioClient minioClient;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MinIOService</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">this</span>.minioClient = MinioClient.builder()<br>            .endpoint(<span class="hljs-string">&quot;http://localhost:9000&quot;</span>)  <span class="hljs-comment">// MinIO 地址</span><br>            .credentials(<span class="hljs-string">&quot;admin&quot;</span>, <span class="hljs-string">&quot;password&quot;</span>)    <span class="hljs-comment">// 账号密码</span><br>            .build();<br>    &#125;<br>    <br>    <span class="hljs-comment">// 上传文件</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">uploadFile</span><span class="hljs-params">(MultipartFile file, String bucketName)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-comment">// 1. 创建 Bucket（如果不存在）</span><br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">found</span> <span class="hljs-operator">=</span> minioClient.bucketExists(b -&gt; b.bucket(bucketName));<br>        <span class="hljs-keyword">if</span> (!found) &#123;<br>            minioClient.makeBucket(b -&gt; b.bucket(bucketName));<br>        &#125;<br>        <br>        <span class="hljs-comment">// 2. 上传文件</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">fileName</span> <span class="hljs-operator">=</span> System.currentTimeMillis() + <span class="hljs-string">&quot;_&quot;</span> + file.getOriginalFilename();<br>        minioClient.putObject(<br>            PutObjectArgs.builder()<br>                .bucket(bucketName)<br>                .object(fileName)<br>                .stream(file.getInputStream(), file.getSize(), -<span class="hljs-number">1</span>)<br>                .contentType(file.getContentType())<br>                .build()<br>        );<br>        <br>        <span class="hljs-comment">// 3. 返回文件 URL</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;http://localhost:9000/&quot;</span> + bucketName + <span class="hljs-string">&quot;/&quot;</span> + fileName;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<h4 id="面试加分回答-5"><a href="#面试加分回答-5" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><p><strong>实际项目经验</strong>：</p>
-<blockquote>
-<p>“在实际项目中，我们使用 <strong>MinIO</strong> 存储用户上传的文件（头像、文档、视频）：</p>
-<ol>
-<li><strong>文件上传</strong>：前端上传文件到后端，后端转发到 MinIO</li>
-<li><strong>文件访问</strong>：MinIO 生成文件 URL，返回给前端</li>
-<li><strong>文件备份</strong>：MinIO 使用纠删码（Erasure Code），允许最多 4 个节点挂掉</li>
-<li><strong>文件权限</strong>：MinIO 支持预签名 URL（过期时间 1 小时），防止文件被盗链</li>
-</ol>
-<p>对比 <strong>FastDFS</strong>：FastDFS 适合小文件存储（&lt; 1MB），MinIO 适合任意大小文件存储（兼容 S3 API）。”</p>
-</blockquote>
-<p><strong>面试高频追问</strong>：</p>
-<ul>
-<li><strong>Q</strong>: 如何保证文件不丢失？<ul>
-<li><strong>A</strong>: FastDFS 有多副本（同组 Storage Server 互为主从）；MinIO 有纠删码（允许最多 M 个块损坏）。</li>
-</ul>
-</li>
-<li><strong>Q</strong>: 如何防止文件被盗链？<ul>
-<li><strong>A</strong>: MinIO 支持预签名 URL（过期时间 1 小时），只有合法用户才能访问文件。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3 id="Q20-面试实战：如何回答系统设计问题？"><a href="#Q20-面试实战：如何回答系统设计问题？" class="headerlink" title="Q20: 面试实战：如何回答系统设计问题？"></a>Q20: 面试实战：如何回答系统设计问题？</h3><p><strong>一句话总结</strong>：回答系统设计问题的核心是<strong>先问清楚需求，再给出高层设计，最后深入讨论细节</strong>。</p>
+<p><a id="Q20-面试实战：如何回答系统设计问题？"></a><br><a id="qb-18"></a></p>
+<h3 id="Q18：面试实战：如何回答系统设计问题？"><a href="#Q18：面试实战：如何回答系统设计问题？" class="headerlink" title="Q18：面试实战：如何回答系统设计问题？"></a>Q18：面试实战：如何回答系统设计问题？</h3><p><strong>一句话总结</strong>：回答系统设计问题的核心是<strong>先问清楚需求，再给出高层设计，最后深入讨论细节</strong>。</p>
 <h4 id="深度解析-6"><a href="#深度解析-6" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 系统设计问题的回答框架</strong></p>
 <figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs tap">┌─────────────────────────────────────────────────────────────┐<br>│                    系统设计回答框架                          │<br>├─────────────────────────────────────────────────────────────┤<br>│                                                             │<br>│  第<span class="hljs-number"> 1 </span>步：澄清需求（5 分钟）                                │<br>│    - 功能需求：系统要支持哪些功能？                          │<br>│    - 非功能需求：QPS、延迟、数据量、一致性要求？             │<br>│    - 约束条件：开发成本、运维成本、技术栈？                  │<br>│                                                             │<br>│  第<span class="hljs-number"> 2 </span>步：高层设计（10 分钟）                               │<br>│    - 画出系统架构图（负载均衡 → API 服务 → 数据库）         │<br>│    - 说明各组件的职责                                        │<br>│    - 说明数据流向                                            │<br>│                                                             │<br>│  第<span class="hljs-number"> 3 </span>步：深入讨论细节（10 分钟）                           │<br>│    - 数据库 Schema 设计                                     │<br>│    - 缓存策略（缓存什么、缓存多久）                          │<br>│    - 消息队列选型（为什么选 Kafka 不选 RabbitMQ）           │<br>│    - 分库分表策略（按什么分片、分片算法）                    │<br>│                                                             │<br>│  第<span class="hljs-number"> 4 </span>步：扩展讨论（5 分钟）                                │<br>│    - 如何支持更高的 QPS？（加缓存、加机器、异步处理）        │<br>│    - 如何保证高可用？（集群部署、副本机制、熔断降级）        │<br>│    - 如何监控和告警？（Prometheus + Grafana）                │<br>│                                                             │<br>└─────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
 
@@ -2026,7 +2081,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>系统设计面试八股文（20题）</div>
+      <div>系统设计面试八股文（18问）</div>
       <div>https://whyalwaysme.lol/2026/06/15/2026-06-15-system-design-interview-deep/</div>
     </div>
     <div class="license-meta">
@@ -2081,8 +2136,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/15/2026-06-15-java-basic-interview-deep/" title="Java 基础面试八股文（50题）">
-                        <span class="hidden-mobile">Java 基础面试八股文（50题）</span>
+                      <a href="/2026/06/15/2026-06-15-java-basic-interview-deep/" title="Java 基础面试八股文（50问）">
+                        <span class="hidden-mobile">Java 基础面试八股文（50问）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

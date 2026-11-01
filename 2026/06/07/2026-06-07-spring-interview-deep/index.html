@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="Spring 65题深度版：IoC容器、AOP原理、Spring Boot自动配置、事务管理全解析。">
+    <meta name="description" content="Spring 面试八股文 55问｜深度详解版：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）">
+<meta property="og:title" content="Spring 面试八股文 55问｜深度详解版">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-spring-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="Spring 65题深度版：IoC容器、AOP原理、Spring Boot自动配置、事务管理全解析。">
+<meta property="og:description" content="Spring 面试八股文 55问｜深度详解版：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:00:00.000Z">
-<meta property="article:modified_time" content="2026-10-11T08:59:21.832Z">
+<meta property="article:modified_time" content="2026-11-01T16:19:15.625Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="AOP">
 <meta property="article:tag" content="IoC">
@@ -41,7 +41,7 @@
   
   
   
-  <title>Spring 面试八股文 50 道｜深度详解版（傻子都能看懂） - WhyAlwaysMe 的树洞</title>
+  <title>Spring 面试八股文 55问｜深度详解版 - WhyAlwaysMe 的树洞</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -225,7 +225,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）"></span>
+            <span id="subtitle" data-typed-text="Spring 面试八股文 55问｜深度详解版"></span>
           
         </div>
 
@@ -248,7 +248,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          26k 字
+          27k 字
         
       </span>
     
@@ -259,7 +259,7 @@
         
         
         
-          218 分钟
+          225 分钟
         
       </span>
     
@@ -296,12 +296,19 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）</h1>
+            <h1 id="seo-header">Spring 面试八股文 55问｜深度详解版</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="Spring-面试八股文-50-道｜深度详解版"><a href="#Spring-面试八股文-50-道｜深度详解版" class="headerlink" title="Spring 面试八股文 50 道｜深度详解版"></a>Spring 面试八股文 50 道｜深度详解版</h1><blockquote>
+                <blockquote>
+<p>**阅读提示（2026-11-02整理）：**先阅读核心回答，再按需展开补充示例；参数、默认值和源码实现以实际版本为准，教学示例不等于生产验证。</p>
+</blockquote>
+<p><a href="/question-bank/">题库总目录</a> · <a href="/question-bank/modern-java/">现代Java</a> · <a href="/question-bank/reliability/">可靠性</a> · <a href="/question-bank/testing/">测试</a> · <a href="/question-bank/troubleshooting/">排障</a></p>
+<blockquote>
+<p>**示例口径：**第一人称示范回答应换成自己的真实经历；教学场景和未提供测试依据的性能数字，不作为作者经历或生产测量证据。</p>
+</blockquote>
+<h1 id="Spring-面试八股文-55问｜深度详解版"><a href="#Spring-面试八股文-55问｜深度详解版" class="headerlink" title="Spring 面试八股文 55问｜深度详解版"></a>Spring 面试八股文 55问｜深度详解版</h1><blockquote>
 <p><strong>写给准备面试的你：</strong><br>这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。<br>配有大量比喻和场景化解释，目标是让没有 Spring 基础的人也能看懂。<br>建议配合实际代码练习，理解效果翻倍。</p>
 </blockquote>
 <hr>
@@ -464,6 +471,64 @@
 <p><strong>现在，让我们开始学习 Spring 吧！🚀</strong></p>
 <hr>
 <h2 id="一、Spring-Core-基础（1-10）"><a href="#一、Spring-Core-基础（1-10）" class="headerlink" title="一、Spring Core 基础（1-10）"></a>一、Spring Core 基础（1-10）</h2><hr>
+<h2 id="核心问题索引"><a href="#核心问题索引" class="headerlink" title="核心问题索引"></a>核心问题索引</h2><ul>
+<li><a href="#qb-1">Q1：什么是 Spring？它的核心思想是什么？</a></li>
+<li><a href="#qb-2">Q2：什么是 IOC（控制反转）？什么是 DI（依赖注入）？</a></li>
+<li><a href="#qb-3">Q3：@Autowired 和 @Resource 有什么区别？</a></li>
+<li><a href="#qb-4">Q4：Spring 中的 Bean 是什么？@Component 和 @Bean 有什么区别？</a></li>
+<li><a href="#qb-5">Q5：@Component、@Service、@Repository、@Controller 有什么区别？</a></li>
+<li><a href="#qb-6">Q6：Spring 中的 Bean 作用域（Scope）有哪些？</a></li>
+<li><a href="#qb-7">Q7：Spring 中的 Bean 生命周期有哪些阶段？</a></li>
+<li><a href="#qb-8">Q8：Spring 中什么是循环依赖？怎么解决？</a></li>
+<li><a href="#qb-9">Q9：什么是 AOP？有哪些应用场景？</a></li>
+<li><a href="#qb-10">Q10：Spring AOP 中的动态代理有哪些？JDK 动态代理和 CGLIB 代理的区别？</a></li>
+<li><a href="#qb-11">Q11：Spring MVC 的工作流程是什么？</a></li>
+<li><a href="#qb-12">Q12：@RequestParam、@PathVariable、@RequestBody 有什么区别？</a></li>
+<li><a href="#qb-13">Q13：拦截器（Interceptor）和过滤器（Filter）的区别？</a></li>
+<li><a href="#qb-14">Q14：Spring MVC 中 @Controller 和 @RestController 有什么区别？</a></li>
+<li><a href="#qb-15">Q15：Spring MVC 中如何统一处理异常？</a></li>
+<li><a href="#qb-16">Q16：什么是 Spring Boot？它和 Spring 有什么区别？</a></li>
+<li><a href="#qb-17">Q17：Spring Boot 的自动配置原理是什么？</a></li>
+<li><a href="#qb-18">Q18：Spring Boot 的启动流程是怎样的？</a></li>
+<li><a href="#qb-19">Q19：Spring Boot 中的配置文件有哪些？优先级怎样？</a></li>
+<li><a href="#qb-20">Q20：@ConfigurationProperties 和 @Value 有什么区别？</a></li>
+<li><a href="#qb-21">Q21：Spring Boot 中的 Starter 是什么？如何自定义 Starter？</a></li>
+<li><a href="#qb-22">Q22：Spring Boot 中的 Actuator 是做什么的？有哪些常用端点？</a></li>
+<li><a href="#qb-23">Q23：Spring Boot 中的事务管理是怎么实现的？</a></li>
+<li><a href="#qb-24">Q24：Spring Boot 中 @Transactional 注解失效的常见场景有哪些？</a></li>
+<li><a href="#qb-25">Q25：Spring Security 的核心组件有哪些？</a></li>
+<li><a href="#qb-26">Q26：Spring Security 中 JWT 是怎么集成的？</a></li>
+<li><a href="#qb-27">Q27：Spring Security 中如何自定义登录成功&#x2F;失败处理？</a></li>
+<li><a href="#qb-28">Q28：Spring Security 中如何自定义权限校验？</a></li>
+<li><a href="#qb-29">Q29：什么是 Spring Cloud？它和 Spring Boot 有什么关系？</a></li>
+<li><a href="#qb-30">Q30：什么是服务注册与发现？Eureka 的工作原理是什么？</a></li>
+<li><a href="#qb-31">Q31：什么是 Ribbon？它和 LoadBalancer 有什么区别？</a></li>
+<li><a href="#qb-32">Q32：什么是 Feign？它和 RestTemplate 有什么区别？</a></li>
+<li><a href="#qb-33">Q33：什么是 Hystrix？它和 Sentinel 有什么区别？</a></li>
+<li><a href="#qb-34">Q34：什么是 Spring Cloud Gateway？它和 Zuul 有什么区别？</a></li>
+<li><a href="#qb-35">Q35：Spring 中常见的设计模式有哪些？</a></li>
+<li><a href="#qb-36">Q36：Spring 中的事件机制（ApplicationEvent）是怎么用的？</a></li>
+<li><a href="#qb-37">Q37：Spring Boot 中如何实现异步调用（@Async）？</a></li>
+<li><a href="#qb-38">Q38：Spring Boot 中如何实现定时任务（@Scheduled）？</a></li>
+<li><a href="#qb-39">Q39：Spring Boot 中如何实现多数据源？</a></li>
+<li><a href="#qb-40">Q40：Spring 中的 @Lazy 是做什么的？有什么用？</a></li>
+<li><a href="#qb-41">Q41：Spring Boot 中的 @Conditional 是做什么的？</a></li>
+<li><a href="#qb-42">Q42：Spring 中的 @Scope 有哪些值？singleton 和 prototype 有什么区别？</a></li>
+<li><a href="#qb-43">Q43：Spring 中的 BeanFactory 和 ApplicationContext 有什么区别？</a></li>
+<li><a href="#qb-44">Q44：Spring Boot 中的日志框架是怎么配置的？</a></li>
+<li><a href="#qb-45">Q45：Spring 中的 @PropertySource 是做什么的？</a></li>
+<li><a href="#qb-46">Q46：Spring Boot 中的监控端点（Actuator）如何自定义？</a></li>
+<li><a href="#qb-47">Q47：Spring 中的 WebDataBinder 是做什么的？</a></li>
+<li><a href="#qb-48">Q48：Spring Boot 如何自定义 Banner？</a></li>
+<li><a href="#qb-49">Q49：Spring 面试中最常见的坑有哪些？</a></li>
+<li><a href="#qb-50">Q50：Spring 中的 @DependsOn 注解有什么作用？</a></li>
+<li><a href="#qb-51">Q51：Spring 中的 @Primary 和 @Qualifier 有什么区别？</a></li>
+<li><a href="#qb-52">Q52：Spring 中的 BeanPostProcessor 和 BeanFactoryPostProcessor 有什么区别？</a></li>
+<li><a href="#qb-53">Q53：Spring AOP 中的通知（Advice）有哪些类型？</a></li>
+<li><a href="#qb-54">Q54：Spring Security 中的 CSRF 防护原理是什么？</a></li>
+<li><a href="#qb-55">Q55：Spring Cloud 中的配置中心原理是什么？</a></li>
+</ul>
+<p><a id="qb-1"></a></p>
 <h3 id="Q1：什么是-Spring？它的核心思想是什么？"><a href="#Q1：什么是-Spring？它的核心思想是什么？" class="headerlink" title="Q1：什么是 Spring？它的核心思想是什么？"></a>Q1：什么是 Spring？它的核心思想是什么？</h3><h4 id="一句话结论"><a href="#一句话结论" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring 是一个轻量级的 Java 开发框架，核心思想是 IOC（控制反转）和 AOP（面向切面编程）。</strong></p>
 </blockquote>
@@ -536,6 +601,7 @@
 <p>「Spring 的核心思想是 IOC 和 AOP。IOC 让对象的创建和依赖管理交给 Spring 容器，降低了耦合；AOP 把日志、事务、权限等横切逻辑统一管理，提高了代码复用性。这两个核心思想支撑了整个 Spring 生态（Spring Boot、Spring MVC、Spring Cloud）。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-2"></a></p>
 <h3 id="Q2：什么是-IOC（控制反转）？什么是-DI（依赖注入）？"><a href="#Q2：什么是-IOC（控制反转）？什么是-DI（依赖注入）？" class="headerlink" title="Q2：什么是 IOC（控制反转）？什么是 DI（依赖注入）？"></a>Q2：什么是 IOC（控制反转）？什么是 DI（依赖注入）？</h3><h4 id="一句话结论-1"><a href="#一句话结论-1" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>IOC（控制反转）是思想，DI（依赖注入）是实现方式。</strong> IOC 把对象创建权交给 Spring，DI 是 Spring 帮你把依赖注入进来。</p>
 </blockquote>
@@ -591,6 +657,7 @@
 <p>「IOC 是思想，DI 是实现方式。DI 有三种实现方式：构造器注入（推荐）、Setter 注入、字段注入（不推荐）。Spring 4.0 之后官方推荐使用构造器注入，因为它能保证依赖不可变（final），更利于测试。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-3"></a></p>
 <h3 id="Q3：-Autowired-和-Resource-有什么区别？"><a href="#Q3：-Autowired-和-Resource-有什么区别？" class="headerlink" title="Q3：@Autowired 和 @Resource 有什么区别？"></a>Q3：@Autowired 和 @Resource 有什么区别？</h3><h4 id="一句话结论-2"><a href="#一句话结论-2" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>@Autowired 是 Spring 的注解，默认按类型注入；@Resource 是 JSR-250 规范，默认按名称注入。</strong></p>
 </blockquote>
@@ -641,6 +708,7 @@
 <p>「@Autowired 是 Spring 的注解，按类型注入，如果有多个实现需要配合 @Qualifier 或 @Primary 使用；@Resource 是 JSR-250 规范，按名称注入。实际项目中，推荐用 @Autowired + 构造器注入（Spring 官方推荐），因为它能保证依赖不可变，更利于测试。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-4"></a></p>
 <h3 id="Q4：Spring-中的-Bean-是什么？-Component-和-Bean-有什么区别？"><a href="#Q4：Spring-中的-Bean-是什么？-Component-和-Bean-有什么区别？" class="headerlink" title="Q4：Spring 中的 Bean 是什么？@Component 和 @Bean 有什么区别？"></a>Q4：Spring 中的 Bean 是什么？@Component 和 @Bean 有什么区别？</h3><h4 id="一句话结论-3"><a href="#一句话结论-3" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Bean 是 Spring 容器中管理的对象。@Component 用在类上（自动扫描），@Bean 用在方法上（手动声明，适合第三方库）。</strong></p>
 </blockquote>
@@ -692,6 +760,7 @@
 <p>「@Component 和 @Bean 都是声明 Bean 的方式。@Component 用在自己写的类上（自动扫描），@Bean 用在方法上（手动声明），适合第三方库（比如 DataSource、RedisTemplate）。实际项目中，自己写的 Service&#x2F;Controller 用 @Component（@Service&#x2F;@Controller），第三方库用 @Bean。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-5"></a></p>
 <h3 id="Q5：-Component、-Service、-Repository、-Controller-有什么区别？"><a href="#Q5：-Component、-Service、-Repository、-Controller-有什么区别？" class="headerlink" title="Q5：@Component、@Service、@Repository、@Controller 有什么区别？"></a>Q5：@Component、@Service、@Repository、@Controller 有什么区别？</h3><h4 id="一句话结论-4"><a href="#一句话结论-4" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>这四个注解功能完全一样（都是注册 Bean），只是语义不同，方便分层和后续扩展。</strong></p>
 </blockquote>
@@ -709,6 +778,7 @@
 <p>「这四个注解功能完全一样（都是通过 @Component 实现的），只是语义不同。@Controller 用于表现层，@Service 用于业务层，@Repository 用于持久层（还能自动翻译数据库异常），@Component 用于其他组件。实际项目中，严格按照分层使用对应的注解，代码更清晰。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-6"></a></p>
 <h3 id="Q6：Spring-中的-Bean-作用域（Scope）有哪些？"><a href="#Q6：Spring-中的-Bean-作用域（Scope）有哪些？" class="headerlink" title="Q6：Spring 中的 Bean 作用域（Scope）有哪些？"></a>Q6：Spring 中的 Bean 作用域（Scope）有哪些？</h3><h4 id="一句话结论-5"><a href="#一句话结论-5" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Bean 默认是单例（singleton），还有原型（prototype）、请求（request）、会话（session）等作用域。</strong></p>
 </blockquote>
@@ -773,6 +843,7 @@
 <p>「Spring Bean 默认是单例（singleton），还有 prototype、request、session 等作用域。单例 Bean 不是线程安全的，如果有成员变量会有并发问题。实际项目中，Service 和 Dao 一般都是无状态的（没有成员变量），所以是线程安全的。如果有状态需求，可以用 prototype 作用域。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-7"></a></p>
 <h3 id="Q7：Spring-中的-Bean-生命周期有哪些阶段？"><a href="#Q7：Spring-中的-Bean-生命周期有哪些阶段？" class="headerlink" title="Q7：Spring 中的 Bean 生命周期有哪些阶段？"></a>Q7：Spring 中的 Bean 生命周期有哪些阶段？</h3><h4 id="一句话结论-6"><a href="#一句话结论-6" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Bean 生命周期分为 5 个阶段：实例化 → 属性赋值 → 初始化 → 使用 → 销毁。</strong></p>
 </blockquote>
@@ -815,6 +886,7 @@
 <p>「Bean 生命周期有 5 个阶段：实例化 → 属性赋值 → 初始化 → 使用 → 销毁。其中初始化阶段有很多扩展点（@PostConstruct、InitializingBean、init-method）。另外，Spring 用三级缓存解决循环依赖，这是面试超高频题，需要重点掌握。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-8"></a></p>
 <h3 id="Q8：Spring-中什么是循环依赖？怎么解决？"><a href="#Q8：Spring-中什么是循环依赖？怎么解决？" class="headerlink" title="Q8：Spring 中什么是循环依赖？怎么解决？"></a>Q8：Spring 中什么是循环依赖？怎么解决？</h3><h4 id="一句话结论-7"><a href="#一句话结论-7" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>循环依赖就是 A 依赖 B，B 依赖 A。Spring 用三级缓存解决单例 Bean 的循环依赖，但原型 Bean 无法解决。</strong></p>
 </blockquote>
@@ -885,6 +957,7 @@
 <p>「Spring 用三级缓存解决单例 Bean 的循环依赖。但如果用构造函数注入，会报 <code>BeanCurrentlyInCreationException</code>，因为构造时就需要依赖，无法先创建半成品。解决方式：1) 用 @Lazy 延迟加载；2) 改用字段注入或 Setter 注入；3) 重构代码，打破循环依赖（最优解）。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-9"></a></p>
 <h3 id="Q9：什么是-AOP？有哪些应用场景？"><a href="#Q9：什么是-AOP？有哪些应用场景？" class="headerlink" title="Q9：什么是 AOP？有哪些应用场景？"></a>Q9：什么是 AOP？有哪些应用场景？</h3><h4 id="一句话结论-8"><a href="#一句话结论-8" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>AOP（面向切面编程）是把日志、事务、权限等横切逻辑统一管理，不用每个方法都写一遍。</strong></p>
 </blockquote>
@@ -942,6 +1015,7 @@
 <p>「AOP 是面向切面编程，把日志、事务、权限等横切逻辑统一管理。Spring AOP 用 JDK 动态代理（接口）或 CGLIB 代理（类）。实际项目中，事务管理（@Transactional）就是用 AOP 实现的。另外，AOP 和 AspectJ 的区别是：Spring AOP 是运行时增强（动态代理），AspectJ 是编译时增强（性能更好）。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-10"></a></p>
 <h3 id="Q10：Spring-AOP-中的动态代理有哪些？JDK-动态代理和-CGLIB-代理的区别？"><a href="#Q10：Spring-AOP-中的动态代理有哪些？JDK-动态代理和-CGLIB-代理的区别？" class="headerlink" title="Q10：Spring AOP 中的动态代理有哪些？JDK 动态代理和 CGLIB 代理的区别？"></a>Q10：Spring AOP 中的动态代理有哪些？JDK 动态代理和 CGLIB 代理的区别？</h3><h4 id="一句话结论-9"><a href="#一句话结论-9" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring AOP 用 JDK 动态代理（有接口时用）和 CGLIB 代理（没接口时用）。JDK 动态代理基于接口，CGLIB 基于继承。</strong></p>
 </blockquote>
@@ -988,6 +1062,7 @@
 </blockquote>
 <hr>
 <h2 id="二、Spring-MVC-与-Web-开发（11-15）"><a href="#二、Spring-MVC-与-Web-开发（11-15）" class="headerlink" title="二、Spring MVC 与 Web 开发（11-15）"></a>二、Spring MVC 与 Web 开发（11-15）</h2><hr>
+<p><a id="qb-11"></a></p>
 <h3 id="Q11：Spring-MVC-的工作流程是什么？"><a href="#Q11：Spring-MVC-的工作流程是什么？" class="headerlink" title="Q11：Spring MVC 的工作流程是什么？"></a>Q11：Spring MVC 的工作流程是什么？</h3><h4 id="一句话结论-10"><a href="#一句话结论-10" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring MVC 的工作流程：请求 → DispatcherServlet → HandlerMapping → Controller → Service → DAO → 返回视图&#x2F;JSON。</strong></p>
 </blockquote>
@@ -1032,6 +1107,7 @@
 <p>「Spring MVC 的核心是 DispatcherServlet（前端控制器），所有请求都经过它，然后分发给对应的 Controller。这个流程和餐厅点菜很像：DispatcherServlet 是前台，HandlerMapping 是菜单（找菜品），Controller 是厨师（做菜）。另外，现在主流是前后端分离，Controller 返回 JSON（@ResponseBody 或 @RestController），不再返回视图。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-12"></a></p>
 <h3 id="Q12：-RequestParam、-PathVariable、-RequestBody-有什么区别？"><a href="#Q12：-RequestParam、-PathVariable、-RequestBody-有什么区别？" class="headerlink" title="Q12：@RequestParam、@PathVariable、@RequestBody 有什么区别？"></a>Q12：@RequestParam、@PathVariable、@RequestBody 有什么区别？</h3><h4 id="一句话结论-11"><a href="#一句话结论-11" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>@RequestParam 获取查询参数，@PathVariable 获取路径参数，@RequestBody 获取请求体（JSON）。</strong></p>
 </blockquote>
@@ -1075,6 +1151,7 @@
 <p>「@RequestParam 获取 URL 查询参数（?name&#x3D;张三），@PathVariable 获取 URL 路径参数（&#x2F;users&#x2F;123），@RequestBody 获取请求体（JSON）。实际项目中，GET 请求用 @RequestParam 或 @PathVariable，POST&#x2F;PUT 请求用 @RequestBody 接收 JSON。另外，@RequestBody 需要和 <code>Content-Type: application/json</code> 配合使用。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-13"></a></p>
 <h3 id="Q13：拦截器（Interceptor）和过滤器（Filter）的区别？"><a href="#Q13：拦截器（Interceptor）和过滤器（Filter）的区别？" class="headerlink" title="Q13：拦截器（Interceptor）和过滤器（Filter）的区别？"></a>Q13：拦截器（Interceptor）和过滤器（Filter）的区别？</h3><h4 id="一句话结论-12"><a href="#一句话结论-12" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Filter 是 Servlet 规范，拦截所有 HTTP 请求；Interceptor 是 Spring MVC 规范，只拦截进入 Controller 的请求。执行顺序是：Filter → Interceptor → Controller。</strong></p>
 </blockquote>
@@ -1120,6 +1197,7 @@
 <p>「Filter 和 Interceptor 的核心区别是规范不同、拦截范围不同。Filter 是 Servlet 规范，拦截所有请求；Interceptor 是 Spring MVC 规范，只拦截 Controller 请求。实际项目中，登录校验、权限校验用 Interceptor 更方便（可以直接注入 TokenService 等 Bean），而编码转换、CORS 处理用 Filter 更合适（在 Spring 之前执行）。」</p>
 </blockquote>
 <hr>
+<p><a id="qb-14"></a></p>
 <h3 id="Q14：Spring-MVC-中-Controller-和-RestController-有什么区别？"><a href="#Q14：Spring-MVC-中-Controller-和-RestController-有什么区别？" class="headerlink" title="Q14：Spring MVC 中 @Controller 和 @RestController 有什么区别？"></a>Q14：Spring MVC 中 @Controller 和 @RestController 有什么区别？</h3><h4 id="一句话结论-13"><a href="#一句话结论-13" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>@Controller 返回视图（HTML），@RestController &#x3D; @Controller + @ResponseBody，直接返回 JSON。</strong></p>
 </blockquote>
@@ -1160,6 +1238,7 @@
 <p>「@Controller 返回视图（HTML），适合传统的服务端渲染；@RestController &#x3D; @Controller + @ResponseBody，直接返回 JSON，适合前后端分离。现在主流是前后端分离，所以用 @RestController 更多。另外，@ResponseBody 的作用是把返回值序列化为 JSON（通过 HttpMessageConverter）。」</p>
 </blockquote>
 <hr>
+<p><a id="Q23：Spring-Boot-中如何实现全局异常处理？"></a><br><a id="qb-15"></a></p>
 <h3 id="Q15：Spring-MVC-中如何统一处理异常？"><a href="#Q15：Spring-MVC-中如何统一处理异常？" class="headerlink" title="Q15：Spring MVC 中如何统一处理异常？"></a>Q15：Spring MVC 中如何统一处理异常？</h3><h4 id="一句话结论-14"><a href="#一句话结论-14" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>用 @ControllerAdvice + @ExceptionHandler 统一处理异常，不用在每个 Controller 里写 try-catch。</strong></p>
 </blockquote>
@@ -1179,11 +1258,32 @@
 </blockquote>
 <hr>
 <h2 id="三、Spring-Boot-核心（16-25）"><a href="#三、Spring-Boot-核心（16-25）" class="headerlink" title="三、Spring Boot 核心（16-25）"></a>三、Spring Boot 核心（16-25）</h2><hr>
-<h3 id="Q16：什么是-Spring-Boot？它和-Spring-有什么区别？"><a href="#Q16：什么是-Spring-Boot？它和-Spring-有什么区别？" class="headerlink" title="Q16：什么是 Spring Boot？它和 Spring 有什么区别？"></a>Q16：什么是 Spring Boot？它和 Spring 有什么区别？</h3><h4 id="一句话结论-15"><a href="#一句话结论-15" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：Spring Boot 中如何实现全局异常处理？</summary>
+
+<h4 id="一句话结论-15"><a href="#一句话结论-15" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>用 @ControllerAdvice + @ExceptionHandler 统一处理异常，不用在每个 Controller 里写 try-catch。</strong></p>
+</blockquote>
+<hr>
+<h4 id="深度解析-15"><a href="#深度解析-15" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 统一异常处理示例</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@ControllerAdvice</span>  <span class="hljs-comment">// 全局异常处理（所有 Controller 都生效）</span><br><span class="hljs-meta">@ResponseBody</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GlobalExceptionHandler</span> &#123;<br>    <br>    <span class="hljs-meta">@ExceptionHandler(UserNotFoundException.class)</span>  <span class="hljs-comment">// 处理用户不存在异常</span><br>    <span class="hljs-keyword">public</span> Result <span class="hljs-title function_">handleUserNotFound</span><span class="hljs-params">(UserNotFoundException e)</span> &#123;<br>        <span class="hljs-keyword">return</span> Result.error(<span class="hljs-number">404</span>, e.getMessage());<br>    &#125;<br>    <br>    <span class="hljs-meta">@ExceptionHandler(MethodArgumentNotValidException.class)</span>  <span class="hljs-comment">// 处理参数校验异常</span><br>    <span class="hljs-keyword">public</span> Result <span class="hljs-title function_">handleValidation</span><span class="hljs-params">(MethodArgumentNotValidException e)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">msg</span> <span class="hljs-operator">=</span> e.getBindingResult().getFieldError().getDefaultMessage();<br>        <span class="hljs-keyword">return</span> Result.error(<span class="hljs-number">400</span>, msg);<br>    &#125;<br>    <br>    <span class="hljs-meta">@ExceptionHandler(Exception.class)</span>  <span class="hljs-comment">// 处理其他所有异常</span><br>    <span class="hljs-keyword">public</span> Result <span class="hljs-title function_">handleException</span><span class="hljs-params">(Exception e)</span> &#123;<br>        <span class="hljs-keyword">return</span> Result.error(<span class="hljs-number">500</span>, <span class="hljs-string">&quot;系统错误：&quot;</span> + e.getMessage());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 自定义异常</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 自定义异常</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserNotFoundException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">RuntimeException</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">UserNotFoundException</span><span class="hljs-params">(String message)</span> &#123;<br>        <span class="hljs-built_in">super</span>(message);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 使用自定义异常</span><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserController</span> &#123;<br>    <br>    <span class="hljs-meta">@GetMapping(&quot;/users/&#123;id&#125;&quot;)</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getUser</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> Long id)</span> &#123;<br>        <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> userService.getUserById(id);<br>        <span class="hljs-keyword">if</span> (user == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserNotFoundException</span>(<span class="hljs-string">&quot;用户不存在&quot;</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> user;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-15"><a href="#面试加分回答-15" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「全局异常处理用 @ControllerAdvice + @ExceptionHandler，可以拦截所有 Controller 抛出的异常，返回统一的错误格式。这样不用在每个 Controller 里写 try-catch，代码更简洁。另外，@ControllerAdvice 还可以做全局数据绑定（@InitBinder）和全局数据预处理（@ModelAttribute）。」</p>
+</blockquote>
+<hr>
+</details>
+
+<p><a id="qb-16"></a></p>
+<h3 id="Q16：什么是-Spring-Boot？它和-Spring-有什么区别？"><a href="#Q16：什么是-Spring-Boot？它和-Spring-有什么区别？" class="headerlink" title="Q16：什么是 Spring Boot？它和 Spring 有什么区别？"></a>Q16：什么是 Spring Boot？它和 Spring 有什么区别？</h3><h4 id="一句话结论-16"><a href="#一句话结论-16" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Boot 是 Spring 的”快速开发版”，通过自动配置和起步依赖，让你不用写大量 XML 配置。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-15"><a href="#深度解析-15" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. Spring 和 Spring Boot 的核心区别</strong></p>
+<h4 id="深度解析-16"><a href="#深度解析-16" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. Spring 和 Spring Boot 的核心区别</strong></p>
 <p>用大白话解释：</p>
 <blockquote>
 <p><strong>Spring</strong>：像一个功能强大的厨房，但你需要自己准备所有厨具、食材、调料（配置 Bean、配置数据源、配置事务……）<br><strong>Spring Boot</strong>：像一个有智能管家的厨房，厨具、食材、调料都帮你准备好了，你只需要直接炒菜（写业务代码）</p>
@@ -1221,15 +1321,16 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 传统 Spring 开发：需要大量 XML 配置</span><br><span class="hljs-comment">// applicationContext.xml</span><br>&lt;bean id=<span class="hljs-string">&quot;userService&quot;</span> class=<span class="hljs-string">&quot;com.example.UserService&quot;</span> /&gt;<br>&lt;bean id=<span class="hljs-string">&quot;userDao&quot;</span> class=<span class="hljs-string">&quot;com.example.UserDao&quot;</span> /&gt;<br>&lt;!-- 还需要配置数据源、事务管理器、视图解析器... --&gt;<br><br><span class="hljs-comment">// Spring Boot 开发：几乎零配置</span><br><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Application</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(Application.class, args);<br>    &#125;<br>&#125;<br><span class="hljs-comment">// 只需要启动类，其他都自动配置！</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-15"><a href="#面试加分回答-15" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-16"><a href="#面试加分回答-16" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「Spring Boot 的核心是<strong>自动配置</strong>和<strong>起步依赖</strong>。自动配置通过 <code>@EnableAutoConfiguration</code> 实现（实际上 @SpringBootApplication 已经包含了），它会根据你引入的依赖自动配置 Bean。起步依赖是把相关依赖打包成一个（比如 spring-boot-starter-web 包含了 Spring MVC、Jackson、Tomcat），简化依赖管理。另外，Spring Boot 的内嵌容器让你可以用 <code>java -jar</code> 直接运行，不用部署到外部 Tomcat。」</p>
 </blockquote>
 <hr>
-<h3 id="Q17：Spring-Boot-的自动配置原理是什么？"><a href="#Q17：Spring-Boot-的自动配置原理是什么？" class="headerlink" title="Q17：Spring Boot 的自动配置原理是什么？"></a>Q17：Spring Boot 的自动配置原理是什么？</h3><h4 id="一句话结论-16"><a href="#一句话结论-16" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="qb-17"></a></p>
+<h3 id="Q17：Spring-Boot-的自动配置原理是什么？"><a href="#Q17：Spring-Boot-的自动配置原理是什么？" class="headerlink" title="Q17：Spring Boot 的自动配置原理是什么？"></a>Q17：Spring Boot 的自动配置原理是什么？</h3><h4 id="一句话结论-17"><a href="#一句话结论-17" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Boot 自动配置通过 @EnableAutoConfiguration 实现：Spring Boot 2.7 之前，核心是 SpringFactoriesLoader 加载 META-INF&#x2F;spring.factories 中的自动配置类；2.7 及以后（含 3.x），改为读取 META-INF&#x2F;spring&#x2F;org.springframework.boot.autoconfigure.AutoConfiguration.imports 文件，每行一个自动配置类的全限定名。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-16"><a href="#深度解析-16" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 自动配置流程</strong></p>
+<h4 id="深度解析-17"><a href="#深度解析-17" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 自动配置流程</strong></p>
 <figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@SpringBootApplication</span><br>   ↓<br><span class="hljs-variable">@EnableAutoConfiguration</span><br>   ↓<br>AutoConfigurationImportSelector（导入自动配置类）<br>   ↓<br>SpringFactoriesLoader.<span class="hljs-built_in">loadFactoryNames</span>()<br>   ↓<br>读取所有 jar 包中的 META-INF/spring.factories<br>   ↓<br>加载 XxxAutoConfiguration 类<br>   ↓<br>根据条件注解（<span class="hljs-variable">@ConditionalOnClass</span> 等）决定是否生效<br></code></pre></td></tr></table></figure>
 
 <p><strong>2. 核心注解 @SpringBootApplication</strong></p>
@@ -1287,15 +1388,16 @@
 </tbody></table>
 <p>新机制文件更小、加载更快（不用再解析 Properties 格式、不用和其他 <code>spring.factories</code> 内容混在一起），<code>SpringFactoriesLoader</code> 依然存在，但自动配置类的加载已经切换到专门的 <code>ImportCandidates</code> 机制读取 <code>.imports</code> 文件。</p>
 <hr>
-<h4 id="面试加分回答-16"><a href="#面试加分回答-16" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-17"><a href="#面试加分回答-17" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「Spring Boot 自动配置的核心是 @EnableAutoConfiguration，它会加载所有 jar 包中登记的自动配置类（XxxAutoConfiguration），然后根据条件注解（@ConditionalOnClass、@ConditionalOnMissingBean 等）决定是否生效。加载方式上，2.7 之前是 SpringFactoriesLoader 读取 META-INF&#x2F;spring.factories；2.7 及以后（含 3.x）改成读取 META-INF&#x2F;spring&#x2F;org.springframework.boot.autoconfigure.AutoConfiguration.imports，每行一个全限定类名，这也是现在新建 Starter 时该用的方式。如果你想自定义配置，只需要自己定义一个 Bean，因为 @ConditionalOnMissingBean 会让你定义的 Bean 优先。」</p>
 </blockquote>
 <hr>
-<h3 id="Q18：Spring-Boot-的启动流程是怎样的？"><a href="#Q18：Spring-Boot-的启动流程是怎样的？" class="headerlink" title="Q18：Spring Boot 的启动流程是怎样的？"></a>Q18：Spring Boot 的启动流程是怎样的？</h3><h4 id="一句话结论-17"><a href="#一句话结论-17" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="qb-18"></a></p>
+<h3 id="Q18：Spring-Boot-的启动流程是怎样的？"><a href="#Q18：Spring-Boot-的启动流程是怎样的？" class="headerlink" title="Q18：Spring Boot 的启动流程是怎样的？"></a>Q18：Spring Boot 的启动流程是怎样的？</h3><h4 id="一句话结论-18"><a href="#一句话结论-18" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Boot 启动流程：加载配置 → 创建 ApplicationContext → 刷新上下文（自动配置、Bean 扫描、启动 Tomcat）→ 启动完成。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-17"><a href="#深度解析-17" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 启动流程详解</strong></p>
+<h4 id="深度解析-18"><a href="#深度解析-18" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 启动流程详解</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Application</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(Application.class, args);  <span class="hljs-comment">// 启动入口</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>启动流程（简化版）</strong>：</p>
@@ -1305,15 +1407,16 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> ConfigurableApplicationContext <span class="hljs-title function_">run</span><span class="hljs-params">(String... args)</span> &#123;<br>    <span class="hljs-comment">// 1. 启动计时器</span><br>    <span class="hljs-type">StopWatch</span> <span class="hljs-variable">stopWatch</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StopWatch</span>();<br>    stopWatch.start();<br>    <br>    <span class="hljs-comment">// 2. 创建 ApplicationContext</span><br>    <span class="hljs-type">ConfigurableApplicationContext</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    context = createApplicationContext();  <span class="hljs-comment">// 根据应用类型创建上下文</span><br>    <br>    <span class="hljs-comment">// 3. 刷新上下文（核心步骤，自动配置、Bean 扫描都在这步）</span><br>    refreshContext(context);<br>    <br>    <span class="hljs-comment">// 4. 调用 Runner（ApplicationRunner、CommandLineRunner）</span><br>    callRunners(context, args);<br>    <br>    <span class="hljs-comment">// 5. 启动完成</span><br>    stopWatch.stop();<br>    <span class="hljs-keyword">return</span> context;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-17"><a href="#面试加分回答-17" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-18"><a href="#面试加分回答-18" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「Spring Boot 启动流程的核心是 SpringApplication.run()，它会创建 ApplicationContext、刷新上下文（自动配置、Bean 扫描、启动内嵌 Tomcat）、调用 Runner。面试中经常问：’Spring Boot 启动后做了什么？’ 回答要包括：1) 加载自动配置；2) 扫描 Bean；3) 启动内嵌 Tomcat；4) 调用 Runner。」</p>
 </blockquote>
 <hr>
-<h3 id="Q19：Spring-Boot-中的配置文件有哪些？优先级怎样？"><a href="#Q19：Spring-Boot-中的配置文件有哪些？优先级怎样？" class="headerlink" title="Q19：Spring Boot 中的配置文件有哪些？优先级怎样？"></a>Q19：Spring Boot 中的配置文件有哪些？优先级怎样？</h3><h4 id="一句话结论-18"><a href="#一句话结论-18" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="qb-19"></a></p>
+<h3 id="Q19：Spring-Boot-中的配置文件有哪些？优先级怎样？"><a href="#Q19：Spring-Boot-中的配置文件有哪些？优先级怎样？" class="headerlink" title="Q19：Spring Boot 中的配置文件有哪些？优先级怎样？"></a>Q19：Spring Boot 中的配置文件有哪些？优先级怎样？</h3><h4 id="一句话结论-19"><a href="#一句话结论-19" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Boot 配置文件有 application.properties 和 application.yml，优先级：命令行参数 &gt; 外部配置文件 &gt; 内部配置文件 &gt; 默认值。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-18"><a href="#深度解析-18" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 配置文件格式</strong></p>
+<h4 id="深度解析-19"><a href="#深度解析-19" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 配置文件格式</strong></p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># application.yml（推荐，结构清晰）</span><br><span class="hljs-attr">server:</span><br>  <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span><br><br><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">datasource:</span><br>    <span class="hljs-attr">url:</span> <span class="hljs-string">jdbc:mysql://localhost:3306/test</span><br>    <span class="hljs-attr">username:</span> <span class="hljs-string">root</span><br>    <span class="hljs-attr">password:</span> <span class="hljs-number">123456</span><br></code></pre></td></tr></table></figure>
 
 <figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-comment"># application.properties（传统格式）</span><br><span class="hljs-attr">server.port</span>=<span class="hljs-string">8080</span><br><br><span class="hljs-attr">spring.datasource.url</span>=<span class="hljs-string">jdbc:mysql://localhost:3306/test</span><br><span class="hljs-attr">spring.datasource.username</span>=<span class="hljs-string">root</span><br><span class="hljs-attr">spring.datasource.password</span>=<span class="hljs-string">123456</span><br></code></pre></td></tr></table></figure>
@@ -1357,15 +1460,16 @@
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># application.yml（主配置）</span><br><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">profiles:</span><br>    <span class="hljs-attr">active:</span> <span class="hljs-string">dev</span>  <span class="hljs-comment"># 激活 dev 环境</span><br><br><span class="hljs-comment"># application-dev.yml（开发环境）</span><br><span class="hljs-attr">server:</span><br>  <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span><br><br><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">datasource:</span><br>    <span class="hljs-attr">url:</span> <span class="hljs-string">jdbc:mysql://localhost:3306/dev_db</span><br><br><span class="hljs-comment"># application-prod.yml（生产环境）</span><br><span class="hljs-attr">server:</span><br>  <span class="hljs-attr">port:</span> <span class="hljs-number">80</span><br><br><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">datasource:</span><br>    <span class="hljs-attr">url:</span> <span class="hljs-string">jdbc:mysql://prod-server:3306/prod_db</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-18"><a href="#面试加分回答-18" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-19"><a href="#面试加分回答-19" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「Spring Boot 配置文件优先级：命令行参数 &gt; 外部配置文件（file:.&#x2F;config&#x2F;）&gt; 外部配置文件（file:.&#x2F;）&gt; 内部配置文件（classpath:&#x2F;config&#x2F;）&gt; 内部配置文件（classpath:&#x2F;）。多环境配置用 spring.profiles.active 指定，配置文件名是 application-{profile}.yml。另外，配置绑定用 @ConfigurationProperties（推荐，类型安全）或 @Value（不推荐，功能弱）。」</p>
 </blockquote>
 <hr>
-<h3 id="Q20：-ConfigurationProperties-和-Value-有什么区别？"><a href="#Q20：-ConfigurationProperties-和-Value-有什么区别？" class="headerlink" title="Q20：@ConfigurationProperties 和 @Value 有什么区别？"></a>Q20：@ConfigurationProperties 和 @Value 有什么区别？</h3><h4 id="一句话结论-19"><a href="#一句话结论-19" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="qb-20"></a></p>
+<h3 id="Q20：-ConfigurationProperties-和-Value-有什么区别？"><a href="#Q20：-ConfigurationProperties-和-Value-有什么区别？" class="headerlink" title="Q20：@ConfigurationProperties 和 @Value 有什么区别？"></a>Q20：@ConfigurationProperties 和 @Value 有什么区别？</h3><h4 id="一句话结论-20"><a href="#一句话结论-20" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>@ConfigurationProperties 批量绑定配置（类型安全，支持校验），@Value 单个绑定配置（功能弱，不支持校验）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-19"><a href="#深度解析-19" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. @ConfigurationProperties（推荐）</strong></p>
+<h4 id="深度解析-20"><a href="#深度解析-20" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. @ConfigurationProperties（推荐）</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Data</span><br><span class="hljs-meta">@ConfigurationProperties(prefix = &quot;app.user&quot;)</span>  <span class="hljs-comment">// 绑定 app.user 前缀的配置</span><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserProperties</span> &#123;<br>    <span class="hljs-keyword">private</span> String name;  <span class="hljs-comment">// 对应 app.user.name</span><br>    <span class="hljs-keyword">private</span> Integer age;  <span class="hljs-comment">// 对应 app.user.age</span><br>    <span class="hljs-keyword">private</span> List&lt;String&gt; hobbies;  <span class="hljs-comment">// 对应 app.user.hobbies</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># application.yml</span><br><span class="hljs-attr">app:</span><br>  <span class="hljs-attr">user:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">张三</span><br>    <span class="hljs-attr">age:</span> <span class="hljs-number">25</span><br>    <span class="hljs-attr">hobbies:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">篮球</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">足球</span><br></code></pre></td></tr></table></figure>
@@ -1409,15 +1513,16 @@
 </tr>
 </tbody></table>
 <hr>
-<h4 id="面试加分回答-19"><a href="#面试加分回答-19" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-20"><a href="#面试加分回答-20" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「@ConfigurationProperties 和 @Value 都是绑定配置的方式，但 @ConfigurationProperties 更强大：1) 支持批量绑定；2) 类型安全；3) 支持校验（@Validated）；4) 支持松散绑定（user-name 或 userName 都能识别）。实际项目中，推荐用 @ConfigurationProperties 绑定配置。」</p>
 </blockquote>
 <hr>
-<h3 id="Q21：Spring-Boot-中的-Starter-是什么？如何自定义-Starter？"><a href="#Q21：Spring-Boot-中的-Starter-是什么？如何自定义-Starter？" class="headerlink" title="Q21：Spring Boot 中的 Starter 是什么？如何自定义 Starter？"></a>Q21：Spring Boot 中的 Starter 是什么？如何自定义 Starter？</h3><h4 id="一句话结论-20"><a href="#一句话结论-20" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="qb-21"></a></p>
+<h3 id="Q21：Spring-Boot-中的-Starter-是什么？如何自定义-Starter？"><a href="#Q21：Spring-Boot-中的-Starter-是什么？如何自定义-Starter？" class="headerlink" title="Q21：Spring Boot 中的 Starter 是什么？如何自定义 Starter？"></a>Q21：Spring Boot 中的 Starter 是什么？如何自定义 Starter？</h3><h4 id="一句话结论-21"><a href="#一句话结论-21" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Starter 是把相关依赖打包成一个依赖（比如 spring-boot-starter-web 包含了 Spring MVC、Jackson、Tomcat）。自定义 Starter 需要创建自动配置类和 META-INF&#x2F;spring.factories。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-20"><a href="#深度解析-20" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 什么是 Starter？</strong></p>
+<h4 id="深度解析-21"><a href="#深度解析-21" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 什么是 Starter？</strong></p>
 <p>用大白话解释：</p>
 <blockquote>
 <p>Starter 就像一个”工具箱”，你引入一个 Starter，就自动获得了所有相关依赖。<br>比如 <code>spring-boot-starter-web</code>，你引入它，就自动获得了 Spring MVC、Jackson、Tomcat，不用一个个引依赖。</p>
@@ -1455,15 +1560,16 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 1. 创建自动配置类</span><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@ConditionalOnClass(MyService.class)</span><br><span class="hljs-meta">@EnableConfigurationProperties(MyProperties.class)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyAutoConfiguration</span> &#123;<br>    <br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-meta">@ConditionalOnMissingBean</span><br>    <span class="hljs-keyword">public</span> MyService <span class="hljs-title function_">myService</span><span class="hljs-params">(MyProperties properties)</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyService</span>(properties);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 2. 创建属性配置类</span><br><span class="hljs-meta">@ConfigurationProperties(prefix = &quot;my.service&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyProperties</span> &#123;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> Integer timeout;<br>    <span class="hljs-comment">// getter/setter</span><br>&#125;<br><br><span class="hljs-comment">// 3. 创建 META-INF/spring.factories</span><br># resources/META-INF/spring.factories<br>org.springframework.boot.autoconfigure.EnableAutoConfiguration=\<br>  com.example.MyAutoConfiguration<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-20"><a href="#面试加分回答-20" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-21"><a href="#面试加分回答-21" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「Starter 是 Spring Boot 的依赖打包机制，通过自动配置实现’开箱即用’。自定义 Starter 需要三步：1) 创建自动配置类（@Configuration + 条件注解）；2) 创建属性配置类（@ConfigurationProperties）；3) 创建 META-INF&#x2F;spring.factories（Spring Boot 2.7 之前）或 META-INF&#x2F;spring&#x2F;org.springframework.boot.autoconfigure.AutoConfiguration.imports（Spring Boot 2.7 之后）。」</p>
 </blockquote>
 <hr>
-<h3 id="Q22：Spring-Boot-中的-Actuator-是做什么的？有哪些常用端点？"><a href="#Q22：Spring-Boot-中的-Actuator-是做什么的？有哪些常用端点？" class="headerlink" title="Q22：Spring Boot 中的 Actuator 是做什么的？有哪些常用端点？"></a>Q22：Spring Boot 中的 Actuator 是做什么的？有哪些常用端点？</h3><h4 id="一句话结论-21"><a href="#一句话结论-21" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q44：Spring-Boot-中的-Actuator-端点有哪些？如何自定义？"></a><br><a id="qb-22"></a></p>
+<h3 id="Q22：Spring-Boot-中的-Actuator-是做什么的？有哪些常用端点？"><a href="#Q22：Spring-Boot-中的-Actuator-是做什么的？有哪些常用端点？" class="headerlink" title="Q22：Spring Boot 中的 Actuator 是做什么的？有哪些常用端点？"></a>Q22：Spring Boot 中的 Actuator 是做什么的？有哪些常用端点？</h3><h4 id="一句话结论-22"><a href="#一句话结论-22" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Actuator 是 Spring Boot 的监控神器，提供了很多开箱即用的端点（Endpoint），可以查看应用的健康状态、配置信息、Bean 信息、内存使用情况等。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-21"><a href="#深度解析-21" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 常用端点（Endpoint）</strong></p>
+<h4 id="深度解析-22"><a href="#深度解析-22" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 常用端点（Endpoint）</strong></p>
 <table>
 <thead>
 <tr>
@@ -1520,26 +1626,66 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomHealthIndicator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">HealthIndicator</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Health <span class="hljs-title function_">health</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span> (isThirdPartyServiceUp()) &#123;<br>            <span class="hljs-keyword">return</span> Health.up().withDetail(<span class="hljs-string">&quot;service&quot;</span>, <span class="hljs-string">&quot;第三方服务正常&quot;</span>).build();<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> Health.down().withDetail(<span class="hljs-string">&quot;service&quot;</span>, <span class="hljs-string">&quot;第三方服务不可用&quot;</span>).build();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-21"><a href="#面试加分回答-21" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-22"><a href="#面试加分回答-22" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「Actuator 是 Spring Boot 的监控神器，提供了很多开箱即用的端点。生产环境中，一定要配置访问权限（不能让所有人都能访问 &#x2F;actuator&#x2F;heapdump），并且只暴露必要的端点（比如 health、info）。另外，Actuator 可以和 Prometheus + Grafana 集成，实现可视化监控。」</p>
 </blockquote>
 <hr>
-<h3 id="Q23：Spring-Boot-中如何实现全局异常处理？"><a href="#Q23：Spring-Boot-中如何实现全局异常处理？" class="headerlink" title="Q23：Spring Boot 中如何实现全局异常处理？"></a>Q23：Spring Boot 中如何实现全局异常处理？</h3><h4 id="一句话结论-22"><a href="#一句话结论-22" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>用 @ControllerAdvice + @ExceptionHandler 统一处理异常，不用在每个 Controller 里写 try-catch。</strong></p>
-</blockquote>
-<hr>
-<h4 id="深度解析-22"><a href="#深度解析-22" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>1. 统一异常处理示例</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@ControllerAdvice</span>  <span class="hljs-comment">// 全局异常处理（所有 Controller 都生效）</span><br><span class="hljs-meta">@ResponseBody</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GlobalExceptionHandler</span> &#123;<br>    <br>    <span class="hljs-meta">@ExceptionHandler(UserNotFoundException.class)</span>  <span class="hljs-comment">// 处理用户不存在异常</span><br>    <span class="hljs-keyword">public</span> Result <span class="hljs-title function_">handleUserNotFound</span><span class="hljs-params">(UserNotFoundException e)</span> &#123;<br>        <span class="hljs-keyword">return</span> Result.error(<span class="hljs-number">404</span>, e.getMessage());<br>    &#125;<br>    <br>    <span class="hljs-meta">@ExceptionHandler(MethodArgumentNotValidException.class)</span>  <span class="hljs-comment">// 处理参数校验异常</span><br>    <span class="hljs-keyword">public</span> Result <span class="hljs-title function_">handleValidation</span><span class="hljs-params">(MethodArgumentNotValidException e)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">msg</span> <span class="hljs-operator">=</span> e.getBindingResult().getFieldError().getDefaultMessage();<br>        <span class="hljs-keyword">return</span> Result.error(<span class="hljs-number">400</span>, msg);<br>    &#125;<br>    <br>    <span class="hljs-meta">@ExceptionHandler(Exception.class)</span>  <span class="hljs-comment">// 处理其他所有异常</span><br>    <span class="hljs-keyword">public</span> Result <span class="hljs-title function_">handleException</span><span class="hljs-params">(Exception e)</span> &#123;<br>        <span class="hljs-keyword">return</span> Result.error(<span class="hljs-number">500</span>, <span class="hljs-string">&quot;系统错误：&quot;</span> + e.getMessage());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<details>
+<summary>展开：Spring Boot 中的 Actuator 端点有哪些？如何自定义？</summary>
 
-<p><strong>2. 自定义异常</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 自定义异常</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserNotFoundException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">RuntimeException</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">UserNotFoundException</span><span class="hljs-params">(String message)</span> &#123;<br>        <span class="hljs-built_in">super</span>(message);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 使用自定义异常</span><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserController</span> &#123;<br>    <br>    <span class="hljs-meta">@GetMapping(&quot;/users/&#123;id&#125;&quot;)</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getUser</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> Long id)</span> &#123;<br>        <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> userService.getUserById(id);<br>        <span class="hljs-keyword">if</span> (user == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserNotFoundException</span>(<span class="hljs-string">&quot;用户不存在&quot;</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> user;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>一句话总结</strong>：Actuator 提供了很多<strong>生产级监控端点</strong>（比如 <code>/health</code>、<code>/metrics</code>、<code>/env</code>），可以自定义端点来暴露业务指标。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>常用端点</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/actuator/health</code></td>
+<td>应用健康状态</td>
+</tr>
+<tr>
+<td><code>/actuator/metrics</code></td>
+<td>应用指标（JVM、CPU、内存等）</td>
+</tr>
+<tr>
+<td><code>/actuator/env</code></td>
+<td>环境变量和配置属性</td>
+</tr>
+<tr>
+<td><code>/actuator/beans</code></td>
+<td>容器中所有 Bean</td>
+</tr>
+<tr>
+<td><code>/actuator/mappings</code></td>
+<td>所有 @RequestMapping 路径</td>
+</tr>
+<tr>
+<td><code>/actuator/threaddump</code></td>
+<td>线程快照</td>
+</tr>
+<tr>
+<td><code>/actuator/heapdump</code></td>
+<td>堆转储</td>
+</tr>
+</tbody></table>
+<p><strong>自定义端点</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-meta">@Endpoint(id = &quot;custom&quot;)</span>  <span class="hljs-comment">// 端点路径：/actuator/custom</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomEndpoint</span> &#123;<br>    <br>    <span class="hljs-meta">@ReadOperation</span>  <span class="hljs-comment">// GET 请求</span><br>    <span class="hljs-keyword">public</span> Map&lt;String, Object&gt; <span class="hljs-title function_">read</span><span class="hljs-params">()</span> &#123;<br>        Map&lt;String, Object&gt; result = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        result.put(<span class="hljs-string">&quot;custom&quot;</span>, <span class="hljs-string">&quot;Hello Actuator!&quot;</span>);<br>        <span class="hljs-keyword">return</span> result;<br>    &#125;<br>    <br>    <span class="hljs-meta">@WriteOperation</span>  <span class="hljs-comment">// POST 请求</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">write</span><span class="hljs-params">(<span class="hljs-meta">@Selector</span> String name, String value)</span> &#123;<br>        <span class="hljs-comment">// 可以动态修改配置</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲如何自定义健康检查（实现 <code>HealthIndicator</code> 接口）</li>
+<li>可以讲讲如何自定义指标（使用 <code>MeterRegistry</code>）</li>
+<li>可以讲讲实际应用场景（比如监控业务指标：订单量、支付成功率等）</li>
+</ul>
 <hr>
-<h4 id="面试加分回答-22"><a href="#面试加分回答-22" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「全局异常处理用 @ControllerAdvice + @ExceptionHandler，可以拦截所有 Controller 抛出的异常，返回统一的错误格式。这样不用在每个 Controller 里写 try-catch，代码更简洁。另外，@ControllerAdvice 还可以做全局数据绑定（@InitBinder）和全局数据预处理（@ModelAttribute）。」</p>
-</blockquote>
-<hr>
-<h3 id="Q24：Spring-Boot-中的事务管理是怎么实现的？"><a href="#Q24：Spring-Boot-中的事务管理是怎么实现的？" class="headerlink" title="Q24：Spring Boot 中的事务管理是怎么实现的？"></a>Q24：Spring Boot 中的事务管理是怎么实现的？</h3><h4 id="一句话结论-23"><a href="#一句话结论-23" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+</details>
+
+<p><a id="Q24：Spring-Boot-中的事务管理是怎么实现的？"></a><br><a id="Q42：Spring-中的事务传播行为有哪些？"></a><br><a id="qb-23"></a></p>
+<h3 id="Q23：Spring-Boot-中的事务管理是怎么实现的？"><a href="#Q23：Spring-Boot-中的事务管理是怎么实现的？" class="headerlink" title="Q23：Spring Boot 中的事务管理是怎么实现的？"></a>Q23：Spring Boot 中的事务管理是怎么实现的？</h3><h4 id="一句话结论-23"><a href="#一句话结论-23" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Boot 事务管理通过 @Transactional 注解实现，底层是 AOP（动态代理）。</strong></p>
 </blockquote>
 <hr>
@@ -1617,7 +1763,61 @@
 <p>「@Transactional 底层是 AOP（动态代理），所以自调用会失效（同一个类中的方法调用另一个 @Transactional 方法，事务不生效）。解决方式：1) 用 AspectJ 替代 Spring AOP；2) 把方法放到另一个 Service；3) 用 AopContext.currentProxy() 获取当前代理对象。另外，@Transactional 的 rollbackFor 属性默认只对 RuntimeException 和 Error 回滚，所以建议显式指定 rollbackFor &#x3D; Exception.class。」</p>
 </blockquote>
 <hr>
-<h3 id="Q25：Spring-Boot-中-Transactional-注解失效的常见场景有哪些？"><a href="#Q25：Spring-Boot-中-Transactional-注解失效的常见场景有哪些？" class="headerlink" title="Q25：Spring Boot 中 @Transactional 注解失效的常见场景有哪些？"></a>Q25：Spring Boot 中 @Transactional 注解失效的常见场景有哪些？</h3><h4 id="一句话结论-24"><a href="#一句话结论-24" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：Spring 中的事务传播行为有哪些？</summary>
+
+<p><strong>一句话总结</strong>：Spring 定义了 7 种事务传播行为，决定了<strong>事务方法嵌套调用时</strong>事务如何传播。</p>
+<p><strong>深度解析</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>传播行为</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>REQUIRED</code>（默认）</td>
+<td>有事务就加入，没有就新建</td>
+</tr>
+<tr>
+<td><code>REQUIRES_NEW</code></td>
+<td><strong>挂起当前事务</strong>，新建一个事务</td>
+</tr>
+<tr>
+<td><code>SUPPORTS</code></td>
+<td>有事务就加入，没有就以非事务方式执行</td>
+</tr>
+<tr>
+<td><code>NOT_SUPPORTED</code></td>
+<td>以非事务方式执行，<strong>挂起当前事务</strong></td>
+</tr>
+<tr>
+<td><code>MANDATORY</code></td>
+<td>必须有事务，否则抛异常</td>
+</tr>
+<tr>
+<td><code>NEVER</code></td>
+<td>必须没有事务，否则抛异常</td>
+</tr>
+<tr>
+<td><code>NESTED</code></td>
+<td>如果当前有事务，就在<strong>嵌套事务</strong>中执行</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderService</span> &#123;<br>    <br>    <span class="hljs-meta">@Transactional(propagation = Propagation.REQUIRED)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createOrder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 加入当前事务（如果有），否则新建事务</span><br>        orderMapper.insert(order);<br>        paymentService.pay();  <span class="hljs-comment">// 调用另一个事务方法</span><br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PaymentService</span> &#123;<br>    <br>    <span class="hljs-meta">@Transactional(propagation = Propagation.REQUIRES_NEW)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">pay</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 挂起 OrderService 的事务，新建一个事务</span><br>        paymentMapper.insert(payment);<br>        <span class="hljs-comment">// 如果这里抛异常，只回滚 PaymentService，不影响 OrderService</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <code>REQUIRES_NEW</code> 的实际应用场景（比如日志记录，无论主事务是否成功，日志都要记录）</li>
+<li>可以讲讲 <code>NESTED</code> 和 <code>REQUIRES_NEW</code> 的区别（<code>NESTED</code> 是嵌套事务，回滚到保存点；<code>REQUIRES_NEW</code> 是完全独立的事务）</li>
+<li>可以讲讲事务传播行为的实现原理（Spring 通过 <code>TransactionInterceptor</code> 拦截方法调用，根据传播行为决定是否创建新事务）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q25：Spring-Boot-中-Transactional-注解失效的常见场景有哪些？"></a><br><a id="Q43：Spring-中的-Transactional-注解有哪些注意事项？"></a><br><a id="qb-24"></a></p>
+<h3 id="Q24：Spring-Boot-中-Transactional-注解失效的常见场景有哪些？"><a href="#Q24：Spring-Boot-中-Transactional-注解失效的常见场景有哪些？" class="headerlink" title="Q24：Spring Boot 中 @Transactional 注解失效的常见场景有哪些？"></a>Q24：Spring Boot 中 @Transactional 注解失效的常见场景有哪些？</h3><h4 id="一句话结论-24"><a href="#一句话结论-24" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>@Transactional 失效的常见场景：自调用、非 public 方法、异常被 catch、数据库引擎不支持事务、没有配置事务管理器。</strong></p>
 </blockquote>
 <hr>
@@ -1653,7 +1853,41 @@
 </blockquote>
 <hr>
 <h2 id="四、Spring-Security（26-30）"><a href="#四、Spring-Security（26-30）" class="headerlink" title="四、Spring Security（26-30）"></a>四、Spring Security（26-30）</h2><hr>
-<h3 id="Q26：Spring-Security-的核心组件有哪些？"><a href="#Q26：Spring-Security-的核心组件有哪些？" class="headerlink" title="Q26：Spring Security 的核心组件有哪些？"></a>Q26：Spring Security 的核心组件有哪些？</h3><h4 id="一句话结论-25"><a href="#一句话结论-25" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：Spring 中的 @Transactional 注解有哪些注意事项？</summary>
+
+<p><strong>一句话总结</strong>：<code>@Transactional</code> 注解有很多<strong>坑</strong>，比如<strong>非public方法不生效</strong>、<strong>自调用不生效</strong>、<strong>异常类型不对不回滚</strong>等。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>常见坑</strong>：</p>
+<ol>
+<li><p><strong>只有public方法才生效</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> &#123;  <span class="hljs-comment">// ❌ private 方法，事务不生效！</span><br>        userMapper.update(user);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>自调用问题</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">this</span>.updateUserInternal();  <span class="hljs-comment">// ❌ 自调用，事务不生效！</span><br>    &#125;<br>    <br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUserInternal</span><span class="hljs-params">()</span> &#123;<br>        userMapper.update(user);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>原因</strong>：Spring AOP 是通过<strong>代理对象</strong>实现的，自调用绕过了代理对象。</p>
+</li>
+<li><p><strong>异常类型不对不回滚</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Transactional</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        userMapper.update(user);<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        <span class="hljs-comment">// ❌ 默认只回滚 RuntimeException 和 Error</span><br>        <span class="hljs-comment">// 如果 catch 了异常，也不会回滚</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>解决</strong>：<code>@Transactional(rollbackFor = Exception.class)</code></p>
+</li>
+<li><p><strong>数据库引擎不支持事务</strong></p>
+<ul>
+<li>MySQL 的 MyISAM 引擎不支持事务，要用 InnoDB。</li>
+</ul>
+</li>
+</ol>
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲如何避免自调用问题（注入自己、使用 <code>AopContext.currentProxy()</code>）</li>
+<li>可以讲讲 <code>@Transactional</code> 的实现原理（Spring AOP + 事务管理器）</li>
+<li>可以讲讲实际遇到的坑（比如联调时发现事务没回滚，查了半天才发现是 catch 了异常）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q26：Spring-Security-的核心组件有哪些？"></a><br><a id="qb-25"></a></p>
+<h3 id="Q25：Spring-Security-的核心组件有哪些？"><a href="#Q25：Spring-Security-的核心组件有哪些？" class="headerlink" title="Q25：Spring Security 的核心组件有哪些？"></a>Q25：Spring Security 的核心组件有哪些？</h3><h4 id="一句话结论-25"><a href="#一句话结论-25" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Security 的核心组件：SecurityContextHolder、Authentication、UserDetailsService、PasswordEncoder。</strong></p>
 </blockquote>
 <hr>
@@ -1697,7 +1931,8 @@
 <p>「Spring Security 的核心组件：SecurityContextHolder（存储认证信息）、Authentication（认证信息）、UserDetailsService（查用户）、PasswordEncoder（密码加密）。认证流程是：用户登录 → UsernamePasswordAuthenticationFilter → AuthenticationManager → AuthenticationProvider → UserDetailsService → 认证成功&#x2F;失败。另外，现在主流的认证方式是 JWT + Spring Security，JWT 过滤器（OncePerRequestFilter）会在每次请求时解析 Token，将认证信息放入 SecurityContextHolder。」</p>
 </blockquote>
 <hr>
-<h3 id="Q27：Spring-Security-中-JWT-是怎么集成的？"><a href="#Q27：Spring-Security-中-JWT-是怎么集成的？" class="headerlink" title="Q27：Spring Security 中 JWT 是怎么集成的？"></a>Q27：Spring Security 中 JWT 是怎么集成的？</h3><h4 id="一句话结论-26"><a href="#一句话结论-26" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q27：Spring-Security-中-JWT-是怎么集成的？"></a><br><a id="qb-26"></a></p>
+<h3 id="Q26：Spring-Security-中-JWT-是怎么集成的？"><a href="#Q26：Spring-Security-中-JWT-是怎么集成的？" class="headerlink" title="Q26：Spring Security 中 JWT 是怎么集成的？"></a>Q26：Spring Security 中 JWT 是怎么集成的？</h3><h4 id="一句话结论-26"><a href="#一句话结论-26" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>JWT 集成需要：1) 登录成功后生成 JWT；2) 自定义过滤器（OncePerRequestFilter）解析 JWT；3) 将认证信息放入 SecurityContextHolder。</strong></p>
 </blockquote>
 <hr>
@@ -1712,7 +1947,8 @@
 <p>「JWT 集成需要三步：1) 登录成功后生成 JWT；2) 自定义过滤器（OncePerRequestFilter）解析 JWT；3) 将认证信息放入 SecurityContextHolder。JWT 的优点是无状态（不用存 Session），缺点是无法主动失效（只能等过期）。实际项目中，一般会配合 Redis 实现 JWT 黑名单（用户退出登录时，把 JWT 加入黑名单）。」</p>
 </blockquote>
 <hr>
-<h3 id="Q28：Spring-Security-中如何自定义登录成功-失败处理？"><a href="#Q28：Spring-Security-中如何自定义登录成功-失败处理？" class="headerlink" title="Q28：Spring Security 中如何自定义登录成功&#x2F;失败处理？"></a>Q28：Spring Security 中如何自定义登录成功&#x2F;失败处理？</h3><h4 id="一句话结论-27"><a href="#一句话结论-27" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q28：Spring-Security-中如何自定义登录成功-失败处理？"></a><br><a id="qb-27"></a></p>
+<h3 id="Q27：Spring-Security-中如何自定义登录成功-失败处理？"><a href="#Q27：Spring-Security-中如何自定义登录成功-失败处理？" class="headerlink" title="Q27：Spring Security 中如何自定义登录成功&#x2F;失败处理？"></a>Q27：Spring Security 中如何自定义登录成功&#x2F;失败处理？</h3><h4 id="一句话结论-27"><a href="#一句话结论-27" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>自定义登录成功&#x2F;失败处理需要：1) 实现 AuthenticationSuccessHandler&#x2F;AuthenticationFailureHandler；2) 在 SecurityConfig 中配置。</strong></p>
 </blockquote>
 <hr>
@@ -1733,7 +1969,8 @@
 <p>「自定义登录成功&#x2F;失败处理需要实现 AuthenticationSuccessHandler&#x2F;AuthenticationFailureHandler，然后注册到 SecurityFilterChain 里。实际项目中，前后端分离一般用 JSON 返回（而不是跳转页面），所以需要自定义成功&#x2F;失败处理。另外要注意版本：Spring Security 5.7 之前是继承 WebSecurityConfigurerAdapter、重写 configure(HttpSecurity)；5.7 开始推荐用 SecurityFilterChain Bean（避免继承、更灵活、可以定义多条过滤链）；6.0（对应 Spring Boot 3.x）直接删除了 Adapter，所以新项目只能用 SecurityFilterChain 写法。Spring Security 默认登录成功会跳转，前后端分离需要返回 JSON。」</p>
 </blockquote>
 <hr>
-<h3 id="Q29：Spring-Security-中如何自定义权限校验？"><a href="#Q29：Spring-Security-中如何自定义权限校验？" class="headerlink" title="Q29：Spring Security 中如何自定义权限校验？"></a>Q29：Spring Security 中如何自定义权限校验？</h3><h4 id="一句话结论-28"><a href="#一句话结论-28" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q29：Spring-Security-中如何自定义权限校验？"></a><br><a id="qb-28"></a></p>
+<h3 id="Q28：Spring-Security-中如何自定义权限校验？"><a href="#Q28：Spring-Security-中如何自定义权限校验？" class="headerlink" title="Q28：Spring Security 中如何自定义权限校验？"></a>Q28：Spring Security 中如何自定义权限校验？</h3><h4 id="一句话结论-28"><a href="#一句话结论-28" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>自定义权限校验需要：1) 实现 AccessDecisionManager 或 @PreAuthorize；2) 在方法上用 @PreAuthorize 指定权限要求。</strong></p>
 </blockquote>
 <hr>
@@ -1752,7 +1989,8 @@
 </blockquote>
 <hr>
 <h2 id="五、Spring-Cloud-微服务（30-35）"><a href="#五、Spring-Cloud-微服务（30-35）" class="headerlink" title="五、Spring Cloud 微服务（30-35）"></a>五、Spring Cloud 微服务（30-35）</h2><hr>
-<h3 id="Q30：什么是-Spring-Cloud？它和-Spring-Boot-有什么关系？"><a href="#Q30：什么是-Spring-Cloud？它和-Spring-Boot-有什么关系？" class="headerlink" title="Q30：什么是 Spring Cloud？它和 Spring Boot 有什么关系？"></a>Q30：什么是 Spring Cloud？它和 Spring Boot 有什么关系？</h3><h4 id="一句话结论-29"><a href="#一句话结论-29" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q30：什么是-Spring-Cloud？它和-Spring-Boot-有什么关系？"></a><br><a id="qb-29"></a></p>
+<h3 id="Q29：什么是-Spring-Cloud？它和-Spring-Boot-有什么关系？"><a href="#Q29：什么是-Spring-Cloud？它和-Spring-Boot-有什么关系？" class="headerlink" title="Q29：什么是 Spring Cloud？它和 Spring Boot 有什么关系？"></a>Q29：什么是 Spring Cloud？它和 Spring Boot 有什么关系？</h3><h4 id="一句话结论-29"><a href="#一句话结论-29" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Cloud 是微服务架构的一站式解决方案，基于 Spring Boot 提供服务注册、配置管理、负载均衡、熔断器等功能。</strong></p>
 </blockquote>
 <hr>
@@ -1814,7 +2052,8 @@
 <p>「Spring Cloud 是微服务架构的一站式解决方案，基于 Spring Boot 提供服务注册、配置管理、负载均衡、熔断器等功能。但是，Spring Cloud Netflix 的很多组件已经停更（Eureka、Ribbon、Hystrix、Zuul），现在主流用 Spring Cloud Alibaba（Nacos、Sentinel、Dubbo）。另外，Spring Cloud 和 Dubbo 的区别是：Spring Cloud 是全家桶（包含各种组件），Dubbo 只是 RPC 框架。」</p>
 </blockquote>
 <hr>
-<h3 id="Q31：什么是服务注册与发现？Eureka-的工作原理是什么？"><a href="#Q31：什么是服务注册与发现？Eureka-的工作原理是什么？" class="headerlink" title="Q31：什么是服务注册与发现？Eureka 的工作原理是什么？"></a>Q31：什么是服务注册与发现？Eureka 的工作原理是什么？</h3><h4 id="一句话结论-30"><a href="#一句话结论-30" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q31：什么是服务注册与发现？Eureka-的工作原理是什么？"></a><br><a id="Q47：Spring-Cloud-中的服务发现原理是什么？"></a><br><a id="qb-30"></a></p>
+<h3 id="Q30：什么是服务注册与发现？Eureka-的工作原理是什么？"><a href="#Q30：什么是服务注册与发现？Eureka-的工作原理是什么？" class="headerlink" title="Q30：什么是服务注册与发现？Eureka 的工作原理是什么？"></a>Q30：什么是服务注册与发现？Eureka 的工作原理是什么？</h3><h4 id="一句话结论-30"><a href="#一句话结论-30" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>服务注册与发现是让服务自动注册自己的地址，并且能发现其他服务的地址。Eureka 分为 Eureka Server（注册中心）和 Eureka Client（服务）。</strong></p>
 </blockquote>
 <hr>
@@ -1860,7 +2099,67 @@
 <p>「Eureka 的核心是服务注册与发现。服务启动时向 Eureka Server 注册，每隔 30 秒发送心跳；服务调用时从 Eureka Server 拉取服务列表（缓存本地）。Eureka 的自我保护机制是：如果 15 分钟内超过 85% 的服务都心跳丢失，Eureka Server 会进入自我保护模式（不会剔除任何服务），防止因为网络分区导致服务被误剔除。另外，Eureka 已经停更，现在主流用 Nacos（Spring Cloud Alibaba）。」</p>
 </blockquote>
 <hr>
-<h3 id="Q32：什么是-Ribbon？它和-LoadBalancer-有什么区别？"><a href="#Q32：什么是-Ribbon？它和-LoadBalancer-有什么区别？" class="headerlink" title="Q32：什么是 Ribbon？它和 LoadBalancer 有什么区别？"></a>Q32：什么是 Ribbon？它和 LoadBalancer 有什么区别？</h3><h4 id="一句话结论-31"><a href="#一句话结论-31" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：Spring Cloud 中的服务发现原理是什么？</summary>
+
+<p><strong>一句话总结</strong>：服务发现通过<strong>服务注册表</strong>来管理服务实例的地址，客户端通过<strong>服务名</strong>而不是<strong>IP地址</strong>来调用服务。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>服务发现流程</strong>：</p>
+<ol>
+<li><strong>服务注册</strong>：服务启动时，向注册中心注册自己的地址（IP、端口、服务名）</li>
+<li><strong>服务订阅</strong>：客户端从注册中心获取服务实例列表</li>
+<li><strong>健康检查</strong>：注册中心定期检测服务实例是否健康</li>
+<li><strong>服务下线</strong>：服务关闭时，向注册中心注销自己</li>
+</ol>
+<p><strong>常见注册中心</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>注册中心</th>
+<th>一致性协议</th>
+<th>健康检查</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Eureka</td>
+<td>AP（高可用）</td>
+<td>客户端心跳</td>
+<td>Spring Cloud Netflix</td>
+</tr>
+<tr>
+<td>Nacos</td>
+<td>AP&#x2F;CP（可切换）</td>
+<td>客户端心跳 + 服务端探测</td>
+<td>Spring Cloud Alibaba</td>
+</tr>
+<tr>
+<td>Consul</td>
+<td>CP（强一致）</td>
+<td>服务端探测</td>
+<td>多数据中心</td>
+</tr>
+<tr>
+<td>Zookeeper</td>
+<td>CP（强一致）</td>
+<td>会话机制</td>
+<td>Dubbo</td>
+</tr>
+</tbody></table>
+<p><strong>示例（Eureka）</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># 服务端配置</span><br><span class="hljs-attr">eureka:</span><br>  <span class="hljs-attr">client:</span><br>    <span class="hljs-attr">register-with-eureka:</span> <span class="hljs-literal">false</span>  <span class="hljs-comment"># 不注册自己</span><br>    <span class="hljs-attr">fetch-registry:</span> <span class="hljs-literal">false</span><br><br><span class="hljs-comment"># 客户端配置</span><br><span class="hljs-attr">eureka:</span><br>  <span class="hljs-attr">client:</span><br>    <span class="hljs-attr">service-url:</span><br>      <span class="hljs-attr">defaultZone:</span> <span class="hljs-string">http://localhost:8761/eureka/</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 CAP 理论（一致性、可用性、分区容错性，三者不可兼得）</li>
+<li>可以讲讲 Eureka 的自我保护机制（网络分区时，不剔除不健康实例）</li>
+<li>可以讲讲实际选型建议（内网用 Nacos，跨机房用 Consul）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q32：什么是-Ribbon？它和-LoadBalancer-有什么区别？"></a><br><a id="Q48：Spring-Cloud-中的负载均衡原理是什么？"></a><br><a id="qb-31"></a></p>
+<h3 id="Q31：什么是-Ribbon？它和-LoadBalancer-有什么区别？"><a href="#Q31：什么是-Ribbon？它和-LoadBalancer-有什么区别？" class="headerlink" title="Q31：什么是 Ribbon？它和 LoadBalancer 有什么区别？"></a>Q31：什么是 Ribbon？它和 LoadBalancer 有什么区别？</h3><h4 id="一句话结论-31"><a href="#一句话结论-31" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Ribbon 是客户端负载均衡组件（已停更），Spring Cloud LoadBalancer 是它的替代方案。</strong></p>
 </blockquote>
 <hr>
@@ -1907,7 +2206,47 @@
 <p>「Ribbon 是客户端负载均衡组件（已停更），Spring Cloud LoadBalancer 是它的替代方案。客户端负载均衡的意思是：客户端自己知道所有后端服务器的地址，自己选一个调用。另外，现在主流是 Spring Cloud Alibaba Sentinel（负载均衡 + 熔断），而不是单独的 LoadBalancer。」</p>
 </blockquote>
 <hr>
-<h3 id="Q33：什么是-Feign？它和-RestTemplate-有什么区别？"><a href="#Q33：什么是-Feign？它和-RestTemplate-有什么区别？" class="headerlink" title="Q33：什么是 Feign？它和 RestTemplate 有什么区别？"></a>Q33：什么是 Feign？它和 RestTemplate 有什么区别？</h3><h4 id="一句话结论-32"><a href="#一句话结论-32" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：Spring Cloud 中的负载均衡原理是什么？</summary>
+
+<p><strong>一句话总结</strong>：负载均衡通过<strong>负载均衡算法</strong>从服务实例列表中选择一个实例，常见的有轮询、随机、加权轮询等。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>负载均衡类型</strong>：</p>
+<ol>
+<li><p><strong>服务端负载均衡</strong>（Nginx、F5）</p>
+<ul>
+<li>客户端不知道有多个服务实例</li>
+<li>负载均衡由<strong>反向代理服务器</strong>完成</li>
+</ul>
+</li>
+<li><p><strong>客户端负载均衡</strong>（Ribbon、LoadBalancer）</p>
+<ul>
+<li>客户端从注册中心获取服务实例列表</li>
+<li>负载均衡由<strong>客户端</strong>完成</li>
+</ul>
+</li>
+</ol>
+<p><strong>Ribbon 负载均衡算法</strong>：</p>
+<ul>
+<li>轮询（RoundRobin）</li>
+<li>随机（Random）</li>
+<li>重试（Retry）</li>
+<li>加权响应时间（WeightedResponseTime）</li>
+</ul>
+<p><strong>Spring Cloud LoadBalancer</strong>（推荐）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> ReactorLoadBalancer&lt;ServiceInstance&gt; <span class="hljs-title function_">reactorServiceInstanceLoadBalancer</span><span class="hljs-params">(</span><br><span class="hljs-params">        Environment environment, LoadBalancerClientFactory factory)</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> environment.getProperty(LoadBalancerClientFactory.PROPERTY_NAME);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RoundRobinLoadBalancer</span>(<br>        factory.getLazyProvider(name, ServiceInstanceListSupplier.class), name);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 Ribbon 和 LoadBalancer 的区别（Ribbon 已进入维护模式，推荐使用 LoadBalancer）</li>
+<li>可以讲讲如何自定义负载均衡算法（比如根据机房就近选择）</li>
+<li>可以讲讲实际应用场景（比如灰度发布，根据版本号路由）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q33：什么是-Feign？它和-RestTemplate-有什么区别？"></a><br><a id="qb-32"></a></p>
+<h3 id="Q32：什么是-Feign？它和-RestTemplate-有什么区别？"><a href="#Q32：什么是-Feign？它和-RestTemplate-有什么区别？" class="headerlink" title="Q32：什么是 Feign？它和 RestTemplate 有什么区别？"></a>Q32：什么是 Feign？它和 RestTemplate 有什么区别？</h3><h4 id="一句话结论-32"><a href="#一句话结论-32" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Feign 是声明式 HTTP 客户端（接口 + 注解），RestTemplate 是指令式 HTTP 客户端（手动调用）。</strong></p>
 </blockquote>
 <hr>
@@ -1952,7 +2291,8 @@
 <p>「Feign 是声明式 HTTP 客户端，通过接口 + 注解定义 HTTP 请求，使用起来像调用本地方法。RestTemplate 是指令式 HTTP 客户端，需要手动拼接 URL。实际项目中，推荐用 Feign（或 OpenFeign），因为代码更简洁。另外，Feign 集成了 Ribbon（负载均衡）和 Hystrix（熔断），是一站式解决方案。」</p>
 </blockquote>
 <hr>
-<h3 id="Q34：什么是-Hystrix？它和-Sentinel-有什么区别？"><a href="#Q34：什么是-Hystrix？它和-Sentinel-有什么区别？" class="headerlink" title="Q34：什么是 Hystrix？它和 Sentinel 有什么区别？"></a>Q34：什么是 Hystrix？它和 Sentinel 有什么区别？</h3><h4 id="一句话结论-33"><a href="#一句话结论-33" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q34：什么是-Hystrix？它和-Sentinel-有什么区别？"></a><br><a id="Q49：Spring-Cloud-中的熔断原理是什么？"></a><br><a id="qb-33"></a></p>
+<h3 id="Q33：什么是-Hystrix？它和-Sentinel-有什么区别？"><a href="#Q33：什么是-Hystrix？它和-Sentinel-有什么区别？" class="headerlink" title="Q33：什么是 Hystrix？它和 Sentinel 有什么区别？"></a>Q33：什么是 Hystrix？它和 Sentinel 有什么区别？</h3><h4 id="一句话结论-33"><a href="#一句话结论-33" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Hystrix 是熔断器组件（已停更），Sentinel 是 Alibaba 的流量防卫兵（活跃维护，功能更强）。</strong></p>
 </blockquote>
 <hr>
@@ -1999,7 +2339,34 @@
 <p>「Hystrix 是熔断器组件（已停更），Sentinel 是 Alibaba 的流量防卫兵（活跃维护）。Sentinel 比 Hystrix 功能更强：1) 支持限流（QPS 限流、线程数限流）；2) 支持热点参数限流（比如某个参数值访问量太高，单独限流）；3) 有控制台（可以动态配置规则）。实际项目中，推荐用 Sentinel（Spring Cloud Alibaba）。」</p>
 </blockquote>
 <hr>
-<h3 id="Q35：什么是-Spring-Cloud-Gateway？它和-Zuul-有什么区别？"><a href="#Q35：什么是-Spring-Cloud-Gateway？它和-Zuul-有什么区别？" class="headerlink" title="Q35：什么是 Spring Cloud Gateway？它和 Zuul 有什么区别？"></a>Q35：什么是 Spring Cloud Gateway？它和 Zuul 有什么区别？</h3><h4 id="一句话结论-34"><a href="#一句话结论-34" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：Spring Cloud 中的熔断原理是什么？</summary>
+
+<p><strong>一句话总结</strong>：熔断通过<strong>监控服务调用失败率</strong>，当失败率达到阈值时<strong>自动切断调用</strong>，避免雪崩效应。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>熔断器状态</strong>：</p>
+<ol>
+<li><strong>Closed（关闭）</strong>：正常状态，请求可以访问服务</li>
+<li><strong>Open（打开）</strong>：失败率达到阈值，请求直接失败（不走网络）</li>
+<li><strong>Half-Open（半开）</strong>：经过一段时间，放行部分请求，如果成功则关闭熔断器</li>
+</ol>
+<p><strong>Hystrix 示例</strong>（已进入维护模式）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-meta">@HystrixCommand(fallbackMethod = &quot;getDefaultUser&quot;)</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getUser</span><span class="hljs-params">(Long id)</span> &#123;<br>        <span class="hljs-keyword">return</span> restTemplate.getForObject(<span class="hljs-string">&quot;http://user-service/user/&quot;</span> + id, User.class);<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getDefaultUser</span><span class="hljs-params">(Long id)</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>(id, <span class="hljs-string">&quot;默认用户&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Resilience4j 示例</strong>（推荐）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-meta">@CircuitBreaker(name = &quot;userService&quot;, fallbackMethod = &quot;getDefaultUser&quot;)</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getUser</span><span class="hljs-params">(Long id)</span> &#123;<br>        <span class="hljs-keyword">return</span> restTemplate.getForObject(<span class="hljs-string">&quot;http://user-service/user/&quot;</span> + id, User.class);<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getDefaultUser</span><span class="hljs-params">(Long id, Exception ex)</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>(id, <span class="hljs-string">&quot;默认用户&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 Hystrix 和 Resilience4j 的区别（Hystrix 已进入维护模式，推荐使用 Resilience4j）</li>
+<li>可以讲讲熔断和降级的区别（熔断是<strong>自动切断调用</strong>，降级是<strong>返回兜底结果</strong>）</li>
+<li>可以讲讲实际应用场景（比如调用第三方接口时，一定要加熔断）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q35：什么是-Spring-Cloud-Gateway？它和-Zuul-有什么区别？"></a><br><a id="Q46：Spring-Cloud-Gateway-的过滤器有哪些类型？"></a><br><a id="qb-34"></a></p>
+<h3 id="Q34：什么是-Spring-Cloud-Gateway？它和-Zuul-有什么区别？"><a href="#Q34：什么是-Spring-Cloud-Gateway？它和-Zuul-有什么区别？" class="headerlink" title="Q34：什么是 Spring Cloud Gateway？它和 Zuul 有什么区别？"></a>Q34：什么是 Spring Cloud Gateway？它和 Zuul 有什么区别？</h3><h4 id="一句话结论-34"><a href="#一句话结论-34" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Cloud Gateway 是 API 网关（基于 WebFlux，非阻塞），Zuul 是 Netflix 的 API 网关（Zuul 1 是阻塞的，Zuul 2 是非阻塞但已停更）。</strong></p>
 </blockquote>
 <hr>
@@ -2052,7 +2419,38 @@
 </blockquote>
 <hr>
 <h2 id="六、高频面试题补充（36-50）"><a href="#六、高频面试题补充（36-50）" class="headerlink" title="六、高频面试题补充（36-50）"></a>六、高频面试题补充（36-50）</h2><hr>
-<h3 id="Q36：Spring-中常见的设计模式有哪些？"><a href="#Q36：Spring-中常见的设计模式有哪些？" class="headerlink" title="Q36：Spring 中常见的设计模式有哪些？"></a>Q36：Spring 中常见的设计模式有哪些？</h3><h4 id="一句话结论-35"><a href="#一句话结论-35" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：Spring Cloud Gateway 的过滤器有哪些类型？</summary>
+
+<p><strong>一句话总结</strong>：Spring Cloud Gateway 提供了<strong>全局过滤器</strong>和<strong>路由过滤器</strong>，可以在请求转发前后执行逻辑（比如鉴权、限流、日志）。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>过滤器类型</strong>：</p>
+<ol>
+<li><p><strong>全局过滤器（GlobalFilter）</strong>：作用于<strong>所有路由</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AuthFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">GlobalFilter</span>, Ordered &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Mono&lt;Void&gt; <span class="hljs-title function_">filter</span><span class="hljs-params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;<br>        <span class="hljs-comment">// 鉴权逻辑</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">token</span> <span class="hljs-operator">=</span> exchange.getRequest().getHeaders().getFirst(<span class="hljs-string">&quot;Authorization&quot;</span>);<br>        <span class="hljs-keyword">if</span> (token == <span class="hljs-literal">null</span> || !isValid(token)) &#123;<br>            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);<br>            <span class="hljs-keyword">return</span> exchange.getResponse().setComplete();<br>        &#125;<br>        <span class="hljs-keyword">return</span> chain.filter(exchange);  <span class="hljs-comment">// 放行</span><br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getOrder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> -<span class="hljs-number">100</span>;  <span class="hljs-comment">// 优先级，数字越小优先级越高</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>路由过滤器（GatewayFilter）</strong>：作用于<strong>指定路由</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">gateway:</span><br>      <span class="hljs-attr">routes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">user-service</span><br>          <span class="hljs-attr">uri:</span> <span class="hljs-string">http://localhost:8080</span><br>          <span class="hljs-attr">predicates:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/user/**</span><br>          <span class="hljs-attr">filters:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">AddRequestHeader=X-Request-Id,</span> <span class="hljs-number">12345</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">AddResponseHeader=X-Response-Time,</span> <span class="hljs-string">100ms</span><br></code></pre></td></tr></table></figure></li>
+</ol>
+<p><strong>内置过滤器</strong>：</p>
+<ul>
+<li><code>AddRequestHeader</code>：添加请求头</li>
+<li><code>AddResponseHeader</code>：添加响应头</li>
+<li><code>RewritePath</code>：重写路径</li>
+<li><code>RequestRateLimiter</code>：限流</li>
+<li><code>CircuitBreaker</code>：熔断</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲如何自定义全局过滤器（鉴权、日志、限流）</li>
+<li>可以讲讲过滤器的执行顺序（<code>Ordered</code> 接口或 <code>@Order</code> 注解）</li>
+<li>可以讲讲实际应用场景（比如统一鉴权、统一日志记录、灰度发布）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q36：Spring-中常见的设计模式有哪些？"></a><br><a id="qb-35"></a></p>
+<h3 id="Q35：Spring-中常见的设计模式有哪些？"><a href="#Q35：Spring-中常见的设计模式有哪些？" class="headerlink" title="Q35：Spring 中常见的设计模式有哪些？"></a>Q35：Spring 中常见的设计模式有哪些？</h3><h4 id="一句话结论-35"><a href="#一句话结论-35" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring 中常见的设计模式：工厂模式、单例模式、代理模式、模板方法模式、观察者模式、适配器模式。</strong></p>
 </blockquote>
 <hr>
@@ -2076,7 +2474,8 @@
 <p>「Spring 中常见的设计模式：1) 工厂模式（BeanFactory）；2) 单例模式（Spring Bean 默认是单例）；3) 代理模式（AOP 动态代理）；4) 模板方法模式（JdbcTemplate、RestTemplate）；5) 观察者模式（Spring 事件机制）；6) 适配器模式（HandlerAdapter）。面试中经常问：’Spring 用到了哪些设计模式？’ 回答要具体（比如 AOP 用代理模式，事件机制用观察者模式）。」</p>
 </blockquote>
 <hr>
-<h3 id="Q37：Spring-中的事件机制（ApplicationEvent）是怎么用的？"><a href="#Q37：Spring-中的事件机制（ApplicationEvent）是怎么用的？" class="headerlink" title="Q37：Spring 中的事件机制（ApplicationEvent）是怎么用的？"></a>Q37：Spring 中的事件机制（ApplicationEvent）是怎么用的？</h3><h4 id="一句话结论-36"><a href="#一句话结论-36" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q37：Spring-中的事件机制（ApplicationEvent）是怎么用的？"></a><br><a id="qb-36"></a></p>
+<h3 id="Q36：Spring-中的事件机制（ApplicationEvent）是怎么用的？"><a href="#Q36：Spring-中的事件机制（ApplicationEvent）是怎么用的？" class="headerlink" title="Q36：Spring 中的事件机制（ApplicationEvent）是怎么用的？"></a>Q36：Spring 中的事件机制（ApplicationEvent）是怎么用的？</h3><h4 id="一句话结论-36"><a href="#一句话结论-36" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring 事件机制用观察者模式：发布事件（ApplicationEvent）+ 监听事件（@EventListener），实现解耦。</strong></p>
 </blockquote>
 <hr>
@@ -2096,7 +2495,8 @@
 <p>「Spring 事件机制用观察者模式，实现解耦。使用步骤：1) 定义事件（继承 ApplicationEvent）；2) 发布事件（ApplicationEventPublisher.publishEvent()）；3) 监听事件（@EventListener）。实际项目中，事件机制常用于：用户注册后发送邮件、订单创建后扣库存、支付成功后发通知等异步场景。另外，@EventListener 可以指定条件（@EventListener(condition &#x3D; “#event.amount &gt; 100”)）。」</p>
 </blockquote>
 <hr>
-<h3 id="Q38：Spring-Boot-中如何实现异步调用（-Async）？"><a href="#Q38：Spring-Boot-中如何实现异步调用（-Async）？" class="headerlink" title="Q38：Spring Boot 中如何实现异步调用（@Async）？"></a>Q38：Spring Boot 中如何实现异步调用（@Async）？</h3><h4 id="一句话结论-37"><a href="#一句话结论-37" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q38：Spring-Boot-中如何实现异步调用（-Async）？"></a><br><a id="qb-37"></a></p>
+<h3 id="Q37：Spring-Boot-中如何实现异步调用（-Async）？"><a href="#Q37：Spring-Boot-中如何实现异步调用（-Async）？" class="headerlink" title="Q37：Spring Boot 中如何实现异步调用（@Async）？"></a>Q37：Spring Boot 中如何实现异步调用（@Async）？</h3><h4 id="一句话结论-37"><a href="#一句话结论-37" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>用 @EnableAsync 开启异步，用 @Async 标注要异步执行的方法，底层是线程池。</strong></p>
 </blockquote>
 <hr>
@@ -2116,7 +2516,8 @@
 <p>「@Async 底层是线程池，默认用 SimpleAsyncTaskExecutor（每次都新建线程，性能差）。实际项目中，一定要自定义线程池（配置核心线程数、最大线程数、队列容量）。另外，@Async 的方法必须是 public，且不能通过自调用（因为底层是 AOP 代理）。如果异步方法返回值是 Future 或 CompletableFuture，可以获取执行结果。」</p>
 </blockquote>
 <hr>
-<h3 id="Q39：Spring-Boot-中如何实现定时任务（-Scheduled）？"><a href="#Q39：Spring-Boot-中如何实现定时任务（-Scheduled）？" class="headerlink" title="Q39：Spring Boot 中如何实现定时任务（@Scheduled）？"></a>Q39：Spring Boot 中如何实现定时任务（@Scheduled）？</h3><h4 id="一句话结论-38"><a href="#一句话结论-38" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q39：Spring-Boot-中如何实现定时任务（-Scheduled）？"></a><br><a id="qb-38"></a></p>
+<h3 id="Q38：Spring-Boot-中如何实现定时任务（-Scheduled）？"><a href="#Q38：Spring-Boot-中如何实现定时任务（-Scheduled）？" class="headerlink" title="Q38：Spring Boot 中如何实现定时任务（@Scheduled）？"></a>Q38：Spring Boot 中如何实现定时任务（@Scheduled）？</h3><h4 id="一句话结论-38"><a href="#一句话结论-38" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>用 @EnableScheduling 开启定时任务，用 @Scheduled 标注要定时执行的方法。</strong></p>
 </blockquote>
 <hr>
@@ -2179,7 +2580,8 @@
 <p>「@Scheduled 支持 cron 表达式、fixedRate、fixedDelay。cron 表达式功能最强大（可以指定某月某日某时某分某秒）。实际项目中，定时任务一定要配置线程池（默认是单线程，多个任务会互相阻塞）。另外，分布式环境中，定时任务要用分布式调度框架（比如 XXL-Job、Elastic-Job），避免多个实例重复执行。」</p>
 </blockquote>
 <hr>
-<h3 id="Q40：Spring-Boot-中如何实现多数据源？"><a href="#Q40：Spring-Boot-中如何实现多数据源？" class="headerlink" title="Q40：Spring Boot 中如何实现多数据源？"></a>Q40：Spring Boot 中如何实现多数据源？</h3><h4 id="一句话结论-39"><a href="#一句话结论-39" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q40：Spring-Boot-中如何实现多数据源？"></a><br><a id="qb-39"></a></p>
+<h3 id="Q39：Spring-Boot-中如何实现多数据源？"><a href="#Q39：Spring-Boot-中如何实现多数据源？" class="headerlink" title="Q39：Spring Boot 中如何实现多数据源？"></a>Q39：Spring Boot 中如何实现多数据源？</h3><h4 id="一句话结论-39"><a href="#一句话结论-39" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>多数据源需要配置多个 DataSource、SqlSessionFactory、TransactionManager，并用 @MapperScan 指定不同数据源扫描哪些 Mapper。</strong></p>
 </blockquote>
 <hr>
@@ -2295,7 +2697,8 @@
 <td>@EnableScheduling + @Scheduled</td>
 </tr>
 </tbody></table>
-<h3 id="Q41：Spring-中的-Lazy-是做什么的？有什么用？"><a href="#Q41：Spring-中的-Lazy-是做什么的？有什么用？" class="headerlink" title="Q41：Spring 中的 @Lazy 是做什么的？有什么用？"></a>Q41：Spring 中的 @Lazy 是做什么的？有什么用？</h3><h4 id="一句话结论-40"><a href="#一句话结论-40" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q41：Spring-中的-Lazy-是做什么的？有什么用？"></a><br><a id="Q36：Spring-中的-Lazy-注解有什么作用？"></a><br><a id="qb-40"></a></p>
+<h3 id="Q40：Spring-中的-Lazy-是做什么的？有什么用？"><a href="#Q40：Spring-中的-Lazy-是做什么的？有什么用？" class="headerlink" title="Q40：Spring 中的 @Lazy 是做什么的？有什么用？"></a>Q40：Spring 中的 @Lazy 是做什么的？有什么用？</h3><h4 id="一句话结论-40"><a href="#一句话结论-40" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>@Lazy 让 Bean 延迟初始化（第一次注入时才创建），可以解决循环依赖、加快启动速度。</strong></p>
 </blockquote>
 <hr>
@@ -2315,7 +2718,37 @@
 <p>「@Lazy 让 Bean 延迟初始化，有两个常用场景：1) 解决循环依赖（构造函数注入时）；2) 加快启动速度（耗时 Bean 延迟创建）。另外，@Lazy 可以用在 @Bean 方法上，也可以用在 @Autowired 字段上。」</p>
 </blockquote>
 <hr>
-<h3 id="Q42：Spring-Boot-中的-Conditional-是做什么的？"><a href="#Q42：Spring-Boot-中的-Conditional-是做什么的？" class="headerlink" title="Q42：Spring Boot 中的 @Conditional 是做什么的？"></a>Q42：Spring Boot 中的 @Conditional 是做什么的？</h3><h4 id="一句话结论-41"><a href="#一句话结论-41" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：Spring 中的 @Lazy 注解有什么作用？</summary>
+
+<p><strong>一句话总结</strong>：<code>@Lazy</code> 用于延迟初始化 Bean，只有在第一次被使用时才会创建 Bean 实例，解决循环依赖和启动速度问题。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Spring 容器启动时，默认会<strong>立即初始化所有单例 Bean</strong>。但有时我们希望：</p>
+<ul>
+<li>Bean 的创建成本很高（比如需要加载大文件、建立网络连接）</li>
+<li>Bean 可能永远不会被使用（比如某些条件化的 Bean）</li>
+<li>存在循环依赖问题</li>
+</ul>
+<p><code>@Lazy</code> 可以标注在：</p>
+<ul>
+<li><strong>@Component 类上</strong>：延迟初始化这个类</li>
+<li><strong>@Bean 方法上</strong>：延迟初始化这个 Bean</li>
+<li><strong>@Autowired 字段&#x2F;方法上</strong>：延迟注入这个依赖</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Lazy</span><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ExpensiveBean</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ExpensiveBean</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;ExpensiveBean 被创建了！&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@SpringBootTest</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">LazyTest</span> &#123;<br>    <span class="hljs-meta">@Lazy</span>  <span class="hljs-comment">// 这里也加 @Lazy，表示延迟注入</span><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> ExpensiveBean expensiveBean;<br>    <br>    <span class="hljs-meta">@Test</span><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testLazy</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 到这里才会创建 ExpensiveBean</span><br>        expensiveBean.doSomething();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <code>@Lazy</code> 的实现原理（Spring 会创建一个<strong>代理对象</strong>替代真实的 Bean，第一次调用时才真正创建）</li>
+<li>可以对比 <code>@Lazy</code> 和 <code>@DependsOn</code>（@DependsOn 是指定依赖顺序，@Lazy 是延迟初始化）</li>
+<li>可以讲讲实际应用场景（比如 Spring Boot 的自动配置类很多都用了 <code>@Lazy</code>）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q42：Spring-Boot-中的-Conditional-是做什么的？"></a><br><a id="Q39：Spring-Boot-中的-Conditional-条件注解有哪些？"></a><br><a id="qb-41"></a></p>
+<h3 id="Q41：Spring-Boot-中的-Conditional-是做什么的？"><a href="#Q41：Spring-Boot-中的-Conditional-是做什么的？" class="headerlink" title="Q41：Spring Boot 中的 @Conditional 是做什么的？"></a>Q41：Spring Boot 中的 @Conditional 是做什么的？</h3><h4 id="一句话结论-41"><a href="#一句话结论-41" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>@Conditional 根据条件决定是否创建 Bean，是 Spring Boot 自动配置的灵魂。</strong></p>
 </blockquote>
 <hr>
@@ -2361,7 +2794,70 @@
 <p>「@Conditional 是 Spring Boot 自动配置的灵魂。自动配置类（XxxAutoConfiguration）大量使用 @ConditionalOnClass、@ConditionalOnMissingBean 等条件注解，根据类路径、Bean 是否存在、配置属性等条件决定是否生效。如果你想自定义配置，只需要自己定义一个 Bean，因为 @ConditionalOnMissingBean 会让你定义的 Bean 优先。」</p>
 </blockquote>
 <hr>
-<h3 id="Q43：Spring-中的-Scope-有哪些值？singleton-和-prototype-有什么区别？"><a href="#Q43：Spring-中的-Scope-有哪些值？singleton-和-prototype-有什么区别？" class="headerlink" title="Q43：Spring 中的 @Scope 有哪些值？singleton 和 prototype 有什么区别？"></a>Q43：Spring 中的 @Scope 有哪些值？singleton 和 prototype 有什么区别？</h3><h4 id="一句话结论-42"><a href="#一句话结论-42" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：Spring Boot 中的 @Conditional 条件注解有哪些？</summary>
+
+<p><strong>一句话总结</strong>：<code>@Conditional</code> 系列注解用于<strong>根据条件决定是否创建 Bean</strong>，是 Spring Boot 自动配置的核心。</p>
+<p><strong>深度解析</strong>：</p>
+<p>Spring Boot 提供了很多 <code>@Conditional</code> 派生注解：</p>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@ConditionalOnClass</code></td>
+<td>类路径下有指定类时生效</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnMissingClass</code></td>
+<td>类路径下没有指定类时生效</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnBean</code></td>
+<td>容器中有指定 Bean 时生效</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnMissingBean</code></td>
+<td>容器中没有指定 Bean 时生效</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnProperty</code></td>
+<td>配置文件中指定属性有指定值时生效</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnExpression</code></td>
+<td>SpEL 表达式为 true 时生效</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnJava</code></td>
+<td>指定 Java 版本时生效</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnWebApplication</code></td>
+<td>是 Web 应用时生效</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnNotWebApplication</code></td>
+<td>不是 Web 应用时生效</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@ConditionalOnClass(name = &quot;com.mysql.cj.jdbc.Driver&quot;)</span>  <span class="hljs-comment">// MySQL 驱动存在时</span><br><span class="hljs-meta">@ConditionalOnProperty(prefix = &quot;spring.datasource&quot;, name = &quot;url&quot;)</span>  <span class="hljs-comment">// 配置了 url</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DataSourceAutoConfiguration</span> &#123;<br>    <br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-meta">@ConditionalOnMissingBean</span>  <span class="hljs-comment">// 容器中还没有 DataSource 时</span><br>    <span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">dataSource</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HikariDataSource</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲如何自定义 <code>@Conditional</code> 注解（实现 <code>Condition</code> 接口）</li>
+<li>可以讲讲 Spring Boot 自动配置的加载原理（<code>META-INF/spring.factories</code> 或 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code>）</li>
+<li>可以讲讲实际应用场景（比如根据配置文件切换不同的实现类）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q43：Spring-中的-Scope-有哪些值？singleton-和-prototype-有什么区别？"></a><br><a id="qb-42"></a></p>
+<h3 id="Q42：Spring-中的-Scope-有哪些值？singleton-和-prototype-有什么区别？"><a href="#Q42：Spring-中的-Scope-有哪些值？singleton-和-prototype-有什么区别？" class="headerlink" title="Q42：Spring 中的 @Scope 有哪些值？singleton 和 prototype 有什么区别？"></a>Q42：Spring 中的 @Scope 有哪些值？singleton 和 prototype 有什么区别？</h3><h4 id="一句话结论-42"><a href="#一句话结论-42" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>singleton（默认）整个容器只有一个实例；prototype 每次注入都创建新实例。</strong></p>
 </blockquote>
 <hr>
@@ -2422,7 +2918,8 @@
 <p>「Spring Bean 默认是单例（singleton），还有 prototype、request、session 等作用域。单例 Bean 不是线程安全的，如果有成员变量会有并发问题。实际项目中，Service 和 Dao 一般都是无状态的（没有成员变量），所以是线程安全的。如果有状态需求，可以用 prototype 作用域。」</p>
 </blockquote>
 <hr>
-<h3 id="Q44：Spring-中的-BeanFactory-和-ApplicationContext-有什么区别？"><a href="#Q44：Spring-中的-BeanFactory-和-ApplicationContext-有什么区别？" class="headerlink" title="Q44：Spring 中的 BeanFactory 和 ApplicationContext 有什么区别？"></a>Q44：Spring 中的 BeanFactory 和 ApplicationContext 有什么区别？</h3><h4 id="一句话结论-43"><a href="#一句话结论-43" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q44：Spring-中的-BeanFactory-和-ApplicationContext-有什么区别？"></a><br><a id="qb-43"></a></p>
+<h3 id="Q43：Spring-中的-BeanFactory-和-ApplicationContext-有什么区别？"><a href="#Q43：Spring-中的-BeanFactory-和-ApplicationContext-有什么区别？" class="headerlink" title="Q43：Spring 中的 BeanFactory 和 ApplicationContext 有什么区别？"></a>Q43：Spring 中的 BeanFactory 和 ApplicationContext 有什么区别？</h3><h4 id="一句话结论-43"><a href="#一句话结论-43" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>BeanFactory 是 Spring 的基础设施（延迟加载），ApplicationContext 是 BeanFactory 的超集（启动时加载所有 Bean）。</strong></p>
 </blockquote>
 <hr>
@@ -2465,7 +2962,8 @@
 <p>「BeanFactory 是 Spring 的基础设施，只提供 Bean 管理功能，且是延迟加载（用的时候才创建 Bean）。ApplicationContext 是 BeanFactory 的超集，提供更多企业级功能（事件发布、国际化、资源加载），且启动时加载所有 Bean（方便提前发现错误）。实际项目中，推荐用 ApplicationContext。」</p>
 </blockquote>
 <hr>
-<h3 id="Q45：Spring-Boot-中的日志框架是怎么配置的？"><a href="#Q45：Spring-Boot-中的日志框架是怎么配置的？" class="headerlink" title="Q45：Spring Boot 中的日志框架是怎么配置的？"></a>Q45：Spring Boot 中的日志框架是怎么配置的？</h3><h4 id="一句话结论-44"><a href="#一句话结论-44" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q45：Spring-Boot-中的日志框架是怎么配置的？"></a><br><a id="qb-44"></a></p>
+<h3 id="Q44：Spring-Boot-中的日志框架是怎么配置的？"><a href="#Q44：Spring-Boot-中的日志框架是怎么配置的？" class="headerlink" title="Q44：Spring Boot 中的日志框架是怎么配置的？"></a>Q44：Spring Boot 中的日志框架是怎么配置的？</h3><h4 id="一句话结论-44"><a href="#一句话结论-44" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring Boot 默认用 SLF4J + Logback，配置文件是 application.yml 或 logback-spring.xml。</strong></p>
 </blockquote>
 <hr>
@@ -2484,7 +2982,8 @@
 <p>「Spring Boot 默认用 SLF4J + Logback。简单配置用 application.yml，高级配置用 logback-spring.xml（支持 Spring 占位符）。实际项目中，推荐用 logback-spring.xml，因为它支持日志分文件（比如按日期轮转）、异步日志（提升性能）。另外，Lombok 的 @Slf4j 注解可以自动生成 log 变量，不用手动写 <code>private static final Logger log = LoggerFactory.getLogger(Xxx.class)</code>。」</p>
 </blockquote>
 <hr>
-<h3 id="Q46：Spring-中的-PropertySource-是做什么的？"><a href="#Q46：Spring-中的-PropertySource-是做什么的？" class="headerlink" title="Q46：Spring 中的 @PropertySource 是做什么的？"></a>Q46：Spring 中的 @PropertySource 是做什么的？</h3><h4 id="一句话结论-45"><a href="#一句话结论-45" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q46：Spring-中的-PropertySource-是做什么的？"></a><br><a id="qb-45"></a></p>
+<h3 id="Q45：Spring-中的-PropertySource-是做什么的？"><a href="#Q45：Spring-中的-PropertySource-是做什么的？" class="headerlink" title="Q45：Spring 中的 @PropertySource 是做什么的？"></a>Q45：Spring 中的 @PropertySource 是做什么的？</h3><h4 id="一句话结论-45"><a href="#一句话结论-45" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>@PropertySource 加载指定的配置文件（.properties 或 .yml），配合 @Value 或 @ConfigurationProperties 使用。</strong></p>
 </blockquote>
 <hr>
@@ -2507,7 +3006,8 @@
 <p>「@PropertySource 加载指定的配置文件（.properties），配合 @Value 或 @ConfigurationProperties 使用。但是，@PropertySource 不支持 YAML 文件（只能加载 .properties）。如果要加载 YAML 文件，需要用 YamlPropertiesFactoryBean。另外，Spring Boot 的 @ConfigurationProperties 默认支持 YAML，不需要 @PropertySource。」</p>
 </blockquote>
 <hr>
-<h3 id="Q47：Spring-Boot-中的监控端点（Actuator）如何自定义？"><a href="#Q47：Spring-Boot-中的监控端点（Actuator）如何自定义？" class="headerlink" title="Q47：Spring Boot 中的监控端点（Actuator）如何自定义？"></a>Q47：Spring Boot 中的监控端点（Actuator）如何自定义？</h3><h4 id="一句话结论-46"><a href="#一句话结论-46" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q47：Spring-Boot-中的监控端点（Actuator）如何自定义？"></a><br><a id="qb-46"></a></p>
+<h3 id="Q46：Spring-Boot-中的监控端点（Actuator）如何自定义？"><a href="#Q46：Spring-Boot-中的监控端点（Actuator）如何自定义？" class="headerlink" title="Q46：Spring Boot 中的监控端点（Actuator）如何自定义？"></a>Q46：Spring Boot 中的监控端点（Actuator）如何自定义？</h3><h4 id="一句话结论-46"><a href="#一句话结论-46" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>自定义监控端点需要实现 HealthIndicator（健康检查）或 Endpoint（自定义端点）。</strong></p>
 </blockquote>
 <hr>
@@ -2522,7 +3022,8 @@
 <p>「自定义监控端点有两种方式：1) 实现 HealthIndicator（自定义健康检查）；2) 用 @Endpoint 注解（自定义端点）。另外，Actuator 可以和 Prometheus + Grafana 集成，实现可视化监控。生产环境中，一定要配置访问权限（不能让所有人都能访问 &#x2F;actuator&#x2F;heapdump）。」</p>
 </blockquote>
 <hr>
-<h3 id="Q48：Spring-中的-WebDataBinder-是做什么的？"><a href="#Q48：Spring-中的-WebDataBinder-是做什么的？" class="headerlink" title="Q48：Spring 中的 WebDataBinder 是做什么的？"></a>Q48：Spring 中的 WebDataBinder 是做什么的？</h3><h4 id="一句话结论-47"><a href="#一句话结论-47" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q48：Spring-中的-WebDataBinder-是做什么的？"></a><br><a id="qb-47"></a></p>
+<h3 id="Q47：Spring-中的-WebDataBinder-是做什么的？"><a href="#Q47：Spring-中的-WebDataBinder-是做什么的？" class="headerlink" title="Q47：Spring 中的 WebDataBinder 是做什么的？"></a>Q47：Spring 中的 WebDataBinder 是做什么的？</h3><h4 id="一句话结论-47"><a href="#一句话结论-47" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>WebDataBinder 是 Spring MVC 的数据绑定器，负责把 HTTP 请求参数绑定到 Java 对象上。</strong></p>
 </blockquote>
 <hr>
@@ -2539,7 +3040,8 @@
 <p>「WebDataBinder 是 Spring MVC 的数据绑定器，负责把 HTTP 请求参数绑定到 Java 对象上。实际项目中，@InitBinder 常用于：1) 注册自定义编辑器（比如字符串 → 日期）；2) 设置允许&#x2F;不允许绑定的字段（防止恶意绑定，比如用户恶意绑定 <code>id</code> 字段）。另外，Spring 的 @Valid 注解就是配合 WebDataBinder 实现参数校验的。」</p>
 </blockquote>
 <hr>
-<h3 id="Q49：Spring-Boot-如何自定义-Banner？"><a href="#Q49：Spring-Boot-如何自定义-Banner？" class="headerlink" title="Q49：Spring Boot 如何自定义 Banner？"></a>Q49：Spring Boot 如何自定义 Banner？</h3><h4 id="一句话结论-48"><a href="#一句话结论-48" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q49：Spring-Boot-如何自定义-Banner？"></a><br><a id="qb-48"></a></p>
+<h3 id="Q48：Spring-Boot-如何自定义-Banner？"><a href="#Q48：Spring-Boot-如何自定义-Banner？" class="headerlink" title="Q48：Spring Boot 如何自定义 Banner？"></a>Q48：Spring Boot 如何自定义 Banner？</h3><h4 id="一句话结论-48"><a href="#一句话结论-48" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>自定义 Banner 只需要把 banner.txt 放到 classpath 根目录，或者用 online Banner 生成器生成艺术字。</strong></p>
 </blockquote>
 <hr>
@@ -2559,7 +3061,8 @@
 <p>「自定义 Banner 只需要把 banner.txt 放到 classpath 根目录。Banner 中可以用的变量：${spring-boot.version}（Spring Boot 版本）、${application.title}（应用名称）。另外，也可以关闭 Banner（spring.main.banner-mode&#x3D;off）。虽然这是个小功能，但面试中经常用来判断候选人是否真的用过 Spring Boot。」</p>
 </blockquote>
 <hr>
-<h3 id="Q50：Spring-面试中最常见的坑有哪些？"><a href="#Q50：Spring-面试中最常见的坑有哪些？" class="headerlink" title="Q50：Spring 面试中最常见的坑有哪些？"></a>Q50：Spring 面试中最常见的坑有哪些？</h3><h4 id="一句话结论-49"><a href="#一句话结论-49" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="Q50：Spring-面试中最常见的坑有哪些？"></a><br><a id="qb-49"></a></p>
+<h3 id="Q49：Spring-面试中最常见的坑有哪些？"><a href="#Q49：Spring-面试中最常见的坑有哪些？" class="headerlink" title="Q49：Spring 面试中最常见的坑有哪些？"></a>Q49：Spring 面试中最常见的坑有哪些？</h3><h4 id="一句话结论-49"><a href="#一句话结论-49" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Spring 面试中最常见的坑：自调用导致 AOP 失效、@Transactional 失效、Bean 不是线程安全的、循环依赖。</strong></p>
 </blockquote>
 <hr>
@@ -2599,31 +3102,8 @@
 </ol>
 <p>祝你面试顺利！🚀</p>
 </blockquote>
-<h3 id="Q36：Spring-中的-Lazy-注解有什么作用？"><a href="#Q36：Spring-中的-Lazy-注解有什么作用？" class="headerlink" title="Q36：Spring 中的 @Lazy 注解有什么作用？"></a>Q36：Spring 中的 @Lazy 注解有什么作用？</h3><p><strong>一句话总结</strong>：<code>@Lazy</code> 用于延迟初始化 Bean，只有在第一次被使用时才会创建 Bean 实例，解决循环依赖和启动速度问题。</p>
-<p><strong>深度解析</strong>：</p>
-<p>Spring 容器启动时，默认会<strong>立即初始化所有单例 Bean</strong>。但有时我们希望：</p>
-<ul>
-<li>Bean 的创建成本很高（比如需要加载大文件、建立网络连接）</li>
-<li>Bean 可能永远不会被使用（比如某些条件化的 Bean）</li>
-<li>存在循环依赖问题</li>
-</ul>
-<p><code>@Lazy</code> 可以标注在：</p>
-<ul>
-<li><strong>@Component 类上</strong>：延迟初始化这个类</li>
-<li><strong>@Bean 方法上</strong>：延迟初始化这个 Bean</li>
-<li><strong>@Autowired 字段&#x2F;方法上</strong>：延迟注入这个依赖</li>
-</ul>
-<p><strong>示例</strong>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Lazy</span><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ExpensiveBean</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ExpensiveBean</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;ExpensiveBean 被创建了！&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@SpringBootTest</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">LazyTest</span> &#123;<br>    <span class="hljs-meta">@Lazy</span>  <span class="hljs-comment">// 这里也加 @Lazy，表示延迟注入</span><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> ExpensiveBean expensiveBean;<br>    <br>    <span class="hljs-meta">@Test</span><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testLazy</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 到这里才会创建 ExpensiveBean</span><br>        expensiveBean.doSomething();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 <code>@Lazy</code> 的实现原理（Spring 会创建一个<strong>代理对象</strong>替代真实的 Bean，第一次调用时才真正创建）</li>
-<li>可以对比 <code>@Lazy</code> 和 <code>@DependsOn</code>（@DependsOn 是指定依赖顺序，@Lazy 是延迟初始化）</li>
-<li>可以讲讲实际应用场景（比如 Spring Boot 的自动配置类很多都用了 <code>@Lazy</code>）</li>
-</ul>
-<hr>
-<h3 id="Q37：Spring-中的-DependsOn-注解有什么作用？"><a href="#Q37：Spring-中的-DependsOn-注解有什么作用？" class="headerlink" title="Q37：Spring 中的 @DependsOn 注解有什么作用？"></a>Q37：Spring 中的 @DependsOn 注解有什么作用？</h3><p><strong>一句话总结</strong>：<code>@DependsOn</code> 用于指定 Bean 的初始化顺序，确保依赖的 Bean 先被初始化。</p>
+<p><a id="Q37：Spring-中的-DependsOn-注解有什么作用？"></a><br><a id="qb-50"></a></p>
+<h3 id="Q50：Spring-中的-DependsOn-注解有什么作用？"><a href="#Q50：Spring-中的-DependsOn-注解有什么作用？" class="headerlink" title="Q50：Spring 中的 @DependsOn 注解有什么作用？"></a>Q50：Spring 中的 @DependsOn 注解有什么作用？</h3><p><strong>一句话总结</strong>：<code>@DependsOn</code> 用于指定 Bean 的初始化顺序，确保依赖的 Bean 先被初始化。</p>
 <p><strong>深度解析</strong>：</p>
 <p>默认情况下，Spring 按照<strong>类路径扫描顺序</strong>或**@Bean 方法的声明顺序<strong>来初始化 Bean。但有时我们需要</strong>显式指定初始化顺序**。</p>
 <p><strong>使用场景</strong>：</p>
@@ -2640,7 +3120,8 @@
 <li>可以讲讲实际应用场景（比如数据库迁移脚本需要在 Service 之前执行）</li>
 </ul>
 <hr>
-<h3 id="Q38：Spring-中的-Primary-和-Qualifier-有什么区别？"><a href="#Q38：Spring-中的-Primary-和-Qualifier-有什么区别？" class="headerlink" title="Q38：Spring 中的 @Primary 和 @Qualifier 有什么区别？"></a>Q38：Spring 中的 @Primary 和 @Qualifier 有什么区别？</h3><p><strong>一句话总结</strong>：<code>@Primary</code> 用于指定<strong>首选 Bean</strong>，<code>@Qualifier</code> 用于<strong>精确指定</strong>要注入的 Bean。</p>
+<p><a id="Q38：Spring-中的-Primary-和-Qualifier-有什么区别？"></a><br><a id="qb-51"></a></p>
+<h3 id="Q51：Spring-中的-Primary-和-Qualifier-有什么区别？"><a href="#Q51：Spring-中的-Primary-和-Qualifier-有什么区别？" class="headerlink" title="Q51：Spring 中的 @Primary 和 @Qualifier 有什么区别？"></a>Q51：Spring 中的 @Primary 和 @Qualifier 有什么区别？</h3><p><strong>一句话总结</strong>：<code>@Primary</code> 用于指定<strong>首选 Bean</strong>，<code>@Qualifier</code> 用于<strong>精确指定</strong>要注入的 Bean。</p>
 <p><strong>深度解析</strong>：</p>
 <p>当容器中有<strong>多个同类型的 Bean</strong> 时，Spring 会抛出 <code>NoUniqueBeanDefinitionException</code>。解决方案有：</p>
 <ol>
@@ -2661,64 +3142,8 @@
 <li>可以讲讲实际应用场景（比如多数据源配置，主库用 <code>@Primary</code>，从库用 <code>@Qualifier</code>）</li>
 </ul>
 <hr>
-<h3 id="Q39：Spring-Boot-中的-Conditional-条件注解有哪些？"><a href="#Q39：Spring-Boot-中的-Conditional-条件注解有哪些？" class="headerlink" title="Q39：Spring Boot 中的 @Conditional 条件注解有哪些？"></a>Q39：Spring Boot 中的 @Conditional 条件注解有哪些？</h3><p><strong>一句话总结</strong>：<code>@Conditional</code> 系列注解用于<strong>根据条件决定是否创建 Bean</strong>，是 Spring Boot 自动配置的核心。</p>
-<p><strong>深度解析</strong>：</p>
-<p>Spring Boot 提供了很多 <code>@Conditional</code> 派生注解：</p>
-<table>
-<thead>
-<tr>
-<th>注解</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>@ConditionalOnClass</code></td>
-<td>类路径下有指定类时生效</td>
-</tr>
-<tr>
-<td><code>@ConditionalOnMissingClass</code></td>
-<td>类路径下没有指定类时生效</td>
-</tr>
-<tr>
-<td><code>@ConditionalOnBean</code></td>
-<td>容器中有指定 Bean 时生效</td>
-</tr>
-<tr>
-<td><code>@ConditionalOnMissingBean</code></td>
-<td>容器中没有指定 Bean 时生效</td>
-</tr>
-<tr>
-<td><code>@ConditionalOnProperty</code></td>
-<td>配置文件中指定属性有指定值时生效</td>
-</tr>
-<tr>
-<td><code>@ConditionalOnExpression</code></td>
-<td>SpEL 表达式为 true 时生效</td>
-</tr>
-<tr>
-<td><code>@ConditionalOnJava</code></td>
-<td>指定 Java 版本时生效</td>
-</tr>
-<tr>
-<td><code>@ConditionalOnWebApplication</code></td>
-<td>是 Web 应用时生效</td>
-</tr>
-<tr>
-<td><code>@ConditionalOnNotWebApplication</code></td>
-<td>不是 Web 应用时生效</td>
-</tr>
-</tbody></table>
-<p><strong>示例</strong>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@ConditionalOnClass(name = &quot;com.mysql.cj.jdbc.Driver&quot;)</span>  <span class="hljs-comment">// MySQL 驱动存在时</span><br><span class="hljs-meta">@ConditionalOnProperty(prefix = &quot;spring.datasource&quot;, name = &quot;url&quot;)</span>  <span class="hljs-comment">// 配置了 url</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DataSourceAutoConfiguration</span> &#123;<br>    <br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-meta">@ConditionalOnMissingBean</span>  <span class="hljs-comment">// 容器中还没有 DataSource 时</span><br>    <span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">dataSource</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HikariDataSource</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲如何自定义 <code>@Conditional</code> 注解（实现 <code>Condition</code> 接口）</li>
-<li>可以讲讲 Spring Boot 自动配置的加载原理（<code>META-INF/spring.factories</code> 或 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code>）</li>
-<li>可以讲讲实际应用场景（比如根据配置文件切换不同的实现类）</li>
-</ul>
-<hr>
-<h3 id="Q40：Spring-中的-BeanPostProcessor-和-BeanFactoryPostProcessor-有什么区别？"><a href="#Q40：Spring-中的-BeanPostProcessor-和-BeanFactoryPostProcessor-有什么区别？" class="headerlink" title="Q40：Spring 中的 BeanPostProcessor 和 BeanFactoryPostProcessor 有什么区别？"></a>Q40：Spring 中的 BeanPostProcessor 和 BeanFactoryPostProcessor 有什么区别？</h3><p><strong>一句话总结</strong>：<code>BeanPostProcessor</code> 在 <strong>Bean 初始化前后</strong>执行，<code>BeanFactoryPostProcessor</code> 在 <strong>Bean 定义加载完成后、Bean 实例化前</strong>执行。</p>
+<p><a id="Q40：Spring-中的-BeanPostProcessor-和-BeanFactoryPostProcessor-有什么区别？"></a><br><a id="qb-52"></a></p>
+<h3 id="Q52：Spring-中的-BeanPostProcessor-和-BeanFactoryPostProcessor-有什么区别？"><a href="#Q52：Spring-中的-BeanPostProcessor-和-BeanFactoryPostProcessor-有什么区别？" class="headerlink" title="Q52：Spring 中的 BeanPostProcessor 和 BeanFactoryPostProcessor 有什么区别？"></a>Q52：Spring 中的 BeanPostProcessor 和 BeanFactoryPostProcessor 有什么区别？</h3><p><strong>一句话总结</strong>：<code>BeanPostProcessor</code> 在 <strong>Bean 初始化前后</strong>执行，<code>BeanFactoryPostProcessor</code> 在 <strong>Bean 定义加载完成后、Bean 实例化前</strong>执行。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Spring 容器启动流程：</p>
 <ol>
@@ -2743,7 +3168,8 @@
 <li>可以画一下 Spring 容器启动流程图</li>
 </ul>
 <hr>
-<h3 id="Q41：Spring-AOP-中的通知（Advice）有哪些类型？"><a href="#Q41：Spring-AOP-中的通知（Advice）有哪些类型？" class="headerlink" title="Q41：Spring AOP 中的通知（Advice）有哪些类型？"></a>Q41：Spring AOP 中的通知（Advice）有哪些类型？</h3><p><strong>一句话总结</strong>：Spring AOP 支持 5 种通知类型：<code>@Before</code>、<code>@AfterReturning</code>、<code>@AfterThrowing</code>、<code>@After</code>、<code>@Around</code>。</p>
+<p><a id="Q41：Spring-AOP-中的通知（Advice）有哪些类型？"></a><br><a id="qb-53"></a></p>
+<h3 id="Q53：Spring-AOP-中的通知（Advice）有哪些类型？"><a href="#Q53：Spring-AOP-中的通知（Advice）有哪些类型？" class="headerlink" title="Q53：Spring AOP 中的通知（Advice）有哪些类型？"></a>Q53：Spring AOP 中的通知（Advice）有哪些类型？</h3><p><strong>一句话总结</strong>：Spring AOP 支持 5 种通知类型：<code>@Before</code>、<code>@AfterReturning</code>、<code>@AfterThrowing</code>、<code>@After</code>、<code>@Around</code>。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -2789,132 +3215,8 @@
 <li>可以讲讲实际应用场景（日志、事务、权限校验、接口耗时统计）</li>
 </ul>
 <hr>
-<h3 id="Q42：Spring-中的事务传播行为有哪些？"><a href="#Q42：Spring-中的事务传播行为有哪些？" class="headerlink" title="Q42：Spring 中的事务传播行为有哪些？"></a>Q42：Spring 中的事务传播行为有哪些？</h3><p><strong>一句话总结</strong>：Spring 定义了 7 种事务传播行为，决定了<strong>事务方法嵌套调用时</strong>事务如何传播。</p>
-<p><strong>深度解析</strong>：</p>
-<table>
-<thead>
-<tr>
-<th>传播行为</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>REQUIRED</code>（默认）</td>
-<td>有事务就加入，没有就新建</td>
-</tr>
-<tr>
-<td><code>REQUIRES_NEW</code></td>
-<td><strong>挂起当前事务</strong>，新建一个事务</td>
-</tr>
-<tr>
-<td><code>SUPPORTS</code></td>
-<td>有事务就加入，没有就以非事务方式执行</td>
-</tr>
-<tr>
-<td><code>NOT_SUPPORTED</code></td>
-<td>以非事务方式执行，<strong>挂起当前事务</strong></td>
-</tr>
-<tr>
-<td><code>MANDATORY</code></td>
-<td>必须有事务，否则抛异常</td>
-</tr>
-<tr>
-<td><code>NEVER</code></td>
-<td>必须没有事务，否则抛异常</td>
-</tr>
-<tr>
-<td><code>NESTED</code></td>
-<td>如果当前有事务，就在<strong>嵌套事务</strong>中执行</td>
-</tr>
-</tbody></table>
-<p><strong>示例</strong>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderService</span> &#123;<br>    <br>    <span class="hljs-meta">@Transactional(propagation = Propagation.REQUIRED)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createOrder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 加入当前事务（如果有），否则新建事务</span><br>        orderMapper.insert(order);<br>        paymentService.pay();  <span class="hljs-comment">// 调用另一个事务方法</span><br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PaymentService</span> &#123;<br>    <br>    <span class="hljs-meta">@Transactional(propagation = Propagation.REQUIRES_NEW)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">pay</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 挂起 OrderService 的事务，新建一个事务</span><br>        paymentMapper.insert(payment);<br>        <span class="hljs-comment">// 如果这里抛异常，只回滚 PaymentService，不影响 OrderService</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 <code>REQUIRES_NEW</code> 的实际应用场景（比如日志记录，无论主事务是否成功，日志都要记录）</li>
-<li>可以讲讲 <code>NESTED</code> 和 <code>REQUIRES_NEW</code> 的区别（<code>NESTED</code> 是嵌套事务，回滚到保存点；<code>REQUIRES_NEW</code> 是完全独立的事务）</li>
-<li>可以讲讲事务传播行为的实现原理（Spring 通过 <code>TransactionInterceptor</code> 拦截方法调用，根据传播行为决定是否创建新事务）</li>
-</ul>
-<hr>
-<h3 id="Q43：Spring-中的-Transactional-注解有哪些注意事项？"><a href="#Q43：Spring-中的-Transactional-注解有哪些注意事项？" class="headerlink" title="Q43：Spring 中的 @Transactional 注解有哪些注意事项？"></a>Q43：Spring 中的 @Transactional 注解有哪些注意事项？</h3><p><strong>一句话总结</strong>：<code>@Transactional</code> 注解有很多<strong>坑</strong>，比如<strong>非public方法不生效</strong>、<strong>自调用不生效</strong>、<strong>异常类型不对不回滚</strong>等。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>常见坑</strong>：</p>
-<ol>
-<li><p><strong>只有public方法才生效</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> &#123;  <span class="hljs-comment">// ❌ private 方法，事务不生效！</span><br>        userMapper.update(user);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-</li>
-<li><p><strong>自调用问题</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">this</span>.updateUserInternal();  <span class="hljs-comment">// ❌ 自调用，事务不生效！</span><br>    &#125;<br>    <br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUserInternal</span><span class="hljs-params">()</span> &#123;<br>        userMapper.update(user);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p><strong>原因</strong>：Spring AOP 是通过<strong>代理对象</strong>实现的，自调用绕过了代理对象。</p>
-</li>
-<li><p><strong>异常类型不对不回滚</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Transactional</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateUser</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        userMapper.update(user);<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        <span class="hljs-comment">// ❌ 默认只回滚 RuntimeException 和 Error</span><br>        <span class="hljs-comment">// 如果 catch 了异常，也不会回滚</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p><strong>解决</strong>：<code>@Transactional(rollbackFor = Exception.class)</code></p>
-</li>
-<li><p><strong>数据库引擎不支持事务</strong></p>
-<ul>
-<li>MySQL 的 MyISAM 引擎不支持事务，要用 InnoDB。</li>
-</ul>
-</li>
-</ol>
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲如何避免自调用问题（注入自己、使用 <code>AopContext.currentProxy()</code>）</li>
-<li>可以讲讲 <code>@Transactional</code> 的实现原理（Spring AOP + 事务管理器）</li>
-<li>可以讲讲实际遇到的坑（比如联调时发现事务没回滚，查了半天才发现是 catch 了异常）</li>
-</ul>
-<hr>
-<h3 id="Q44：Spring-Boot-中的-Actuator-端点有哪些？如何自定义？"><a href="#Q44：Spring-Boot-中的-Actuator-端点有哪些？如何自定义？" class="headerlink" title="Q44：Spring Boot 中的 Actuator 端点有哪些？如何自定义？"></a>Q44：Spring Boot 中的 Actuator 端点有哪些？如何自定义？</h3><p><strong>一句话总结</strong>：Actuator 提供了很多<strong>生产级监控端点</strong>（比如 <code>/health</code>、<code>/metrics</code>、<code>/env</code>），可以自定义端点来暴露业务指标。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>常用端点</strong>：</p>
-<table>
-<thead>
-<tr>
-<th>端点</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>/actuator/health</code></td>
-<td>应用健康状态</td>
-</tr>
-<tr>
-<td><code>/actuator/metrics</code></td>
-<td>应用指标（JVM、CPU、内存等）</td>
-</tr>
-<tr>
-<td><code>/actuator/env</code></td>
-<td>环境变量和配置属性</td>
-</tr>
-<tr>
-<td><code>/actuator/beans</code></td>
-<td>容器中所有 Bean</td>
-</tr>
-<tr>
-<td><code>/actuator/mappings</code></td>
-<td>所有 @RequestMapping 路径</td>
-</tr>
-<tr>
-<td><code>/actuator/threaddump</code></td>
-<td>线程快照</td>
-</tr>
-<tr>
-<td><code>/actuator/heapdump</code></td>
-<td>堆转储</td>
-</tr>
-</tbody></table>
-<p><strong>自定义端点</strong>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-meta">@Endpoint(id = &quot;custom&quot;)</span>  <span class="hljs-comment">// 端点路径：/actuator/custom</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomEndpoint</span> &#123;<br>    <br>    <span class="hljs-meta">@ReadOperation</span>  <span class="hljs-comment">// GET 请求</span><br>    <span class="hljs-keyword">public</span> Map&lt;String, Object&gt; <span class="hljs-title function_">read</span><span class="hljs-params">()</span> &#123;<br>        Map&lt;String, Object&gt; result = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        result.put(<span class="hljs-string">&quot;custom&quot;</span>, <span class="hljs-string">&quot;Hello Actuator!&quot;</span>);<br>        <span class="hljs-keyword">return</span> result;<br>    &#125;<br>    <br>    <span class="hljs-meta">@WriteOperation</span>  <span class="hljs-comment">// POST 请求</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">write</span><span class="hljs-params">(<span class="hljs-meta">@Selector</span> String name, String value)</span> &#123;<br>        <span class="hljs-comment">// 可以动态修改配置</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲如何自定义健康检查（实现 <code>HealthIndicator</code> 接口）</li>
-<li>可以讲讲如何自定义指标（使用 <code>MeterRegistry</code>）</li>
-<li>可以讲讲实际应用场景（比如监控业务指标：订单量、支付成功率等）</li>
-</ul>
-<hr>
-<h3 id="Q45：Spring-Security-中的-CSRF-防护原理是什么？"><a href="#Q45：Spring-Security-中的-CSRF-防护原理是什么？" class="headerlink" title="Q45：Spring Security 中的 CSRF 防护原理是什么？"></a>Q45：Spring Security 中的 CSRF 防护原理是什么？</h3><p><strong>一句话总结</strong>：CSRF（跨站请求伪造）防护通过在<strong>表单中嵌入随机 Token</strong> 来验证请求是否来自合法页面。</p>
+<p><a id="Q45：Spring-Security-中的-CSRF-防护原理是什么？"></a><br><a id="qb-54"></a></p>
+<h3 id="Q54：Spring-Security-中的-CSRF-防护原理是什么？"><a href="#Q54：Spring-Security-中的-CSRF-防护原理是什么？" class="headerlink" title="Q54：Spring Security 中的 CSRF 防护原理是什么？"></a>Q54：Spring Security 中的 CSRF 防护原理是什么？</h3><p><strong>一句话总结</strong>：CSRF（跨站请求伪造）防护通过在<strong>表单中嵌入随机 Token</strong> 来验证请求是否来自合法页面。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>CSRF 攻击流程</strong>：</p>
 <ol>
@@ -2940,141 +3242,8 @@
 <li>可以讲讲实际应用场景（比如银行系统、支付系统必须开启 CSRF 防护）</li>
 </ul>
 <hr>
-<h3 id="Q46：Spring-Cloud-Gateway-的过滤器有哪些类型？"><a href="#Q46：Spring-Cloud-Gateway-的过滤器有哪些类型？" class="headerlink" title="Q46：Spring Cloud Gateway 的过滤器有哪些类型？"></a>Q46：Spring Cloud Gateway 的过滤器有哪些类型？</h3><p><strong>一句话总结</strong>：Spring Cloud Gateway 提供了<strong>全局过滤器</strong>和<strong>路由过滤器</strong>，可以在请求转发前后执行逻辑（比如鉴权、限流、日志）。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>过滤器类型</strong>：</p>
-<ol>
-<li><p><strong>全局过滤器（GlobalFilter）</strong>：作用于<strong>所有路由</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AuthFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">GlobalFilter</span>, Ordered &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Mono&lt;Void&gt; <span class="hljs-title function_">filter</span><span class="hljs-params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;<br>        <span class="hljs-comment">// 鉴权逻辑</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">token</span> <span class="hljs-operator">=</span> exchange.getRequest().getHeaders().getFirst(<span class="hljs-string">&quot;Authorization&quot;</span>);<br>        <span class="hljs-keyword">if</span> (token == <span class="hljs-literal">null</span> || !isValid(token)) &#123;<br>            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);<br>            <span class="hljs-keyword">return</span> exchange.getResponse().setComplete();<br>        &#125;<br>        <span class="hljs-keyword">return</span> chain.filter(exchange);  <span class="hljs-comment">// 放行</span><br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getOrder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> -<span class="hljs-number">100</span>;  <span class="hljs-comment">// 优先级，数字越小优先级越高</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-</li>
-<li><p><strong>路由过滤器（GatewayFilter）</strong>：作用于<strong>指定路由</strong></p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">gateway:</span><br>      <span class="hljs-attr">routes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">user-service</span><br>          <span class="hljs-attr">uri:</span> <span class="hljs-string">http://localhost:8080</span><br>          <span class="hljs-attr">predicates:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/user/**</span><br>          <span class="hljs-attr">filters:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">AddRequestHeader=X-Request-Id,</span> <span class="hljs-number">12345</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">AddResponseHeader=X-Response-Time,</span> <span class="hljs-string">100ms</span><br></code></pre></td></tr></table></figure></li>
-</ol>
-<p><strong>内置过滤器</strong>：</p>
-<ul>
-<li><code>AddRequestHeader</code>：添加请求头</li>
-<li><code>AddResponseHeader</code>：添加响应头</li>
-<li><code>RewritePath</code>：重写路径</li>
-<li><code>RequestRateLimiter</code>：限流</li>
-<li><code>CircuitBreaker</code>：熔断</li>
-</ul>
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲如何自定义全局过滤器（鉴权、日志、限流）</li>
-<li>可以讲讲过滤器的执行顺序（<code>Ordered</code> 接口或 <code>@Order</code> 注解）</li>
-<li>可以讲讲实际应用场景（比如统一鉴权、统一日志记录、灰度发布）</li>
-</ul>
-<hr>
-<h3 id="Q47：Spring-Cloud-中的服务发现原理是什么？"><a href="#Q47：Spring-Cloud-中的服务发现原理是什么？" class="headerlink" title="Q47：Spring Cloud 中的服务发现原理是什么？"></a>Q47：Spring Cloud 中的服务发现原理是什么？</h3><p><strong>一句话总结</strong>：服务发现通过<strong>服务注册表</strong>来管理服务实例的地址，客户端通过<strong>服务名</strong>而不是<strong>IP地址</strong>来调用服务。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>服务发现流程</strong>：</p>
-<ol>
-<li><strong>服务注册</strong>：服务启动时，向注册中心注册自己的地址（IP、端口、服务名）</li>
-<li><strong>服务订阅</strong>：客户端从注册中心获取服务实例列表</li>
-<li><strong>健康检查</strong>：注册中心定期检测服务实例是否健康</li>
-<li><strong>服务下线</strong>：服务关闭时，向注册中心注销自己</li>
-</ol>
-<p><strong>常见注册中心</strong>：</p>
-<table>
-<thead>
-<tr>
-<th>注册中心</th>
-<th>一致性协议</th>
-<th>健康检查</th>
-<th>适用场景</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Eureka</td>
-<td>AP（高可用）</td>
-<td>客户端心跳</td>
-<td>Spring Cloud Netflix</td>
-</tr>
-<tr>
-<td>Nacos</td>
-<td>AP&#x2F;CP（可切换）</td>
-<td>客户端心跳 + 服务端探测</td>
-<td>Spring Cloud Alibaba</td>
-</tr>
-<tr>
-<td>Consul</td>
-<td>CP（强一致）</td>
-<td>服务端探测</td>
-<td>多数据中心</td>
-</tr>
-<tr>
-<td>Zookeeper</td>
-<td>CP（强一致）</td>
-<td>会话机制</td>
-<td>Dubbo</td>
-</tr>
-</tbody></table>
-<p><strong>示例（Eureka）</strong>：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># 服务端配置</span><br><span class="hljs-attr">eureka:</span><br>  <span class="hljs-attr">client:</span><br>    <span class="hljs-attr">register-with-eureka:</span> <span class="hljs-literal">false</span>  <span class="hljs-comment"># 不注册自己</span><br>    <span class="hljs-attr">fetch-registry:</span> <span class="hljs-literal">false</span><br><br><span class="hljs-comment"># 客户端配置</span><br><span class="hljs-attr">eureka:</span><br>  <span class="hljs-attr">client:</span><br>    <span class="hljs-attr">service-url:</span><br>      <span class="hljs-attr">defaultZone:</span> <span class="hljs-string">http://localhost:8761/eureka/</span><br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 CAP 理论（一致性、可用性、分区容错性，三者不可兼得）</li>
-<li>可以讲讲 Eureka 的自我保护机制（网络分区时，不剔除不健康实例）</li>
-<li>可以讲讲实际选型建议（内网用 Nacos，跨机房用 Consul）</li>
-</ul>
-<hr>
-<h3 id="Q48：Spring-Cloud-中的负载均衡原理是什么？"><a href="#Q48：Spring-Cloud-中的负载均衡原理是什么？" class="headerlink" title="Q48：Spring Cloud 中的负载均衡原理是什么？"></a>Q48：Spring Cloud 中的负载均衡原理是什么？</h3><p><strong>一句话总结</strong>：负载均衡通过<strong>负载均衡算法</strong>从服务实例列表中选择一个实例，常见的有轮询、随机、加权轮询等。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>负载均衡类型</strong>：</p>
-<ol>
-<li><p><strong>服务端负载均衡</strong>（Nginx、F5）</p>
-<ul>
-<li>客户端不知道有多个服务实例</li>
-<li>负载均衡由<strong>反向代理服务器</strong>完成</li>
-</ul>
-</li>
-<li><p><strong>客户端负载均衡</strong>（Ribbon、LoadBalancer）</p>
-<ul>
-<li>客户端从注册中心获取服务实例列表</li>
-<li>负载均衡由<strong>客户端</strong>完成</li>
-</ul>
-</li>
-</ol>
-<p><strong>Ribbon 负载均衡算法</strong>：</p>
-<ul>
-<li>轮询（RoundRobin）</li>
-<li>随机（Random）</li>
-<li>重试（Retry）</li>
-<li>加权响应时间（WeightedResponseTime）</li>
-</ul>
-<p><strong>Spring Cloud LoadBalancer</strong>（推荐）：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> ReactorLoadBalancer&lt;ServiceInstance&gt; <span class="hljs-title function_">reactorServiceInstanceLoadBalancer</span><span class="hljs-params">(</span><br><span class="hljs-params">        Environment environment, LoadBalancerClientFactory factory)</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> environment.getProperty(LoadBalancerClientFactory.PROPERTY_NAME);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RoundRobinLoadBalancer</span>(<br>        factory.getLazyProvider(name, ServiceInstanceListSupplier.class), name);<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 Ribbon 和 LoadBalancer 的区别（Ribbon 已进入维护模式，推荐使用 LoadBalancer）</li>
-<li>可以讲讲如何自定义负载均衡算法（比如根据机房就近选择）</li>
-<li>可以讲讲实际应用场景（比如灰度发布，根据版本号路由）</li>
-</ul>
-<hr>
-<h3 id="Q49：Spring-Cloud-中的熔断原理是什么？"><a href="#Q49：Spring-Cloud-中的熔断原理是什么？" class="headerlink" title="Q49：Spring Cloud 中的熔断原理是什么？"></a>Q49：Spring Cloud 中的熔断原理是什么？</h3><p><strong>一句话总结</strong>：熔断通过<strong>监控服务调用失败率</strong>，当失败率达到阈值时<strong>自动切断调用</strong>，避免雪崩效应。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>熔断器状态</strong>：</p>
-<ol>
-<li><strong>Closed（关闭）</strong>：正常状态，请求可以访问服务</li>
-<li><strong>Open（打开）</strong>：失败率达到阈值，请求直接失败（不走网络）</li>
-<li><strong>Half-Open（半开）</strong>：经过一段时间，放行部分请求，如果成功则关闭熔断器</li>
-</ol>
-<p><strong>Hystrix 示例</strong>（已进入维护模式）：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-meta">@HystrixCommand(fallbackMethod = &quot;getDefaultUser&quot;)</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getUser</span><span class="hljs-params">(Long id)</span> &#123;<br>        <span class="hljs-keyword">return</span> restTemplate.getForObject(<span class="hljs-string">&quot;http://user-service/user/&quot;</span> + id, User.class);<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getDefaultUser</span><span class="hljs-params">(Long id)</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>(id, <span class="hljs-string">&quot;默认用户&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>Resilience4j 示例</strong>（推荐）：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-meta">@CircuitBreaker(name = &quot;userService&quot;, fallbackMethod = &quot;getDefaultUser&quot;)</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getUser</span><span class="hljs-params">(Long id)</span> &#123;<br>        <span class="hljs-keyword">return</span> restTemplate.getForObject(<span class="hljs-string">&quot;http://user-service/user/&quot;</span> + id, User.class);<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getDefaultUser</span><span class="hljs-params">(Long id, Exception ex)</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>(id, <span class="hljs-string">&quot;默认用户&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 Hystrix 和 Resilience4j 的区别（Hystrix 已进入维护模式，推荐使用 Resilience4j）</li>
-<li>可以讲讲熔断和降级的区别（熔断是<strong>自动切断调用</strong>，降级是<strong>返回兜底结果</strong>）</li>
-<li>可以讲讲实际应用场景（比如调用第三方接口时，一定要加熔断）</li>
-</ul>
-<hr>
-<h3 id="Q50：Spring-Cloud-中的配置中心原理是什么？"><a href="#Q50：Spring-Cloud-中的配置中心原理是什么？" class="headerlink" title="Q50：Spring Cloud 中的配置中心原理是什么？"></a>Q50：Spring Cloud 中的配置中心原理是什么？</h3><p><strong>一句话总结</strong>：配置中心将<strong>配置文件集中管理</strong>，支持<strong>动态刷新</strong>，避免修改配置后重启服务。</p>
+<p><a id="Q50：Spring-Cloud-中的配置中心原理是什么？"></a><br><a id="qb-55"></a></p>
+<h3 id="Q55：Spring-Cloud-中的配置中心原理是什么？"><a href="#Q55：Spring-Cloud-中的配置中心原理是什么？" class="headerlink" title="Q55：Spring Cloud 中的配置中心原理是什么？"></a>Q55：Spring Cloud 中的配置中心原理是什么？</h3><p><strong>一句话总结</strong>：配置中心将<strong>配置文件集中管理</strong>，支持<strong>动态刷新</strong>，避免修改配置后重启服务。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>配置中心流程</strong>：</p>
 <ol>
@@ -3206,7 +3375,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）</div>
+      <div>Spring 面试八股文 55问｜深度详解版</div>
       <div>https://whyalwaysme.lol/2026/06/07/2026-06-07-spring-interview-deep/</div>
     </div>
     <div class="license-meta">
@@ -3251,9 +3420,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-mysql-50-interview/" title="MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）">
+                      <a href="/2026/06/07/2026-06-07-mysql-50-interview/" title="MySQL 面试八股文 40问｜深度详解版">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                        <span class="hidden-mobile">MySQL 面试八股文 40问｜深度详解版</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -3261,8 +3430,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-redis-interview-deep/" title="Redis 面试八股文 30 道｜深度详解版（傻子都能看懂）">
-                        <span class="hidden-mobile">Redis 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                      <a href="/2026/06/07/2026-06-07-redis-interview-deep/" title="Redis 面试八股文 41问｜深度详解版">
+                        <span class="hidden-mobile">Redis 面试八股文 41问｜深度详解版</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

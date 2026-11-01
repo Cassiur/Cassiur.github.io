@@ -1,0 +1,832 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Cassiur">
+  <meta name="keywords" content="Java">
+  
+    <meta name="description" content="排障、容量与运行生命周期 12 问：包含机制、失败场景与验证方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="排障、容量与运行生命周期 12 问">
+<meta property="og:url" content="https://whyalwaysme.lol/question-bank/troubleshooting/index.html">
+<meta property="og:site_name" content="WhyAlwaysMe 的树洞">
+<meta property="og:description" content="排障、容量与运行生命周期 12 问：包含机制、失败场景与验证方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-01T16:10:00.000Z">
+<meta property="article:modified_time" content="2026-11-01T16:12:59.964Z">
+<meta property="article:author" content="Cassiur">
+<meta property="article:tag" content="Java后端">
+<meta property="article:tag" content="工程实践">
+<meta property="article:tag" content="题库整理">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>排障、容量与运行生命周期 12 问 - WhyAlwaysMe 的树洞</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mobile.css">
+<link rel="stylesheet" href="/css/reading.css">
+<link rel="stylesheet" href="/css/diagrams.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"whyalwaysme.lol","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0,"heading_selector":"h1,h2,h3,h4,h5,h6","collapse_depth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WhyAlwaysMe 的树洞</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/projects/" target="_self">
+                <i class="iconfont icon-code"></i>
+                <span>项目</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="排障、容量与运行生命周期 12 问"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-11-02 00:10" pubdate>
+          2026年11月2日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          19 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">排障、容量与运行生命周期 12 问</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><a href="/question-bank/">题库总目录</a> · <a href="/interview/agent-skills/">AI应用工程160问</a></p>
+<p>本篇围绕工程中容易被忽略的边界组织问题。每题包含核心解释、失败场景与验证方法；示例是教学设计，不是作者的生产事故或性能报告。具体API、参数与预览特性的状态以所用版本为准。</p>
+<h2 id="问题索引"><a href="#问题索引" class="headerlink" title="问题索引"></a>问题索引</h2><ul>
+<li><a href="#q1">Q1：接口变慢应该先看哪里？</a></li>
+<li><a href="#q2">Q2：CPU高、负载高、响应慢为什么不是一回事？</a></li>
+<li><a href="#q3">Q3：线程池耗尽与连接池耗尽怎样区分？</a></li>
+<li><a href="#q4">Q4：内存上涨、Java OOM和容器OOMKilled怎样区分？</a></li>
+<li><a href="#q5">Q5：MySQL死锁与普通锁等待如何处理？</a></li>
+<li><a href="#q6">Q6：元数据锁和长事务为什么会拖住DDL？</a></li>
+<li><a href="#q7">Q7：消息积压从哪些方向排查？</a></li>
+<li><a href="#q8">Q8：Readiness、Liveness和Startup Probe有什么区别？</a></li>
+<li><a href="#q9">Q9：优雅停机为什么不只是捕获SIGTERM？</a></li>
+<li><a href="#q10">Q10：requests、limits和扩容为什么要结合负载？</a></li>
+<li><a href="#q11">Q11：P95&#x2F;P99、吞吐、并发与错误率怎样一起看？</a></li>
+<li><a href="#q12">Q12：故障恢复后怎样证明问题真的解决？</a></li>
+</ul>
+<h2 id="核心问答"><a href="#核心问答" class="headerlink" title="核心问答"></a>核心问答</h2><p><a id="q1"></a></p>
+<h3 id="Q1：接口变慢应该先看哪里？"><a href="#Q1：接口变慢应该先看哪里？" class="headerlink" title="Q1：接口变慢应该先看哪里？"></a>Q1：接口变慢应该先看哪里？</h3><p>**核心解释：**先确认影响范围、时间与版本变化，分解排队、网络、应用、数据库和外部依赖耗时，比较成功、失败与超时。平均值不足以体现长尾，需要看分位数、请求长度和关键切片。</p>
+<p>**失败场景：**第一反应就加线程、加连接或扩大超时，可能把下游进一步压垮。</p>
+<p>**验证方法：**用一次请求的Trace与资源指标建立瓶颈假设，再做小范围可回退验证。</p>
+<p><a id="q2"></a></p>
+<h3 id="Q2：CPU高、负载高、响应慢为什么不是一回事？"><a href="#Q2：CPU高、负载高、响应慢为什么不是一回事？" class="headerlink" title="Q2：CPU高、负载高、响应慢为什么不是一回事？"></a>Q2：CPU高、负载高、响应慢为什么不是一回事？</h3><p>**核心解释：**CPU高可能由计算、GC、自旋等引起；系统负载也受可运行或不可中断任务影响；响应慢可能大部分时间在等待。需要结合进程线程、堆栈、I&#x2F;O和上下文切换判断。</p>
+<p>**失败场景：**单独一张top截图不能证明CPU瓶颈，更不能直接得出某个方法有死循环。</p>
+<p>**验证方法：**采集连续样本与对应线程栈或性能记录，检查时间相关性和业务流量。</p>
+<p><a id="q3"></a></p>
+<h3 id="Q3：线程池耗尽与连接池耗尽怎样区分？"><a href="#Q3：线程池耗尽与连接池耗尽怎样区分？" class="headerlink" title="Q3：线程池耗尽与连接池耗尽怎样区分？"></a>Q3：线程池耗尽与连接池耗尽怎样区分？</h3><p>**核心解释：**线程池检查活跃、队列、拒绝与任务耗时；连接池检查使用、等待、超时与连接归还。线程可能在等连接，连接也可能被长事务或慢SQL占用，二者会连锁。</p>
+<p>**失败场景：**扩大线程池可能制造更多连接等待，扩大连接池也可能降低数据库吞吐。</p>
+<p>**验证方法：**关联线程栈、连接等待、慢SQL和数据库负载，再调整准入与任务边界。</p>
+<p><a id="q4"></a></p>
+<h3 id="Q4：内存上涨、Java-OOM和容器OOMKilled怎样区分？"><a href="#Q4：内存上涨、Java-OOM和容器OOMKilled怎样区分？" class="headerlink" title="Q4：内存上涨、Java OOM和容器OOMKilled怎样区分？"></a>Q4：内存上涨、Java OOM和容器OOMKilled怎样区分？</h3><p>**核心解释：**JVM堆、元空间、直接内存、线程栈与其他本地分配不同；容器内存限制与JVM参数也不是同一指标。OOMKilled可能由容器限制触发，未必产生Java堆异常或转储。</p>
+<p>**失败场景：**只看-Xmx会漏掉非堆与本地开销，盲目加堆还可能更快撞到容器上限。</p>
+<p>**验证方法：**核对退出原因、容器事件、JVM指标和转储条件，先保护服务再做根因分析。</p>
+<p><a id="q5"></a></p>
+<h3 id="Q5：MySQL死锁与普通锁等待如何处理？"><a href="#Q5：MySQL死锁与普通锁等待如何处理？" class="headerlink" title="Q5：MySQL死锁与普通锁等待如何处理？"></a>Q5：MySQL死锁与普通锁等待如何处理？</h3><p>**核心解释：**死锁是事务等待形成循环，InnoDB可检测并选择回滚受害者；普通锁等待可能等待到超时。应用必须能够在适当边界有限重试整个事务，而不是仅重试最后一条SQL。</p>
+<p>**失败场景：**重试前已发出外部副作用时，需要幂等与恢复；不断增加锁等待时间不会消除死锁。</p>
+<p>**验证方法：**保留死锁与事务信息，检查访问顺序、索引、批量和事务持续时间，再验证并发场景。</p>
+<p><a id="q6"></a></p>
+<h3 id="Q6：元数据锁和长事务为什么会拖住DDL？"><a href="#Q6：元数据锁和长事务为什么会拖住DDL？" class="headerlink" title="Q6：元数据锁和长事务为什么会拖住DDL？"></a>Q6：元数据锁和长事务为什么会拖住DDL？</h3><p>**核心解释：**表结构操作与普通访问需要协调元数据锁；未结束事务可能使DDL等待，等待的变更又可能影响后续请求。在线DDL不代表没有锁或对业务无影响。</p>
+<p>**失败场景：**在高峰直接执行大表ALTER并无限等待，可能放大排队与连接占用。</p>
+<p>**验证方法：**发布前核对版本、DDL算法、锁等待与长事务；设置可观察的超时和回退或中止方案。</p>
+<p><a id="q7"></a></p>
+<h3 id="Q7：消息积压从哪些方向排查？"><a href="#Q7：消息积压从哪些方向排查？" class="headerlink" title="Q7：消息积压从哪些方向排查？"></a>Q7：消息积压从哪些方向排查？</h3><p>**核心解释：**分开看生产速率、消费速率、失败重试、分区倾斜、外部依赖和消费者活跃状态。Lag只是位置差等指标之一，消息年龄和业务完成时间也重要。</p>
+<p>**失败场景：**盲目增加消费者可能超过分区有效并发，或把数据库打满；跳过消息会改变正确性。</p>
+<p>**验证方法：**用按分区和错误类型的指标定位，受控扩容或修复慢依赖，再核对积压消退与业务结果。</p>
+<p><a id="q8"></a></p>
+<h3 id="Q8：Readiness、Liveness和Startup-Probe有什么区别？"><a href="#Q8：Readiness、Liveness和Startup-Probe有什么区别？" class="headerlink" title="Q8：Readiness、Liveness和Startup Probe有什么区别？"></a>Q8：Readiness、Liveness和Startup Probe有什么区别？</h3><p>**核心解释：**Readiness决定是否适合接收服务流量；Liveness用于判断容器是否需要重启；Startup为慢启动提供保护，成功前影响其他探针的执行。探针配置应对应真实恢复机制。</p>
+<p>**失败场景：**把所有外部依赖都放进Liveness，依赖故障时可能引发集体重启而恶化问题。</p>
+<p>**验证方法：**分别模拟启动慢、暂时不可服务与进程卡死，验证摘流量或重启是否符合预期。</p>
+<p><a id="q9"></a></p>
+<h3 id="Q9：优雅停机为什么不只是捕获SIGTERM？"><a href="#Q9：优雅停机为什么不只是捕获SIGTERM？" class="headerlink" title="Q9：优雅停机为什么不只是捕获SIGTERM？"></a>Q9：优雅停机为什么不只是捕获SIGTERM？</h3><p>**核心解释：**需要协调停止接收新工作、流量摘除、等待或取消在途任务、提交状态与释放资源。容器终止宽限期、代理传播和应用超时必须匹配，且最后可能被强制终止。</p>
+<p>**失败场景：**收到信号后立刻退出可能丢任务；一直等待又可能超出宽限期。</p>
+<p>**验证方法：**在处理HTTP与消息时触发滚动终止，核对完成、重投、幂等和连接清理。</p>
+<p><a id="q10"></a></p>
+<h3 id="Q10：requests、limits和扩容为什么要结合负载？"><a href="#Q10：requests、limits和扩容为什么要结合负载？" class="headerlink" title="Q10：requests、limits和扩容为什么要结合负载？"></a>Q10：requests、limits和扩容为什么要结合负载？</h3><p>**核心解释：**requests影响调度与资源保障，limits约束使用；CPU与内存的运行后果不同。扩容受启动时间、下游容量、负载分配与冷缓存影响，不能只看副本数。</p>
+<p>**失败场景：**应用层并发不受控时，增加副本可能只让数据库或模型服务更快过载。</p>
+<p>**验证方法：**用目标负载观察每实例资源、节流、队列与下游等待，设置合理准入、容量和扩容策略。</p>
+<p><a id="q11"></a></p>
+<h3 id="Q11：P95-P99、吞吐、并发与错误率怎样一起看？"><a href="#Q11：P95-P99、吞吐、并发与错误率怎样一起看？" class="headerlink" title="Q11：P95&#x2F;P99、吞吐、并发与错误率怎样一起看？"></a>Q11：P95&#x2F;P99、吞吐、并发与错误率怎样一起看？</h3><p>**核心解释：**延迟分位数描述分布，吞吐是单位时间完成量，并发是在途工作数，错误率要有完整分母。比较时保持数据、请求形态与负载可比，观察系统饱和点和稳定区间。</p>
+<p>**失败场景：**压测工具自身限速、只统计成功请求或忽略超时，会让结果看起来更好。</p>
+<p>**验证方法：**报告负载模型、持续时间、成功与超时、分位数和资源，避免只展示一次最佳QPS。</p>
+<p><a id="q12"></a></p>
+<h3 id="Q12：故障恢复后怎样证明问题真的解决？"><a href="#Q12：故障恢复后怎样证明问题真的解决？" class="headerlink" title="Q12：故障恢复后怎样证明问题真的解决？"></a>Q12：故障恢复后怎样证明问题真的解决？</h3><p>**核心解释：**验证原始症状、根因假设与业务不变量，检查数据对账、重试积压、资源和长尾指标。把复现条件转成回归或告警，并记录变更与回退信息。</p>
+<p>**失败场景：**临时重启后指标下降可能只是流量或缓存变化，不能自动视为永久修复。</p>
+<p>**验证方法：**在相同或可比较条件下验证，明确哪些结论有证据、哪些还需要持续观察。</p>
+<h2 id="排障记录模板"><a href="#排障记录模板" class="headerlink" title="排障记录模板"></a>排障记录模板</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>应记录的内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>症状</td>
+<td>谁受影响、从何时开始、成功&#x2F;失败&#x2F;超时</td>
+</tr>
+<tr>
+<td>变化</td>
+<td>发布、配置、数据、流量和依赖</td>
+</tr>
+<tr>
+<td>证据</td>
+<td>Trace、指标、日志、堆栈、数据库事实</td>
+</tr>
+<tr>
+<td>假设</td>
+<td>哪一步慢或错误，预期能观察到什么</td>
+</tr>
+<tr>
+<td>动作</td>
+<td>风险、范围、回退与实际效果</td>
+</tr>
+<tr>
+<td>验证</td>
+<td>恢复指标、业务对账、剩余问题</td>
+</tr>
+</tbody></table>
+<p>生产环境的转储、详细日志、压测和故障注入都有成本与数据风险，应按权限和流程选择；先在可控环境复现，再考虑扩大范围。</p>
+<h2 id="官方参考与版本"><a href="#官方参考与版本" class="headerlink" title="官方参考与版本"></a>官方参考与版本</h2><p>核对日期：2026年11月2日。JavaAPI以链接中的版本为例；数据库与组件按各自版本理解。这里提出的组合设计与验证步骤仍需针对实际系统测试。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlocks.html">MySQL8.4死锁</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.4/en/metadata-locking.html">MySQL元数据锁</a></li>
+<li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/workloads/pods/probes/">Kubernetes探针</a></li>
+<li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/">Pod生命周期</a></li>
+<li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">容器资源</a></li>
+</ul>
+<p><a href="/question-bank/">返回题库总目录</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%90%8E%E7%AB%AF%E5%B7%A5%E7%A8%8B%E9%A2%98%E5%BA%93/" class="category-chain-item">后端工程题库</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Java%E5%90%8E%E7%AB%AF/" class="print-no-link">#Java后端</a>
+      
+        <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" class="print-no-link">#工程实践</a>
+      
+        <a href="/tags/%E9%A2%98%E5%BA%93%E6%95%B4%E7%90%86/" class="print-no-link">#题库整理</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>排障、容量与运行生命周期 12 问</div>
+      <div>https://whyalwaysme.lol/question-bank/troubleshooting/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Cassiur</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年11月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/question-bank/testing/" title="测试设计与交付验证 12 问">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">测试设计与交付验证 12 问</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/question-bank/" title="Java后端与AI应用工程题库：分类目录、版本与学习路线">
+                        <span class="hidden-mobile">Java后端与AI应用工程题库：分类目录、版本与学习路线</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <span>Made with Hexo & Fluid</span><br><span>© 2025 Cassiur</span>
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/deepseek-widget.js"></script>
+<script src="/js/reading.js"></script>
+<script src="/js/diagrams.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

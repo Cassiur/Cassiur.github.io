@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="MySQL 30题深度版：索引底层、事务隔离、行锁表锁、MVCC与SQL执行计划优化。">
+    <meta name="description" content="MySQL 面试八股文 40问｜深度详解版：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）">
+<meta property="og:title" content="MySQL 面试八股文 40问｜深度详解版">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/07/2026-06-07-mysql-50-interview/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="MySQL 30题深度版：索引底层、事务隔离、行锁表锁、MVCC与SQL执行计划优化。">
+<meta property="og:description" content="MySQL 面试八股文 40问｜深度详解版：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:00:00.000Z">
-<meta property="article:modified_time" content="2026-10-11T08:59:21.830Z">
+<meta property="article:modified_time" content="2026-11-01T16:19:15.618Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="MVCC">
 <meta property="article:tag" content="MySQL">
@@ -42,7 +42,7 @@
   
   
   
-  <title>MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂） - WhyAlwaysMe 的树洞</title>
+  <title>MySQL 面试八股文 40问｜深度详解版 - WhyAlwaysMe 的树洞</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -226,7 +226,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）"></span>
+            <span id="subtitle" data-typed-text="MySQL 面试八股文 40问｜深度详解版"></span>
           
         </div>
 
@@ -260,7 +260,7 @@
         
         
         
-          197 分钟
+          202 分钟
         
       </span>
     
@@ -297,17 +297,67 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）</h1>
+            <h1 id="seo-header">MySQL 面试八股文 40问｜深度详解版</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="MySQL-面试八股文-30-道｜深度详解版"><a href="#MySQL-面试八股文-30-道｜深度详解版" class="headerlink" title="MySQL 面试八股文 30 道｜深度详解版"></a>MySQL 面试八股文 30 道｜深度详解版</h1><blockquote>
+                <blockquote>
+<p>**阅读提示（2026-11-02整理）：**先阅读核心回答，再按需展开补充示例；参数、默认值和源码实现以实际版本为准，教学示例不等于生产验证。</p>
+</blockquote>
+<p><a href="/question-bank/">题库总目录</a> · <a href="/question-bank/modern-java/">现代Java</a> · <a href="/question-bank/reliability/">可靠性</a> · <a href="/question-bank/testing/">测试</a> · <a href="/question-bank/troubleshooting/">排障</a></p>
+<blockquote>
+<p>**示例口径：**第一人称示范回答应换成自己的真实经历；教学场景和未提供测试依据的性能数字，不作为作者经历或生产测量证据。</p>
+</blockquote>
+<h1 id="MySQL-面试八股文-40问｜深度详解版"><a href="#MySQL-面试八股文-40问｜深度详解版" class="headerlink" title="MySQL 面试八股文 40问｜深度详解版"></a>MySQL 面试八股文 40问｜深度详解版</h1><blockquote>
 <p><strong>写给准备面试的你：</strong><br>这篇文章不讲废话，每个知识点都从「是什么 → 为什么 → 怎么用」三个层次讲透。<br>配有大量比喻和场景化解释，目标是让没有数据库基础的人也能看懂。<br>建议配合实际 SQL 练习，理解效果翻倍。</p>
 </blockquote>
 <hr>
 <h2 id="一、存储引擎与架构（1-4）"><a href="#一、存储引擎与架构（1-4）" class="headerlink" title="一、存储引擎与架构（1-4）"></a>一、存储引擎与架构（1-4）</h2><hr>
-<h3 id="第-1-题：InnoDB-和-MyISAM-到底有什么区别？我该选哪个？"><a href="#第-1-题：InnoDB-和-MyISAM-到底有什么区别？我该选哪个？" class="headerlink" title="第 1 题：InnoDB 和 MyISAM 到底有什么区别？我该选哪个？"></a>第 1 题：InnoDB 和 MyISAM 到底有什么区别？我该选哪个？</h3><h4 id="一句话结论"><a href="#一句话结论" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h2 id="核心问题索引"><a href="#核心问题索引" class="headerlink" title="核心问题索引"></a>核心问题索引</h2><ul>
+<li><a href="#qb-1">Q1：InnoDB 和 MyISAM 到底有什么区别？我该选哪个？</a></li>
+<li><a href="#qb-2">Q2：InnoDB 的整体内核架构是什么？</a></li>
+<li><a href="#qb-3">Q3：什么是 WAL 机制？为什么先写日志再写磁盘？</a></li>
+<li><a href="#qb-4">Q4：redo log、undo log、binlog 三者到底有什么区别和联系？</a></li>
+<li><a href="#qb-5">Q5：事务的 ACID 是什么？InnoDB 分别是怎么实现的？</a></li>
+<li><a href="#qb-6">Q6：MySQL 的四种隔离级别分别解决了什么问题？</a></li>
+<li><a href="#qb-7">Q7：MVCC 的实现原理到底是什么？</a></li>
+<li><a href="#qb-8">Q8：快照读和当前读的区别是什么？</a></li>
+<li><a href="#qb-9">Q9：MySQL 的锁有哪些类型？Next-Key Lock 是什么？</a></li>
+<li><a href="#qb-10">Q10：为什么 InnoDB 用 B+ 树而不用 B 树、哈希表或红黑树？</a></li>
+<li><a href="#qb-11">Q11：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？</a></li>
+<li><a href="#qb-12">Q12：什么是最左前缀原则？为什么有这个限制？</a></li>
+<li><a href="#qb-13">Q13：索引失效的常见情况有哪些？如何避免？</a></li>
+<li><a href="#qb-14">Q14：EXPLAIN 执行计划的各个字段怎么看？</a></li>
+<li><a href="#qb-15">Q15：索引设计的最佳实践是什么？</a></li>
+<li><a href="#qb-16">Q16：唯一索引和普通索引的区别？该怎么选？</a></li>
+<li><a href="#qb-17">Q17：索引下推（Index Condition Pushdown，ICP）是什么？</a></li>
+<li><a href="#qb-18">Q18：Change Buffer 是什么？它有什么用？</a></li>
+<li><a href="#qb-19">Q19：大表优化的思路有哪些？</a></li>
+<li><a href="#qb-20">Q20：慢查询的优化步骤是什么？</a></li>
+<li><a href="#qb-21">Q21：COUNT(*) 和 COUNT(1) 和 COUNT(列名) 有什么区别？</a></li>
+<li><a href="#qb-22">Q22：LIMIT 大偏移量为什么会慢？怎么优化？</a></li>
+<li><a href="#qb-23">Q23：SELECT * 有什么坏处？</a></li>
+<li><a href="#qb-24">Q24：JOIN 的优化思路有哪些？</a></li>
+<li><a href="#qb-25">Q25：MySQL 的主从复制原理是什么？</a></li>
+<li><a href="#qb-26">Q26：MySQL 中 VARCHAR 和 CHAR 的区别？怎么选？</a></li>
+<li><a href="#qb-27">Q27：MySQL 的连接池应该设置多大？</a></li>
+<li><a href="#qb-28">Q28：如何安全地删除大量数据？</a></li>
+<li><a href="#qb-29">Q29：MySQL 中 datetime 和 timestamp 的区别？怎么选？</a></li>
+<li><a href="#qb-30">Q30：如何设计一个高并发的订单表？</a></li>
+<li><a href="#qb-31">Q31：MySQL 的 binlog 有哪几种格式？</a></li>
+<li><a href="#qb-32">Q32：MySQL 冷热数据分离怎么做？</a></li>
+<li><a href="#qb-33">Q33：MySQL 的乐观锁和悲观锁分别怎么实现？</a></li>
+<li><a href="#qb-34">Q34：MySQL 的 sql_mode 是什么？</a></li>
+<li><a href="#qb-35">Q35：MySQL 的大字段（TEXT&#x2F;BLOB）怎么处理？</a></li>
+<li><a href="#qb-36">Q36：MySQL 大表怎么改表结构（ALTER TABLE）？</a></li>
+<li><a href="#qb-37">Q37：MySQL 主从复制的延迟问题怎么解决？</a></li>
+<li><a href="#qb-38">Q38：意向锁（Intention Lock）的作用是什么？</a></li>
+<li><a href="#qb-39">Q39：自增锁（AUTO-INC Lock）的 3 种模式是什么？</a></li>
+<li><a href="#qb-40">Q40：MySQL 的基础架构是什么？SQL 是如何执行的？</a></li>
+</ul>
+<p><a id="第-1-题：InnoDB-和-MyISAM-到底有什么区别？我该选哪个？"></a><br><a id="qb-1"></a></p>
+<h3 id="Q1：InnoDB-和-MyISAM-到底有什么区别？我该选哪个？"><a href="#Q1：InnoDB-和-MyISAM-到底有什么区别？我该选哪个？" class="headerlink" title="Q1：InnoDB 和 MyISAM 到底有什么区别？我该选哪个？"></a>Q1：InnoDB 和 MyISAM 到底有什么区别？我该选哪个？</h3><h4 id="一句话结论"><a href="#一句话结论" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>99% 的场景用 InnoDB；MyISAM 只适合纯归档、不需要事务的极简场景。</strong></p>
 </blockquote>
 <hr>
@@ -370,7 +420,8 @@
 <p>「我们项目中所有业务表都用 InnoDB。早期 MyISAM 的唯一优势是 <code>COUNT(*)</code> 不需要全表扫描（它有内部计数器），但这个优势在 InnoDB 上可以通过<strong>覆盖索引</strong>来替代，所以现在 MyISAM 几乎没有存在必要了。」</p>
 </blockquote>
 <hr>
-<h3 id="第-2-题：InnoDB-的整体内核架构是什么？"><a href="#第-2-题：InnoDB-的整体内核架构是什么？" class="headerlink" title="第 2 题：InnoDB 的整体内核架构是什么？"></a>第 2 题：InnoDB 的整体内核架构是什么？</h3><h4 id="一句话结论-1"><a href="#一句话结论-1" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-2-题：InnoDB-的整体内核架构是什么？"></a><br><a id="qb-2"></a></p>
+<h3 id="Q2：InnoDB-的整体内核架构是什么？"><a href="#Q2：InnoDB-的整体内核架构是什么？" class="headerlink" title="Q2：InnoDB 的整体内核架构是什么？"></a>Q2：InnoDB 的整体内核架构是什么？</h3><h4 id="一句话结论-1"><a href="#一句话结论-1" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>InnoDB 架构 &#x3D; 内存层（Buffer Pool 是核心）+ 磁盘层（表空间 + 日志文件）</strong>，所有读写都通过 Buffer Pool 中转，这是 InnoDB 高性能的根本原因。</p>
 </blockquote>
 <hr>
@@ -441,7 +492,8 @@
 <p>「InnoDB 的性能之所以高，核心设计就是 <strong>Buffer Pool + WAL 机制的组合</strong>：读走 Buffer Pool 缓存，写先写 redo log（顺序 I&#x2F;O）再异步刷脏页。这样既减少了磁盘 I&#x2F;O 次数，又通过 redo log 保证了事务持久性。调优时，<strong>Buffer Pool 大小是最关键的参数</strong>，建议设置为物理内存的 70% 左右。」</p>
 </blockquote>
 <hr>
-<h3 id="第-3-题：什么是-WAL-机制？为什么先写日志再写磁盘？"><a href="#第-3-题：什么是-WAL-机制？为什么先写日志再写磁盘？" class="headerlink" title="第 3 题：什么是 WAL 机制？为什么先写日志再写磁盘？"></a>第 3 题：什么是 WAL 机制？为什么先写日志再写磁盘？</h3><h4 id="一句话结论-2"><a href="#一句话结论-2" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-3-题：什么是-WAL-机制？为什么先写日志再写磁盘？"></a><br><a id="qb-3"></a></p>
+<h3 id="Q3：什么是-WAL-机制？为什么先写日志再写磁盘？"><a href="#Q3：什么是-WAL-机制？为什么先写日志再写磁盘？" class="headerlink" title="Q3：什么是 WAL 机制？为什么先写日志再写磁盘？"></a>Q3：什么是 WAL 机制？为什么先写日志再写磁盘？</h3><h4 id="一句话结论-2"><a href="#一句话结论-2" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>WAL（Write-Ahead Logging）&#x3D; 先写日志，再刷脏页。</strong> 核心思想是把<strong>随机 I&#x2F;O 变成顺序 I&#x2F;O</strong>，性能提升 100 倍以上。</p>
 </blockquote>
 <hr>
@@ -499,7 +551,8 @@
 <p>「WAL 机制的本质是<strong>用顺序 I&#x2F;O 代替随机 I&#x2F;O</strong>。这也是为什么 InnoDB 的性能可以跟商业数据库媲美的关键设计之一。另外要注意：redo log 是<strong>循环写</strong>的（两组文件轮转），而 binlog 是<strong>追加写</strong>的（不会覆盖旧日志），这两者的文件管理方式完全不同。」</p>
 </blockquote>
 <hr>
-<h3 id="第-4-题：redo-log、undo-log、binlog-三者到底有什么区别和联系？"><a href="#第-4-题：redo-log、undo-log、binlog-三者到底有什么区别和联系？" class="headerlink" title="第 4 题：redo log、undo log、binlog 三者到底有什么区别和联系？"></a>第 4 题：redo log、undo log、binlog 三者到底有什么区别和联系？</h3><h4 id="一句话结论-3"><a href="#一句话结论-3" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-4-题：redo-log、undo-log、binlog-三者到底有什么区别和联系？"></a><br><a id="qb-4"></a></p>
+<h3 id="Q4：redo-log、undo-log、binlog-三者到底有什么区别和联系？"><a href="#Q4：redo-log、undo-log、binlog-三者到底有什么区别和联系？" class="headerlink" title="Q4：redo log、undo log、binlog 三者到底有什么区别和联系？"></a>Q4：redo log、undo log、binlog 三者到底有什么区别和联系？</h3><h4 id="一句话结论-3"><a href="#一句话结论-3" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>undo log &#x3D; 回滚和多版本读用，redo log &#x3D; 崩溃恢复用，binlog &#x3D; 主从复制和备份用。</strong> 三者通过「两阶段提交」协同工作，保证数据不丢、主从一致。</p>
 </blockquote>
 <hr>
@@ -623,7 +676,8 @@
 </blockquote>
 <hr>
 <h2 id="二、事务与隔离级别（5-9）"><a href="#二、事务与隔离级别（5-9）" class="headerlink" title="二、事务与隔离级别（5-9）"></a>二、事务与隔离级别（5-9）</h2><hr>
-<h3 id="第-5-题：事务的-ACID-是什么？InnoDB-分别是怎么实现的？"><a href="#第-5-题：事务的-ACID-是什么？InnoDB-分别是怎么实现的？" class="headerlink" title="第 5 题：事务的 ACID 是什么？InnoDB 分别是怎么实现的？"></a>第 5 题：事务的 ACID 是什么？InnoDB 分别是怎么实现的？</h3><h4 id="一句话结论-4"><a href="#一句话结论-4" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-5-题：事务的-ACID-是什么？InnoDB-分别是怎么实现的？"></a><br><a id="qb-5"></a></p>
+<h3 id="Q5：事务的-ACID-是什么？InnoDB-分别是怎么实现的？"><a href="#Q5：事务的-ACID-是什么？InnoDB-分别是怎么实现的？" class="headerlink" title="Q5：事务的 ACID 是什么？InnoDB 分别是怎么实现的？"></a>Q5：事务的 ACID 是什么？InnoDB 分别是怎么实现的？</h3><h4 id="一句话结论-4"><a href="#一句话结论-4" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>A（原子性）&#x3D; undo log 实现，C（一致性）&#x3D; A+I+D 共同保证，I（隔离性）&#x3D; MVCC + 锁机制，D（持久性）&#x3D; redo log + doublewrite。</strong></p>
 </blockquote>
 <hr>
@@ -672,7 +726,8 @@
 <p>「很多人以为 C（一致性）是数据库自动保证的，其实不是。一致性更多是需要<strong>应用层 + 数据库层共同保证</strong>的。比如你做转账业务，A 扣了 100 元，B 必须增加 100 元，这个业务逻辑的正确性需要在应用层的事务里正确实现，数据库只能保证这个事务要么全做要么全不做（原子性），但不能保证你的业务逻辑本身是正确的。」</p>
 </blockquote>
 <hr>
-<h3 id="第-6-题：MySQL-的四种隔离级别分别解决了什么问题？"><a href="#第-6-题：MySQL-的四种隔离级别分别解决了什么问题？" class="headerlink" title="第 6 题：MySQL 的四种隔离级别分别解决了什么问题？"></a>第 6 题：MySQL 的四种隔离级别分别解决了什么问题？</h3><h4 id="一句话结论-5"><a href="#一句话结论-5" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-6-题：MySQL-的四种隔离级别分别解决了什么问题？"></a><br><a id="qb-6"></a></p>
+<h3 id="Q6：MySQL-的四种隔离级别分别解决了什么问题？"><a href="#Q6：MySQL-的四种隔离级别分别解决了什么问题？" class="headerlink" title="Q6：MySQL 的四种隔离级别分别解决了什么问题？"></a>Q6：MySQL 的四种隔离级别分别解决了什么问题？</h3><h4 id="一句话结论-5"><a href="#一句话结论-5" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>READ UNCOMMITTED &#x3D; 啥问题都没解决；READ COMMITTED &#x3D; 解决脏读；REPEATABLE READ &#x3D; 解决脏读 + 不可重复读（InnoDB 在 RR 下还通过间隙锁&#x2F;Next-Key Lock + MVCC 在很大程度上避免了幻读，但不是所有场景都能完全杜绝）；SERIALIZABLE &#x3D; 全解决但性能极差。</strong></p>
 </blockquote>
 <hr>
@@ -776,7 +831,8 @@
 <p>「MySQL 默认的 RR 隔离级别，在大多数其他数据库（如 Oracle、PostgreSQL 的 RR&#x2F;可重复读实现）中是无法避免幻读的，但 InnoDB 通过 <strong>Next-Key Lock + MVCC</strong> 的组合，在 RR 级别下已经能在绝大多数场景避免幻读，这是 InnoDB 的一个独家优势。但严谨地说这不是「完全解决」——面试时如果被追问，一定要提到「快照读之后接当前读」这个仍会出现幻读的例外场景，这也是 MySQL 官方手册里明确写到的边界情况。」</p>
 </blockquote>
 <hr>
-<h3 id="第-7-题：MVCC-的实现原理到底是什么？"><a href="#第-7-题：MVCC-的实现原理到底是什么？" class="headerlink" title="第 7 题：MVCC 的实现原理到底是什么？"></a>第 7 题：MVCC 的实现原理到底是什么？</h3><h4 id="一句话结论-6"><a href="#一句话结论-6" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-7-题：MVCC-的实现原理到底是什么？"></a><br><a id="qb-7"></a></p>
+<h3 id="Q7：MVCC-的实现原理到底是什么？"><a href="#Q7：MVCC-的实现原理到底是什么？" class="headerlink" title="Q7：MVCC 的实现原理到底是什么？"></a>Q7：MVCC 的实现原理到底是什么？</h3><h4 id="一句话结论-6"><a href="#一句话结论-6" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>MVCC &#x3D; 隐藏字段 + undo log 版本链 + ReadView</strong>。读操作通过 ReadView 判断版本链中哪个版本对自己可见，从而实现非锁定读（快照读）。</p>
 </blockquote>
 <hr>
@@ -901,7 +957,8 @@
 <p>「MVCC 的本质是<strong>用空间换时间</strong>——通过保存多个历史版本，让读操作不用加锁就能读到一致性快照。这也是为什么 InnoDB 的读性能远高于写性能的原因：读操作基本都是快照读，不需要加锁，不阻塞任何写操作，也不被任何写操作阻塞。这种<strong>读写不互斥</strong>的特性是高并发场景下的巨大优势。」</p>
 </blockquote>
 <hr>
-<h3 id="第-8-题：快照读和当前读的区别是什么？"><a href="#第-8-题：快照读和当前读的区别是什么？" class="headerlink" title="第 8 题：快照读和当前读的区别是什么？"></a>第 8 题：快照读和当前读的区别是什么？</h3><h4 id="一句话结论-7"><a href="#一句话结论-7" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-8-题：快照读和当前读的区别是什么？"></a><br><a id="第-33-题：当前读和快照读的区别？"></a><br><a id="qb-8"></a></p>
+<h3 id="Q8：快照读和当前读的区别是什么？"><a href="#Q8：快照读和当前读的区别是什么？" class="headerlink" title="Q8：快照读和当前读的区别是什么？"></a>Q8：快照读和当前读的区别是什么？</h3><h4 id="一句话结论-7"><a href="#一句话结论-7" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>快照读 &#x3D; 无锁读（普通 SELECT），基于 MVCC，可能读到历史版本；当前读 &#x3D; 加锁读（SELECT … FOR UPDATE 等），读最新版本并加锁。</strong></p>
 </blockquote>
 <hr>
@@ -940,7 +997,24 @@
 <p>「快照读和当前读的区分，是理解 InnoDB 并发控制的关键。很多人只知道 MVCC 可以实现可重复读，但不知道 MVCC 只适用于快照读。如果你的事务中既有快照读又有当前读，是可能遇到幻读的。正确的做法是在事务开始后，如果需要保证数据一致性，应该直接用 <code>SELECT ... FOR UPDATE</code> 做当前读，通过 Next-Key Lock 防止其他事务插入新数据。」</p>
 </blockquote>
 <hr>
-<h3 id="第-9-题：MySQL-的锁有哪些类型？Next-Key-Lock-是什么？"><a href="#第-9-题：MySQL-的锁有哪些类型？Next-Key-Lock-是什么？" class="headerlink" title="第 9 题：MySQL 的锁有哪些类型？Next-Key Lock 是什么？"></a>第 9 题：MySQL 的锁有哪些类型？Next-Key Lock 是什么？</h3><h4 id="一句话结论-8"><a href="#一句话结论-8" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：当前读和快照读的区别？</summary>
+
+<p><strong>一句话总结</strong>：快照读（普通 SELECT）不加锁，读事务开始时的快照；当前读（SELECT … FOR UPDATE）加锁，读最新数据，防止幻读。</p>
+<p><strong>深度解析</strong>：</p>
+<ul>
+<li><strong>快照读</strong>：<code>SELECT * FROM orders;</code> → 不加锁，可重复读</li>
+<li><strong>当前读</strong>：<code>SELECT * FROM orders WHERE id=1 FOR UPDATE;</code> → 加行锁，读最新数据</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>“MVCC 实现了快照读（非阻塞读），但快照读无法阻止其他事务修改数据。当前读通过加锁保证了读取的是最新数据。如果业务逻辑依赖于’读取后修改’，必须用当前读（SELECT … FOR UPDATE），否则会有并发问题。”</p>
+</blockquote>
+<hr>
+</details>
+
+<p><a id="第-9-题：MySQL-的锁有哪些类型？Next-Key-Lock-是什么？"></a><br><a id="第-34-题：MySQL-锁的详细分类？"></a><br><a id="qb-9"></a></p>
+<h3 id="Q9：MySQL-的锁有哪些类型？Next-Key-Lock-是什么？"><a href="#Q9：MySQL-的锁有哪些类型？Next-Key-Lock-是什么？" class="headerlink" title="Q9：MySQL 的锁有哪些类型？Next-Key Lock 是什么？"></a>Q9：MySQL 的锁有哪些类型？Next-Key Lock 是什么？</h3><h4 id="一句话结论-8"><a href="#一句话结论-8" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>InnoDB 有行锁、间隙锁、临键锁三种锁；Next-Key Lock &#x3D; 行锁 + 间隙锁，锁住范围内所有行和间隙，是 InnoDB 防止幻读的核心机制。</strong></p>
 </blockquote>
 <hr>
@@ -1005,7 +1079,25 @@
 </blockquote>
 <hr>
 <h2 id="三、索引原理篇（10-18）"><a href="#三、索引原理篇（10-18）" class="headerlink" title="三、索引原理篇（10-18）"></a>三、索引原理篇（10-18）</h2><hr>
-<h3 id="第-10-题：为什么-InnoDB-用-B-树而不用-B-树、哈希表或红黑树？"><a href="#第-10-题：为什么-InnoDB-用-B-树而不用-B-树、哈希表或红黑树？" class="headerlink" title="第 10 题：为什么 InnoDB 用 B+ 树而不用 B 树、哈希表或红黑树？"></a>第 10 题：为什么 InnoDB 用 B+ 树而不用 B 树、哈希表或红黑树？</h3><h4 id="一句话结论-9"><a href="#一句话结论-9" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：MySQL 锁的详细分类？</summary>
+
+<p><strong>一句话总结</strong>：按粒度分表锁和行锁；按模式分共享锁（S）和排他锁（X）；间隙锁（Gap Lock）是 RR 隔离级别下防止幻读的利器。</p>
+<p><strong>深度解析</strong>：</p>
+<ul>
+<li><strong>记录锁（Record Lock）</strong>：锁索引记录本身</li>
+<li><strong>间隙锁（Gap Lock）</strong>：锁索引记录之间的间隙，防止插入</li>
+<li><strong>Next-Key Lock</strong> &#x3D; Record Lock + Gap Lock（InnoDB 默认行锁算法）</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>“InnoDB 的行锁是基于索引实现的——如果 WHERE 条件没有走索引，行锁会升级为表锁（这是大坑！）。间隙锁只在 RR 和 SERIALIZABLE 隔离级别下生效；RC 隔离级别下没有间隙锁。”</p>
+</blockquote>
+<hr>
+</details>
+
+<p><a id="第-10-题：为什么-InnoDB-用-B-树而不用-B-树、哈希表或红黑树？"></a><br><a id="qb-10"></a></p>
+<h3 id="Q10：为什么-InnoDB-用-B-树而不用-B-树、哈希表或红黑树？"><a href="#Q10：为什么-InnoDB-用-B-树而不用-B-树、哈希表或红黑树？" class="headerlink" title="Q10：为什么 InnoDB 用 B+ 树而不用 B 树、哈希表或红黑树？"></a>Q10：为什么 InnoDB 用 B+ 树而不用 B 树、哈希表或红黑树？</h3><h4 id="一句话结论-9"><a href="#一句话结论-9" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>B+ 树 &#x3D; 树高低（减少磁盘 I&#x2F;O 次数）+ 叶子节点链表（高效支持范围查询）+ 非叶子节点只存键（单页能存更多索引条目）。</strong></p>
 </blockquote>
 <hr>
@@ -1074,7 +1166,8 @@
 <p>「B+ 树的设计哲学是<strong>充分适配磁盘 I&#x2F;O 特性</strong>：磁盘按页读取（每次至少读 16KB），B+ 树让每次磁盘 I&#x2F;O 都能加载尽可能多的索引键，从而把树高压到最低（通常 3~4 层）。另外，B+ 树的叶子节点链表结构，使得<strong>范围查询的性能是 B 树无法比拟的</strong>，这也是为什么所有主流关系型数据库（MySQL、PostgreSQL、Oracle、SQL Server）都选择 B+ 树作为默认索引结构的原因。」</p>
 </blockquote>
 <hr>
-<h3 id="第-11-题：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？"><a href="#第-11-题：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？" class="headerlink" title="第 11 题：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？"></a>第 11 题：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？</h3><h4 id="一句话结论-10"><a href="#一句话结论-10" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-11-题：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？"></a><br><a id="第-49-题：覆盖索引（Covering-Index）是什么？有什么好处？"></a><br><a id="qb-11"></a></p>
+<h3 id="Q11：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？"><a href="#Q11：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？" class="headerlink" title="Q11：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？"></a>Q11：聚簇索引和非聚簇索引的根本区别是什么？什么是回表？</h3><h4 id="一句话结论-10"><a href="#一句话结论-10" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>聚簇索引 &#x3D; 数据即索引（叶子节点存整行数据）；非聚簇索引 &#x3D; 索引与数据分离（叶子节点存主键值）；通过非聚簇索引查整行数据需要「回表」。</strong></p>
 </blockquote>
 <hr>
@@ -1131,11 +1224,44 @@
 <p>「回表是很多人写慢 SQL 的根本原因。我曾经遇到过一个生产案例：一个查询通过二级索引过滤出了 10 万行数据，然后逐行回表，导致查询耗时 30 秒。解决办法是把二级索引改成<strong>覆盖索引</strong>（把 SELECT 中用到的所有字段都加到索引里），查询时间直接降到了 200 毫秒。所以在设计索引时，一定要考虑<strong>尽量减少回表次数</strong>。」</p>
 </blockquote>
 <hr>
-<h3 id="第-12-题：什么是最左前缀原则？为什么有这个限制？"><a href="#第-12-题：什么是最左前缀原则？为什么有这个限制？" class="headerlink" title="第 12 题：什么是最左前缀原则？为什么有这个限制？"></a>第 12 题：什么是最左前缀原则？为什么有这个限制？</h3><h4 id="一句话结论-11"><a href="#一句话结论-11" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：覆盖索引（Covering Index）是什么？有什么好处？</summary>
+
+<h4 id="一句话结论-11"><a href="#一句话结论-11" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>覆盖索引 &#x3D; 索引包含了查询需要的所有字段，不需要回表。好处是：① 减少回表次数（性能提升巨大）② 减少磁盘 I&#x2F;O。</strong></p>
+</blockquote>
+<hr>
+<h4 id="深度解析-11"><a href="#深度解析-11" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>没有覆盖索引的世界：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- name 上有二级索引，但 SELECT 需要所有列</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Alice&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>执行步骤：</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xquery"><span class="hljs-number">1</span>. 在<span class="hljs-built_in"> name</span> 索引的 B+ 树中找到<span class="hljs-built_in"> name</span>=<span class="hljs-string">&#x27;Alice&#x27;</span> 的记录<br>         → 得到主键值<span class="hljs-built_in"> id</span> = <span class="hljs-number">5</span><br>         <br><span class="hljs-number">2</span>. 拿着<span class="hljs-built_in"> id</span>=<span class="hljs-number">5</span>，去主键索引（聚簇索引）的 B+ 树中查找整行数据<br>         → 这就是「回表」（Lookup <span class="hljs-keyword">by</span> Primary Key）<br></code></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>：如果 name 索引命中了 1000 行，就要回表 1000 次 → 性能急剧下降。</p>
+<hr>
+<p><strong>有了覆盖索引之后：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- (name, age) 是联合索引</span><br><span class="hljs-comment">-- 只查 name 和 age，联合索引已经包含了这两个字段 → 覆盖索引，不需要回表</span><br><span class="hljs-keyword">SELECT</span> name, age <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Alice&#x27;</span>;<br><br><span class="hljs-comment">-- 查 *，需要回表（因为联合索引没有存储整行数据）</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Alice&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>如何判断是否是覆盖索引？</strong></p>
+<p>看 <code>EXPLAIN</code> 的 <code>Extra</code> 列，显示 <code>Using index</code> 就是覆盖索引，不需要回表。</p>
+<hr>
+<p><strong>覆盖索引的设计实践：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 如果经常查某个用户的 name 和 age，可以建立 (name, age) 联合索引</span><br><span class="hljs-comment">-- 这样 SELECT name, age 可以直接从索引返回，不需要回表</span><br><span class="hljs-keyword">ALTER TABLE</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">ADD</span> INDEX idx_name_age (name, age);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-11"><a href="#面试加分回答-11" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「覆盖索引是优化慢 SQL 的<strong>第一手段</strong>。我曾经遇到过一个生产案例：一个查询通过二级索引过滤出了 10 万行数据，然后逐行回表，导致查询耗时 30 秒。解决办法是把二级索引改成<strong>覆盖索引</strong>（把 SELECT 中用到的所有字段都加到索引里），查询时间直接降到了 200 毫秒。所以在设计索引时，一定要考虑<strong>尽量减少回表次数</strong>。」</p>
+</blockquote>
+<hr>
+</details>
+
+<p><a id="第-12-题：什么是最左前缀原则？为什么有这个限制？"></a><br><a id="qb-12"></a></p>
+<h3 id="Q12：什么是最左前缀原则？为什么有这个限制？"><a href="#Q12：什么是最左前缀原则？为什么有这个限制？" class="headerlink" title="Q12：什么是最左前缀原则？为什么有这个限制？"></a>Q12：什么是最左前缀原则？为什么有这个限制？</h3><h4 id="一句话结论-12"><a href="#一句话结论-12" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>联合索引中，查询条件必须从索引的最左列开始，且不能跳过中间的列，否则索引只能用到最左前缀部分（或完全失效）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-11"><a href="#深度解析-11" class="headerlink" title="深度解析"></a>深度解析</h4><p>假设有联合索引 <code>(a, b, c)</code>，它在 B+ 树中的排序规则是：</p>
+<h4 id="深度解析-12"><a href="#深度解析-12" class="headerlink" title="深度解析"></a>深度解析</h4><p>假设有联合索引 <code>(a, b, c)</code>，它在 B+ 树中的排序规则是：</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css">先按 <span class="hljs-selector-tag">a</span> 排序，<span class="hljs-selector-tag">a</span> 相同的再按 <span class="hljs-selector-tag">b</span> 排序，<span class="hljs-selector-tag">a</span> 和 <span class="hljs-selector-tag">b</span> 都相同的再按 c 排序。<br></code></pre></td></tr></table></figure>
 
 <p>B+ 树中的索引键看起来像这样：</p>
@@ -1166,15 +1292,16 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 好的设计：</span><br><span class="hljs-comment">-- 如果查询是 WHERE a = ? AND b = ? ORDER BY c</span><br><span class="hljs-comment">-- 建立索引 (a, b, c)，a 和 b 是等值查询，c 可以用于 ORDER BY 优化</span><br><br><span class="hljs-comment">-- 不好的设计：</span><br><span class="hljs-comment">-- 如果 b 是范围查询（b &gt; 10），建立索引 (a, b, c) 后，c 无法用于索引排序</span><br><span class="hljs-comment">-- 应该建立索引 (a, c, b)，把范围查询的列放最后</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-11"><a href="#面试加分回答-11" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-12"><a href="#面试加分回答-12" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「最左前缀原则的本质是 B+ 树的有序性约束。在设计联合索引时，有一个重要的原则：<strong>等值查询的列放前面，范围查询的列放最后</strong>。因为如果某列是范围查询（<code>&gt;</code>、<code>&lt;</code>、<code>BETWEEN</code>），那么它后面的列就无法用到索引的有序性了。另外，MySQL 5.6 引入的**索引下推（Index Condition Pushdown，ICP）**可以在存储引擎层就过滤掉不符合条件的行，减少回表次数，这也是一个重要的优化特性。」</p>
 </blockquote>
 <hr>
-<h3 id="第-13-题：索引失效的常见情况有哪些？如何避免？"><a href="#第-13-题：索引失效的常见情况有哪些？如何避免？" class="headerlink" title="第 13 题：索引失效的常见情况有哪些？如何避免？"></a>第 13 题：索引失效的常见情况有哪些？如何避免？</h3><h4 id="一句话结论-12"><a href="#一句话结论-12" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-13-题：索引失效的常见情况有哪些？如何避免？"></a><br><a id="第-48-题：为什么有时候索引会失效？能举个索引失效的实战例子吗？"></a><br><a id="qb-13"></a></p>
+<h3 id="Q13：索引失效的常见情况有哪些？如何避免？"><a href="#Q13：索引失效的常见情况有哪些？如何避免？" class="headerlink" title="Q13：索引失效的常见情况有哪些？如何避免？"></a>Q13：索引失效的常见情况有哪些？如何避免？</h3><h4 id="一句话结论-13"><a href="#一句话结论-13" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>索引失效主要分两类：一是对索引列做了运算或函数（相当于破坏了有序性）；二是优化器认为全表扫描更快（通常是符合条件的行数占比太大）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-12"><a href="#深度解析-12" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>情况 1：对索引列使用函数或表达式</strong></p>
+<h4 id="深度解析-13"><a href="#深度解析-13" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>情况 1：对索引列使用函数或表达式</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ❌ 索引失效：MySQL 无法对函数结果使用索引</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">YEAR</span>(create_time) <span class="hljs-operator">=</span> <span class="hljs-number">2024</span>;<br><br><span class="hljs-comment">-- ✅ 改写后可以用索引</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&gt;=</span> <span class="hljs-string">&#x27;2024-01-01&#x27;</span> <span class="hljs-keyword">AND</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2025-01-01&#x27;</span>;<br></code></pre></td></tr></table></figure>
 
 <p><strong>原因：</strong> 索引是按照列的原始值排序的，对列做函数运算后，有序性被破坏，无法利用 B+ 树快速定位。</p>
@@ -1213,15 +1340,47 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 如果 user 表有 100 万行，age &gt; 18 的有 90 万行</span><br><span class="hljs-comment">-- 优化器会放弃索引，选择全表扫描（因为几乎要回表 90 万次，不如直接全表扫）</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> age <span class="hljs-operator">&gt;</span> <span class="hljs-number">18</span>;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-12"><a href="#面试加分回答-12" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-13"><a href="#面试加分回答-13" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「索引失效的排查，最核心的工具是 <code>EXPLAIN</code>。但要注意，<code>EXPLAIN</code> 显示的「可能用到的索引」（<code>possible_keys</code>）和「实际用到的索引」（<code>key</code>）可能不一样，因为优化器会根据成本估算动态选择。另外，MySQL 8.0 引入了<strong>不可见索引（Invisible Indexes）</strong>，可以在不删除索引的情况下测试删除索引的影响，这是生产环境索引优化的利器。」</p>
 </blockquote>
 <hr>
-<h3 id="第-14-题：EXPLAIN-执行计划的各个字段怎么看？"><a href="#第-14-题：EXPLAIN-执行计划的各个字段怎么看？" class="headerlink" title="第 14 题：EXPLAIN 执行计划的各个字段怎么看？"></a>第 14 题：EXPLAIN 执行计划的各个字段怎么看？</h3><h4 id="一句话结论-13"><a href="#一句话结论-13" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：为什么有时候索引会失效？能举个索引失效的实战例子吗？</summary>
+
+<h4 id="一句话结论-14"><a href="#一句话结论-14" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>索引失效的核心原因：① 对索引列用了函数&#x2F;运算 ② 隐式类型转换 ③ 最左前缀原则违反 ④ 优化器认为全表扫描更快。</strong></p>
+</blockquote>
+<hr>
+<h4 id="深度解析-14"><a href="#深度解析-14" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>实战案例 ①：对索引列用了函数（最常见！）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ❌ 索引失效：对 create_time 用了 YEAR() 函数</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">YEAR</span>(create_time) <span class="hljs-operator">=</span> <span class="hljs-number">2024</span>;<br><br><span class="hljs-comment">-- ✅ 改写后可以用索引</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&gt;=</span> <span class="hljs-string">&#x27;2024-01-01&#x27;</span> <span class="hljs-keyword">AND</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2025-01-01&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><strong>原因</strong>：索引是按照列的原始值排序的，对列做函数运算后，有序性被破坏，无法利用 B+ 树快速定位。</p>
+<hr>
+<p><strong>实战案例 ②：隐式类型转换</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- phone 是 VARCHAR 类型</span><br><span class="hljs-comment">-- ❌ 索引失效：MySQL 会把 VARCHAR 转换成数字，相当于对索引列用了函数</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> phone <span class="hljs-operator">=</span> <span class="hljs-number">12345678901</span>;<br><br><span class="hljs-comment">-- ✅ 正确写法</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> phone <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;12345678901&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><strong>如何排查？</strong> 执行 <code>EXPLAIN</code>，看 <code>type</code> 列是否变成了 <code>ALL</code>（全表扫描）。</p>
+<hr>
+<p><strong>实战案例 ③：最左前缀原则违反</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 有联合索引 (a, b, c)</span><br><span class="hljs-comment">-- ❌ 不走索引（不从最左列 a 开始）</span><br><span class="hljs-keyword">WHERE</span> b <span class="hljs-operator">=</span> <span class="hljs-number">2</span> <span class="hljs-keyword">AND</span> c <span class="hljs-operator">=</span> <span class="hljs-number">3</span>;<br><br><span class="hljs-comment">-- ✅ 走索引</span><br><span class="hljs-keyword">WHERE</span> a <span class="hljs-operator">=</span> <span class="hljs-number">1</span> <span class="hljs-keyword">AND</span> b <span class="hljs-operator">=</span> <span class="hljs-number">2</span>;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>实战案例 ④：优化器认为全表扫描更快</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 如果 user 表有 100 万行，age &gt; 18 的有 90 万行</span><br><span class="hljs-comment">-- 优化器会放弃索引，选择全表扫描（因为几乎要回表 90 万次，不如直接全表扫）</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> age <span class="hljs-operator">&gt;</span> <span class="hljs-number">18</span>;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-14"><a href="#面试加分回答-14" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「索引失效的排查，最核心的工具是 <code>EXPLAIN</code>。但要注意，<code>EXPLAIN</code> 显示的”可能用到的索引”（<code>possible_keys</code>）和”实际用到的索引”（<code>key</code>）可能不一样，因为优化器会根据成本估算动态选择。另外，MySQL 8.0 引入了<strong>不可见索引（Invisible Indexes）</strong>，可以在不删除索引的情况下测试删除索引的影响，这是生产环境索引优化的利器。」</p>
+</blockquote>
+<hr>
+</details>
+
+<p><a id="第-14-题：EXPLAIN-执行计划的各个字段怎么看？"></a><br><a id="第-40-题：EXPLAIN-的-type-字段有哪些值？"></a><br><a id="qb-14"></a></p>
+<h3 id="Q14：EXPLAIN-执行计划的各个字段怎么看？"><a href="#Q14：EXPLAIN-执行计划的各个字段怎么看？" class="headerlink" title="Q14：EXPLAIN 执行计划的各个字段怎么看？"></a>Q14：EXPLAIN 执行计划的各个字段怎么看？</h3><h4 id="一句话结论-15"><a href="#一句话结论-15" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>EXPLAIN 是 MySQL 性能分析的瑞士军刀。</strong> 重点关注 <code>type</code>（访问类型）、<code>key</code>（实际用到的索引）、<code>rows</code>（预估扫描行数）、<code>Extra</code>（额外信息）这四个字段。</p>
 </blockquote>
 <hr>
-<h4 id="深度解析-13"><a href="#深度解析-13" class="headerlink" title="深度解析"></a>深度解析</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">EXPLAIN <span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> age <span class="hljs-operator">&gt;</span> <span class="hljs-number">20</span>;<br></code></pre></td></tr></table></figure>
+<h4 id="深度解析-15"><a href="#深度解析-15" class="headerlink" title="深度解析"></a>深度解析</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">EXPLAIN <span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> age <span class="hljs-operator">&gt;</span> <span class="hljs-number">20</span>;<br></code></pre></td></tr></table></figure>
 
 <p><strong>输出字段详解：</strong></p>
 <hr>
@@ -1364,15 +1523,62 @@
 </tr>
 </tbody></table>
 <hr>
-<h4 id="面试加分回答-13"><a href="#面试加分回答-13" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-15"><a href="#面试加分回答-15" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「<code>EXPLAIN</code> 只能看到优化器的<strong>预估</strong>执行计划，有时候和实际情况有偏差。MySQL 8.0 引入了 <code>EXPLAIN ANALYZE</code>，可以显示<strong>实际</strong>的执行时间、实际扫描行数等信息，比 <code>EXPLAIN</code> 更强大。另外，<code>EXPLAIN</code> 的 <code>type=ALL</code> 并不一定意味着慢，如果表只有几百行，全表扫描反而比走索引快（因为不需要回表）。」</p>
 </blockquote>
 <hr>
-<h3 id="第-15-题：索引设计的最佳实践是什么？"><a href="#第-15-题：索引设计的最佳实践是什么？" class="headerlink" title="第 15 题：索引设计的最佳实践是什么？"></a>第 15 题：索引设计的最佳实践是什么？</h3><h4 id="一句话结论-14"><a href="#一句话结论-14" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：EXPLAIN 的 type 字段有哪些值？</summary>
+
+<p><strong>一句话总结</strong>：type 字段表示访问类型，从好到坏：system &gt; const &gt; eq_ref &gt; ref &gt; range &gt; index &gt; ALL；至少要达到 range 级别。</p>
+<p><strong>深度解析</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>type 值</th>
+<th>含义</th>
+<th>性能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>const</td>
+<td>主键精确匹配</td>
+<td>极快</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>普通索引精确匹配</td>
+<td>快</td>
+</tr>
+<tr>
+<td>range</td>
+<td>索引范围扫描</td>
+<td>还行</td>
+</tr>
+<tr>
+<td>index</td>
+<td>全索引扫描</td>
+<td>慢</td>
+</tr>
+<tr>
+<td>ALL</td>
+<td>全表扫描</td>
+<td>很慢</td>
+</tr>
+</tbody></table>
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>“我们 SQL 优化的门槛是 type 至少达到 range，最好能达到 ref。如果 EXPLAIN 显示 type&#x3D;ALL，说明全表扫描，必须加索引。”</p>
+</blockquote>
+<hr>
+</details>
+
+<p><a id="第-15-题：索引设计的最佳实践是什么？"></a><br><a id="qb-15"></a></p>
+<h3 id="Q15：索引设计的最佳实践是什么？"><a href="#Q15：索引设计的最佳实践是什么？" class="headerlink" title="Q15：索引设计的最佳实践是什么？"></a>Q15：索引设计的最佳实践是什么？</h3><h4 id="一句话结论-16"><a href="#一句话结论-16" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>索引不是越多越好。</strong> 好的索引设计 &#x3D; 高性能查询 + 可接受的开销。核心原则：区分度高的列放前面、范围查询列放最后、避免过多索引、定期清理无用索引。</p>
 </blockquote>
 <hr>
-<h4 id="深度解析-14"><a href="#深度解析-14" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>原则 1：区分度高的列放在联合索引的最前面</strong></p>
+<h4 id="深度解析-16"><a href="#深度解析-16" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>原则 1：区分度高的列放在联合索引的最前面</strong></p>
 <p>区分度 &#x3D; 不重复的值的个数 &#x2F; 总行数。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- email 的区分度通常很高（几乎每行都不一样）</span><br><span class="hljs-comment">-- gender 的区分度很低（只有男/女两个值）</span><br><span class="hljs-comment">-- 所以 (email, gender) 比 (gender, email) 过滤效果更好</span><br></code></pre></td></tr></table></figure>
 
@@ -1397,15 +1603,16 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> sys.schema_unused_indexes;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-14"><a href="#面试加分回答-14" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-16"><a href="#面试加分回答-16" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「索引设计是一门平衡的艺术。索引能极大提升查询性能，但会降低写入性能，因为每次 INSERT&#x2F;UPDATE&#x2F;DELETE 都需要维护索引。在生产环境中，我们通常通过<strong>慢查询日志</strong>来发现需要优化的 SQL，然后有针对性地建立索引，而不是一开始就建立一大堆索引。另外，MySQL 8.0 支持的<strong>不可见索引（Invisible Indexes）</strong>，可以让我们在不删除索引的情况下测试删除索引的影响，非常实用。」</p>
 </blockquote>
 <hr>
-<h3 id="第-16-题：唯一索引和普通索引的区别？该怎么选？"><a href="#第-16-题：唯一索引和普通索引的区别？该怎么选？" class="headerlink" title="第 16 题：唯一索引和普通索引的区别？该怎么选？"></a>第 16 题：唯一索引和普通索引的区别？该怎么选？</h3><h4 id="一句话结论-15"><a href="#一句话结论-15" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-16-题：唯一索引和普通索引的区别？该怎么选？"></a><br><a id="qb-16"></a></p>
+<h3 id="Q16：唯一索引和普通索引的区别？该怎么选？"><a href="#Q16：唯一索引和普通索引的区别？该怎么选？" class="headerlink" title="Q16：唯一索引和普通索引的区别？该怎么选？"></a>Q16：唯一索引和普通索引的区别？该怎么选？</h3><h4 id="一句话结论-17"><a href="#一句话结论-17" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>唯一索引比普通索引多了一个唯一性约束检查；在查询性能上两者几乎无差别；在写入性能上，普通索引略优于唯一索引（不需要检查唯一性）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-15"><a href="#深度解析-15" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>功能差异：</strong></p>
+<h4 id="深度解析-17"><a href="#深度解析-17" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>功能差异：</strong></p>
 <table>
 <thead>
 <tr>
@@ -1447,15 +1654,16 @@
 
 <p>但在有 <strong>Change Buffer</strong> 的情况下，这个差异也不大。不过，<strong>如果业务层已经保证了唯一性，建议用普通索引</strong>，减少数据库的唯一性检查开销。</p>
 <hr>
-<h4 id="面试加分回答-15"><a href="#面试加分回答-15" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-17"><a href="#面试加分回答-17" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「唯一索引和普通索引的选择，核心要看<strong>业务是否需要在数据库层保证唯一性</strong>。如果业务层已经通过分布式锁或者其他方式保证了唯一性，建议用普通索引，减少数据库的唯一性检查开销。另外，在 MySQL 中，<strong>唯一索引的冲突检查是在语句执行时做的</strong>，如果插入冲突会报 <code>Duplicate entry</code> 错误，应用层需要捕获这个错误并处理。」</p>
 </blockquote>
 <hr>
-<h3 id="第-17-题：索引下推（Index-Condition-Pushdown，ICP）是什么？"><a href="#第-17-题：索引下推（Index-Condition-Pushdown，ICP）是什么？" class="headerlink" title="第 17 题：索引下推（Index Condition Pushdown，ICP）是什么？"></a>第 17 题：索引下推（Index Condition Pushdown，ICP）是什么？</h3><h4 id="一句话结论-16"><a href="#一句话结论-16" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-17-题：索引下推（Index-Condition-Pushdown，ICP）是什么？"></a><br><a id="qb-17"></a></p>
+<h3 id="Q17：索引下推（Index-Condition-Pushdown，ICP）是什么？"><a href="#Q17：索引下推（Index-Condition-Pushdown，ICP）是什么？" class="headerlink" title="Q17：索引下推（Index Condition Pushdown，ICP）是什么？"></a>Q17：索引下推（Index Condition Pushdown，ICP）是什么？</h3><h4 id="一句话结论-18"><a href="#一句话结论-18" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>索引下推 &#x3D; 把 WHERE 条件中索引包含的列的过滤，下推到存储引擎层做，减少回表次数。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-16"><a href="#深度解析-16" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>没有 ICP 的世界：</strong></p>
+<h4 id="深度解析-18"><a href="#深度解析-18" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>没有 ICP 的世界：</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 假设有联合索引 (name, age)</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> name <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;张%&#x27;</span> <span class="hljs-keyword">AND</span> age <span class="hljs-operator">&gt;</span> <span class="hljs-number">25</span>;<br></code></pre></td></tr></table></figure>
 
 <p><strong>MySQL 5.5（无 ICP）的执行流程：</strong></p>
@@ -1471,15 +1679,16 @@
 <p><strong>如何确认 ICP 是否生效？</strong></p>
 <p>看 <code>EXPLAIN</code> 的 <code>Extra</code> 列，显示 <code>Using index condition</code> 就是 ICP 生效了。</p>
 <hr>
-<h4 id="面试加分回答-16"><a href="#面试加分回答-16" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-18"><a href="#面试加分回答-18" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「索引下推（ICP）是 MySQL 5.6 引入的重要优化，核心是<strong>减少存储引擎和 Server 层之间的数据传输量</strong>。在没有 ICP 的情况下，存储引擎会先把所有符合最左前缀条件的数据都回表取出来，再传给 Server 层过滤；有了 ICP，存储引擎可以在索引中直接过滤掉不符合条件的行，只回表那些真正需要的数据。这个优化在联合索引的第二个列有过滤条件时特别有效。」</p>
 </blockquote>
 <hr>
-<h3 id="第-18-题：Change-Buffer-是什么？它有什么用？"><a href="#第-18-题：Change-Buffer-是什么？它有什么用？" class="headerlink" title="第 18 题：Change Buffer 是什么？它有什么用？"></a>第 18 题：Change Buffer 是什么？它有什么用？</h3><h4 id="一句话结论-17"><a href="#一句话结论-17" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-18-题：Change-Buffer-是什么？它有什么用？"></a><br><a id="qb-18"></a></p>
+<h3 id="Q18：Change-Buffer-是什么？它有什么用？"><a href="#Q18：Change-Buffer-是什么？它有什么用？" class="headerlink" title="Q18：Change Buffer 是什么？它有什么用？"></a>Q18：Change Buffer 是什么？它有什么用？</h3><h4 id="一句话结论-19"><a href="#一句话结论-19" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>Change Buffer 是 InnoDB 用于缓存非唯一二级索引的写操作的内存区域，目的是把随机 I&#x2F;O 变成批量 I&#x2F;O，大幅提升写入性能。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-17"><a href="#深度解析-17" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>没有 Change Buffer 的世界：</strong></p>
+<h4 id="深度解析-19"><a href="#深度解析-19" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>没有 Change Buffer 的世界：</strong></p>
 <p>每次执行 <code>INSERT/UPDATE/DELETE</code>，如果需要修改二级索引，InnoDB 需要：</p>
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 检查二级索引页是否在 Buffer Pool 中<br><span class="hljs-bullet">2.</span> 如果不在，把二级索引页从磁盘加载到 Buffer Pool（随机 I/O！）<br><span class="hljs-bullet">3.</span> 修改二级索引页<br></code></pre></td></tr></table></figure>
 
@@ -1499,16 +1708,17 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 查看 Change Buffer 最大占用 Buffer Pool 的比例（默认 25%）</span><br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;innodb_change_buffer_max_size&#x27;</span>;<br><br><span class="hljs-comment">-- 查看 Change Buffer 的使用情况</span><br><span class="hljs-keyword">SHOW</span> ENGINE INNODB STATUS;<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-17"><a href="#面试加分回答-17" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-19"><a href="#面试加分回答-19" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「Change Buffer 是 InnoDB 写入性能优化的重要设计。它的核心思想是<strong>延迟写</strong>：非唯一二级索引的修改先缓存起来，等到读这个索引页时再批量应用。这对于写入频繁、读取较少的场景（如日志表）效果特别明显。但要注意：如果业务是<strong>写入后立刻读取</strong>（如插入后马上查询），Change Buffer 反而会增加读取时的开销（需要合并），这时可以考虑调小 <code>innodb_change_buffer_max_size</code>。」</p>
 </blockquote>
 <hr>
 <h2 id="四、SQL-优化与实战（19-25）"><a href="#四、SQL-优化与实战（19-25）" class="headerlink" title="四、SQL 优化与实战（19-25）"></a>四、SQL 优化与实战（19-25）</h2><hr>
-<h3 id="第-19-题：大表优化的思路有哪些？"><a href="#第-19-题：大表优化的思路有哪些？" class="headerlink" title="第 19 题：大表优化的思路有哪些？"></a>第 19 题：大表优化的思路有哪些？</h3><h4 id="一句话结论-18"><a href="#一句话结论-18" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-19-题：大表优化的思路有哪些？"></a><br><a id="qb-19"></a></p>
+<h3 id="Q19：大表优化的思路有哪些？"><a href="#Q19：大表优化的思路有哪些？" class="headerlink" title="Q19：大表优化的思路有哪些？"></a>Q19：大表优化的思路有哪些？</h3><h4 id="一句话结论-20"><a href="#一句话结论-20" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>大表优化 &#x3D; 限定查询范围 + 读写分离 + 分库分表 + 加缓存层。</strong> 优先从架构层面优化，最后才考虑分库分表。</p>
 </blockquote>
 <hr>
-<h4 id="深度解析-18"><a href="#深度解析-18" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>优化思路 ①：限定查询范围（成本最低，优先做）</strong></p>
+<h4 id="深度解析-20"><a href="#深度解析-20" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>优化思路 ①：限定查询范围（成本最低，优先做）</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ❌ 避免全表扫描</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span>;<br><br><span class="hljs-comment">-- ✅ 限定查询范围</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">&gt;</span> <span class="hljs-number">1000000</span> LIMIT <span class="hljs-number">100</span>;<br><span class="hljs-comment">-- 或者按时间分片</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&gt;=</span> <span class="hljs-string">&#x27;2024-01-01&#x27;</span> <span class="hljs-keyword">AND</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2024-02-01&#x27;</span>;<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1539,15 +1749,16 @@
 <p>缓存是提升读性能最有效的手段，能把数据库 QPS 提升 10~100 倍。</p>
 </blockquote>
 <hr>
-<h4 id="面试加分回答-18"><a href="#面试加分回答-18" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-20"><a href="#面试加分回答-20" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「大表优化有一个优先级：<strong>先限定查询范围 → 再加索引 → 再做读写分离 → 最后才考虑分库分表</strong>。分库分表是成本最高的优化手段，会带来分布式事务、跨表查询、运维复杂度等一系列问题。在很多情况下，通过<strong>冷热数据分离</strong>（热数据放 MySQL，冷数据归档到对象存储或数据仓库）就能解决问题，不需要分库分表。」</p>
 </blockquote>
 <hr>
-<h3 id="第-20-题：慢查询的优化步骤是什么？"><a href="#第-20-题：慢查询的优化步骤是什么？" class="headerlink" title="第 20 题：慢查询的优化步骤是什么？"></a>第 20 题：慢查询的优化步骤是什么？</h3><h4 id="一句话结论-19"><a href="#一句话结论-19" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-20-题：慢查询的优化步骤是什么？"></a><br><a id="qb-20"></a></p>
+<h3 id="Q20：慢查询的优化步骤是什么？"><a href="#Q20：慢查询的优化步骤是什么？" class="headerlink" title="Q20：慢查询的优化步骤是什么？"></a>Q20：慢查询的优化步骤是什么？</h3><h4 id="一句话结论-21"><a href="#一句话结论-21" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>开启慢查询日志 → 用 EXPLAIN 分析 SQL → 检查索引使用情况 → 优化索引或改写 SQL → 考虑架构层面优化。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-19"><a href="#深度解析-19" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>步骤 1：开启慢查询日志</strong></p>
+<h4 id="深度解析-21"><a href="#深度解析-21" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>步骤 1：开启慢查询日志</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 开启慢查询日志</span><br><span class="hljs-keyword">SET</span> <span class="hljs-keyword">GLOBAL</span> slow_query_log <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;ON&#x27;</span>;<br><br><span class="hljs-comment">-- 设置慢查询阈值（超过这个时间的查询会被记录，单位：秒）</span><br><span class="hljs-keyword">SET</span> <span class="hljs-keyword">GLOBAL</span> long_query_time <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br><br><span class="hljs-comment">-- 查看慢查询日志文件位置</span><br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;slow_query_log_file&#x27;</span>;<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1585,15 +1796,16 @@
 <li>分库分表</li>
 </ul>
 <hr>
-<h4 id="面试加分回答-19"><a href="#面试加分回答-19" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-21"><a href="#面试加分回答-21" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「慢查询优化最重要的是<strong>先找到慢查询</strong>，而不是盲目加索引。MySQL 的慢查询日志是最好的工具，配合 <code>pt-query-digest</code>（Percona Toolkit）可以统计分析慢查询的类型和频率。另外，MySQL 8.0 引入了**直方图（Histogram）**统计，可以帮助优化器更准确地估算查询成本，对于复杂查询的优化很有帮助。」</p>
 </blockquote>
 <hr>
-<h3 id="第-21-题：COUNT-和-COUNT-1-和-COUNT-列名-有什么区别？"><a href="#第-21-题：COUNT-和-COUNT-1-和-COUNT-列名-有什么区别？" class="headerlink" title="第 21 题：COUNT(*) 和 COUNT(1) 和 COUNT(列名) 有什么区别？"></a>第 21 题：COUNT(*) 和 COUNT(1) 和 COUNT(列名) 有什么区别？</h3><h4 id="一句话结论-20"><a href="#一句话结论-20" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-21-题：COUNT-和-COUNT-1-和-COUNT-列名-有什么区别？"></a><br><a id="第-43-题：MySQL-的-COUNT-为什么这么慢？"></a><br><a id="qb-21"></a></p>
+<h3 id="Q21：COUNT-和-COUNT-1-和-COUNT-列名-有什么区别？"><a href="#Q21：COUNT-和-COUNT-1-和-COUNT-列名-有什么区别？" class="headerlink" title="Q21：COUNT(*) 和 COUNT(1) 和 COUNT(列名) 有什么区别？"></a>Q21：COUNT(*) 和 COUNT(1) 和 COUNT(列名) 有什么区别？</h3><h4 id="一句话结论-22"><a href="#一句话结论-22" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>COUNT(<em>) 和 COUNT(1) 没有性能差别（InnoDB 做了优化）；COUNT(列名) 会过滤掉 NULL 值；MyISAM 的 COUNT(</em>) 很快（有内部计数器），InnoDB 的 COUNT(*) 需要全表扫描（除非有覆盖索引）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-20"><a href="#深度解析-20" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>InnoDB 下三者的区别：</strong></p>
+<h4 id="深度解析-22"><a href="#深度解析-22" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>InnoDB 下三者的区别：</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-built_in">COUNT</span>(<span class="hljs-operator">*</span>)      <span class="hljs-comment">-- 统计所有行（包括 NULL）</span><br><span class="hljs-built_in">COUNT</span>(<span class="hljs-number">1</span>)      <span class="hljs-comment">-- 统计所有行（包括 NULL），每行用一个常量 1 统计</span><br><span class="hljs-built_in">COUNT</span>(列名)   <span class="hljs-comment">-- 统计该列非 NULL 的行数</span><br></code></pre></td></tr></table></figure>
 
 <p><strong>性能对比（InnoDB）：</strong></p>
@@ -1610,15 +1822,27 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 优化器在执行 COUNT(*) 时，会自动选择占用空间最小的一个索引去扫描</span><br><span class="hljs-comment">-- 因为二级索引不存整行数据，叶子节点比聚簇索引小，扫描更快</span><br><span class="hljs-comment">-- 所以如果表上一个二级索引都没有，建一个体积小的单列索引，也能加速 COUNT(*)</span><br><span class="hljs-keyword">ALTER TABLE</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">ADD</span> INDEX idx_status (status);  <span class="hljs-comment">-- 技巧：给某个窄列建二级索引，间接加速 COUNT(*)</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-20"><a href="#面试加分回答-20" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-22"><a href="#面试加分回答-22" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「InnoDB 的 <code>COUNT(*)</code> 慢是一个经典问题。在 MySQL 8.0 之前，很多人通过在表里维护一个计数器表来优化。MySQL 8.0 之后，可以通过<strong>并行查询</strong>（如果数据量极大）或者<strong>物化视图</strong>（通过定时任务预计算）来优化。另外，如果业务允许，可以用 <code>EXPLAIN</code> 的 <code>rows</code> 列来估算行数，这比真正的 <code>COUNT(*)</code> 快得多。」</p>
 </blockquote>
 <hr>
-<h3 id="第-22-题：LIMIT-大偏移量为什么会慢？怎么优化？"><a href="#第-22-题：LIMIT-大偏移量为什么会慢？怎么优化？" class="headerlink" title="第 22 题：LIMIT 大偏移量为什么会慢？怎么优化？"></a>第 22 题：LIMIT 大偏移量为什么会慢？怎么优化？</h3><h4 id="一句话结论-21"><a href="#一句话结论-21" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：MySQL 的 COUNT(*) 为什么这么慢？</summary>
+
+<p><strong>一句话总结</strong>：InnoDB 的 COUNT(*) 需要遍历整张表；优化方案：用 Redis 缓存计数、用汇总表。</p>
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>“我们详情页的’评论数’、’点赞数’用 Redis 维护计数器，每次写入时同步 +1&#x2F;-1，查询时直接读 Redis。”</p>
+</blockquote>
+<hr>
+</details>
+
+<p><a id="第-22-题：LIMIT-大偏移量为什么会慢？怎么优化？"></a><br><a id="第-35-题：MySQL-分页查询怎么优化？"></a><br><a id="qb-22"></a></p>
+<h3 id="Q22：LIMIT-大偏移量为什么会慢？怎么优化？"><a href="#Q22：LIMIT-大偏移量为什么会慢？怎么优化？" class="headerlink" title="Q22：LIMIT 大偏移量为什么会慢？怎么优化？"></a>Q22：LIMIT 大偏移量为什么会慢？怎么优化？</h3><h4 id="一句话结论-23"><a href="#一句话结论-23" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>LIMIT 100000, 20 需要扫描前 100020 行才返回 20 行，浪费极大。优化方式：用索引覆盖 + 子查询，或者用「延迟关联」优化。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-21"><a href="#深度解析-21" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>问题演示：</strong></p>
+<h4 id="深度解析-23"><a href="#深度解析-23" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>问题演示：</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ❌ 很慢！需要扫描前 100020 行，然后丢弃前 100000 行</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id LIMIT <span class="hljs-number">100000</span>, <span class="hljs-number">20</span>;<br></code></pre></td></tr></table></figure>
 
 <p>执行过程：</p>
@@ -1634,15 +1858,34 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ❌ 传统分页，偏移量越大越慢</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id LIMIT <span class="hljs-number">100000</span>, <span class="hljs-number">20</span>;<br><br><span class="hljs-comment">-- ✅ 游标分页（基于上一页的最后一条记录的 id）</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">&gt;</span> <span class="hljs-number">100000</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id LIMIT <span class="hljs-number">20</span>;<br><span class="hljs-comment">-- 前提是 id 是有序的，且业务允许这种方式分页</span><br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-21"><a href="#面试加分回答-21" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-23"><a href="#面试加分回答-23" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「LIMIT 大偏移量的优化，最好的方式是<strong>避免大偏移量</strong>，改用「游标分页」（也叫「keyset pagination」）。它的核心是：不用 <code>LIMIT offset, size</code>，而是用 <code>WHERE id &gt; last_id LIMIT size</code>。这种方式性能稳定，不受偏移量影响。但它的限制是：只能做「上一页&#x2F;下一页」的翻页，不能跳到任意页。如果需要跳页，可以结合搜索引擎（如 Elasticsearch）来实现。」</p>
 </blockquote>
 <hr>
-<h3 id="第-23-题：SELECT-有什么坏处？"><a href="#第-23-题：SELECT-有什么坏处？" class="headerlink" title="第 23 题：SELECT * 有什么坏处？"></a>第 23 题：SELECT * 有什么坏处？</h3><h4 id="一句话结论-22"><a href="#一句话结论-22" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<details>
+<summary>展开：MySQL 分页查询怎么优化？</summary>
+
+<p><strong>一句话总结</strong>：LIMIT offset, size 在 offset 很大时会全表扫描；优化方案是用「延迟关联」或「游标分页（基于 ID）」。</p>
+<p><strong>深度解析</strong>：</p>
+<p>优化方案 1 - 延迟关联：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> orders a<br><span class="hljs-keyword">JOIN</span> (<span class="hljs-keyword">SELECT</span> id <span class="hljs-keyword">FROM</span> orders <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id LIMIT <span class="hljs-number">1000000</span>, <span class="hljs-number">20</span>) b<br><span class="hljs-keyword">ON</span> a.id <span class="hljs-operator">=</span> b.id;<br></code></pre></td></tr></table></figure>
+
+<p>优化方案 2 - 游标分页（推荐）：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> orders <span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">&gt;</span> <span class="hljs-number">1000020</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id LIMIT <span class="hljs-number">20</span>;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>“我们列表分页用的是游标分页（基于最后一条记录的 ID），而不是 LIMIT offset。性能稳定，且不受数据增删影响。”</p>
+</blockquote>
+<hr>
+</details>
+
+<p><a id="第-23-题：SELECT-有什么坏处？"></a><br><a id="qb-23"></a></p>
+<h3 id="Q23：SELECT-有什么坏处？"><a href="#Q23：SELECT-有什么坏处？" class="headerlink" title="Q23：SELECT * 有什么坏处？"></a>Q23：SELECT * 有什么坏处？</h3><h4 id="一句话结论-24"><a href="#一句话结论-24" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>SELECT * 会导致：① 无法使用覆盖索引（必须回表）；② 传输多余字段，浪费网络带宽；③ 表结构变更可能导致应用出错；④ 索引优化受限。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-22"><a href="#深度解析-22" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>坏处 ①：无法使用覆盖索引</strong></p>
+<h4 id="深度解析-24"><a href="#深度解析-24" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>坏处 ①：无法使用覆盖索引</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 有索引 (name, age)</span><br><span class="hljs-comment">-- ❌ SELECT * 必须回表（因为索引没有存储所有列）</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Alice&#x27;</span>;<br><br><span class="hljs-comment">-- ✅ 只查索引列，覆盖索引，不需要回表</span><br><span class="hljs-keyword">SELECT</span> name, age <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Alice&#x27;</span>;<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1656,15 +1899,16 @@
 <p><strong>坏处 ④：索引优化受限</strong></p>
 <p>优化器在选择索引时，如果查询是 <code>SELECT *</code>，通常只能选择聚簇索引（因为二级索引需要回表），而指定列的话可以选择最优的二级索引。</p>
 <hr>
-<h4 id="面试加分回答-22"><a href="#面试加分回答-22" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-24"><a href="#面试加分回答-24" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「<code>SELECT *</code> 在开发环境为了方便可以用，但在生产环境中应该避免。一个例外情况是 <code>SELECT COUNT(*)</code>，这个 MySQL 做了特殊优化，不会真的把所有列都查出来。另外，有些 ORM（如 MyBatis）虽然写的是 <code>SELECT *</code>，但实际上可以通过 ResultMap 来映射列，这时 <code>SELECT *</code> 的坏处主要在于无法使用覆盖索引。」</p>
 </blockquote>
 <hr>
-<h3 id="第-24-题：JOIN-的优化思路有哪些？"><a href="#第-24-题：JOIN-的优化思路有哪些？" class="headerlink" title="第 24 题：JOIN 的优化思路有哪些？"></a>第 24 题：JOIN 的优化思路有哪些？</h3><h4 id="一句话结论-23"><a href="#一句话结论-23" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-24-题：JOIN-的优化思路有哪些？"></a><br><a id="qb-24"></a></p>
+<h3 id="Q24：JOIN-的优化思路有哪些？"><a href="#Q24：JOIN-的优化思路有哪些？" class="headerlink" title="Q24：JOIN 的优化思路有哪些？"></a>Q24：JOIN 的优化思路有哪些？</h3><h4 id="一句话结论-25"><a href="#一句话结论-25" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>JOIN 优化的核心：① 确保联表条件有索引；② 小表驱动大表；③ 减少 JOIN 的表数量；④ 考虑是否可以用单表查询 + 业务层拼接来代替 JOIN。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-23"><a href="#深度解析-23" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>优化 ①：确保联表条件有索引</strong></p>
+<h4 id="深度解析-25"><a href="#深度解析-25" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>优化 ①：确保联表条件有索引</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ❌ b 的 uid 没有索引，会导致全表扫描</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> a <span class="hljs-keyword">JOIN</span> b <span class="hljs-keyword">ON</span> a.id <span class="hljs-operator">=</span> b.uid;<br><br><span class="hljs-comment">-- ✅ 给 b.uid 加索引</span><br><span class="hljs-keyword">ALTER TABLE</span> b <span class="hljs-keyword">ADD</span> INDEX idx_uid (uid);<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1682,15 +1926,16 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 有时候把 JOIN 拆成两个单表查询，在业务层拼接，性能反而更好</span><br><span class="hljs-comment">-- 因为可以并行查询两张表</span><br>List<span class="hljs-operator">&lt;</span>A<span class="hljs-operator">&gt;</span> listA <span class="hljs-operator">=</span> query(&quot;SELECT * FROM a WHERE ...&quot;);<br>List<span class="hljs-operator">&lt;</span>B<span class="hljs-operator">&gt;</span> listB <span class="hljs-operator">=</span> query(&quot;SELECT * FROM b WHERE ...&quot;);<br><span class="hljs-operator">/</span><span class="hljs-operator">/</span> 在业务层组装结果<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-23"><a href="#面试加分回答-23" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-25"><a href="#面试加分回答-25" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「JOIN 优化有一个重要的点：<strong>MySQL 的 JOIN 缓冲区（join_buffer_size）</strong>。在 MySQL 8.0.18 之前，如果联表条件没有索引，MySQL 会使用 Block Nested Loop Join 算法，把驱动表的数据放到 join buffer 中，再批量去被驱动表匹配，这时 <code>join_buffer_size</code> 的设置很重要，太小会导致多次扫描，太大则会浪费内存。但从 <strong>MySQL 8.0.18</strong> 开始，等值 JOIN 在无法使用索引时改用<strong>哈希 JOIN（Hash Join）</strong>，到 <strong>8.0.20</strong> 起 Block Nested Loop 已经被完全取代，性能比老的 BNL 好得多——所以现在再遇到无索引的等值 JOIN，应该按 Hash Join 的思路去分析，而不是 BNL。」</p>
 </blockquote>
 <hr>
-<h3 id="第-25-题：MySQL-的主从复制原理是什么？"><a href="#第-25-题：MySQL-的主从复制原理是什么？" class="headerlink" title="第 25 题：MySQL 的主从复制原理是什么？"></a>第 25 题：MySQL 的主从复制原理是什么？</h3><h4 id="一句话结论-24"><a href="#一句话结论-24" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-25-题：MySQL-的主从复制原理是什么？"></a><br><a id="qb-25"></a></p>
+<h3 id="Q25：MySQL-的主从复制原理是什么？"><a href="#Q25：MySQL-的主从复制原理是什么？" class="headerlink" title="Q25：MySQL 的主从复制原理是什么？"></a>Q25：MySQL 的主从复制原理是什么？</h3><h4 id="一句话结论-26"><a href="#一句话结论-26" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>主从复制 &#x3D; 主库写 binlog → 从库 I&#x2F;O 线程拉取 binlog 到本地 relay log → 从库 SQL 线程重放 relay log。核心依赖 binlog。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-24"><a href="#深度解析-24" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>完整流程：</strong></p>
+<h4 id="深度解析-26"><a href="#深度解析-26" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>完整流程：</strong></p>
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs markdown">主库（Master）：<br><span class="hljs-bullet">    1.</span> 写操作记录到 binlog（二进制日志）<br><span class="hljs-bullet">    2.</span> binlog dump 线程把 binlog 推送给从库<br><br>从库（Slave）：<br><span class="hljs-bullet">    3.</span> I/O 线程接收主库的 binlog，写入本地 relay log（中继日志）<br><span class="hljs-bullet">    4.</span> SQL 线程读取 relay log，重放执行<br><span class="hljs-bullet">    5.</span> 数据同步完成<br></code></pre></td></tr></table></figure>
 
 <hr>
@@ -1743,16 +1988,17 @@
 <li>使用<strong>半同步复制</strong>（<code>rpl_semi_sync_master_enabled</code>）减少数据丢失风险。</li>
 </ul>
 <hr>
-<h4 id="面试加分回答-24"><a href="#面试加分回答-24" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-26"><a href="#面试加分回答-26" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「主从复制是 MySQL 高可用的基础。除了传统的主从复制，MySQL 还支持**组复制（Group Replication）**和 <strong>InnoDB Cluster</strong>，可以实现多主写入和自动故障转移。另外，在微服务架构中，很多人用 <strong>Canal</strong>（阿里开源）来监听 MySQL 的 binlog，实现数据同步到 Elasticsearch、Redis 等，这也是一个重要的应用场景。」</p>
 </blockquote>
 <hr>
 <h2 id="五、实践与运维（26-30）"><a href="#五、实践与运维（26-30）" class="headerlink" title="五、实践与运维（26-30）"></a>五、实践与运维（26-30）</h2><hr>
-<h3 id="第-26-题：MySQL-中-VARCHAR-和-CHAR-的区别？怎么选？"><a href="#第-26-题：MySQL-中-VARCHAR-和-CHAR-的区别？怎么选？" class="headerlink" title="第 26 题：MySQL 中 VARCHAR 和 CHAR 的区别？怎么选？"></a>第 26 题：MySQL 中 VARCHAR 和 CHAR 的区别？怎么选？</h3><h4 id="一句话结论-25"><a href="#一句话结论-25" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-26-题：MySQL-中-VARCHAR-和-CHAR-的区别？怎么选？"></a><br><a id="第-31-题：CHAR-和-VARCHAR-的区别？什么场景用哪个？"></a><br><a id="qb-26"></a></p>
+<h3 id="Q26：MySQL-中-VARCHAR-和-CHAR-的区别？怎么选？"><a href="#Q26：MySQL-中-VARCHAR-和-CHAR-的区别？怎么选？" class="headerlink" title="Q26：MySQL 中 VARCHAR 和 CHAR 的区别？怎么选？"></a>Q26：MySQL 中 VARCHAR 和 CHAR 的区别？怎么选？</h3><h4 id="一句话结论-27"><a href="#一句话结论-27" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>CHAR 是定长字符串（用空格填充），适合长度固定的场景；VARCHAR 是变长字符串，适合长度不固定的场景。现代 MySQL 中，VARCHAR 几乎是默认选择。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-25"><a href="#深度解析-25" class="headerlink" title="深度解析"></a>深度解析</h4><table>
+<h4 id="深度解析-27"><a href="#深度解析-27" class="headerlink" title="深度解析"></a>深度解析</h4><table>
 <thead>
 <tr>
 <th>对比项</th>
@@ -1792,150 +2038,14 @@
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">InnoDB</span> 规定：<br>    一行数据（包含所有列）不能超过 <span class="hljs-number">65535</span> 字节<br>    但实际上，由于页大小是 16KB（<span class="hljs-number">16384</span> 字节），一行数据通常不能超过 8KB<br></code></pre></td></tr></table></figure>
 
 <hr>
-<h4 id="面试加分回答-25"><a href="#面试加分回答-25" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-27"><a href="#面试加分回答-27" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「VARCHAR 和 CHAR 的选择，核心看<strong>长度是否固定</strong>。但有一个细节：InnoDB 的存储格式是面向页的，VARCHAR 的变长特性可能导致页分裂（Page Split），影响性能。如果某个列的更新很频繁，且长度变化大，CHAR 反而可能更好（不会产生碎片）。另外要注意一个坑：<strong>VARCHAR 和 CHAR 之间的类型转换属于改变列的数据类型，通常只能用 <code>ALGORITHM=COPY</code></strong>（会重建整张表、期间阻塞写入），并不支持 <code>ALGORITHM=INPLACE</code>；只有像扩大 VARCHAR 长度且不跨字节长度类别（1 字节 ↔ 2 字节前缀）这类不改变物理格式的操作，才可能用 INPLACE 在线完成。大表做这种类型调整前一定要先用 <code>pt-online-schema-change</code> 之类的工具评估影响。」</p>
 </blockquote>
 <hr>
-<h3 id="第-27-题：MySQL-的连接池应该设置多大？"><a href="#第-27-题：MySQL-的连接池应该设置多大？" class="headerlink" title="第 27 题：MySQL 的连接池应该设置多大？"></a>第 27 题：MySQL 的连接池应该设置多大？</h3><h4 id="一句话结论-26"><a href="#一句话结论-26" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>连接池大小不是越大越好！经验公式：<code>连接池大小 = CPU 核心数 × 2 + 磁盘数</code>。通常 20~100 就够用了，几百上千反而会因为线程切换导致性能下降。</strong></p>
-</blockquote>
-<hr>
-<h4 id="深度解析-26"><a href="#深度解析-26" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>为什么连接数不是越大越好？</strong></p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">MySQL</span> <span class="hljs-string">处理每个连接都需要一个线程。</span><br><span class="hljs-string">如果连接池有</span> <span class="hljs-number">1000</span> <span class="hljs-string">个连接，MySQL</span> <span class="hljs-string">就有</span> <span class="hljs-number">1000</span> <span class="hljs-string">个线程在切换。</span><br><span class="hljs-string">线程切换是有开销的（上下文切换），连接数太多反而导致性能下降。</span><br></code></pre></td></tr></table></figure>
+<details>
+<summary>展开：CHAR 和 VARCHAR 的区别？什么场景用哪个？</summary>
 
-<hr>
-<p><strong>经验公式（源自 PostgreSQL 社区，后被 HikariCP 官方 wiki 引用推广，并非 MySQL 官方公式，仅供参考）：</strong></p>
-<figure class="highlight fix"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs fix"><span class="hljs-attr">连接池大小 </span>=<span class="hljs-string"> CPU_cores × 2 + disk_count</span><br></code></pre></td></tr></table></figure>
-
-<p>例如：4 核 CPU，1 块磁盘 → 连接池大小 ≈ 4×2+1 &#x3D; 9（可以设 20~50）</p>
-<hr>
-<p><strong>如何查看当前连接数：</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 查看当前连接数</span><br><span class="hljs-keyword">SHOW</span> STATUS <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;Threads_connected&#x27;</span>;<br><br><span class="hljs-comment">-- 查看连接池配置</span><br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;max_connections&#x27;</span>;  <span class="hljs-comment">-- 最大连接数，默认 151</span><br><br><span class="hljs-comment">-- 查看每个连接的内存开销</span><br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;sort_buffer_size&#x27;</span>;<br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;join_buffer_size&#x27;</span>;<br></code></pre></td></tr></table></figure>
-
-<hr>
-<h4 id="面试加分回答-26"><a href="#面试加分回答-26" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「连接池大小的设置，很多人有一个误区：以为「连接池越大，支持的并发越高」。实际上，MySQL 的最佳连接数通常在 <strong>CPU 核心数的 2~4 倍</strong>。另外，现在很多应用使用 <strong>连接池 + 读写分离</strong> 的架构，读请求走从库连接池，写请求走主库连接池，这样可以把连接数分散到多个数据库实例上。还有一个重要的参数是 <code>wait_timeout</code>，控制空闲连接的回收时间，避免连接泄漏。」</p>
-</blockquote>
-<hr>
-<h3 id="第-28-题：如何安全地删除大量数据？"><a href="#第-28-题：如何安全地删除大量数据？" class="headerlink" title="第 28 题：如何安全地删除大量数据？"></a>第 28 题：如何安全地删除大量数据？</h3><h4 id="一句话结论-27"><a href="#一句话结论-27" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>一次性 DELETE 大量数据会锁表、写大量 binlog、导致主从延迟。正确做法：分批删除，每次删除少量数据，循环执行。</strong></p>
-</blockquote>
-<hr>
-<h4 id="深度解析-27"><a href="#深度解析-27" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>错误做法：</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ❌ 一次删除 1000 万行，性能灾难！</span><br><span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span>;<br></code></pre></td></tr></table></figure>
-
-<p>后果：</p>
-<ul>
-<li>锁住大量行（行锁升级为表锁的风险）</li>
-<li>产生大量 redo log 和 binlog</li>
-<li>从库同步延迟巨大</li>
-<li>回滚段（undo log）暴增</li>
-</ul>
-<hr>
-<p><strong>正确做法：分批删除</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ✅ 分批删除，每次删 1000 行</span><br>WHILE <span class="hljs-literal">TRUE</span> DO<br>    <span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span> LIMIT <span class="hljs-number">1000</span>;<br>    <span class="hljs-comment">-- 如果没有影响到行，说明已经删完了</span><br>    IF ROW_COUNT() <span class="hljs-operator">=</span> <span class="hljs-number">0</span> <span class="hljs-keyword">THEN</span><br>        LEAVE;<br>    <span class="hljs-keyword">END</span> IF;<br>    <span class="hljs-comment">-- 每次删除后暂停一下，让从库追上</span><br>    DO SLEEP(<span class="hljs-number">1</span>);<br><span class="hljs-keyword">END</span> WHILE;<br></code></pre></td></tr></table></figure>
-
-<p>或者用主键范围分批：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ✅ 按主键范围分批删除（更高效，因为主键索引有序）</span><br><span class="hljs-keyword">SELECT</span> id <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id LIMIT <span class="hljs-number">1</span>;<br><span class="hljs-comment">-- 假设得到 min_id = 1</span><br><br><span class="hljs-keyword">SELECT</span> id <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id <span class="hljs-keyword">DESC</span> LIMIT <span class="hljs-number">1</span>;<br><span class="hljs-comment">-- 假设得到 max_id = 1000000</span><br><br><span class="hljs-comment">-- 然后分批：</span><br><span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> id <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">1</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">10000</span> <span class="hljs-keyword">AND</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span>;<br><span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> id <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">10001</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">20000</span> <span class="hljs-keyword">AND</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span>;<br><span class="hljs-comment">-- 以此类推...</span><br></code></pre></td></tr></table></figure>
-
-<hr>
-<h4 id="面试加分回答-27"><a href="#面试加分回答-27" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「大量数据删除的另一个思路是<strong>分区表 + 分区删除</strong>。如果表按时间分区，可以直接 <code>ALTER TABLE ... DROP PARTITION</code>（删除整个分区），这比 DELETE 快得多（因为是 DDL，不产生大量 binlog）。另外，如果是归档历史数据，更好的做法是<strong>先导出到归档表&#x2F;对象存储，再删除</strong>，而不是在原表上直接 DELETE。」</p>
-</blockquote>
-<hr>
-<h3 id="第-29-题：MySQL-中-datetime-和-timestamp-的区别？怎么选？"><a href="#第-29-题：MySQL-中-datetime-和-timestamp-的区别？怎么选？" class="headerlink" title="第 29 题：MySQL 中 datetime 和 timestamp 的区别？怎么选？"></a>第 29 题：MySQL 中 datetime 和 timestamp 的区别？怎么选？</h3><h4 id="一句话结论-28"><a href="#一句话结论-28" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>timestamp 存 UTC 时间（4 字节，范围 1970<del>2038 年，MySQL 8.0 仍未解决 2038 年问题）；datetime 存”本地”时间（不做时区转换，MySQL 5.6.4 起为 5 字节，范围 1000</del>9999 年）。新项目如果可能用到 2038 年以后的时间，只能用 datetime。</strong></p>
-</blockquote>
-<hr>
-<h4 id="深度解析-28"><a href="#深度解析-28" class="headerlink" title="深度解析"></a>深度解析</h4><table>
-<thead>
-<tr>
-<th>对比项</th>
-<th>DATETIME</th>
-<th>TIMESTAMP</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>存储空间</td>
-<td>5 字节（MySQL 5.6.4 起，不含小数秒；此前为 8 字节）</td>
-<td>4 字节（不含小数秒；精度到微秒即 <code>TIMESTAMP(6)</code> 时最多占 7 字节，但这只是多存了小数秒，不影响下面的年份范围）</td>
-</tr>
-<tr>
-<td>时间范围</td>
-<td>1000-01-01 ~ 9999-12-31</td>
-<td>1970-01-01 ~ 2038-01-19（32 位有符号整数限制，MySQL 8.0 仍未突破）</td>
-</tr>
-<tr>
-<td>时区处理</td>
-<td>不转换，存什么显示什么</td>
-<td>自动转换为 UTC 存储，读取时转回当前时区</td>
-</tr>
-<tr>
-<td>自动更新</td>
-<td>需要显式设置</td>
-<td>可以设置 <code>ON UPDATE CURRENT_TIMESTAMP</code></td>
-</tr>
-<tr>
-<td>NULL 处理</td>
-<td>可以为 NULL</td>
-<td>默认为当前时间（除非显式指定 NULL）</td>
-</tr>
-</tbody></table>
-<hr>
-<p><strong>时区问题的实际影响：</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- timestamp 会自动转换时区</span><br><span class="hljs-comment">-- 中国时区（UTC+8）插入：</span><br><span class="hljs-keyword">INSERT INTO</span> <span class="hljs-keyword">user</span> (create_time) <span class="hljs-keyword">VALUES</span> (<span class="hljs-string">&#x27;2024-01-01 08:00:00&#x27;</span>);<br><span class="hljs-comment">-- 在 UTC 时区读取：显示 &#x27;2024-01-01 00:00:00&#x27;（自动减 8 小时）</span><br></code></pre></td></tr></table></figure>
-
-<hr>
-<h4 id="面试加分回答-28"><a href="#面试加分回答-28" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「datetime 和 timestamp 的选择，还有一个重要的考虑：<strong>timestamp 有 2038 年问题</strong>（类似 Unix 的 Y2K38 问题，32 位有符号时间戳在 2038-01-19 03:14:07 UTC 溢出）。这里有个常见误区：很多人以为 MySQL 8.0 已经修复了这个问题，其实<strong>没有</strong>——<code>TIMESTAMP(6)</code> 占到 7 字节，只是因为额外存了微秒级的小数秒，秒数部分依然是 32 位，年份范围没有变。所以只要业务可能涉及 2038 年以后的时间，就必须用 datetime，不能指望 timestamp。另外，MySQL 5.6.4 起（含 8.0）支持 <strong>datetime(6)</strong> 和 <strong>timestamp(6)</strong> 微秒精度，对于需要高精度时间的场景（如金融交易）很有用。」</p>
-</blockquote>
-<hr>
-<h3 id="第-30-题：如何设计一个高并发的订单表？"><a href="#第-30-题：如何设计一个高并发的订单表？" class="headerlink" title="第 30 题：如何设计一个高并发的订单表？"></a>第 30 题：如何设计一个高并发的订单表？</h3><h4 id="一句话结论-29"><a href="#一句话结论-29" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>高并发订单表设计 &#x3D; 自增 BIGINT 主键 + 业务唯一键 + 合理的索引 + 分库分表（按用户 ID 或时间哈希）+ 读写分离 + 缓存层。</strong></p>
-</blockquote>
-<hr>
-<h4 id="深度解析-29"><a href="#深度解析-29" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>表结构设计：</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE TABLE</span> `<span class="hljs-keyword">order</span>` (<br>    `id`          <span class="hljs-type">BIGINT</span> UNSIGNED <span class="hljs-keyword">NOT NULL</span> AUTO_INCREMENT COMMENT <span class="hljs-string">&#x27;主键&#x27;</span>,<br>    `order_no`    <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">32</span>)  <span class="hljs-keyword">NOT NULL</span> COMMENT <span class="hljs-string">&#x27;订单号（业务唯一）&#x27;</span>,<br>    `user_id`     <span class="hljs-type">BIGINT</span> UNSIGNED <span class="hljs-keyword">NOT NULL</span> COMMENT <span class="hljs-string">&#x27;用户 ID&#x27;</span>,<br>    `status`      TINYINT      <span class="hljs-keyword">NOT NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-number">0</span> COMMENT <span class="hljs-string">&#x27;订单状态&#x27;</span>,<br>    `amount`      <span class="hljs-type">DECIMAL</span>(<span class="hljs-number">10</span>,<span class="hljs-number">2</span>) <span class="hljs-keyword">NOT NULL</span> COMMENT <span class="hljs-string">&#x27;订单金额&#x27;</span>,<br>    `create_time` DATETIME      <span class="hljs-keyword">NOT NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="hljs-string">&#x27;创建时间&#x27;</span>,<br>    `update_time` DATETIME      <span class="hljs-keyword">NOT NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-built_in">CURRENT_TIMESTAMP</span> <span class="hljs-keyword">ON</span> <span class="hljs-keyword">UPDATE</span> <span class="hljs-built_in">CURRENT_TIMESTAMP</span>,<br>    <span class="hljs-keyword">PRIMARY KEY</span> (`id`),<br>    <span class="hljs-keyword">UNIQUE</span> KEY `uk_order_no` (`order_no`),<br>    KEY `idx_user_id` (`user_id`),<br>    KEY `idx_create_time` (`create_time`),<br>    KEY `idx_status` (`status`)<br>) ENGINE<span class="hljs-operator">=</span>InnoDB COMMENT<span class="hljs-operator">=</span><span class="hljs-string">&#x27;订单表&#x27;</span>;<br></code></pre></td></tr></table></figure>
-
-<hr>
-<p><strong>设计要点：</strong></p>
-<p><strong>① 主键用自增 BIGINT</strong></p>
-<ul>
-<li>聚簇索引按主键有序插入，不会产生页分裂。</li>
-<li>BIGINT 比 INT 更安全（防止订单量超过 21 亿）。</li>
-</ul>
-<p><strong>② 订单号用业务生成的唯一字符串（不用自增 ID 暴露给用户）</strong></p>
-<ul>
-<li>防止竞争对手通过订单号猜测交易量。</li>
-<li>用雪花算法或号段模式生成。</li>
-</ul>
-<p><strong>③ 索引设计</strong></p>
-<ul>
-<li><code>uk_order_no</code>：唯一索引，防止重复下单。</li>
-<li><code>idx_user_id</code>：用户查自己的订单（高频查询）。</li>
-<li><code>idx_create_time</code>：按时间范围查询订单。</li>
-</ul>
-<p><strong>④ 分库分表策略</strong></p>
-<ul>
-<li><strong>按用户 ID 哈希分表</strong>：<code>order_0</code>、<code>order_1</code>、…，同一用户的订单在同一张表，方便查询。</li>
-<li><strong>按时间分表</strong>：<code>order_202401</code>、<code>order_202402</code>，方便归档历史数据。</li>
-</ul>
-<p><strong>⑤ 读写分离</strong></p>
-<ul>
-<li>下单（写）走主库。</li>
-<li>查订单（读）走从库。</li>
-</ul>
-<p><strong>⑥ 缓存层</strong></p>
-<ul>
-<li>热门用户的订单缓存到 Redis。</li>
-<li>订单详情缓存（避免每次都查数据库）。</li>
-</ul>
-<hr>
-<h4 id="面试加分回答-29"><a href="#面试加分回答-29" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「高并发订单表的设计，除了数据库层面的优化，还有一个重要的思路是<strong>冷热数据分离</strong>。订单数据有明显的冷热特征：最近 3 个月的订单是热数据（经常被查询），3 个月前的订单是冷数据（很少被查询）。可以把冷数据归档到对象存储或数据仓库（如 ClickHouse），主库只保留热数据，这样主库的表大小可控，查询性能也能保证。另外，下单流程中的<strong>库存扣减</strong>通常不用数据库事务，而是用 Redis + 消息队列来实现，这也是高并发场景下的常见做法。」</p>
-</blockquote>
-<hr>
-<h2 id="补充篇：BAT-高频遗漏题（31-45题）"><a href="#补充篇：BAT-高频遗漏题（31-45题）" class="headerlink" title="补充篇：BAT 高频遗漏题（31-45题）"></a>补充篇：BAT 高频遗漏题（31-45题）</h2><h3 id="第-31-题：CHAR-和-VARCHAR-的区别？什么场景用哪个？"><a href="#第-31-题：CHAR-和-VARCHAR-的区别？什么场景用哪个？" class="headerlink" title="第 31 题：CHAR 和 VARCHAR 的区别？什么场景用哪个？"></a>第 31 题：CHAR 和 VARCHAR 的区别？什么场景用哪个？</h3><p><strong>一句话总结</strong>：CHAR 是定长，VARCHAR 是变长；固定长度字段用 CHAR，可变长度用 VARCHAR。</p>
+<p><strong>一句话总结</strong>：CHAR 是定长，VARCHAR 是变长；固定长度字段用 CHAR，可变长度用 VARCHAR。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -1976,7 +2086,124 @@
 <p>“VARCHAR(255) 是常用值。不要贪大，VARCHAR(500) 和 VARCHAR(50) 虽然存储实际长度一样，但内存临时表会按定义长度分配内存，太大影响性能。”</p>
 </blockquote>
 <hr>
-<h3 id="第-32-题：DATETIME-和-TIMESTAMP-的区别？"><a href="#第-32-题：DATETIME-和-TIMESTAMP-的区别？" class="headerlink" title="第 32 题：DATETIME 和 TIMESTAMP 的区别？"></a>第 32 题：DATETIME 和 TIMESTAMP 的区别？</h3><p><strong>一句话总结</strong>：DATETIME 范围大（1000-9999年）与时区无关；TIMESTAMP 范围小（1970-2038年），自动转换时区，且这个范围限制在 MySQL 8.0 中依然存在。</p>
+</details>
+
+<p><a id="第-27-题：MySQL-的连接池应该设置多大？"></a><br><a id="qb-27"></a></p>
+<h3 id="Q27：MySQL-的连接池应该设置多大？"><a href="#Q27：MySQL-的连接池应该设置多大？" class="headerlink" title="Q27：MySQL 的连接池应该设置多大？"></a>Q27：MySQL 的连接池应该设置多大？</h3><h4 id="一句话结论-28"><a href="#一句话结论-28" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>连接池大小不是越大越好！经验公式：<code>连接池大小 = CPU 核心数 × 2 + 磁盘数</code>。通常 20~100 就够用了，几百上千反而会因为线程切换导致性能下降。</strong></p>
+</blockquote>
+<hr>
+<h4 id="深度解析-28"><a href="#深度解析-28" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>为什么连接数不是越大越好？</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">MySQL</span> <span class="hljs-string">处理每个连接都需要一个线程。</span><br><span class="hljs-string">如果连接池有</span> <span class="hljs-number">1000</span> <span class="hljs-string">个连接，MySQL</span> <span class="hljs-string">就有</span> <span class="hljs-number">1000</span> <span class="hljs-string">个线程在切换。</span><br><span class="hljs-string">线程切换是有开销的（上下文切换），连接数太多反而导致性能下降。</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>经验公式（源自 PostgreSQL 社区，后被 HikariCP 官方 wiki 引用推广，并非 MySQL 官方公式，仅供参考）：</strong></p>
+<figure class="highlight fix"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs fix"><span class="hljs-attr">连接池大小 </span>=<span class="hljs-string"> CPU_cores × 2 + disk_count</span><br></code></pre></td></tr></table></figure>
+
+<p>例如：4 核 CPU，1 块磁盘 → 连接池大小 ≈ 4×2+1 &#x3D; 9（可以设 20~50）</p>
+<hr>
+<p><strong>如何查看当前连接数：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 查看当前连接数</span><br><span class="hljs-keyword">SHOW</span> STATUS <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;Threads_connected&#x27;</span>;<br><br><span class="hljs-comment">-- 查看连接池配置</span><br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;max_connections&#x27;</span>;  <span class="hljs-comment">-- 最大连接数，默认 151</span><br><br><span class="hljs-comment">-- 查看每个连接的内存开销</span><br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;sort_buffer_size&#x27;</span>;<br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;join_buffer_size&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-28"><a href="#面试加分回答-28" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「连接池大小的设置，很多人有一个误区：以为「连接池越大，支持的并发越高」。实际上，MySQL 的最佳连接数通常在 <strong>CPU 核心数的 2~4 倍</strong>。另外，现在很多应用使用 <strong>连接池 + 读写分离</strong> 的架构，读请求走从库连接池，写请求走主库连接池，这样可以把连接数分散到多个数据库实例上。还有一个重要的参数是 <code>wait_timeout</code>，控制空闲连接的回收时间，避免连接泄漏。」</p>
+</blockquote>
+<hr>
+<p><a id="第-28-题：如何安全地删除大量数据？"></a><br><a id="第-36-题：MySQL-大表数据删除怎么办？"></a><br><a id="qb-28"></a></p>
+<h3 id="Q28：如何安全地删除大量数据？"><a href="#Q28：如何安全地删除大量数据？" class="headerlink" title="Q28：如何安全地删除大量数据？"></a>Q28：如何安全地删除大量数据？</h3><h4 id="一句话结论-29"><a href="#一句话结论-29" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>一次性 DELETE 大量数据会锁表、写大量 binlog、导致主从延迟。正确做法：分批删除，每次删除少量数据，循环执行。</strong></p>
+</blockquote>
+<hr>
+<h4 id="深度解析-29"><a href="#深度解析-29" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>错误做法：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ❌ 一次删除 1000 万行，性能灾难！</span><br><span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>后果：</p>
+<ul>
+<li>锁住大量行（行锁升级为表锁的风险）</li>
+<li>产生大量 redo log 和 binlog</li>
+<li>从库同步延迟巨大</li>
+<li>回滚段（undo log）暴增</li>
+</ul>
+<hr>
+<p><strong>正确做法：分批删除</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ✅ 分批删除，每次删 1000 行</span><br>WHILE <span class="hljs-literal">TRUE</span> DO<br>    <span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span> LIMIT <span class="hljs-number">1000</span>;<br>    <span class="hljs-comment">-- 如果没有影响到行，说明已经删完了</span><br>    IF ROW_COUNT() <span class="hljs-operator">=</span> <span class="hljs-number">0</span> <span class="hljs-keyword">THEN</span><br>        LEAVE;<br>    <span class="hljs-keyword">END</span> IF;<br>    <span class="hljs-comment">-- 每次删除后暂停一下，让从库追上</span><br>    DO SLEEP(<span class="hljs-number">1</span>);<br><span class="hljs-keyword">END</span> WHILE;<br></code></pre></td></tr></table></figure>
+
+<p>或者用主键范围分批：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ✅ 按主键范围分批删除（更高效，因为主键索引有序）</span><br><span class="hljs-keyword">SELECT</span> id <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id LIMIT <span class="hljs-number">1</span>;<br><span class="hljs-comment">-- 假设得到 min_id = 1</span><br><br><span class="hljs-keyword">SELECT</span> id <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id <span class="hljs-keyword">DESC</span> LIMIT <span class="hljs-number">1</span>;<br><span class="hljs-comment">-- 假设得到 max_id = 1000000</span><br><br><span class="hljs-comment">-- 然后分批：</span><br><span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> id <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">1</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">10000</span> <span class="hljs-keyword">AND</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span>;<br><span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> id <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">10001</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">20000</span> <span class="hljs-keyword">AND</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span>;<br><span class="hljs-comment">-- 以此类推...</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-29"><a href="#面试加分回答-29" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「大量数据删除的另一个思路是<strong>分区表 + 分区删除</strong>。如果表按时间分区，可以直接 <code>ALTER TABLE ... DROP PARTITION</code>（删除整个分区），这比 DELETE 快得多（因为是 DDL，不产生大量 binlog）。另外，如果是归档历史数据，更好的做法是<strong>先导出到归档表&#x2F;对象存储，再删除</strong>，而不是在原表上直接 DELETE。」</p>
+</blockquote>
+<hr>
+<details>
+<summary>展开：MySQL 大表数据删除怎么办？</summary>
+
+<p><strong>一句话总结</strong>：大表直接 DELETE 会产生大量行锁和 undo log；正确做法是分批删除或用 pt-archiver 工具。</p>
+<p><strong>深度解析</strong>：</p>
+<p>分批删除示例：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql">WHILE (<span class="hljs-number">1</span><span class="hljs-operator">=</span><span class="hljs-number">1</span>) DO<br>    <span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> big_table <span class="hljs-keyword">WHERE</span> created_at <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span> LIMIT <span class="hljs-number">1000</span>;<br>    IF ROW_COUNT() <span class="hljs-operator">=</span> <span class="hljs-number">0</span> <span class="hljs-keyword">THEN</span> LEAVE; <span class="hljs-keyword">END</span> IF;<br>    DO SLEEP(<span class="hljs-number">1</span>);<br><span class="hljs-keyword">END</span> WHILE;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<blockquote>
+<p>“我们生产环境删除大表数据统一用 pt-archiver，可以安全地分批归档删除，支持批量删除、批量插入到归档表。”</p>
+</blockquote>
+<hr>
+</details>
+
+<p><a id="第-29-题：MySQL-中-datetime-和-timestamp-的区别？怎么选？"></a><br><a id="第-32-题：DATETIME-和-TIMESTAMP-的区别？"></a><br><a id="qb-29"></a></p>
+<h3 id="Q29：MySQL-中-datetime-和-timestamp-的区别？怎么选？"><a href="#Q29：MySQL-中-datetime-和-timestamp-的区别？怎么选？" class="headerlink" title="Q29：MySQL 中 datetime 和 timestamp 的区别？怎么选？"></a>Q29：MySQL 中 datetime 和 timestamp 的区别？怎么选？</h3><h4 id="一句话结论-30"><a href="#一句话结论-30" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>timestamp 存 UTC 时间（4 字节，范围 1970<del>2038 年，MySQL 8.0 仍未解决 2038 年问题）；datetime 存”本地”时间（不做时区转换，MySQL 5.6.4 起为 5 字节，范围 1000</del>9999 年）。新项目如果可能用到 2038 年以后的时间，只能用 datetime。</strong></p>
+</blockquote>
+<hr>
+<h4 id="深度解析-30"><a href="#深度解析-30" class="headerlink" title="深度解析"></a>深度解析</h4><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>DATETIME</th>
+<th>TIMESTAMP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>存储空间</td>
+<td>5 字节（MySQL 5.6.4 起，不含小数秒；此前为 8 字节）</td>
+<td>4 字节（不含小数秒；精度到微秒即 <code>TIMESTAMP(6)</code> 时最多占 7 字节，但这只是多存了小数秒，不影响下面的年份范围）</td>
+</tr>
+<tr>
+<td>时间范围</td>
+<td>1000-01-01 ~ 9999-12-31</td>
+<td>1970-01-01 ~ 2038-01-19（32 位有符号整数限制，MySQL 8.0 仍未突破）</td>
+</tr>
+<tr>
+<td>时区处理</td>
+<td>不转换，存什么显示什么</td>
+<td>自动转换为 UTC 存储，读取时转回当前时区</td>
+</tr>
+<tr>
+<td>自动更新</td>
+<td>需要显式设置</td>
+<td>可以设置 <code>ON UPDATE CURRENT_TIMESTAMP</code></td>
+</tr>
+<tr>
+<td>NULL 处理</td>
+<td>可以为 NULL</td>
+<td>默认为当前时间（除非显式指定 NULL）</td>
+</tr>
+</tbody></table>
+<hr>
+<p><strong>时区问题的实际影响：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- timestamp 会自动转换时区</span><br><span class="hljs-comment">-- 中国时区（UTC+8）插入：</span><br><span class="hljs-keyword">INSERT INTO</span> <span class="hljs-keyword">user</span> (create_time) <span class="hljs-keyword">VALUES</span> (<span class="hljs-string">&#x27;2024-01-01 08:00:00&#x27;</span>);<br><span class="hljs-comment">-- 在 UTC 时区读取：显示 &#x27;2024-01-01 00:00:00&#x27;（自动减 8 小时）</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="面试加分回答-30"><a href="#面试加分回答-30" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「datetime 和 timestamp 的选择，还有一个重要的考虑：<strong>timestamp 有 2038 年问题</strong>（类似 Unix 的 Y2K38 问题，32 位有符号时间戳在 2038-01-19 03:14:07 UTC 溢出）。这里有个常见误区：很多人以为 MySQL 8.0 已经修复了这个问题，其实<strong>没有</strong>——<code>TIMESTAMP(6)</code> 占到 7 字节，只是因为额外存了微秒级的小数秒，秒数部分依然是 32 位，年份范围没有变。所以只要业务可能涉及 2038 年以后的时间，就必须用 datetime，不能指望 timestamp。另外，MySQL 5.6.4 起（含 8.0）支持 <strong>datetime(6)</strong> 和 <strong>timestamp(6)</strong> 微秒精度，对于需要高精度时间的场景（如金融交易）很有用。」</p>
+</blockquote>
+<hr>
+<details>
+<summary>展开：DATETIME 和 TIMESTAMP 的区别？</summary>
+
+<p><strong>一句话总结</strong>：DATETIME 范围大（1000-9999年）与时区无关；TIMESTAMP 范围小（1970-2038年），自动转换时区，且这个范围限制在 MySQL 8.0 中依然存在。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -2008,53 +2235,56 @@
 <p>“新项目建议直接用 DATETIME，避免 2038 年问题——这个问题在 MySQL 8.0 里依然没解决，别被’8.0 存储改成了 7 字节’这种说法误导，那只是多存了微秒精度，不是扩大了年份范围。涉及时区转换的场景，数据库存 UTC 时间，展示时再转用户时区。”</p>
 </blockquote>
 <hr>
-<h3 id="第-33-题：当前读和快照读的区别？"><a href="#第-33-题：当前读和快照读的区别？" class="headerlink" title="第 33 题：当前读和快照读的区别？"></a>第 33 题：当前读和快照读的区别？</h3><p><strong>一句话总结</strong>：快照读（普通 SELECT）不加锁，读事务开始时的快照；当前读（SELECT … FOR UPDATE）加锁，读最新数据，防止幻读。</p>
-<p><strong>深度解析</strong>：</p>
+</details>
+
+<p><a id="第-30-题：如何设计一个高并发的订单表？"></a><br><a id="qb-30"></a></p>
+<h3 id="Q30：如何设计一个高并发的订单表？"><a href="#Q30：如何设计一个高并发的订单表？" class="headerlink" title="Q30：如何设计一个高并发的订单表？"></a>Q30：如何设计一个高并发的订单表？</h3><h4 id="一句话结论-31"><a href="#一句话结论-31" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><strong>高并发订单表设计 &#x3D; 自增 BIGINT 主键 + 业务唯一键 + 合理的索引 + 分库分表（按用户 ID 或时间哈希）+ 读写分离 + 缓存层。</strong></p>
+</blockquote>
+<hr>
+<h4 id="深度解析-31"><a href="#深度解析-31" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>表结构设计：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE TABLE</span> `<span class="hljs-keyword">order</span>` (<br>    `id`          <span class="hljs-type">BIGINT</span> UNSIGNED <span class="hljs-keyword">NOT NULL</span> AUTO_INCREMENT COMMENT <span class="hljs-string">&#x27;主键&#x27;</span>,<br>    `order_no`    <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">32</span>)  <span class="hljs-keyword">NOT NULL</span> COMMENT <span class="hljs-string">&#x27;订单号（业务唯一）&#x27;</span>,<br>    `user_id`     <span class="hljs-type">BIGINT</span> UNSIGNED <span class="hljs-keyword">NOT NULL</span> COMMENT <span class="hljs-string">&#x27;用户 ID&#x27;</span>,<br>    `status`      TINYINT      <span class="hljs-keyword">NOT NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-number">0</span> COMMENT <span class="hljs-string">&#x27;订单状态&#x27;</span>,<br>    `amount`      <span class="hljs-type">DECIMAL</span>(<span class="hljs-number">10</span>,<span class="hljs-number">2</span>) <span class="hljs-keyword">NOT NULL</span> COMMENT <span class="hljs-string">&#x27;订单金额&#x27;</span>,<br>    `create_time` DATETIME      <span class="hljs-keyword">NOT NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="hljs-string">&#x27;创建时间&#x27;</span>,<br>    `update_time` DATETIME      <span class="hljs-keyword">NOT NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-built_in">CURRENT_TIMESTAMP</span> <span class="hljs-keyword">ON</span> <span class="hljs-keyword">UPDATE</span> <span class="hljs-built_in">CURRENT_TIMESTAMP</span>,<br>    <span class="hljs-keyword">PRIMARY KEY</span> (`id`),<br>    <span class="hljs-keyword">UNIQUE</span> KEY `uk_order_no` (`order_no`),<br>    KEY `idx_user_id` (`user_id`),<br>    KEY `idx_create_time` (`create_time`),<br>    KEY `idx_status` (`status`)<br>) ENGINE<span class="hljs-operator">=</span>InnoDB COMMENT<span class="hljs-operator">=</span><span class="hljs-string">&#x27;订单表&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>设计要点：</strong></p>
+<p><strong>① 主键用自增 BIGINT</strong></p>
 <ul>
-<li><strong>快照读</strong>：<code>SELECT * FROM orders;</code> → 不加锁，可重复读</li>
-<li><strong>当前读</strong>：<code>SELECT * FROM orders WHERE id=1 FOR UPDATE;</code> → 加行锁，读最新数据</li>
+<li>聚簇索引按主键有序插入，不会产生页分裂。</li>
+<li>BIGINT 比 INT 更安全（防止订单量超过 21 亿）。</li>
 </ul>
-<p><strong>面试加分回答</strong>：</p>
-<blockquote>
-<p>“MVCC 实现了快照读（非阻塞读），但快照读无法阻止其他事务修改数据。当前读通过加锁保证了读取的是最新数据。如果业务逻辑依赖于’读取后修改’，必须用当前读（SELECT … FOR UPDATE），否则会有并发问题。”</p>
-</blockquote>
-<hr>
-<h3 id="第-34-题：MySQL-锁的详细分类？"><a href="#第-34-题：MySQL-锁的详细分类？" class="headerlink" title="第 34 题：MySQL 锁的详细分类？"></a>第 34 题：MySQL 锁的详细分类？</h3><p><strong>一句话总结</strong>：按粒度分表锁和行锁；按模式分共享锁（S）和排他锁（X）；间隙锁（Gap Lock）是 RR 隔离级别下防止幻读的利器。</p>
-<p><strong>深度解析</strong>：</p>
+<p><strong>② 订单号用业务生成的唯一字符串（不用自增 ID 暴露给用户）</strong></p>
 <ul>
-<li><strong>记录锁（Record Lock）</strong>：锁索引记录本身</li>
-<li><strong>间隙锁（Gap Lock）</strong>：锁索引记录之间的间隙，防止插入</li>
-<li><strong>Next-Key Lock</strong> &#x3D; Record Lock + Gap Lock（InnoDB 默认行锁算法）</li>
+<li>防止竞争对手通过订单号猜测交易量。</li>
+<li>用雪花算法或号段模式生成。</li>
 </ul>
-<p><strong>面试加分回答</strong>：</p>
-<blockquote>
-<p>“InnoDB 的行锁是基于索引实现的——如果 WHERE 条件没有走索引，行锁会升级为表锁（这是大坑！）。间隙锁只在 RR 和 SERIALIZABLE 隔离级别下生效；RC 隔离级别下没有间隙锁。”</p>
+<p><strong>③ 索引设计</strong></p>
+<ul>
+<li><code>uk_order_no</code>：唯一索引，防止重复下单。</li>
+<li><code>idx_user_id</code>：用户查自己的订单（高频查询）。</li>
+<li><code>idx_create_time</code>：按时间范围查询订单。</li>
+</ul>
+<p><strong>④ 分库分表策略</strong></p>
+<ul>
+<li><strong>按用户 ID 哈希分表</strong>：<code>order_0</code>、<code>order_1</code>、…，同一用户的订单在同一张表，方便查询。</li>
+<li><strong>按时间分表</strong>：<code>order_202401</code>、<code>order_202402</code>，方便归档历史数据。</li>
+</ul>
+<p><strong>⑤ 读写分离</strong></p>
+<ul>
+<li>下单（写）走主库。</li>
+<li>查订单（读）走从库。</li>
+</ul>
+<p><strong>⑥ 缓存层</strong></p>
+<ul>
+<li>热门用户的订单缓存到 Redis。</li>
+<li>订单详情缓存（避免每次都查数据库）。</li>
+</ul>
+<hr>
+<h4 id="面试加分回答-31"><a href="#面试加分回答-31" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<p>「高并发订单表的设计，除了数据库层面的优化，还有一个重要的思路是<strong>冷热数据分离</strong>。订单数据有明显的冷热特征：最近 3 个月的订单是热数据（经常被查询），3 个月前的订单是冷数据（很少被查询）。可以把冷数据归档到对象存储或数据仓库（如 ClickHouse），主库只保留热数据，这样主库的表大小可控，查询性能也能保证。另外，下单流程中的<strong>库存扣减</strong>通常不用数据库事务，而是用 Redis + 消息队列来实现，这也是高并发场景下的常见做法。」</p>
 </blockquote>
 <hr>
-<h3 id="第-35-题：MySQL-分页查询怎么优化？"><a href="#第-35-题：MySQL-分页查询怎么优化？" class="headerlink" title="第 35 题：MySQL 分页查询怎么优化？"></a>第 35 题：MySQL 分页查询怎么优化？</h3><p><strong>一句话总结</strong>：LIMIT offset, size 在 offset 很大时会全表扫描；优化方案是用「延迟关联」或「游标分页（基于 ID）」。</p>
-<p><strong>深度解析</strong>：</p>
-<p>优化方案 1 - 延迟关联：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> orders a<br><span class="hljs-keyword">JOIN</span> (<span class="hljs-keyword">SELECT</span> id <span class="hljs-keyword">FROM</span> orders <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id LIMIT <span class="hljs-number">1000000</span>, <span class="hljs-number">20</span>) b<br><span class="hljs-keyword">ON</span> a.id <span class="hljs-operator">=</span> b.id;<br></code></pre></td></tr></table></figure>
-
-<p>优化方案 2 - 游标分页（推荐）：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> orders <span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">&gt;</span> <span class="hljs-number">1000020</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> id LIMIT <span class="hljs-number">20</span>;<br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<blockquote>
-<p>“我们列表分页用的是游标分页（基于最后一条记录的 ID），而不是 LIMIT offset。性能稳定，且不受数据增删影响。”</p>
-</blockquote>
-<hr>
-<h3 id="第-36-题：MySQL-大表数据删除怎么办？"><a href="#第-36-题：MySQL-大表数据删除怎么办？" class="headerlink" title="第 36 题：MySQL 大表数据删除怎么办？"></a>第 36 题：MySQL 大表数据删除怎么办？</h3><p><strong>一句话总结</strong>：大表直接 DELETE 会产生大量行锁和 undo log；正确做法是分批删除或用 pt-archiver 工具。</p>
-<p><strong>深度解析</strong>：</p>
-<p>分批删除示例：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql">WHILE (<span class="hljs-number">1</span><span class="hljs-operator">=</span><span class="hljs-number">1</span>) DO<br>    <span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">FROM</span> big_table <span class="hljs-keyword">WHERE</span> created_at <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2020-01-01&#x27;</span> LIMIT <span class="hljs-number">1000</span>;<br>    IF ROW_COUNT() <span class="hljs-operator">=</span> <span class="hljs-number">0</span> <span class="hljs-keyword">THEN</span> LEAVE; <span class="hljs-keyword">END</span> IF;<br>    DO SLEEP(<span class="hljs-number">1</span>);<br><span class="hljs-keyword">END</span> WHILE;<br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<blockquote>
-<p>“我们生产环境删除大表数据统一用 pt-archiver，可以安全地分批归档删除，支持批量删除、批量插入到归档表。”</p>
-</blockquote>
-<hr>
-<h3 id="第-37-题：MySQL-的-binlog-有哪几种格式？"><a href="#第-37-题：MySQL-的-binlog-有哪几种格式？" class="headerlink" title="第 37 题：MySQL 的 binlog 有哪几种格式？"></a>第 37 题：MySQL 的 binlog 有哪几种格式？</h3><p><strong>一句话总结</strong>：binlog 有三种格式：STATEMENT（记录 SQL）、ROW（记录数据变化，推荐）、MIXED（混合模式）。</p>
+<h2 id="补充篇：BAT-高频遗漏题（31-45题）"><a href="#补充篇：BAT-高频遗漏题（31-45题）" class="headerlink" title="补充篇：BAT 高频遗漏题（31-45题）"></a>补充篇：BAT 高频遗漏题（31-45题）</h2><p><a id="第-37-题：MySQL-的-binlog-有哪几种格式？"></a><br><a id="qb-31"></a></p>
+<h3 id="Q31：MySQL-的-binlog-有哪几种格式？"><a href="#Q31：MySQL-的-binlog-有哪几种格式？" class="headerlink" title="Q31：MySQL 的 binlog 有哪几种格式？"></a>Q31：MySQL 的 binlog 有哪几种格式？</h3><p><strong>一句话总结</strong>：binlog 有三种格式：STATEMENT（记录 SQL）、ROW（记录数据变化，推荐）、MIXED（混合模式）。</p>
 <p><strong>深度解析</strong>：</p>
 <table>
 <thead>
@@ -2085,7 +2315,8 @@
 <p>“我们生产环境 binlog_format 统一设置为 ROW，并且开启 binlog_row_image&#x3D;FULL。这样可以用开源工具（如 binlog2sql）基于 binlog 做数据闪回。”</p>
 </blockquote>
 <hr>
-<h3 id="第-38-题：MySQL-冷热数据分离怎么做？"><a href="#第-38-题：MySQL-冷热数据分离怎么做？" class="headerlink" title="第 38 题：MySQL 冷热数据分离怎么做？"></a>第 38 题：MySQL 冷热数据分离怎么做？</h3><p><strong>一句话总结</strong>：冷热数据分离的核心是按时间把数据分成热表（近期）和冷表（历史）；热表放 MySQL，冷表放归档库（如 ClickHouse）。</p>
+<p><a id="第-38-题：MySQL-冷热数据分离怎么做？"></a><br><a id="qb-32"></a></p>
+<h3 id="Q32：MySQL-冷热数据分离怎么做？"><a href="#Q32：MySQL-冷热数据分离怎么做？" class="headerlink" title="Q32：MySQL 冷热数据分离怎么做？"></a>Q32：MySQL 冷热数据分离怎么做？</h3><p><strong>一句话总结</strong>：冷热数据分离的核心是按时间把数据分成热表（近期）和冷表（历史）；热表放 MySQL，冷表放归档库（如 ClickHouse）。</p>
 <p><strong>深度解析</strong>：</p>
 <p>方案 1：按时间分表（如 order_2026_q1、order_archive）<br>方案 2：用 MySQL 分区表（PARTITION BY RANGE）<br>方案 3：冷数据同步到 ClickHouse&#x2F;TiDB</p>
 <p><strong>面试加分回答</strong>：</p>
@@ -2093,7 +2324,8 @@
 <p>“我们订单表用 MySQL 分区表（按季度分区）+ 定期 DROP 最老的分区。分区表的主键必须包含分区键，这是我们设计时踩过的坑。”</p>
 </blockquote>
 <hr>
-<h3 id="第-39-题：MySQL-的乐观锁和悲观锁分别怎么实现？"><a href="#第-39-题：MySQL-的乐观锁和悲观锁分别怎么实现？" class="headerlink" title="第 39 题：MySQL 的乐观锁和悲观锁分别怎么实现？"></a>第 39 题：MySQL 的乐观锁和悲观锁分别怎么实现？</h3><p><strong>一句话总结</strong>：悲观锁（SELECT … FOR UPDATE）先加锁再操作；乐观锁（版本号 CAS）不加锁，提交时检查版本号。</p>
+<p><a id="第-39-题：MySQL-的乐观锁和悲观锁分别怎么实现？"></a><br><a id="qb-33"></a></p>
+<h3 id="Q33：MySQL-的乐观锁和悲观锁分别怎么实现？"><a href="#Q33：MySQL-的乐观锁和悲观锁分别怎么实现？" class="headerlink" title="Q33：MySQL 的乐观锁和悲观锁分别怎么实现？"></a>Q33：MySQL 的乐观锁和悲观锁分别怎么实现？</h3><p><strong>一句话总结</strong>：悲观锁（SELECT … FOR UPDATE）先加锁再操作；乐观锁（版本号 CAS）不加锁，提交时检查版本号。</p>
 <p><strong>深度解析</strong>：</p>
 <p>悲观锁：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">START</span> TRANSACTION;<br><span class="hljs-keyword">SELECT</span> balance <span class="hljs-keyword">FROM</span> account <span class="hljs-keyword">WHERE</span> id<span class="hljs-operator">=</span><span class="hljs-number">1</span> <span class="hljs-keyword">FOR</span> <span class="hljs-keyword">UPDATE</span>;<br><span class="hljs-keyword">UPDATE</span> account <span class="hljs-keyword">SET</span> balance <span class="hljs-operator">=</span> balance <span class="hljs-operator">-</span> <span class="hljs-number">100</span> <span class="hljs-keyword">WHERE</span> id<span class="hljs-operator">=</span><span class="hljs-number">1</span>;<br><span class="hljs-keyword">COMMIT</span>;<br></code></pre></td></tr></table></figure>
@@ -2106,72 +2338,29 @@
 <p>“我们库存扣减用的是乐观锁 + 重试（最多重试 3 次）。但秒杀场景用乐观锁会导致大量重试，反而不如悲观锁。”</p>
 </blockquote>
 <hr>
-<h3 id="第-40-题：EXPLAIN-的-type-字段有哪些值？"><a href="#第-40-题：EXPLAIN-的-type-字段有哪些值？" class="headerlink" title="第 40 题：EXPLAIN 的 type 字段有哪些值？"></a>第 40 题：EXPLAIN 的 type 字段有哪些值？</h3><p><strong>一句话总结</strong>：type 字段表示访问类型，从好到坏：system &gt; const &gt; eq_ref &gt; ref &gt; range &gt; index &gt; ALL；至少要达到 range 级别。</p>
-<p><strong>深度解析</strong>：</p>
-<table>
-<thead>
-<tr>
-<th>type 值</th>
-<th>含义</th>
-<th>性能</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>const</td>
-<td>主键精确匹配</td>
-<td>极快</td>
-</tr>
-<tr>
-<td>ref</td>
-<td>普通索引精确匹配</td>
-<td>快</td>
-</tr>
-<tr>
-<td>range</td>
-<td>索引范围扫描</td>
-<td>还行</td>
-</tr>
-<tr>
-<td>index</td>
-<td>全索引扫描</td>
-<td>慢</td>
-</tr>
-<tr>
-<td>ALL</td>
-<td>全表扫描</td>
-<td>很慢</td>
-</tr>
-</tbody></table>
-<p><strong>面试加分回答</strong>：</p>
-<blockquote>
-<p>“我们 SQL 优化的门槛是 type 至少达到 range，最好能达到 ref。如果 EXPLAIN 显示 type&#x3D;ALL，说明全表扫描，必须加索引。”</p>
-</blockquote>
-<hr>
-<h3 id="第-41-题：MySQL-的-sql-mode-是什么？"><a href="#第-41-题：MySQL-的-sql-mode-是什么？" class="headerlink" title="第 41 题：MySQL 的 sql_mode 是什么？"></a>第 41 题：MySQL 的 sql_mode 是什么？</h3><p><strong>一句话总结</strong>：sql_mode 控制 MySQL 的 SQL 语法校验严格程度；生产环境务必开启严格模式（STRICT_TRANS_TABLES）。</p>
+<p><a id="第-41-题：MySQL-的-sql-mode-是什么？"></a><br><a id="qb-34"></a></p>
+<h3 id="Q34：MySQL-的-sql-mode-是什么？"><a href="#Q34：MySQL-的-sql-mode-是什么？" class="headerlink" title="Q34：MySQL 的 sql_mode 是什么？"></a>Q34：MySQL 的 sql_mode 是什么？</h3><p><strong>一句话总结</strong>：sql_mode 控制 MySQL 的 SQL 语法校验严格程度；生产环境务必开启严格模式（STRICT_TRANS_TABLES）。</p>
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
 <p>“我们生产环境 sql_mode 统一开启了 STRICT_TRANS_TABLES 和 ONLY_FULL_GROUP_BY，避免’在我机器上能跑’的问题。”</p>
 </blockquote>
 <hr>
-<h3 id="第-42-题：MySQL-的大字段（TEXT-BLOB）怎么处理？"><a href="#第-42-题：MySQL-的大字段（TEXT-BLOB）怎么处理？" class="headerlink" title="第 42 题：MySQL 的大字段（TEXT&#x2F;BLOB）怎么处理？"></a>第 42 题：MySQL 的大字段（TEXT&#x2F;BLOB）怎么处理？</h3><p><strong>一句话总结</strong>：大字段会导致聚簇索引变大；解决方案：垂直分表、压缩存储、存到对象存储（如 OSS）。</p>
+<p><a id="第-42-题：MySQL-的大字段（TEXT-BLOB）怎么处理？"></a><br><a id="qb-35"></a></p>
+<h3 id="Q35：MySQL-的大字段（TEXT-BLOB）怎么处理？"><a href="#Q35：MySQL-的大字段（TEXT-BLOB）怎么处理？" class="headerlink" title="Q35：MySQL 的大字段（TEXT&#x2F;BLOB）怎么处理？"></a>Q35：MySQL 的大字段（TEXT&#x2F;BLOB）怎么处理？</h3><p><strong>一句话总结</strong>：大字段会导致聚簇索引变大；解决方案：垂直分表、压缩存储、存到对象存储（如 OSS）。</p>
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
 <p>“我们文章内容存在单独的 <code>article_content</code> 表里，主表只存标题、摘要等元信息。列表页查询主表（快），详情页才 JOIN 内容表。”</p>
 </blockquote>
 <hr>
-<h3 id="第-43-题：MySQL-的-COUNT-为什么这么慢？"><a href="#第-43-题：MySQL-的-COUNT-为什么这么慢？" class="headerlink" title="第 43 题：MySQL 的 COUNT(*) 为什么这么慢？"></a>第 43 题：MySQL 的 COUNT(*) 为什么这么慢？</h3><p><strong>一句话总结</strong>：InnoDB 的 COUNT(*) 需要遍历整张表；优化方案：用 Redis 缓存计数、用汇总表。</p>
-<p><strong>面试加分回答</strong>：</p>
-<blockquote>
-<p>“我们详情页的’评论数’、’点赞数’用 Redis 维护计数器，每次写入时同步 +1&#x2F;-1，查询时直接读 Redis。”</p>
-</blockquote>
-<hr>
-<h3 id="第-44-题：MySQL-大表怎么改表结构（ALTER-TABLE）？"><a href="#第-44-题：MySQL-大表怎么改表结构（ALTER-TABLE）？" class="headerlink" title="第 44 题：MySQL 大表怎么改表结构（ALTER TABLE）？"></a>第 44 题：MySQL 大表怎么改表结构（ALTER TABLE）？</h3><p><strong>一句话总结</strong>：MySQL 5.6+ 支持 Online DDL；大表改表结构推荐用 pt-online-schema-change 工具。</p>
+<p><a id="第-44-题：MySQL-大表怎么改表结构（ALTER-TABLE）？"></a><br><a id="qb-36"></a></p>
+<h3 id="Q36：MySQL-大表怎么改表结构（ALTER-TABLE）？"><a href="#Q36：MySQL-大表怎么改表结构（ALTER-TABLE）？" class="headerlink" title="Q36：MySQL 大表怎么改表结构（ALTER TABLE）？"></a>Q36：MySQL 大表怎么改表结构（ALTER TABLE）？</h3><p><strong>一句话总结</strong>：MySQL 5.6+ 支持 Online DDL；大表改表结构推荐用 pt-online-schema-change 工具。</p>
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
 <p>“我们大表改表结构统一用 pt-online-schema-change，不用 MySQL 原生的 Online DDL，因为 pt-osc 对主从复制更友好（有延迟检查机制）。”</p>
 </blockquote>
 <hr>
-<h3 id="第-45-题：MySQL-主从复制的延迟问题怎么解决？"><a href="#第-45-题：MySQL-主从复制的延迟问题怎么解决？" class="headerlink" title="第 45 题：MySQL 主从复制的延迟问题怎么解决？"></a>第 45 题：MySQL 主从复制的延迟问题怎么解决？</h3><p><strong>一句话总结</strong>：主从延迟的根本原因是从库单线程重放 relay log；解决方案：并行复制（MTS）、降低大事务、从库用 SSD。</p>
+<p><a id="第-45-题：MySQL-主从复制的延迟问题怎么解决？"></a><br><a id="qb-37"></a></p>
+<h3 id="Q37：MySQL-主从复制的延迟问题怎么解决？"><a href="#Q37：MySQL-主从复制的延迟问题怎么解决？" class="headerlink" title="Q37：MySQL 主从复制的延迟问题怎么解决？"></a>Q37：MySQL 主从复制的延迟问题怎么解决？</h3><p><strong>一句话总结</strong>：主从延迟的根本原因是从库单线程重放 relay log；解决方案：并行复制（MTS）、降低大事务、从库用 SSD。</p>
 <p><strong>面试加分回答</strong>：</p>
 <blockquote>
 <p>“我们解决主从延迟的核心策略是：① MySQL 5.7+ 开启并行复制 ② 避免大事务 ③ 应用层做’写后读一致性’处理——写入后短暂（如 1 秒内）读主库。”</p>
@@ -2181,11 +2370,12 @@
 <p><strong>MySQL 45 题完结！</strong></p>
 </blockquote>
 <hr>
-<h2 id="补充篇（续）：BAT-高频遗漏题（46-55题）"><a href="#补充篇（续）：BAT-高频遗漏题（46-55题）" class="headerlink" title="补充篇（续）：BAT 高频遗漏题（46-55题）"></a>补充篇（续）：BAT 高频遗漏题（46-55题）</h2><h3 id="第-46-题：意向锁（Intention-Lock）的作用是什么？"><a href="#第-46-题：意向锁（Intention-Lock）的作用是什么？" class="headerlink" title="第 46 题：意向锁（Intention Lock）的作用是什么？"></a>第 46 题：意向锁（Intention Lock）的作用是什么？</h3><h4 id="一句话结论-30"><a href="#一句话结论-30" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<h2 id="补充篇（续）：BAT-高频遗漏题（46-55题）"><a href="#补充篇（续）：BAT-高频遗漏题（46-55题）" class="headerlink" title="补充篇（续）：BAT 高频遗漏题（46-55题）"></a>补充篇（续）：BAT 高频遗漏题（46-55题）</h2><p><a id="第-46-题：意向锁（Intention-Lock）的作用是什么？"></a><br><a id="qb-38"></a></p>
+<h3 id="Q38：意向锁（Intention-Lock）的作用是什么？"><a href="#Q38：意向锁（Intention-Lock）的作用是什么？" class="headerlink" title="Q38：意向锁（Intention Lock）的作用是什么？"></a>Q38：意向锁（Intention Lock）的作用是什么？</h3><h4 id="一句话结论-32"><a href="#一句话结论-32" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>意向锁是表级锁，用来快速判断表中是否有行锁，避免判断行锁时遍历全表。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-30"><a href="#深度解析-30" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>没有意向锁的世界（性能灾难）：</strong></p>
+<h4 id="深度解析-32"><a href="#深度解析-32" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>没有意向锁的世界（性能灾难）：</strong></p>
 <p>当事务 A 想要给表加<strong>表锁</strong>时，需要判断表中是否有行锁：</p>
 <figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">事务 A：LOCK TABLES <span class="hljs-keyword">user</span> <span class="hljs-title">WRITE</span>（加表锁）<br>    ↓<br>    需要检查 <span class="hljs-keyword">user</span> <span class="hljs-title">表的每一行是否被锁住了</span><br><span class="hljs-title">    ↓</span><br><span class="hljs-title">    如果表有 1000</span> 万行，要检查 <span class="hljs-number">1000</span> 万次！<br></code></pre></td></tr></table></figure>
 
@@ -2259,15 +2449,16 @@
 <p><strong>规律</strong>：意向锁之间都兼容（IS 和 IX 兼容），因为意向锁只是”准备加行锁”的声明，实际加行锁时还会判断行锁是否冲突。</p>
 </blockquote>
 <hr>
-<h4 id="面试加分回答-30"><a href="#面试加分回答-30" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-32"><a href="#面试加分回答-32" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「意向锁是 InnoDB <strong>自动加的</strong>，不需要用户显式执行 <code>LOCK TABLES</code>。它的核心价值是<strong>快速判断表中是否有行锁</strong>，避免加表锁时遍历全表。如果没有意向锁，每次加表锁都要检查每一行是否有行锁，性能是 O(N)，有了意向锁之后是 O(1)。这也是为什么 InnoDB 的 <code>SHOW ENGINE INNODB STATUS</code> 里能看到 <code>TABLE LOCK table user trx id 12345 LOCK MODE IX</code>（意向排他锁）。」</p>
 </blockquote>
 <hr>
-<h3 id="第-47-题：自增锁（AUTO-INC-Lock）的-3-种模式是什么？"><a href="#第-47-题：自增锁（AUTO-INC-Lock）的-3-种模式是什么？" class="headerlink" title="第 47 题：自增锁（AUTO-INC Lock）的 3 种模式是什么？"></a>第 47 题：自增锁（AUTO-INC Lock）的 3 种模式是什么？</h3><h4 id="一句话结论-31"><a href="#一句话结论-31" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-47-题：自增锁（AUTO-INC-Lock）的-3-种模式是什么？"></a><br><a id="qb-39"></a></p>
+<h3 id="Q39：自增锁（AUTO-INC-Lock）的-3-种模式是什么？"><a href="#Q39：自增锁（AUTO-INC-Lock）的-3-种模式是什么？" class="headerlink" title="Q39：自增锁（AUTO-INC Lock）的 3 种模式是什么？"></a>Q39：自增锁（AUTO-INC Lock）的 3 种模式是什么？</h3><h4 id="一句话结论-33"><a href="#一句话结论-33" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>自增锁有 3 种模式（innodb_autoinc_lock_mode）：0&#x3D;传统模式（表锁，安全但性能差）、1&#x3D;连续模式（MySQL 8.0 之前的默认值，性能和安全平衡）、2&#x3D;交错模式（MySQL 8.0 起的默认值，性能最好，但 STATEMENT 格式 binlog 下主从可能有问题）。</strong></p>
 </blockquote>
 <hr>
-<h4 id="深度解析-31"><a href="#深度解析-31" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>自增锁是什么？</strong></p>
+<h4 id="深度解析-33"><a href="#深度解析-33" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>自增锁是什么？</strong></p>
 <p>当你给某列设置 <code>AUTO_INCREMENT</code> 时，InnoDB 需要保证<strong>自增 ID 的唯一性和连续性</strong>：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE TABLE</span> <span class="hljs-keyword">user</span> (<br>    id <span class="hljs-type">INT</span> AUTO_INCREMENT <span class="hljs-keyword">PRIMARY KEY</span>,<br>    name <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">50</span>)<br>);<br><br><span class="hljs-keyword">INSERT INTO</span> <span class="hljs-keyword">user</span> (name) <span class="hljs-keyword">VALUES</span> (<span class="hljs-string">&#x27;Alice&#x27;</span>);  <span class="hljs-comment">-- id=1</span><br><span class="hljs-keyword">INSERT INTO</span> <span class="hljs-keyword">user</span> (name) <span class="hljs-keyword">VALUES</span> (<span class="hljs-string">&#x27;Bob&#x27;</span>);    <span class="hljs-comment">-- id=2</span><br></code></pre></td></tr></table></figure>
 
@@ -2316,64 +2507,12 @@
 <p>MySQL 8.0 开始，默认值是 <strong>2（交错模式）</strong>，因为默认 binlog 格式是 ROW，不存在主从不一致的问题。</p>
 </blockquote>
 <hr>
-<h4 id="面试加分回答-31"><a href="#面试加分回答-31" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
+<h4 id="面试加分回答-33"><a href="#面试加分回答-33" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
 <p>「自增锁的 3 种模式，核心是在<strong>性能</strong>和<strong>安全</strong>之间做平衡。传统模式（0）最安全但性能最差；交错模式（2）性能最好，但要求 binlog 格式是 ROW（MySQL 5.7+ 默认就是 ROW）。如果你们的 MySQL 还用 STATEMENT 格式的 binlog，千万别设成 2，否则主从复制后自增 ID 会不连续。这也是为什么很多公司规范里要求 <code>binlog_format=ROW</code>。」</p>
 </blockquote>
 <hr>
-<h3 id="第-48-题：为什么有时候索引会失效？能举个索引失效的实战例子吗？"><a href="#第-48-题：为什么有时候索引会失效？能举个索引失效的实战例子吗？" class="headerlink" title="第 48 题：为什么有时候索引会失效？能举个索引失效的实战例子吗？"></a>第 48 题：为什么有时候索引会失效？能举个索引失效的实战例子吗？</h3><h4 id="一句话结论-32"><a href="#一句话结论-32" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>索引失效的核心原因：① 对索引列用了函数&#x2F;运算 ② 隐式类型转换 ③ 最左前缀原则违反 ④ 优化器认为全表扫描更快。</strong></p>
-</blockquote>
-<hr>
-<h4 id="深度解析-32"><a href="#深度解析-32" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>实战案例 ①：对索引列用了函数（最常见！）</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- ❌ 索引失效：对 create_time 用了 YEAR() 函数</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">YEAR</span>(create_time) <span class="hljs-operator">=</span> <span class="hljs-number">2024</span>;<br><br><span class="hljs-comment">-- ✅ 改写后可以用索引</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">WHERE</span> create_time <span class="hljs-operator">&gt;=</span> <span class="hljs-string">&#x27;2024-01-01&#x27;</span> <span class="hljs-keyword">AND</span> create_time <span class="hljs-operator">&lt;</span> <span class="hljs-string">&#x27;2025-01-01&#x27;</span>;<br></code></pre></td></tr></table></figure>
-
-<p><strong>原因</strong>：索引是按照列的原始值排序的，对列做函数运算后，有序性被破坏，无法利用 B+ 树快速定位。</p>
-<hr>
-<p><strong>实战案例 ②：隐式类型转换</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- phone 是 VARCHAR 类型</span><br><span class="hljs-comment">-- ❌ 索引失效：MySQL 会把 VARCHAR 转换成数字，相当于对索引列用了函数</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> phone <span class="hljs-operator">=</span> <span class="hljs-number">12345678901</span>;<br><br><span class="hljs-comment">-- ✅ 正确写法</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> phone <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;12345678901&#x27;</span>;<br></code></pre></td></tr></table></figure>
-
-<p><strong>如何排查？</strong> 执行 <code>EXPLAIN</code>，看 <code>type</code> 列是否变成了 <code>ALL</code>（全表扫描）。</p>
-<hr>
-<p><strong>实战案例 ③：最左前缀原则违反</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 有联合索引 (a, b, c)</span><br><span class="hljs-comment">-- ❌ 不走索引（不从最左列 a 开始）</span><br><span class="hljs-keyword">WHERE</span> b <span class="hljs-operator">=</span> <span class="hljs-number">2</span> <span class="hljs-keyword">AND</span> c <span class="hljs-operator">=</span> <span class="hljs-number">3</span>;<br><br><span class="hljs-comment">-- ✅ 走索引</span><br><span class="hljs-keyword">WHERE</span> a <span class="hljs-operator">=</span> <span class="hljs-number">1</span> <span class="hljs-keyword">AND</span> b <span class="hljs-operator">=</span> <span class="hljs-number">2</span>;<br></code></pre></td></tr></table></figure>
-
-<hr>
-<p><strong>实战案例 ④：优化器认为全表扫描更快</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 如果 user 表有 100 万行，age &gt; 18 的有 90 万行</span><br><span class="hljs-comment">-- 优化器会放弃索引，选择全表扫描（因为几乎要回表 90 万次，不如直接全表扫）</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> age <span class="hljs-operator">&gt;</span> <span class="hljs-number">18</span>;<br></code></pre></td></tr></table></figure>
-
-<hr>
-<h4 id="面试加分回答-32"><a href="#面试加分回答-32" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「索引失效的排查，最核心的工具是 <code>EXPLAIN</code>。但要注意，<code>EXPLAIN</code> 显示的”可能用到的索引”（<code>possible_keys</code>）和”实际用到的索引”（<code>key</code>）可能不一样，因为优化器会根据成本估算动态选择。另外，MySQL 8.0 引入了<strong>不可见索引（Invisible Indexes）</strong>，可以在不删除索引的情况下测试删除索引的影响，这是生产环境索引优化的利器。」</p>
-</blockquote>
-<hr>
-<h3 id="第-49-题：覆盖索引（Covering-Index）是什么？有什么好处？"><a href="#第-49-题：覆盖索引（Covering-Index）是什么？有什么好处？" class="headerlink" title="第 49 题：覆盖索引（Covering Index）是什么？有什么好处？"></a>第 49 题：覆盖索引（Covering Index）是什么？有什么好处？</h3><h4 id="一句话结论-33"><a href="#一句话结论-33" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
-<p><strong>覆盖索引 &#x3D; 索引包含了查询需要的所有字段，不需要回表。好处是：① 减少回表次数（性能提升巨大）② 减少磁盘 I&#x2F;O。</strong></p>
-</blockquote>
-<hr>
-<h4 id="深度解析-33"><a href="#深度解析-33" class="headerlink" title="深度解析"></a>深度解析</h4><p><strong>没有覆盖索引的世界：</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- name 上有二级索引，但 SELECT 需要所有列</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Alice&#x27;</span>;<br></code></pre></td></tr></table></figure>
-
-<p>执行步骤：</p>
-<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xquery"><span class="hljs-number">1</span>. 在<span class="hljs-built_in"> name</span> 索引的 B+ 树中找到<span class="hljs-built_in"> name</span>=<span class="hljs-string">&#x27;Alice&#x27;</span> 的记录<br>         → 得到主键值<span class="hljs-built_in"> id</span> = <span class="hljs-number">5</span><br>         <br><span class="hljs-number">2</span>. 拿着<span class="hljs-built_in"> id</span>=<span class="hljs-number">5</span>，去主键索引（聚簇索引）的 B+ 树中查找整行数据<br>         → 这就是「回表」（Lookup <span class="hljs-keyword">by</span> Primary Key）<br></code></pre></td></tr></table></figure>
-
-<p><strong>问题</strong>：如果 name 索引命中了 1000 行，就要回表 1000 次 → 性能急剧下降。</p>
-<hr>
-<p><strong>有了覆盖索引之后：</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- (name, age) 是联合索引</span><br><span class="hljs-comment">-- 只查 name 和 age，联合索引已经包含了这两个字段 → 覆盖索引，不需要回表</span><br><span class="hljs-keyword">SELECT</span> name, age <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Alice&#x27;</span>;<br><br><span class="hljs-comment">-- 查 *，需要回表（因为联合索引没有存储整行数据）</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">WHERE</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Alice&#x27;</span>;<br></code></pre></td></tr></table></figure>
-
-<hr>
-<p><strong>如何判断是否是覆盖索引？</strong></p>
-<p>看 <code>EXPLAIN</code> 的 <code>Extra</code> 列，显示 <code>Using index</code> 就是覆盖索引，不需要回表。</p>
-<hr>
-<p><strong>覆盖索引的设计实践：</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 如果经常查某个用户的 name 和 age，可以建立 (name, age) 联合索引</span><br><span class="hljs-comment">-- 这样 SELECT name, age 可以直接从索引返回，不需要回表</span><br><span class="hljs-keyword">ALTER TABLE</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">ADD</span> INDEX idx_name_age (name, age);<br></code></pre></td></tr></table></figure>
-
-<hr>
-<h4 id="面试加分回答-33"><a href="#面试加分回答-33" class="headerlink" title="面试加分回答"></a>面试加分回答</h4><blockquote>
-<p>「覆盖索引是优化慢 SQL 的<strong>第一手段</strong>。我曾经遇到过一个生产案例：一个查询通过二级索引过滤出了 10 万行数据，然后逐行回表，导致查询耗时 30 秒。解决办法是把二级索引改成<strong>覆盖索引</strong>（把 SELECT 中用到的所有字段都加到索引里），查询时间直接降到了 200 毫秒。所以在设计索引时，一定要考虑<strong>尽量减少回表次数</strong>。」</p>
-</blockquote>
-<hr>
-<h3 id="第-50-题：MySQL-的基础架构是什么？SQL-是如何执行的？"><a href="#第-50-题：MySQL-的基础架构是什么？SQL-是如何执行的？" class="headerlink" title="第 50 题：MySQL 的基础架构是什么？SQL 是如何执行的？"></a>第 50 题：MySQL 的基础架构是什么？SQL 是如何执行的？</h3><h4 id="一句话结论-34"><a href="#一句话结论-34" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
+<p><a id="第-50-题：MySQL-的基础架构是什么？SQL-是如何执行的？"></a><br><a id="qb-40"></a></p>
+<h3 id="Q40：MySQL-的基础架构是什么？SQL-是如何执行的？"><a href="#Q40：MySQL-的基础架构是什么？SQL-是如何执行的？" class="headerlink" title="Q40：MySQL 的基础架构是什么？SQL 是如何执行的？"></a>Q40：MySQL 的基础架构是什么？SQL 是如何执行的？</h3><h4 id="一句话结论-34"><a href="#一句话结论-34" class="headerlink" title="一句话结论"></a>一句话结论</h4><blockquote>
 <p><strong>MySQL 的 SQL 执行流程 &#x3D; 连接器 → 查询缓存（8.0 已移除）→ 分析器 → 优化器 → 执行器 → 存储引擎。</strong></p>
 </blockquote>
 <hr>
@@ -2526,7 +2665,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>MySQL 面试八股文 30 道｜深度详解版（傻子都能看懂）</div>
+      <div>MySQL 面试八股文 40问｜深度详解版</div>
       <div>https://whyalwaysme.lol/2026/06/07/2026-06-07-mysql-50-interview/</div>
     </div>
     <div class="license-meta">
@@ -2571,9 +2710,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-jvm-interview-deep/" title="JVM 面试八股文30条（深度详解版）">
+                      <a href="/2026/06/07/2026-06-07-jvm-interview-deep/" title="JVM 面试八股文43问（深度详解版）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">JVM 面试八股文30条（深度详解版）</span>
+                        <span class="hidden-mobile">JVM 面试八股文43问（深度详解版）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -2581,8 +2720,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/07/2026-06-07-spring-interview-deep/" title="Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）">
-                        <span class="hidden-mobile">Spring 面试八股文 50 道｜深度详解版（傻子都能看懂）</span>
+                      <a href="/2026/06/07/2026-06-07-spring-interview-deep/" title="Spring 面试八股文 55问｜深度详解版">
+                        <span class="hidden-mobile">Spring 面试八股文 55问｜深度详解版</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

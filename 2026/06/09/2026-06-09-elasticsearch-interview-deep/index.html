@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="Elasticsearch 50题：倒排索引、分词器、分布式查询、聚合与向量KNN检索原理。">
+    <meta name="description" content="Elasticsearch 面试八股文（52问）：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Elasticsearch 面试八股文（50题）">
+<meta property="og:title" content="Elasticsearch 面试八股文（52问）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/09/2026-06-09-elasticsearch-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="Elasticsearch 50题：倒排索引、分词器、分布式查询、聚合与向量KNN检索原理。">
+<meta property="og:description" content="Elasticsearch 面试八股文（52问）：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-09T06:30:00.000Z">
-<meta property="article:modified_time" content="2026-10-11T08:56:43.942Z">
+<meta property="article:modified_time" content="2026-11-01T16:19:15.635Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Elasticsearch">
 <meta property="article:tag" content="倒排索引">
@@ -41,7 +41,7 @@
   
   
   
-  <title>Elasticsearch 面试八股文（50题） - WhyAlwaysMe 的树洞</title>
+  <title>Elasticsearch 面试八股文（52问） - WhyAlwaysMe 的树洞</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -225,7 +225,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Elasticsearch 面试八股文（50题）"></span>
+            <span id="subtitle" data-typed-text="Elasticsearch 面试八股文（52问）"></span>
           
         </div>
 
@@ -259,7 +259,7 @@
         
         
         
-          190 分钟
+          196 分钟
         
       </span>
     
@@ -296,13 +296,20 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Elasticsearch 面试八股文（50题）</h1>
+            <h1 id="seo-header">Elasticsearch 面试八股文（52问）</h1>
             
             
               <div class="markdown-body">
                 
-                <hr>
-<h2 id="title-Elasticsearch-面试八股文（50-题）date-2026-06-09-14-30-00tags-面试-Elasticsearch-搜索-分布式categories-面试八股文"><a href="#title-Elasticsearch-面试八股文（50-题）date-2026-06-09-14-30-00tags-面试-Elasticsearch-搜索-分布式categories-面试八股文" class="headerlink" title="title: Elasticsearch 面试八股文（50 题）date: 2026-06-09 14:30:00tags:  - 面试  - Elasticsearch  - 搜索  - 分布式categories: 面试八股文"></a>title: Elasticsearch 面试八股文（50 题）<br>date: 2026-06-09 14:30:00<br>tags:<br>  - 面试<br>  - Elasticsearch<br>  - 搜索<br>  - 分布式<br>categories: 面试八股文</h2><h1 id="Elasticsearch-面试八股文（50-题）"><a href="#Elasticsearch-面试八股文（50-题）" class="headerlink" title="Elasticsearch 面试八股文（50 题）"></a>Elasticsearch 面试八股文（50 题）</h1><blockquote>
+                <blockquote>
+<p>**阅读提示（2026-11-02整理）：**先阅读核心回答，再按需展开补充示例；参数、默认值和源码实现以实际版本为准，教学示例不等于生产验证。</p>
+</blockquote>
+<p><a href="/question-bank/">题库总目录</a> · <a href="/question-bank/modern-java/">现代Java</a> · <a href="/question-bank/reliability/">可靠性</a> · <a href="/question-bank/testing/">测试</a> · <a href="/question-bank/troubleshooting/">排障</a></p>
+<blockquote>
+<p>**示例口径：**第一人称示范回答应换成自己的真实经历；教学场景和未提供测试依据的性能数字，不作为作者经历或生产测量证据。</p>
+</blockquote>
+<hr>
+<h2 id="title-Elasticsearch-面试八股文（50-题）date-2026-06-09-14-30-00tags-面试-Elasticsearch-搜索-分布式categories-面试八股文"><a href="#title-Elasticsearch-面试八股文（50-题）date-2026-06-09-14-30-00tags-面试-Elasticsearch-搜索-分布式categories-面试八股文" class="headerlink" title="title: Elasticsearch 面试八股文（50 题）date: 2026-06-09 14:30:00tags:  - 面试  - Elasticsearch  - 搜索  - 分布式categories: 面试八股文"></a>title: Elasticsearch 面试八股文（50 题）<br>date: 2026-06-09 14:30:00<br>tags:<br>  - 面试<br>  - Elasticsearch<br>  - 搜索<br>  - 分布式<br>categories: 面试八股文</h2><h1 id="Elasticsearch-面试八股文（52问）"><a href="#Elasticsearch-面试八股文（52问）" class="headerlink" title="Elasticsearch 面试八股文（52问）"></a>Elasticsearch 面试八股文（52问）</h1><blockquote>
 <p>📚 <strong>面试高频</strong>：本文覆盖 Elasticsearch 核心知识点，从基础概念到高级优化，帮你系统掌握 ES 面试要点。</p>
 <p>🎯 <strong>面试加分</strong>：每个问题都包含深度解析和面试加分回答，让你在面试中脱颖而出。</p>
 <p>⚡ <strong>快速掌握</strong>：所有问题都附有通俗易懂的解释和实战经验分享。</p>
@@ -385,7 +392,7 @@
 <li>如果需要修改，只能<strong>重建索引</strong></li>
 </ul>
 <h3 id="陷阱-4：From-Size-分页不适合深分页"><a href="#陷阱-4：From-Size-分页不适合深分页" class="headerlink" title="陷阱 4：From&#x2F;Size 分页不适合深分页"></a>陷阱 4：From&#x2F;Size 分页不适合深分页</h3><p>❌ <strong>错误做法</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 如果 from=10000，ES 需要从每个分片获取 10010 条结果，性能很差</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;from&quot;</span>: 10000,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 如果 from=10000，ES 需要从每个分片获取 52问结果，性能很差</span><br>GET /my_index/_search<br>&#123;<br>  <span class="hljs-string">&quot;from&quot;</span>: 10000,<br>  <span class="hljs-string">&quot;size&quot;</span>: 10<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>✅ <strong>正确做法</strong>：</p>
 <ul>
 <li>浅分页（前 1000 条）：使用 <code>from/size</code></li>
@@ -485,7 +492,62 @@
 <li><strong>解决方案</strong>：如果是节点故障，下线故障节点，恢复副本分片</li>
 </ol>
 <hr>
-<h2 id="第一部分：Elasticsearch-基础（Q1-Q10）"><a href="#第一部分：Elasticsearch-基础（Q1-Q10）" class="headerlink" title="第一部分：Elasticsearch 基础（Q1-Q10）"></a>第一部分：Elasticsearch 基础（Q1-Q10）</h2><h3 id="Q1：什么是-Elasticsearch？它和-Solr-的区别是什么？"><a href="#Q1：什么是-Elasticsearch？它和-Solr-的区别是什么？" class="headerlink" title="Q1：什么是 Elasticsearch？它和 Solr 的区别是什么？"></a>Q1：什么是 Elasticsearch？它和 Solr 的区别是什么？</h3><p><strong>一句话总结</strong>：Elasticsearch 是一个<strong>分布式搜索和分析引擎</strong>，基于 Lucene 构建，擅长<strong>全文搜索、结构化搜索、分析</strong>。</p>
+<h2 id="第一部分：Elasticsearch-基础（Q1-Q10）"><a href="#第一部分：Elasticsearch-基础（Q1-Q10）" class="headerlink" title="第一部分：Elasticsearch 基础（Q1-Q10）"></a>第一部分：Elasticsearch 基础（Q1-Q10）</h2><h2 id="核心问题索引"><a href="#核心问题索引" class="headerlink" title="核心问题索引"></a>核心问题索引</h2><ul>
+<li><a href="#qb-1">Q1：什么是 Elasticsearch？它和 Solr 的区别是什么？</a></li>
+<li><a href="#qb-2">Q2：Elasticsearch 的核心概念有哪些？</a></li>
+<li><a href="#qb-3">Q3：Elasticsearch 的倒排索引（Inverted Index）是什么？</a></li>
+<li><a href="#qb-4">Q4：Elasticsearch 的文档 CRUD 操作有哪些？</a></li>
+<li><a href="#qb-5">Q5：Elasticsearch 的搜索类型有哪些？</a></li>
+<li><a href="#qb-6">Q6：Elasticsearch 的 mapping（映射）是什么？</a></li>
+<li><a href="#qb-7">Q7：Elasticsearch 的分词器（Analyzer）是什么？</a></li>
+<li><a href="#qb-8">Q8：Elasticsearch 的评分机制（Scoring）是什么？</a></li>
+<li><a href="#qb-9">Q9：Elasticsearch 的分布式架构是什么？</a></li>
+<li><a href="#qb-10">Q10：Elasticsearch 的近实时搜索（NRT）是什么？</a></li>
+<li><a href="#qb-11">Q11：Elasticsearch 的索引模板（Index Template）是什么？</a></li>
+<li><a href="#qb-12">Q12：Elasticsearch 的别名（Alias）是什么？</a></li>
+<li><a href="#qb-13">Q13：Elasticsearch 的动态映射（Dynamic Mapping）有什么问题？</a></li>
+<li><a href="#qb-14">Q14：Elasticsearch 的嵌套对象（Nested Object）是什么？</a></li>
+<li><a href="#qb-15">Q15：Elasticsearch 的父子关系（Parent-Child Relationship）是什么？</a></li>
+<li><a href="#qb-16">Q16：Elasticsearch 的索引生命周期管理（ILM）是什么？</a></li>
+<li><a href="#qb-17">Q17：Elasticsearch 的索引设置（Index Settings）有哪些重要的？</a></li>
+<li><a href="#qb-18">Q18：Elasticsearch 的 mapping 优化技巧有哪些？</a></li>
+<li><a href="#qb-19">Q19：Elasticsearch 的索引重建（Reindex）是什么？</a></li>
+<li><a href="#qb-20">Q20：Elasticsearch 的索引拆分（Split）是什么？</a></li>
+<li><a href="#qb-21">Q21：Elasticsearch 的 Match 查询和 Term 查询的区别是什么？</a></li>
+<li><a href="#qb-22">Q22：Elasticsearch 的 Bool 查询是什么？</a></li>
+<li><a href="#qb-23">Q23：Elasticsearch 的聚合（Aggregation）是什么？</a></li>
+<li><a href="#qb-24">Q24：Elasticsearch 的排序（Sorting）是什么？</a></li>
+<li><a href="#qb-25">Q25：Elasticsearch 的分页（Pagination）是什么？</a></li>
+<li><a href="#qb-26">Q26：Elasticsearch 的高亮（Highlighting）是什么？</a></li>
+<li><a href="#qb-27">Q27：Elasticsearch 的建议器（Suggester）是什么？</a></li>
+<li><a href="#qb-28">Q28：Elasticsearch 的地理位置搜索（Geo Search）是什么？</a></li>
+<li><a href="#qb-29">Q29：Elasticsearch 的多索引搜索（Multi-Index Search）是什么？</a></li>
+<li><a href="#qb-30">Q30：Elasticsearch 的批量操作（Bulk API）是什么？</a></li>
+<li><a href="#qb-31">Q31：Elasticsearch 的集群健康状态（Cluster Health）有哪些？</a></li>
+<li><a href="#qb-32">Q32：Elasticsearch 的节点发现（Node Discovery）是什么？</a></li>
+<li><a href="#qb-33">Q33：Elasticsearch 的主节点选举（Master Election）是什么？</a></li>
+<li><a href="#qb-34">Q34：Elasticsearch 的分片分配（Shard Allocation）是什么？</a></li>
+<li><a href="#qb-35">Q35：Elasticsearch 的写入一致性（Write Consistency）是什么？</a></li>
+<li><a href="#qb-36">Q36：Elasticsearch 的读取一致性（Read Consistency）是什么？</a></li>
+<li><a href="#qb-37">Q37：Elasticsearch 的集群扩容（Cluster Scaling）是什么？</a></li>
+<li><a href="#qb-38">Q38：Elasticsearch 的集群缩容（Cluster Shrink）是什么？</a></li>
+<li><a href="#qb-39">Q39：Elasticsearch 的跨集群搜索（Cross-Cluster Search）是什么？</a></li>
+<li><a href="#qb-40">Q40：Elasticsearch 的跨集群复制（CCR - Cross-Cluster Replication）是什么？</a></li>
+<li><a href="#qb-41">Q41：Elasticsearch 的写入性能优化有哪些？</a></li>
+<li><a href="#qb-42">Q42：Elasticsearch 的读取性能优化有哪些？</a></li>
+<li><a href="#qb-43">Q43：Elasticsearch 的硬件选择有哪些建议？</a></li>
+<li><a href="#qb-44">Q44：Elasticsearch 的 JVM 堆内存优化有哪些？</a></li>
+<li><a href="#qb-45">Q45：Elasticsearch 的索引性能监控有哪些指标？</a></li>
+<li><a href="#qb-46">Q46：Elasticsearch 的搜索性能监控有哪些指标？</a></li>
+<li><a href="#qb-47">Q47：Elasticsearch 的常见性能问题有哪些？</a></li>
+<li><a href="#qb-48">Q48：Elasticsearch 的数据建模最佳实践有哪些？</a></li>
+<li><a href="#qb-49">Q49：Elasticsearch 的备份和恢复（Snapshot and Restore）是什么？</a></li>
+<li><a href="#qb-50">Q50：Elasticsearch 的安全机制（Security）有哪些？</a></li>
+<li><a href="#qb-51">Q51：Elasticsearch 的 <code>dense_vector</code> 和 kNN 搜索是什么？</a></li>
+<li><a href="#qb-52">Q52：KnowFlow 如何把 KNN 与 BM25 结合，并守住权限边界？</a></li>
+</ul>
+<p><a id="qb-1"></a></p>
+<h3 id="Q1：什么是-Elasticsearch？它和-Solr-的区别是什么？"><a href="#Q1：什么是-Elasticsearch？它和-Solr-的区别是什么？" class="headerlink" title="Q1：什么是 Elasticsearch？它和 Solr 的区别是什么？"></a>Q1：什么是 Elasticsearch？它和 Solr 的区别是什么？</h3><p><strong>一句话总结</strong>：Elasticsearch 是一个<strong>分布式搜索和分析引擎</strong>，基于 Lucene 构建，擅长<strong>全文搜索、结构化搜索、分析</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Elasticsearch 的核心概念</strong>：</p>
 <ul>
@@ -535,6 +597,7 @@
 <li>可以讲讲实际项目中的应用（比如商品搜索、日志检索）</li>
 </ul>
 <hr>
+<p><a id="qb-2"></a></p>
 <h3 id="Q2：Elasticsearch-的核心概念有哪些？"><a href="#Q2：Elasticsearch-的核心概念有哪些？" class="headerlink" title="Q2：Elasticsearch 的核心概念有哪些？"></a>Q2：Elasticsearch 的核心概念有哪些？</h3><p><strong>一句话总结</strong>：ES 的核心概念包括：<strong>索引（Index）</strong>、<strong>类型（Type）</strong>、<strong>文档（Document）</strong>、<strong>字段（Field）</strong>、<strong>映射（Mapping）</strong>、<strong>分片（Shard）</strong>、<strong>副本（Replica）</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>ES 的数据模型</strong>：</p>
@@ -560,6 +623,7 @@
 <li>可以讲讲实际项目中的分片策略（比如按时间滚动索引）</li>
 </ul>
 <hr>
+<p><a id="qb-3"></a></p>
 <h3 id="Q3：Elasticsearch-的倒排索引（Inverted-Index）是什么？"><a href="#Q3：Elasticsearch-的倒排索引（Inverted-Index）是什么？" class="headerlink" title="Q3：Elasticsearch 的倒排索引（Inverted Index）是什么？"></a>Q3：Elasticsearch 的倒排索引（Inverted Index）是什么？</h3><p><strong>一句话总结</strong>：倒排索引是 ES 的<strong>核心数据结构</strong>，通过<strong>词项（Term）→ 文档列表（Posting List）</strong> 的映射，实现快速全文搜索。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>正排索引 vs 倒排索引</strong>：</p>
@@ -610,6 +674,7 @@
 <li>可以讲讲实际项目中的优化（比如禁用不需要检索字段的索引，用 <code>&quot;index&quot;: false</code>；给不需要排序聚合的字段关闭 doc_values，用 <code>&quot;doc_values&quot;: false</code>）</li>
 </ul>
 <hr>
+<p><a id="qb-4"></a></p>
 <h3 id="Q4：Elasticsearch-的文档-CRUD-操作有哪些？"><a href="#Q4：Elasticsearch-的文档-CRUD-操作有哪些？" class="headerlink" title="Q4：Elasticsearch 的文档 CRUD 操作有哪些？"></a>Q4：Elasticsearch 的文档 CRUD 操作有哪些？</h3><p><strong>一句话总结</strong>：ES 的文档 CRUD 操作包括：<strong>索引（Index）</strong>、<strong>创建（Create）</strong>、<strong>读取（Get）</strong>、<strong>更新（Update）</strong>、<strong>删除（Delete）</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>CRUD 操作示例</strong>：</p>
@@ -622,6 +687,7 @@
 <li>可以讲讲实际项目中的最佳实践（比如使用 <strong>Bulk API</strong> 批量操作）</li>
 </ul>
 <hr>
+<p><a id="qb-5"></a></p>
 <h3 id="Q5：Elasticsearch-的搜索类型有哪些？"><a href="#Q5：Elasticsearch-的搜索类型有哪些？" class="headerlink" title="Q5：Elasticsearch 的搜索类型有哪些？"></a>Q5：Elasticsearch 的搜索类型有哪些？</h3><p><strong>一句话总结</strong>：ES 的搜索类型包括：<strong>全文搜索</strong>、<strong>结构化搜索</strong>、<strong>聚合搜索</strong>、<strong>地理位置搜索</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>1. 全文搜索</strong>：</p>
@@ -643,6 +709,7 @@
 <li>可以讲讲实际项目中的应用（比如商品搜索、用户画像分析）</li>
 </ul>
 <hr>
+<p><a id="qb-6"></a></p>
 <h3 id="Q6：Elasticsearch-的-mapping（映射）是什么？"><a href="#Q6：Elasticsearch-的-mapping（映射）是什么？" class="headerlink" title="Q6：Elasticsearch 的 mapping（映射）是什么？"></a>Q6：Elasticsearch 的 mapping（映射）是什么？</h3><p><strong>一句话总结</strong>：Mapping 是 ES 的<strong>数据模式定义</strong>，定义了文档的字段类型、分词器、是否索引等属性。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Mapping 的类型</strong>：</p>
@@ -673,6 +740,7 @@
 <li>可以讲讲实际项目中的最佳实践（<strong>建议使用静态映射</strong>）</li>
 </ul>
 <hr>
+<p><a id="qb-7"></a></p>
 <h3 id="Q7：Elasticsearch-的分词器（Analyzer）是什么？"><a href="#Q7：Elasticsearch-的分词器（Analyzer）是什么？" class="headerlink" title="Q7：Elasticsearch 的分词器（Analyzer）是什么？"></a>Q7：Elasticsearch 的分词器（Analyzer）是什么？</h3><p><strong>一句话总结</strong>：分词器是 ES 用于处理<strong>文本字段</strong>的组件，包括：<strong>字符过滤器（Character Filter）</strong>、<strong>分词器（Tokenizer）</strong>、<strong>词项过滤器（Token Filter）</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>分词器的组成</strong>：</p>
@@ -711,6 +779,7 @@
 <li>可以讲讲实际项目中的优化（比如禁用不必要的词项过滤器）</li>
 </ul>
 <hr>
+<p><a id="qb-8"></a></p>
 <h3 id="Q8：Elasticsearch-的评分机制（Scoring）是什么？"><a href="#Q8：Elasticsearch-的评分机制（Scoring）是什么？" class="headerlink" title="Q8：Elasticsearch 的评分机制（Scoring）是什么？"></a>Q8：Elasticsearch 的评分机制（Scoring）是什么？</h3><p><strong>一句话总结</strong>：ES 使用 <strong>BM25</strong> 算法计算文档的相关性评分（_score），评分越高，排序越靠前。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>BM25 算法</strong>：</p>
@@ -742,6 +811,7 @@
 <li>可以讲讲实际项目中的优化：比如在 KNN 向量召回后，用 <code>rescore</code> 对召回窗口内的候选做 BM25 二次重打分——这是”重打分”而不是”融合两个独立排行榜”（RRF），细节见后面的向量检索小节</li>
 </ul>
 <hr>
+<p><a id="qb-9"></a></p>
 <h3 id="Q9：Elasticsearch-的分布式架构是什么？"><a href="#Q9：Elasticsearch-的分布式架构是什么？" class="headerlink" title="Q9：Elasticsearch 的分布式架构是什么？"></a>Q9：Elasticsearch 的分布式架构是什么？</h3><p><strong>一句话总结</strong>：ES 是<strong>分布式系统</strong>，通过<strong>分片（Shard）</strong> 实现水平扩展，通过<strong>副本（Replica）</strong> 实现高可用。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>ES 的节点类型</strong>：</p>
@@ -799,6 +869,7 @@
 <li>可以讲讲实际项目中的部署方案（比如 3 个主节点 + 多个数据节点）</li>
 </ul>
 <hr>
+<p><a id="qb-10"></a></p>
 <h3 id="Q10：Elasticsearch-的近实时搜索（NRT）是什么？"><a href="#Q10：Elasticsearch-的近实时搜索（NRT）是什么？" class="headerlink" title="Q10：Elasticsearch 的近实时搜索（NRT）是什么？"></a>Q10：Elasticsearch 的近实时搜索（NRT）是什么？</h3><p><strong>一句话总结</strong>：ES 的<strong>近实时搜索</strong>是指文档索引后，默认可在 <strong>1 秒</strong> 内被搜索到（不是实时，但接近实时）。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>为什么不是实时？</strong></p>
@@ -843,7 +914,8 @@
 <li>可以讲讲实际项目中的调优（比如批量导入时临时禁用刷新、调大 translog flush 阈值以降低 IO）</li>
 </ul>
 <hr>
-<h2 id="第二部分：Elasticsearch-索引和映射（Q11-Q20）"><a href="#第二部分：Elasticsearch-索引和映射（Q11-Q20）" class="headerlink" title="第二部分：Elasticsearch 索引和映射（Q11-Q20）"></a>第二部分：Elasticsearch 索引和映射（Q11-Q20）</h2><h3 id="Q11：Elasticsearch-的索引模板（Index-Template）是什么？"><a href="#Q11：Elasticsearch-的索引模板（Index-Template）是什么？" class="headerlink" title="Q11：Elasticsearch 的索引模板（Index Template）是什么？"></a>Q11：Elasticsearch 的索引模板（Index Template）是什么？</h3><p><strong>一句话总结</strong>：索引模板是 ES 的<strong>自动应用 mapping 和 settings</strong> 的机制，当创建新索引时，如果匹配模板模式，则自动应用模板中的配置。</p>
+<h2 id="第二部分：Elasticsearch-索引和映射（Q11-Q20）"><a href="#第二部分：Elasticsearch-索引和映射（Q11-Q20）" class="headerlink" title="第二部分：Elasticsearch 索引和映射（Q11-Q20）"></a>第二部分：Elasticsearch 索引和映射（Q11-Q20）</h2><p><a id="qb-11"></a></p>
+<h3 id="Q11：Elasticsearch-的索引模板（Index-Template）是什么？"><a href="#Q11：Elasticsearch-的索引模板（Index-Template）是什么？" class="headerlink" title="Q11：Elasticsearch 的索引模板（Index Template）是什么？"></a>Q11：Elasticsearch 的索引模板（Index Template）是什么？</h3><p><strong>一句话总结</strong>：索引模板是 ES 的<strong>自动应用 mapping 和 settings</strong> 的机制，当创建新索引时，如果匹配模板模式，则自动应用模板中的配置。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>索引模板的组成</strong>：</p>
 <ul>
@@ -862,6 +934,7 @@
 <li>可以讲讲实际项目中的应用（比如按天创建日志索引）</li>
 </ul>
 <hr>
+<p><a id="qb-12"></a></p>
 <h3 id="Q12：Elasticsearch-的别名（Alias）是什么？"><a href="#Q12：Elasticsearch-的别名（Alias）是什么？" class="headerlink" title="Q12：Elasticsearch 的别名（Alias）是什么？"></a>Q12：Elasticsearch 的别名（Alias）是什么？</h3><p><strong>一句话总结</strong>：别名是 ES 的<strong>索引昵称</strong>，可以通过别名访问多个索引，实现<strong>零停机时间重建索引</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>别名的好处</strong>：</p>
@@ -880,6 +953,7 @@
 <li>可以讲讲实际项目中的应用（比如版本化索引）</li>
 </ul>
 <hr>
+<p><a id="qb-13"></a></p>
 <h3 id="Q13：Elasticsearch-的动态映射（Dynamic-Mapping）有什么问题？"><a href="#Q13：Elasticsearch-的动态映射（Dynamic-Mapping）有什么问题？" class="headerlink" title="Q13：Elasticsearch 的动态映射（Dynamic Mapping）有什么问题？"></a>Q13：Elasticsearch 的动态映射（Dynamic Mapping）有什么问题？</h3><p><strong>一句话总结</strong>：动态映射是 ES <strong>自动推断字段类型</strong>的机制，但可能推断错误，导致<strong>搜索结果不符合预期</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>动态映射的问题</strong>：</p>
@@ -904,6 +978,7 @@
 <li>可以讲讲实际项目中的最佳实践（** always 使用静态映射**）</li>
 </ul>
 <hr>
+<p><a id="qb-14"></a></p>
 <h3 id="Q14：Elasticsearch-的嵌套对象（Nested-Object）是什么？"><a href="#Q14：Elasticsearch-的嵌套对象（Nested-Object）是什么？" class="headerlink" title="Q14：Elasticsearch 的嵌套对象（Nested Object）是什么？"></a>Q14：Elasticsearch 的嵌套对象（Nested Object）是什么？</h3><p><strong>一句话总结</strong>：嵌套对象是 ES 的<strong>复杂数据类型</strong>，用于<strong>数组中的对象</strong>，保持对象的<strong>独立性</strong>，避免<strong>数组扁平化问题</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>数组扁平化问题</strong>：</p>
@@ -919,6 +994,7 @@
 <li>可以讲讲实际项目中的应用（比如订单中的商品列表）</li>
 </ul>
 <hr>
+<p><a id="qb-15"></a></p>
 <h3 id="Q15：Elasticsearch-的父子关系（Parent-Child-Relationship）是什么？"><a href="#Q15：Elasticsearch-的父子关系（Parent-Child-Relationship）是什么？" class="headerlink" title="Q15：Elasticsearch 的父子关系（Parent-Child Relationship）是什么？"></a>Q15：Elasticsearch 的父子关系（Parent-Child Relationship）是什么？</h3><p><strong>一句话总结</strong>：父子关系是 ES 的<strong>关联数据模型</strong>，用于<strong>一对多关系</strong>，父文档和子文档是<strong>独立的文档</strong>，但可以<strong>联合查询</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>父子关系 vs 嵌套对象</strong>：</p>
@@ -961,6 +1037,7 @@
 <li>可以讲讲实际项目中的替代方案（比如<strong>非规范化数据</strong>，将父子数据放在同一个文档中）</li>
 </ul>
 <hr>
+<p><a id="qb-16"></a></p>
 <h3 id="Q16：Elasticsearch-的索引生命周期管理（ILM）是什么？"><a href="#Q16：Elasticsearch-的索引生命周期管理（ILM）是什么？" class="headerlink" title="Q16：Elasticsearch 的索引生命周期管理（ILM）是什么？"></a>Q16：Elasticsearch 的索引生命周期管理（ILM）是什么？</h3><p><strong>一句话总结</strong>：ILM 是 ES 的<strong>自动化索引管理</strong>功能，可以自动执行<strong>滚动、收缩、强制合并、删除</strong>等操作，适用于<strong>时间序列数据</strong>（比如日志）。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>ILM 的阶段</strong>：</p>
@@ -980,6 +1057,7 @@
 <li>可以讲讲实际项目中的应用（比如按天创建日志索引，自动删除 90 天前的索引）</li>
 </ul>
 <hr>
+<p><a id="qb-17"></a></p>
 <h3 id="Q17：Elasticsearch-的索引设置（Index-Settings）有哪些重要的？"><a href="#Q17：Elasticsearch-的索引设置（Index-Settings）有哪些重要的？" class="headerlink" title="Q17：Elasticsearch 的索引设置（Index Settings）有哪些重要的？"></a>Q17：Elasticsearch 的索引设置（Index Settings）有哪些重要的？</h3><p><strong>一句话总结</strong>：索引设置是 ES 的<strong>索引级别配置</strong>，包括：<strong>分片数量</strong>、<strong>刷新间隔</strong>、<strong>写入限流</strong>、<strong>合并策略</strong>等。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>重要的索引设置</strong>：</p>
@@ -1000,6 +1078,7 @@
 <li>可以讲讲实际项目中的调优经验（比如批量导入时临时禁用刷新）</li>
 </ul>
 <hr>
+<p><a id="qb-18"></a></p>
 <h3 id="Q18：Elasticsearch-的-mapping-优化技巧有哪些？"><a href="#Q18：Elasticsearch-的-mapping-优化技巧有哪些？" class="headerlink" title="Q18：Elasticsearch 的 mapping 优化技巧有哪些？"></a>Q18：Elasticsearch 的 mapping 优化技巧有哪些？</h3><p><strong>一句话总结</strong>：Mapping 优化技巧包括：<strong>禁用不需要搜索的字段</strong>、<strong>使用 keyword 类型</strong>、<strong>启用 doc_values</strong>、<strong>禁用 _source</strong> 等。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Mapping 优化技巧</strong>：</p>
@@ -1020,6 +1099,7 @@
 <li>可以讲讲实际项目中的优化经验（比如只为需要的字段启用索引）</li>
 </ul>
 <hr>
+<p><a id="qb-19"></a></p>
 <h3 id="Q19：Elasticsearch-的索引重建（Reindex）是什么？"><a href="#Q19：Elasticsearch-的索引重建（Reindex）是什么？" class="headerlink" title="Q19：Elasticsearch 的索引重建（Reindex）是什么？"></a>Q19：Elasticsearch 的索引重建（Reindex）是什么？</h3><p><strong>一句话总结</strong>：索引重建是将<strong>旧索引的数据复制到新索引</strong>的操作，用于<strong>修改 mapping、增加分片数量、拆分索引</strong>等场景。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>为什么需要重建索引？</strong></p>
@@ -1045,6 +1125,7 @@
 <li>可以讲讲实际项目中的经验（比如<strong>提前规划 mapping</strong>，避免重建索引）</li>
 </ul>
 <hr>
+<p><a id="qb-20"></a></p>
 <h3 id="Q20：Elasticsearch-的索引拆分（Split）是什么？"><a href="#Q20：Elasticsearch-的索引拆分（Split）是什么？" class="headerlink" title="Q20：Elasticsearch 的索引拆分（Split）是什么？"></a>Q20：Elasticsearch 的索引拆分（Split）是什么？</h3><p><strong>一句话总结</strong>：索引拆分是 ES 的<strong>增加主分片数量</strong>的操作，但有限制（<strong>新分片数量必须是原分片数量的倍数</strong>）。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>为什么需要拆分索引？</strong></p>
@@ -1067,7 +1148,8 @@
 <li>可以讲讲实际项目中的替代方案（比如<strong>按时间滚动索引</strong>，而不是拆分索引）</li>
 </ul>
 <hr>
-<h2 id="第三部分：Elasticsearch-搜索（Q21-Q30）"><a href="#第三部分：Elasticsearch-搜索（Q21-Q30）" class="headerlink" title="第三部分：Elasticsearch 搜索（Q21-Q30）"></a>第三部分：Elasticsearch 搜索（Q21-Q30）</h2><h3 id="Q21：Elasticsearch-的-Match-查询和-Term-查询的区别是什么？"><a href="#Q21：Elasticsearch-的-Match-查询和-Term-查询的区别是什么？" class="headerlink" title="Q21：Elasticsearch 的 Match 查询和 Term 查询的区别是什么？"></a>Q21：Elasticsearch 的 Match 查询和 Term 查询的区别是什么？</h3><p><strong>一句话总结</strong>：<code>match</code> 查询会<strong>分词</strong>，用于<strong>全文搜索</strong>；<code>term</code> 查询<strong>不会分词</strong>，用于<strong>精确匹配</strong>。</p>
+<h2 id="第三部分：Elasticsearch-搜索（Q21-Q30）"><a href="#第三部分：Elasticsearch-搜索（Q21-Q30）" class="headerlink" title="第三部分：Elasticsearch 搜索（Q21-Q30）"></a>第三部分：Elasticsearch 搜索（Q21-Q30）</h2><p><a id="qb-21"></a></p>
+<h3 id="Q21：Elasticsearch-的-Match-查询和-Term-查询的区别是什么？"><a href="#Q21：Elasticsearch-的-Match-查询和-Term-查询的区别是什么？" class="headerlink" title="Q21：Elasticsearch 的 Match 查询和 Term 查询的区别是什么？"></a>Q21：Elasticsearch 的 Match 查询和 Term 查询的区别是什么？</h3><p><strong>一句话总结</strong>：<code>match</code> 查询会<strong>分词</strong>，用于<strong>全文搜索</strong>；<code>term</code> 查询<strong>不会分词</strong>，用于<strong>精确匹配</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Match 查询</strong>：</p>
 <ul>
@@ -1090,6 +1172,7 @@
 <li>可以讲讲实际项目中的常见错误（比如对 <code>text</code> 字段使用 <code>term</code> 查询）</li>
 </ul>
 <hr>
+<p><a id="qb-22"></a></p>
 <h3 id="Q22：Elasticsearch-的-Bool-查询是什么？"><a href="#Q22：Elasticsearch-的-Bool-查询是什么？" class="headerlink" title="Q22：Elasticsearch 的 Bool 查询是什么？"></a>Q22：Elasticsearch 的 Bool 查询是什么？</h3><p><strong>一句话总结</strong>：<code>bool</code> 查询是 ES 的<strong>复合查询</strong>，可以组合多个查询条件，包括：<strong>must</strong>、<strong>should</strong>、<strong>must_not</strong>、<strong>filter</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Bool 查询的子句</strong>：</p>
@@ -1109,6 +1192,7 @@
 <li>可以讲讲实际项目中的复杂查询案例（比如电商搜索）</li>
 </ul>
 <hr>
+<p><a id="qb-23"></a></p>
 <h3 id="Q23：Elasticsearch-的聚合（Aggregation）是什么？"><a href="#Q23：Elasticsearch-的聚合（Aggregation）是什么？" class="headerlink" title="Q23：Elasticsearch 的聚合（Aggregation）是什么？"></a>Q23：Elasticsearch 的聚合（Aggregation）是什么？</h3><p><strong>一句话总结</strong>：聚合是 ES 的<strong>分析功能</strong>，类似于 SQL 的 <code>GROUP BY</code> 和聚合函数，包括：<strong>指标聚合</strong>、<strong>桶聚合</strong>、<strong>管道聚合</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>聚合的类型</strong>：</p>
@@ -1135,6 +1219,7 @@
 <li>可以讲讲实际项目中的应用（比如用户画像分析、日志统计分析）</li>
 </ul>
 <hr>
+<p><a id="qb-24"></a></p>
 <h3 id="Q24：Elasticsearch-的排序（Sorting）是什么？"><a href="#Q24：Elasticsearch-的排序（Sorting）是什么？" class="headerlink" title="Q24：Elasticsearch 的排序（Sorting）是什么？"></a>Q24：Elasticsearch 的排序（Sorting）是什么？</h3><p><strong>一句话总结</strong>：排序是 ES 的<strong>自定义文档顺序</strong>的功能，可以按<strong>字段值</strong>、<strong>评分</strong>、<strong>地理距离</strong>排序。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>排序的类型</strong>：</p>
@@ -1153,6 +1238,7 @@
 <li>可以讲讲实际项目中的需求（比如<strong>多维度排序</strong>，先按评分排序，再按时间排序）</li>
 </ul>
 <hr>
+<p><a id="qb-25"></a></p>
 <h3 id="Q25：Elasticsearch-的分页（Pagination）是什么？"><a href="#Q25：Elasticsearch-的分页（Pagination）是什么？" class="headerlink" title="Q25：Elasticsearch 的分页（Pagination）是什么？"></a>Q25：Elasticsearch 的分页（Pagination）是什么？</h3><p><strong>一句话总结</strong>：分页是 ES 的<strong>限制返回结果数量</strong>的功能，包括：<strong>From&#x2F;Size</strong>、<strong>Scroll</strong>、<strong>Search After</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>分页的类型</strong>：</p>
@@ -1176,6 +1262,7 @@
 <li>可以讲讲实际项目中的分页方案（比如<strong>无限滚动分页</strong>，使用 <code>search_after</code> + PIT）</li>
 </ul>
 <hr>
+<p><a id="qb-26"></a></p>
 <h3 id="Q26：Elasticsearch-的高亮（Highlighting）是什么？"><a href="#Q26：Elasticsearch-的高亮（Highlighting）是什么？" class="headerlink" title="Q26：Elasticsearch 的高亮（Highlighting）是什么？"></a>Q26：Elasticsearch 的高亮（Highlighting）是什么？</h3><p><strong>一句话总结</strong>：高亮是 ES 的<strong>在搜索结果中标记关键词</strong>的功能，通常用于<strong>全文搜索</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>高亮的类型</strong>：</p>
@@ -1194,6 +1281,7 @@
 <li>可以讲讲实际项目中的优化（比如<strong>禁用高亮</strong> <code>_score</code> 以提高性能）</li>
 </ul>
 <hr>
+<p><a id="qb-27"></a></p>
 <h3 id="Q27：Elasticsearch-的建议器（Suggester）是什么？"><a href="#Q27：Elasticsearch-的建议器（Suggester）是什么？" class="headerlink" title="Q27：Elasticsearch 的建议器（Suggester）是什么？"></a>Q27：Elasticsearch 的建议器（Suggester）是什么？</h3><p><strong>一句话总结</strong>：建议器是 ES 的<strong>搜索建议</strong>功能，包括：<strong>Term Suggester</strong>、<strong>Phrase Suggester</strong>、<strong>Completion Suggester</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>建议器的类型</strong>：</p>
@@ -1212,6 +1300,7 @@
 <li>可以讲讲实际项目中的应用（比如电商搜索的自动补全）</li>
 </ul>
 <hr>
+<p><a id="qb-28"></a></p>
 <h3 id="Q28：Elasticsearch-的地理位置搜索（Geo-Search）是什么？"><a href="#Q28：Elasticsearch-的地理位置搜索（Geo-Search）是什么？" class="headerlink" title="Q28：Elasticsearch 的地理位置搜索（Geo Search）是什么？"></a>Q28：Elasticsearch 的地理位置搜索（Geo Search）是什么？</h3><p><strong>一句话总结</strong>：地理位置搜索是 ES 的<strong>基于地理位置的搜索</strong>功能，包括：<strong>地理距离查询</strong>、<strong>地理边界查询</strong>、<strong>地理聚合</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>地理位置字段类型</strong>：</p>
@@ -1235,6 +1324,7 @@
 <li>可以讲讲实际项目中的应用（比如外卖平台的附近商家搜索）</li>
 </ul>
 <hr>
+<p><a id="qb-29"></a></p>
 <h3 id="Q29：Elasticsearch-的多索引搜索（Multi-Index-Search）是什么？"><a href="#Q29：Elasticsearch-的多索引搜索（Multi-Index-Search）是什么？" class="headerlink" title="Q29：Elasticsearch 的多索引搜索（Multi-Index Search）是什么？"></a>Q29：Elasticsearch 的多索引搜索（Multi-Index Search）是什么？</h3><p><strong>一句话总结</strong>：多索引搜索是 ES 的<strong>同时搜索多个索引</strong>的功能，可以通过<strong>索引模式</strong>、<strong>别名</strong>实现。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>多索引搜索的方式</strong>：</p>
@@ -1253,6 +1343,7 @@
 <li>可以讲讲实际项目中的最佳实践（<strong>总是使用别名</strong>）</li>
 </ul>
 <hr>
+<p><a id="qb-30"></a></p>
 <h3 id="Q30：Elasticsearch-的批量操作（Bulk-API）是什么？"><a href="#Q30：Elasticsearch-的批量操作（Bulk-API）是什么？" class="headerlink" title="Q30：Elasticsearch 的批量操作（Bulk API）是什么？"></a>Q30：Elasticsearch 的批量操作（Bulk API）是什么？</h3><p><strong>一句话总结</strong>：Bulk API 是 ES 的<strong>批量执行多个操作</strong>的功能，可以<strong>显著提高写入性能</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Bulk API 的操作类型</strong>：</p>
@@ -1275,7 +1366,8 @@
 <li>可以讲讲实际项目中的应用（比如批量导入数据、批量更新数据）</li>
 </ul>
 <hr>
-<h2 id="第四部分：Elasticsearch-集群和分布式（Q31-Q40）"><a href="#第四部分：Elasticsearch-集群和分布式（Q31-Q40）" class="headerlink" title="第四部分：Elasticsearch 集群和分布式（Q31-Q40）"></a>第四部分：Elasticsearch 集群和分布式（Q31-Q40）</h2><h3 id="Q31：Elasticsearch-的集群健康状态（Cluster-Health）有哪些？"><a href="#Q31：Elasticsearch-的集群健康状态（Cluster-Health）有哪些？" class="headerlink" title="Q31：Elasticsearch 的集群健康状态（Cluster Health）有哪些？"></a>Q31：Elasticsearch 的集群健康状态（Cluster Health）有哪些？</h3><p><strong>一句话总结</strong>：ES 的集群健康状态包括：<strong>绿色（Green）</strong>、<strong>黄色（Yellow）</strong>、<strong>红色（Red）</strong>。</p>
+<h2 id="第四部分：Elasticsearch-集群和分布式（Q31-Q40）"><a href="#第四部分：Elasticsearch-集群和分布式（Q31-Q40）" class="headerlink" title="第四部分：Elasticsearch 集群和分布式（Q31-Q40）"></a>第四部分：Elasticsearch 集群和分布式（Q31-Q40）</h2><p><a id="qb-31"></a></p>
+<h3 id="Q31：Elasticsearch-的集群健康状态（Cluster-Health）有哪些？"><a href="#Q31：Elasticsearch-的集群健康状态（Cluster-Health）有哪些？" class="headerlink" title="Q31：Elasticsearch 的集群健康状态（Cluster Health）有哪些？"></a>Q31：Elasticsearch 的集群健康状态（Cluster Health）有哪些？</h3><p><strong>一句话总结</strong>：ES 的集群健康状态包括：<strong>绿色（Green）</strong>、<strong>黄色（Yellow）</strong>、<strong>红色（Red）</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>集群健康状态</strong>：</p>
 <ol>
@@ -1293,6 +1385,7 @@
 <li>可以讲讲实际项目中的监控（比如使用 <strong>Watcher</strong> 监控集群健康状态）</li>
 </ul>
 <hr>
+<p><a id="qb-32"></a></p>
 <h3 id="Q32：Elasticsearch-的节点发现（Node-Discovery）是什么？"><a href="#Q32：Elasticsearch-的节点发现（Node-Discovery）是什么？" class="headerlink" title="Q32：Elasticsearch 的节点发现（Node Discovery）是什么？"></a>Q32：Elasticsearch 的节点发现（Node Discovery）是什么？</h3><p><strong>一句话总结</strong>：节点发现是 ES 的<strong>节点加入集群</strong>的机制，包括：<strong>Zen Discovery</strong>（ES 7.x 之前）和 <strong>Coordinator</strong>（ES 7.x 之后）。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Zen Discovery</strong>（ES 7.x 之前）：</p>
@@ -1317,6 +1410,7 @@
 <li>可以讲讲实际项目中的部署方案（比如 3 个 Coordinator 节点）</li>
 </ul>
 <hr>
+<p><a id="qb-33"></a></p>
 <h3 id="Q33：Elasticsearch-的主节点选举（Master-Election）是什么？"><a href="#Q33：Elasticsearch-的主节点选举（Master-Election）是什么？" class="headerlink" title="Q33：Elasticsearch 的主节点选举（Master Election）是什么？"></a>Q33：Elasticsearch 的主节点选举（Master Election）是什么？</h3><p><strong>一句话总结</strong>：主节点选举是 ES 的<strong>选举主节点</strong>的机制，保证集群有<strong>唯一的主节点</strong>管理集群状态。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>主节点选举的流程</strong>：</p>
@@ -1342,6 +1436,7 @@
 <li>可以讲讲实际项目中的部署方案（比如 3 个候选主节点）</li>
 </ul>
 <hr>
+<p><a id="qb-34"></a></p>
 <h3 id="Q34：Elasticsearch-的分片分配（Shard-Allocation）是什么？"><a href="#Q34：Elasticsearch-的分片分配（Shard-Allocation）是什么？" class="headerlink" title="Q34：Elasticsearch 的分片分配（Shard Allocation）是什么？"></a>Q34：Elasticsearch 的分片分配（Shard Allocation）是什么？</h3><p><strong>一句话总结</strong>：分片分配是 ES 的<strong>将分片分配到节点</strong>的机制，包括：<strong>主分片分配</strong>、<strong>副本分片分配</strong>、<strong>再平衡</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>分片分配的阶段</strong>：</p>
@@ -1366,6 +1461,7 @@
 <li>可以讲讲实际项目中的经验（比如<strong>避免单个节点分配过多分片</strong>）</li>
 </ul>
 <hr>
+<p><a id="qb-35"></a></p>
 <h3 id="Q35：Elasticsearch-的写入一致性（Write-Consistency）是什么？"><a href="#Q35：Elasticsearch-的写入一致性（Write-Consistency）是什么？" class="headerlink" title="Q35：Elasticsearch 的写入一致性（Write Consistency）是什么？"></a>Q35：Elasticsearch 的写入一致性（Write Consistency）是什么？</h3><p><strong>一句话总结</strong>：写入一致性是 ES 的<strong>控制写入操作需要多少副本分片可用</strong>的机制，包括：<strong>all</strong>、<strong>quorum</strong>、<strong>one</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>写入一致性的级别</strong>：</p>
@@ -1384,6 +1480,7 @@
 <li>可以讲讲实际项目中的配置（比如金融场景用 <code>all</code>，日志场景用 <code>one</code>）</li>
 </ul>
 <hr>
+<p><a id="qb-36"></a></p>
 <h3 id="Q36：Elasticsearch-的读取一致性（Read-Consistency）是什么？"><a href="#Q36：Elasticsearch-的读取一致性（Read-Consistency）是什么？" class="headerlink" title="Q36：Elasticsearch 的读取一致性（Read Consistency）是什么？"></a>Q36：Elasticsearch 的读取一致性（Read Consistency）是什么？</h3><p><strong>一句话总结</strong>：读取一致性是 ES 的<strong>控制读取操作从哪个分片读取</strong>的机制，包括：<strong>all</strong>、<strong>quorum</strong>、<strong>one</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>读取一致性的级别</strong>：</p>
@@ -1408,6 +1505,7 @@
 <li>可以讲讲实际项目中的配置（比如<strong>提高缓存命中率</strong>，使用 <code>preference=session_id</code>）</li>
 </ul>
 <hr>
+<p><a id="qb-37"></a></p>
 <h3 id="Q37：Elasticsearch-的集群扩容（Cluster-Scaling）是什么？"><a href="#Q37：Elasticsearch-的集群扩容（Cluster-Scaling）是什么？" class="headerlink" title="Q37：Elasticsearch 的集群扩容（Cluster Scaling）是什么？"></a>Q37：Elasticsearch 的集群扩容（Cluster Scaling）是什么？</h3><p><strong>一句话总结</strong>：集群扩容是 ES 的<strong>增加节点</strong>的操作，可以<strong>提高容量</strong>和<strong>提高性能</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>扩容的方式</strong>：</p>
@@ -1431,6 +1529,7 @@
 <li>可以讲讲实际项目中的扩容方案（比如<strong>滚动扩容</strong>，逐个重启节点）</li>
 </ul>
 <hr>
+<p><a id="qb-38"></a></p>
 <h3 id="Q38：Elasticsearch-的集群缩容（Cluster-Shrink）是什么？"><a href="#Q38：Elasticsearch-的集群缩容（Cluster-Shrink）是什么？" class="headerlink" title="Q38：Elasticsearch 的集群缩容（Cluster Shrink）是什么？"></a>Q38：Elasticsearch 的集群缩容（Cluster Shrink）是什么？</h3><p><strong>一句话总结</strong>：集群缩容是 ES 的<strong>减少节点</strong>的操作，通常用于<strong>下线故障节点</strong>或<strong>降低硬件成本</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>缩容的步骤</strong>：</p>
@@ -1449,6 +1548,7 @@
 <li>可以讲讲实际项目中的缩容方案（比如<strong>滚动缩容</strong>，逐个下线节点）</li>
 </ul>
 <hr>
+<p><a id="qb-39"></a></p>
 <h3 id="Q39：Elasticsearch-的跨集群搜索（Cross-Cluster-Search）是什么？"><a href="#Q39：Elasticsearch-的跨集群搜索（Cross-Cluster-Search）是什么？" class="headerlink" title="Q39：Elasticsearch 的跨集群搜索（Cross-Cluster Search）是什么？"></a>Q39：Elasticsearch 的跨集群搜索（Cross-Cluster Search）是什么？</h3><p><strong>一句话总结</strong>：跨集群搜索是 ES 的<strong>搜索多个集群</strong>的功能，适用于<strong>多数据中心</strong>、<strong>冷热分离</strong>场景。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>跨集群搜索的配置</strong>：</p>
@@ -1466,6 +1566,7 @@
 <li>可以讲讲实际项目中的应用（比如<strong>搜索历史数据</strong>，从远程集群搜索）</li>
 </ul>
 <hr>
+<p><a id="qb-40"></a></p>
 <h3 id="Q40：Elasticsearch-的跨集群复制（CCR-Cross-Cluster-Replication）是什么？"><a href="#Q40：Elasticsearch-的跨集群复制（CCR-Cross-Cluster-Replication）是什么？" class="headerlink" title="Q40：Elasticsearch 的跨集群复制（CCR - Cross-Cluster Replication）是什么？"></a>Q40：Elasticsearch 的跨集群复制（CCR - Cross-Cluster Replication）是什么？</h3><p><strong>一句话总结</strong>：跨集群复制是 ES 的<strong>复制索引到远程集群</strong>的功能，适用于<strong>灾备</strong>、<strong>就近读取</strong>场景。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>CCR 的使用场景</strong>：</p>
@@ -1484,7 +1585,8 @@
 <li>可以讲讲实际项目中的应用（比如<strong>灾备方案</strong>，将索引复制到远程集群）</li>
 </ul>
 <hr>
-<h2 id="第五部分：Elasticsearch-性能优化（Q41-Q50）"><a href="#第五部分：Elasticsearch-性能优化（Q41-Q50）" class="headerlink" title="第五部分：Elasticsearch 性能优化（Q41-Q50）"></a>第五部分：Elasticsearch 性能优化（Q41-Q50）</h2><h3 id="Q41：Elasticsearch-的写入性能优化有哪些？"><a href="#Q41：Elasticsearch-的写入性能优化有哪些？" class="headerlink" title="Q41：Elasticsearch 的写入性能优化有哪些？"></a>Q41：Elasticsearch 的写入性能优化有哪些？</h3><p><strong>一句话总结</strong>：写入性能优化包括：<strong>禁用刷新</strong>、<strong>禁用副本</strong>、<strong>使用 Bulk API</strong>、<strong>增加刷新间隔</strong>、<strong>使用 SSD</strong>。</p>
+<h2 id="第五部分：Elasticsearch-性能优化（Q41-Q50）"><a href="#第五部分：Elasticsearch-性能优化（Q41-Q50）" class="headerlink" title="第五部分：Elasticsearch 性能优化（Q41-Q50）"></a>第五部分：Elasticsearch 性能优化（Q41-Q50）</h2><p><a id="qb-41"></a></p>
+<h3 id="Q41：Elasticsearch-的写入性能优化有哪些？"><a href="#Q41：Elasticsearch-的写入性能优化有哪些？" class="headerlink" title="Q41：Elasticsearch 的写入性能优化有哪些？"></a>Q41：Elasticsearch 的写入性能优化有哪些？</h3><p><strong>一句话总结</strong>：写入性能优化包括：<strong>禁用刷新</strong>、<strong>禁用副本</strong>、<strong>使用 Bulk API</strong>、<strong>增加刷新间隔</strong>、<strong>使用 SSD</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>写入性能优化技巧</strong>：</p>
 <ol>
@@ -1504,6 +1606,7 @@
 <li>可以讲讲实际项目中的优化经验（比如<strong>日志导入</strong>，禁用刷新和副本）</li>
 </ul>
 <hr>
+<p><a id="qb-42"></a></p>
 <h3 id="Q42：Elasticsearch-的读取性能优化有哪些？"><a href="#Q42：Elasticsearch-的读取性能优化有哪些？" class="headerlink" title="Q42：Elasticsearch 的读取性能优化有哪些？"></a>Q42：Elasticsearch 的读取性能优化有哪些？</h3><p><strong>一句话总结</strong>：读取性能优化包括：<strong>增加副本</strong>、<strong>使用文件系统缓存</strong>、<strong>优化 mapping</strong>、<strong>使用 filter 查询</strong>、<strong>避免深度分页</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>读取性能优化技巧</strong>：</p>
@@ -1524,6 +1627,7 @@
 <li>可以讲讲实际项目中的优化经验（比如<strong>为热数据增加副本</strong>）</li>
 </ul>
 <hr>
+<p><a id="qb-43"></a></p>
 <h3 id="Q43：Elasticsearch-的硬件选择有哪些建议？"><a href="#Q43：Elasticsearch-的硬件选择有哪些建议？" class="headerlink" title="Q43：Elasticsearch 的硬件选择有哪些建议？"></a>Q43：Elasticsearch 的硬件选择有哪些建议？</h3><p><strong>一句话总结</strong>：ES 的硬件选择建议：<strong>CPU 不需要太强</strong>（主要瓶颈在 I&#x2F;O 和内存）、<strong>内存要足够</strong>（文件系统缓存）、<strong>使用 SSD</strong>（提高 I&#x2F;O 性能）、<strong>网络要快</strong>（分布式系统）。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>硬件选择建议</strong>：</p>
@@ -1543,6 +1647,7 @@
 <li>可以讲讲实际项目中的硬件选择经验（比如<strong>热数据用 SSD，冷数据用机械硬盘</strong>）</li>
 </ul>
 <hr>
+<p><a id="qb-44"></a></p>
 <h3 id="Q44：Elasticsearch-的-JVM-堆内存优化有哪些？"><a href="#Q44：Elasticsearch-的-JVM-堆内存优化有哪些？" class="headerlink" title="Q44：Elasticsearch 的 JVM 堆内存优化有哪些？"></a>Q44：Elasticsearch 的 JVM 堆内存优化有哪些？</h3><p><strong>一句话总结</strong>：JVM 堆内存优化包括：<strong>设置合适的堆内存大小</strong>、<strong>避免频繁 Full GC</strong>、<strong>使用 G1GC</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>JVM 堆内存优化技巧</strong>：</p>
@@ -1561,6 +1666,7 @@
 <li>可以讲讲实际项目中的调优案例（比如<strong>解决 OOM 问题</strong>）</li>
 </ul>
 <hr>
+<p><a id="qb-45"></a></p>
 <h3 id="Q45：Elasticsearch-的索引性能监控有哪些指标？"><a href="#Q45：Elasticsearch-的索引性能监控有哪些指标？" class="headerlink" title="Q45：Elasticsearch 的索引性能监控有哪些指标？"></a>Q45：Elasticsearch 的索引性能监控有哪些指标？</h3><p><strong>一句话总结</strong>：索引性能监控指标包括：<strong>索引速率</strong>、<strong>索引延迟</strong>、<strong>索引拒绝次数</strong>、<strong>合并速率</strong>、<strong>刷写速率</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>索引性能监控指标</strong>：</p>
@@ -1581,6 +1687,7 @@
 <li>可以讲讲实际项目中的监控方案（比如使用 <strong>Prometheus + Grafana</strong> 监控 ES 指标）</li>
 </ul>
 <hr>
+<p><a id="qb-46"></a></p>
 <h3 id="Q46：Elasticsearch-的搜索性能监控有哪些指标？"><a href="#Q46：Elasticsearch-的搜索性能监控有哪些指标？" class="headerlink" title="Q46：Elasticsearch 的搜索性能监控有哪些指标？"></a>Q46：Elasticsearch 的搜索性能监控有哪些指标？</h3><p><strong>一句话总结</strong>：搜索性能监控指标包括：<strong>搜索速率</strong>、<strong>搜索延迟</strong>、<strong>搜索拒绝次数</strong>、<strong>缓存命中率</strong>、<strong>内存使用率</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>搜索性能监控指标</strong>：</p>
@@ -1601,6 +1708,7 @@
 <li>可以讲讲实际项目中的监控方案（比如使用 <strong>Elastic APM</strong> 监控搜索性能）</li>
 </ul>
 <hr>
+<p><a id="qb-47"></a></p>
 <h3 id="Q47：Elasticsearch-的常见性能问题有哪些？"><a href="#Q47：Elasticsearch-的常见性能问题有哪些？" class="headerlink" title="Q47：Elasticsearch 的常见性能问题有哪些？"></a>Q47：Elasticsearch 的常见性能问题有哪些？</h3><p><strong>一句话总结</strong>：常见性能问题包括：<strong>写入过载</strong>、<strong>搜索过载</strong>、<strong>内存不足</strong>、<strong>磁盘 I&#x2F;O 瓶颈</strong>、<strong>网络延迟</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>常见性能问题及解决方案</strong>：</p>
@@ -1618,6 +1726,7 @@
 <li>可以讲讲实际项目中的性能问题案例（比如<strong>解决写入拒绝问题</strong>）</li>
 </ul>
 <hr>
+<p><a id="qb-48"></a></p>
 <h3 id="Q48：Elasticsearch-的数据建模最佳实践有哪些？"><a href="#Q48：Elasticsearch-的数据建模最佳实践有哪些？" class="headerlink" title="Q48：Elasticsearch 的数据建模最佳实践有哪些？"></a>Q48：Elasticsearch 的数据建模最佳实践有哪些？</h3><p><strong>一句话总结</strong>：数据建模最佳实践包括：<strong>避免过度嵌套</strong>、<strong>使用非规范化数据</strong>、<strong>合理使用父子关系</strong>、<strong>控制字段数量</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>数据建模最佳实践</strong>：</p>
@@ -1637,6 +1746,7 @@
 <li>可以讲讲实际项目中的数据建模案例（比如<strong>电商搜索的数据建模</strong>）</li>
 </ul>
 <hr>
+<p><a id="qb-49"></a></p>
 <h3 id="Q49：Elasticsearch-的备份和恢复（Snapshot-and-Restore）是什么？"><a href="#Q49：Elasticsearch-的备份和恢复（Snapshot-and-Restore）是什么？" class="headerlink" title="Q49：Elasticsearch 的备份和恢复（Snapshot and Restore）是什么？"></a>Q49：Elasticsearch 的备份和恢复（Snapshot and Restore）是什么？</h3><p><strong>一句话总结</strong>：备份和恢复是 ES 的<strong>数据备份</strong>功能，可以将索引备份到<strong>远程仓库</strong>（比如 HDFS、S3），然后恢复。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>备份和恢复的步骤</strong>：</p>
@@ -1655,6 +1765,7 @@
 <li>可以讲讲实际项目中的备份方案（比如<strong>每天备份一次</strong>，保留最近 7 天的快照）</li>
 </ul>
 <hr>
+<p><a id="qb-50"></a></p>
 <h3 id="Q50：Elasticsearch-的安全机制（Security）有哪些？"><a href="#Q50：Elasticsearch-的安全机制（Security）有哪些？" class="headerlink" title="Q50：Elasticsearch 的安全机制（Security）有哪些？"></a>Q50：Elasticsearch 的安全机制（Security）有哪些？</h3><p><strong>一句话总结</strong>：ES 的安全机制包括：<strong>身份认证</strong>、<strong>权限控制</strong>、<strong>传输加密</strong>、<strong>审计日志</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>ES 的安全功能</strong>（需要安装 X-Pack 插件）：</p>
@@ -1677,6 +1788,7 @@
 <h2 id="🎯-加餐：向量检索与-KNN-BM25-rescore-混合检索"><a href="#🎯-加餐：向量检索与-KNN-BM25-rescore-混合检索" class="headerlink" title="🎯 加餐：向量检索与 KNN + BM25 rescore 混合检索"></a>🎯 加餐：向量检索与 KNN + BM25 rescore 混合检索</h2><blockquote>
 <p>这一节是我在项目里<strong>真正用到</strong>的部分，也是简历上写了向量检索之后最容易被面试官深挖的地方，务必吃透——尤其是要分清楚 <strong>rescore（重打分）</strong> 和 <strong>RRF（倒数排名融合）</strong> 是两种完全不同的混合检索思路，不要在面试里说混。</p>
 </blockquote>
+<p><a id="qb-51"></a></p>
 <h3 id="Q51：Elasticsearch-的-dense-vector-和-kNN-搜索是什么？"><a href="#Q51：Elasticsearch-的-dense-vector-和-kNN-搜索是什么？" class="headerlink" title="Q51：Elasticsearch 的 dense_vector 和 kNN 搜索是什么？"></a>Q51：Elasticsearch 的 <code>dense_vector</code> 和 kNN 搜索是什么？</h3><p><strong>一句话总结</strong>：<code>dense_vector</code> 是 ES 用来存储向量的字段类型，kNN 搜索基于 <strong>HNSW（分层可导航小世界图）</strong> 做<strong>近似最近邻</strong>检索，用向量相似度而不是关键词匹配来召回文档。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>dense_vector 字段定义</strong>：</p>
@@ -1692,6 +1804,7 @@
 <li>经验做法：<code>num_candidates</code> 取 <code>k</code> 的几倍到十几倍（比如 k&#x3D;10 时 num_candidates 取 50~100），根据召回率要求和延迟预算去调</li>
 </ul>
 <hr>
+<p><a id="qb-52"></a></p>
 <h3 id="Q52：KnowFlow-如何把-KNN-与-BM25-结合，并守住权限边界？"><a href="#Q52：KnowFlow-如何把-KNN-与-BM25-结合，并守住权限边界？" class="headerlink" title="Q52：KnowFlow 如何把 KNN 与 BM25 结合，并守住权限边界？"></a>Q52：KnowFlow 如何把 KNN 与 BM25 结合，并守住权限边界？</h3><p><code>HybridSearchService.permissionSearchRequest</code> 在同一 ES 请求中设置顶层 <code>knn</code> 与文本 <code>query</code>。ES 会按 OR 合并两路候选，随后对窗口内结果执行 BM25 <code>rescore</code>：原始分数权重 <code>0.2</code>，重排查询权重 <code>1.0</code>。这属于分数加权重排，<strong>不是 RRF</strong>。RRF 需要对独立排行榜按名次计算 <code>Σ1/(k+rank)</code>。</p>
 <p>权限过滤必须同时放进 <code>knn.filter</code> 和文本 <code>query.bool.filter</code>。只在文本分支过滤，向量分支仍可能召回无权访问的文档。当前源码为两路复用同一条件：本人文档、公开文档、所属组织文档至少满足一个。新增的 3 项请求结构回归测试通过；真实 ES 集成验证仍待完成。</p>
 <p><code>topK × 30</code> 是 KNN 候选窗口配置，不等于准确率或召回率的实测提升。项目缺少可复核的检索评测集，因此面试时应讲清机制与风险，不报检索效果百分比。</p>
@@ -1900,7 +2013,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Elasticsearch 面试八股文（50题）</div>
+      <div>Elasticsearch 面试八股文（52问）</div>
       <div>https://whyalwaysme.lol/2026/06/09/2026-06-09-elasticsearch-interview-deep/</div>
     </div>
     <div class="license-meta">
@@ -1945,9 +2058,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/15/2026-06-15-java-basic-interview-deep/" title="Java 基础面试八股文（50题）">
+                      <a href="/2026/06/15/2026-06-15-java-basic-interview-deep/" title="Java 基础面试八股文（50问）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Java 基础面试八股文（50题）</span>
+                        <span class="hidden-mobile">Java 基础面试八股文（50问）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -1955,8 +2068,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/09/2026-06-09-kubernetes-interview-deep/" title="Kubernetes 面试八股文（30题）">
-                        <span class="hidden-mobile">Kubernetes 面试八股文（30题）</span>
+                      <a href="/2026/06/09/2026-06-09-kubernetes-interview-deep/" title="Kubernetes 面试八股文（30问）">
+                        <span class="hidden-mobile">Kubernetes 面试八股文（30问）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

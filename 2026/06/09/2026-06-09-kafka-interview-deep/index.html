@@ -19,15 +19,15 @@
   <meta name="author" content="Cassiur">
   <meta name="keywords" content="Java">
   
-    <meta name="description" content="Kafka 30题：分区副本机制、Broker高可用、消费者组、零拷贝与百万级吞吐原理。">
+    <meta name="description" content="Kafka 面试八股文（22问）：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Kafka 面试八股文（30题）">
+<meta property="og:title" content="Kafka 面试八股文（22问）">
 <meta property="og:url" content="https://whyalwaysme.lol/2026/06/09/2026-06-09-kafka-interview-deep/index.html">
 <meta property="og:site_name" content="WhyAlwaysMe 的树洞">
-<meta property="og:description" content="Kafka 30题：分区副本机制、Broker高可用、消费者组、零拷贝与百万级吞吐原理。">
+<meta property="og:description" content="Kafka 面试八股文（22问）：按主题归并核心问题，保留展开示例；包含适用版本与失败场景提示。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-09T05:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-05T08:28:33.770Z">
+<meta property="article:modified_time" content="2026-11-01T16:21:01.528Z">
 <meta property="article:author" content="Cassiur">
 <meta property="article:tag" content="Kafka">
 <meta property="article:tag" content="事务消息">
@@ -42,7 +42,7 @@
   
   
   
-  <title>Kafka 面试八股文（30题） - WhyAlwaysMe 的树洞</title>
+  <title>Kafka 面试八股文（22问） - WhyAlwaysMe 的树洞</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -226,7 +226,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Kafka 面试八股文（30题）"></span>
+            <span id="subtitle" data-typed-text="Kafka 面试八股文（22问）"></span>
           
         </div>
 
@@ -260,7 +260,7 @@
         
         
         
-          116 分钟
+          118 分钟
         
       </span>
     
@@ -297,12 +297,19 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Kafka 面试八股文（30题）</h1>
+            <h1 id="seo-header">Kafka 面试八股文（22问）</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="🗺️-知识图谱"><a href="#🗺️-知识图谱" class="headerlink" title="🗺️ 知识图谱"></a>🗺️ 知识图谱</h2><pre><code class=" mermaid">mindmap
+                <blockquote>
+<p>**阅读提示（2026-11-02整理）：**Kafka4.0仅支持KRaft；旧ZooKeeper示例只供历史版本学习。客户端默认参数要按版本核对，Kafka事务不自动覆盖外部数据库或HTTP副作用。</p>
+</blockquote>
+<p><a href="/question-bank/">题库总目录</a> · <a href="/question-bank/modern-java/">现代Java</a> · <a href="/question-bank/reliability/">可靠性</a> · <a href="/question-bank/testing/">测试</a> · <a href="/question-bank/troubleshooting/">排障</a></p>
+<blockquote>
+<p>**示例口径：**第一人称示范回答应换成自己的真实经历；教学场景和未提供测试依据的性能数字，不作为作者经历或生产测量证据。</p>
+</blockquote>
+<h2 id="🗺️-知识图谱"><a href="#🗺️-知识图谱" class="headerlink" title="🗺️ 知识图谱"></a>🗺️ 知识图谱</h2><pre><code class=" mermaid">mindmap
   root((Kafka))
     架构
       Broker
@@ -333,7 +340,7 @@
 </code></pre>
 
 <hr>
-<h4 id="💻-代码示例：理解-Kafka-架构"><a href="#💻-代码示例：理解-Kafka-架构" class="headerlink" title="💻 代码示例：理解 Kafka 架构"></a>💻 代码示例：理解 Kafka 架构</h4><p><strong>启动 Kafka（使用 Zookeeper）</strong>：</p>
+<h4 id="💻-代码示例：理解-Kafka-架构"><a href="#💻-代码示例：理解-Kafka-架构" class="headerlink" title="💻 代码示例：理解 Kafka 架构"></a>💻 代码示例：理解 Kafka 架构</h4><p><strong>历史示例：启动 Kafka 的 ZooKeeper 模式（仅适用于仍支持该模式的版本；Kafka 4.0 不支持）</strong>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 启动 Zookeeper</span><br>zookeeper-server-start.sh config/zookeeper.properties<br><br><span class="hljs-comment"># 启动 Kafka Broker</span><br>kafka-server-start.sh config/server.properties<br></code></pre></td></tr></table></figure>
 
 <p><strong>启动 Kafka（使用 KRaft，Kafka 2.8+）</strong>：</p>
@@ -543,7 +550,32 @@
 <p><strong>本文目标</strong>：让你彻底理解 Kafka 的核心概念、架构、最佳实践，涵盖 BAT 大厂高频面试题，保证傻子都能看懂！</p>
 </blockquote>
 <hr>
-<h3 id="Q1-请详细解释-Kafka-的核心概念（Producer、Consumer、Broker、Topic、Partition）？"><a href="#Q1-请详细解释-Kafka-的核心概念（Producer、Consumer、Broker、Topic、Partition）？" class="headerlink" title="Q1: 请详细解释 Kafka 的核心概念（Producer、Consumer、Broker、Topic、Partition）？"></a>Q1: 请详细解释 Kafka 的核心概念（Producer、Consumer、Broker、Topic、Partition）？</h3><p><strong>一句话总结</strong>：Kafka 是一个分布式流处理平台，通过 Producer、Consumer、Broker、Topic、Partition 等核心概念，实现高吞吐量、低延迟的消息传递。</p>
+<h2 id="核心问题索引"><a href="#核心问题索引" class="headerlink" title="核心问题索引"></a>核心问题索引</h2><ul>
+<li><a href="#qb-1">Q1：请详细解释 Kafka 的核心概念（Producer、Consumer、Broker、Topic、Partition）？</a></li>
+<li><a href="#qb-2">Q2：请详细解释 Kafka 的架构（Broker、Zookeeper&#x2F;KRaft）？</a></li>
+<li><a href="#qb-3">Q3：请详细解释 Kafka 的分区策略（Partitioning Strategy）？</a></li>
+<li><a href="#qb-4">Q4：请详细解释 Kafka 的副本机制（Replication Mechanism）？</a></li>
+<li><a href="#qb-5">Q5：请详细解释 Kafka 的消费者组（Consumer Group）？</a></li>
+<li><a href="#qb-6">Q6：请详细解释 Kafka 的 Offset 管理？</a></li>
+<li><a href="#qb-7">Q7：请详细解释 Kafka 的消息传递语义（Message Delivery Semantics）？</a></li>
+<li><a href="#qb-8">Q8：请详细解释 Kafka 的性能优化（Performance Optimization）？</a></li>
+<li><a href="#qb-9">Q9：请详细解释 Kafka 的安全（Security）？</a></li>
+<li><a href="#qb-10">Q10：请详细解释 Kafka 的监控和运维（Monitoring and Operations）？</a></li>
+<li><a href="#qb-11">Q11：Kafka 的常见问题排查方法有哪些？</a></li>
+<li><a href="#qb-12">Q12：Kafka 和 RabbitMQ 的区别是什么？</a></li>
+<li><a href="#qb-13">Q13：Kafka 的分区副本分配策略是什么？</a></li>
+<li><a href="#qb-14">Q14：Kafka 的日志压缩（Log Compaction）是什么？</a></li>
+<li><a href="#qb-15">Q15：Kafka 的事务（Transaction）是什么？</a></li>
+<li><a href="#qb-16">Q16：Kafka 的 Streams API 是什么？</a></li>
+<li><a href="#qb-17">Q17：Kafka 的 Connect API 是什么？</a></li>
+<li><a href="#qb-18">Q18：Kafka 的 ACL（Access Control List）是什么？</a></li>
+<li><a href="#qb-19">Q19：Kafka 的 Quota（配额）机制是什么？</a></li>
+<li><a href="#qb-20">Q20：Kafka 的 MirrorMaker 是什么？</a></li>
+<li><a href="#qb-21">Q21：Kafka 的 KSQL 是什么？</a></li>
+<li><a href="#qb-22">Q22：Kafka 的最佳实践有哪些？</a></li>
+</ul>
+<p><a id="Q1-请详细解释-Kafka-的核心概念（Producer、Consumer、Broker、Topic、Partition）？"></a><br><a id="qb-1"></a></p>
+<h3 id="Q1：请详细解释-Kafka-的核心概念（Producer、Consumer、Broker、Topic、Partition）？"><a href="#Q1：请详细解释-Kafka-的核心概念（Producer、Consumer、Broker、Topic、Partition）？" class="headerlink" title="Q1：请详细解释 Kafka 的核心概念（Producer、Consumer、Broker、Topic、Partition）？"></a>Q1：请详细解释 Kafka 的核心概念（Producer、Consumer、Broker、Topic、Partition）？</h3><p><strong>一句话总结</strong>：Kafka 是一个分布式流处理平台，通过 Producer、Consumer、Broker、Topic、Partition 等核心概念，实现高吞吐量、低延迟的消息传递。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Kafka 的核心概念包括 Producer（生产者）、Consumer（消费者）、Broker（代理）、Topic（主题）、Partition（分区）。理解这些概念是掌握 Kafka 的基础。</p>
 <p><strong>1. Producer（生产者）</strong>：</p>
@@ -654,7 +686,8 @@
 </ol>
 <p><strong>总结</strong>：Kafka 的核心概念包括 Producer（生产者）、Consumer（消费者）、Broker（代理）、Topic（主题）、Partition（分区）。理解这些概念是掌握 Kafka 的基础。</p>
 <hr>
-<h3 id="Q2-请详细解释-Kafka-的架构（Broker、Zookeeper-KRaft）？"><a href="#Q2-请详细解释-Kafka-的架构（Broker、Zookeeper-KRaft）？" class="headerlink" title="Q2: 请详细解释 Kafka 的架构（Broker、Zookeeper&#x2F;KRaft）？"></a>Q2: 请详细解释 Kafka 的架构（Broker、Zookeeper&#x2F;KRaft）？</h3><p><strong>一句话总结</strong>：Kafka 采用分布式架构，Broker 负责存储和传递消息，Zookeeper（旧版本）或 KRaft（新版本）负责集群元数据管理。</p>
+<p><a id="Q2-请详细解释-Kafka-的架构（Broker、Zookeeper-KRaft）？"></a><br><a id="qb-2"></a></p>
+<h3 id="Q2：请详细解释-Kafka-的架构（Broker、Zookeeper-KRaft）？"><a href="#Q2：请详细解释-Kafka-的架构（Broker、Zookeeper-KRaft）？" class="headerlink" title="Q2：请详细解释 Kafka 的架构（Broker、Zookeeper&#x2F;KRaft）？"></a>Q2：请详细解释 Kafka 的架构（Broker、Zookeeper&#x2F;KRaft）？</h3><p><strong>一句话总结</strong>：Kafka 采用分布式架构，Broker 负责存储和传递消息，Zookeeper（旧版本）或 KRaft（新版本）负责集群元数据管理。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Kafka 的架构是分布式的，包括 Broker 和 Zookeeper（旧版本）或 KRaft（新版本）。理解 Kafka 架构是掌握 Kafka 的关键。</p>
 <p><strong>1. Broker（代理）</strong>：</p>
@@ -775,7 +808,8 @@
 </ol>
 <p><strong>总结</strong>：Kafka 采用分布式架构，Broker 负责存储和传递消息，Zookeeper（旧版本）或 KRaft（新版本）负责集群元数据管理。推荐使用 KRaft（Kafka 2.8 及之后版本）。</p>
 <hr>
-<h3 id="Q3-请详细解释-Kafka-的分区策略（Partitioning-Strategy）？"><a href="#Q3-请详细解释-Kafka-的分区策略（Partitioning-Strategy）？" class="headerlink" title="Q3: 请详细解释 Kafka 的分区策略（Partitioning Strategy）？"></a>Q3: 请详细解释 Kafka 的分区策略（Partitioning Strategy）？</h3><p><strong>一句话总结</strong>：Kafka 的分区策略是决定消息发送到哪个 Partition 的规则，包括 Round Robin、Hash、自定义分区策略等。</p>
+<p><a id="Q3-请详细解释-Kafka-的分区策略（Partitioning-Strategy）？"></a><br><a id="Q11：Kafka-的分区策略（Partitioning-Strategy）有哪些？"></a><br><a id="qb-3"></a></p>
+<h3 id="Q3：请详细解释-Kafka-的分区策略（Partitioning-Strategy）？"><a href="#Q3：请详细解释-Kafka-的分区策略（Partitioning-Strategy）？" class="headerlink" title="Q3：请详细解释 Kafka 的分区策略（Partitioning Strategy）？"></a>Q3：请详细解释 Kafka 的分区策略（Partitioning Strategy）？</h3><p><strong>一句话总结</strong>：Kafka 的分区策略是决定消息发送到哪个 Partition 的规则，包括 Round Robin、Hash、自定义分区策略等。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Kafka 的分区策略（Partitioning Strategy）是决定消息发送到哪个 Partition 的规则。理解 Kafka 的分区策略是掌握 Kafka  Producer 的关键。</p>
 <p><strong>1. 默认分区策略（Default Partitioner）</strong>：</p>
@@ -875,7 +909,34 @@
 </ol>
 <p><strong>总结</strong>：Kafka 的分区策略是决定消息发送到哪个 Partition 的规则，包括 Round Robin、Hash、自定义分区策略等。选择合适的分区策略取决于消息顺序要求和负载均衡要求。</p>
 <hr>
-<h3 id="Q4-请详细解释-Kafka-的副本机制（Replication-Mechanism）？"><a href="#Q4-请详细解释-Kafka-的副本机制（Replication-Mechanism）？" class="headerlink" title="Q4: 请详细解释 Kafka 的副本机制（Replication Mechanism）？"></a>Q4: 请详细解释 Kafka 的副本机制（Replication Mechanism）？</h3><p><strong>一句话总结</strong>：Kafka 的副本机制是通过多个副本（Replica）保证数据可靠性，包括 Leader、Follower、ISR、OSR 等概念。</p>
+<details>
+<summary>展开：Kafka 的分区策略（Partitioning Strategy）有哪些？</summary>
+
+<p><strong>一句话总结</strong>：Kafka 提供了多种分区策略，决定了消息会被发送到哪个分区，常见的有：轮询、随机、按 key 哈希、自定义分区器。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>默认分区策略</strong>：</p>
+<ol>
+<li><strong>指定了分区号</strong>：直接发送到指定分区</li>
+<li><strong>指定了 key</strong>：根据 key 的哈希值选择分区（<strong>相同 key 的消息会发送到同一分区</strong>）</li>
+<li><strong>既没有指定分区号，也没有指定 key</strong>：使用<strong>黏性分区器（Sticky Partitioner）</strong>（尽量发送到同一分区，直到批次满了或超时）</li>
+</ol>
+<p><strong>自定义分区器</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomPartitioner</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Partitioner</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">partition</span><span class="hljs-params">(String topic, Object key, <span class="hljs-type">byte</span>[] keyBytes, </span><br><span class="hljs-params">                        Object value, <span class="hljs-type">byte</span>[] valueBytes, Cluster cluster)</span> &#123;<br>        List&lt;PartitionInfo&gt; partitions = cluster.partitionsForTopic(topic);<br>        <span class="hljs-type">int</span> <span class="hljs-variable">numPartitions</span> <span class="hljs-operator">=</span> partitions.size();<br>        <br>        <span class="hljs-comment">// 自定义分区逻辑：比如根据 key 的哈希值取模</span><br>        <span class="hljs-keyword">return</span> (key.hashCode() &amp; Integer.MAX_VALUE) % numPartitions;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>配置自定义分区器</strong>：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">partitioner.class</span>=<span class="hljs-string">com.example.CustomPartitioner</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲<strong>黏性分区器</strong>的原理（减少小批次，提高吞吐量）</li>
+<li>可以讲讲<strong>分区热点问题</strong>（比如某个 key 的消息特别多，导致某个分区过大）</li>
+<li>可以讲讲实际应用场景（比如订单消息，按照订单 ID 作为 key，保证同一订单的消息有序）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q4-请详细解释-Kafka-的副本机制（Replication-Mechanism）？"></a><br><a id="Q12：Kafka-的副本机制（Replication-Mechanism）是什么？"></a><br><a id="qb-4"></a></p>
+<h3 id="Q4：请详细解释-Kafka-的副本机制（Replication-Mechanism）？"><a href="#Q4：请详细解释-Kafka-的副本机制（Replication-Mechanism）？" class="headerlink" title="Q4：请详细解释 Kafka 的副本机制（Replication Mechanism）？"></a>Q4：请详细解释 Kafka 的副本机制（Replication Mechanism）？</h3><p><strong>一句话总结</strong>：Kafka 的副本机制是通过多个副本（Replica）保证数据可靠性，包括 Leader、Follower、ISR、OSR 等概念。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Kafka 的副本机制（Replication Mechanism）是通过多个副本（Replica）保证数据可靠性。理解 Kafka 的副本机制是掌握 Kafka 高可用的关键。</p>
 <p><strong>1. Leader 和 Follower</strong>：</p>
@@ -965,7 +1026,42 @@
 </ol>
 <p><strong>总结</strong>：Kafka 的副本机制是通过多个副本（Replica）保证数据可靠性，包括 Leader、Follower、ISR、OSR 等概念。理解副本机制是掌握 Kafka 高可用的关键。</p>
 <hr>
-<h3 id="Q5-请详细解释-Kafka-的消费者组（Consumer-Group）？"><a href="#Q5-请详细解释-Kafka-的消费者组（Consumer-Group）？" class="headerlink" title="Q5: 请详细解释 Kafka 的消费者组（Consumer Group）？"></a>Q5: 请详细解释 Kafka 的消费者组（Consumer Group）？</h3><p><strong>一句话总结</strong>：Kafka 的消费者组（Consumer Group）是一组消费者的逻辑集合，用于实现消息的负载均衡和广播消费。</p>
+<details>
+<summary>展开：Kafka 的副本机制（Replication Mechanism）是什么？</summary>
+
+<p><strong>一句话总结</strong>：Kafka 为每个分区创建多个副本（Replica），分为<strong>领导者副本（Leader）<strong>和</strong>追随者副本（Follower）</strong>，Leader 处理读写请求，Follower 从 Leader 同步数据。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>副本角色</strong>：</p>
+<ul>
+<li><strong>Leader</strong>：处理所有读写请求</li>
+<li><strong>Follower</strong>：从 Leader 同步数据，作为备份</li>
+<li><strong>ISR（In-Sync Replicas）</strong>：与 Leader 保持同步的副本集合</li>
+</ul>
+<p><strong>副本同步流程</strong>：</p>
+<ol>
+<li>Producer 发送消息到 Leader</li>
+<li>Leader 将消息写入本地日志</li>
+<li>Follower 从 Leader 拉取消息</li>
+<li>Follower 将消息写入本地日志</li>
+<li>Follower 向 Leader 发送 ACK</li>
+<li>Leader 收到 <strong>ISR 中所有副本的 ACK</strong> 后，才向 Producer 发送 ACK</li>
+</ol>
+<p><strong>副本故障处理</strong>：</p>
+<ul>
+<li><strong>Follower 故障</strong>：从 ISR 中移除，恢复后重新加入 ISR</li>
+<li><strong>Leader 故障</strong>：从 ISR 中选举新的 Leader</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>ACK 机制</strong>（<code>acks=0</code>、<code>acks=1</code>、<code>acks=all</code>）</li>
+<li>可以讲讲 <strong>LEO（Log End Offset）</strong> 和 <strong>HW（High Watermark）</strong></li>
+<li>可以讲讲实际应用场景（比如金融场景，一定要设置 <code>acks=all</code>，保证数据不丢失）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q5-请详细解释-Kafka-的消费者组（Consumer-Group）？"></a><br><a id="Q13：Kafka-的消费者组（Consumer-Group）是什么？"></a><br><a id="qb-5"></a></p>
+<h3 id="Q5：请详细解释-Kafka-的消费者组（Consumer-Group）？"><a href="#Q5：请详细解释-Kafka-的消费者组（Consumer-Group）？" class="headerlink" title="Q5：请详细解释 Kafka 的消费者组（Consumer Group）？"></a>Q5：请详细解释 Kafka 的消费者组（Consumer Group）？</h3><p><strong>一句话总结</strong>：Kafka 的消费者组（Consumer Group）是一组消费者的逻辑集合，用于实现消息的负载均衡和广播消费。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Kafka 的消费者组（Consumer Group）是一组消费者的逻辑集合。理解 Kafka 的消费者组是掌握 Kafka  Consumer 的关键。</p>
 <p><strong>1. 消费者组核心概念</strong>：</p>
@@ -1026,12 +1122,44 @@
 </ol>
 <p><strong>总结</strong>：Kafka 的消费者组（Consumer Group）是一组消费者的逻辑集合，用于实现消息的负载均衡和广播消费。理解消费者组是掌握 Kafka  Consumer 的关键。</p>
 <hr>
-<h3 id="Q6-请详细解释-Kafka-的-Offset-管理？"><a href="#Q6-请详细解释-Kafka-的-Offset-管理？" class="headerlink" title="Q6: 请详细解释 Kafka 的 Offset 管理？"></a>Q6: 请详细解释 Kafka 的 Offset 管理？</h3><p><strong>一句话总结</strong>：Kafka 的 Offset 管理是管理消费者消费消息的位移，包括 Offset 的提交、重置、监控等。</p>
+<details>
+<summary>展开：Kafka 的消费者组（Consumer Group）是什么？</summary>
+
+<p><strong>一句话总结</strong>：消费者组是 Kafka 的<strong>多播机制</strong>，同一消费者组内的消费者<strong>瓜分分区</strong>（每个分区只能被一个消费者消费），不同消费者组<strong>各自消费全部消息</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>消费者组规则</strong>：</p>
+<ul>
+<li>同一分区只能被<strong>同一消费者组内的一个消费者</strong>消费</li>
+<li>不同消费者组<strong>各自消费全部消息</strong>（发布-订阅模式）</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<ul>
+<li>1 个主题，3 个分区</li>
+<li>消费者组 A 有 2 个消费者：C1 消费分区 0、1，C2 消费分区 2</li>
+<li>消费者组 B 有 3 个消费者：C3 消费分区 0，C4 消费分区 1，C5 消费分区 2</li>
+</ul>
+<p><strong>消费者数量 vs 分区数量</strong>：</p>
+<ul>
+<li>消费者数量 <strong>&#x3D;</strong> 分区数量：每个消费者消费一个分区（<strong>最优</strong>）</li>
+<li>消费者数量 <strong>&lt;</strong> 分区数量：有的消费者消费多个分区</li>
+<li>消费者数量 <strong>&gt;</strong> 分区数量：有的消费者<strong>闲置</strong></li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲**重平衡（Rebalance）**的触发条件（消费者加入&#x2F;离开、分区数量变化）</li>
+<li>可以讲讲<strong>重平衡的弊端</strong>（STW，所有消费者停止消费）</li>
+<li>可以讲讲实际应用场景（比如避免重平衡，尽量保持消费者数量 &#x3D; 分区数量）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q6-请详细解释-Kafka-的-Offset-管理？"></a><br><a id="Q14：Kafka-的-Offset-管理是什么？"></a><br><a id="qb-6"></a></p>
+<h3 id="Q6：请详细解释-Kafka-的-Offset-管理？"><a href="#Q6：请详细解释-Kafka-的-Offset-管理？" class="headerlink" title="Q6：请详细解释 Kafka 的 Offset 管理？"></a>Q6：请详细解释 Kafka 的 Offset 管理？</h3><p><strong>一句话总结</strong>：Kafka 的 Offset 管理是管理消费者消费消息的位移，包括 Offset 的提交、重置、监控等。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Kafka 的 Offset 管理是管理消费者消费消息的位移。理解 Kafka 的 Offset 管理是掌握 Kafka  Consumer 的关键。</p>
 <p><strong>1. Offset 核心概念</strong>：</p>
 <ul>
-<li><strong>定义</strong>：Offset 是消费者消费消息的位移，表示消费者已经消费到哪个位置**</li>
+<li><strong>定义</strong>：Offset表示分区日志位置；已提交位移通常表示恢复时下次读取的位置，不等于所有业务副作用都已完成**</li>
 <li><strong>特点</strong>：<ul>
 <li>每个 Consumer Group 对每个 Partition 都有一个 Offset**</li>
 <li>Offset 可以自动提交或手动提交**</li>
@@ -1045,7 +1173,7 @@
 <li>配置：<code>enable.auto.commit=true</code>（默认）</li>
 <li>间隔：<code>auto.commit.interval.ms=5000</code>（默认 5 秒）</li>
 <li>优点：简单，不需要手动提交</li>
-<li>缺点：可能丢失消息（如果 Consumer 宕机，可能重复消费）**</li>
+<li>边界：是否重复或漏处理取决于提交位置与业务完成的先后、异步处理及崩溃窗口**</li>
 </ul>
 </li>
 <li><p><strong>手动提交（Manual Commit）</strong>：</p>
@@ -1056,7 +1184,7 @@
 <li><code>commitAsync()</code>：异步提交</li>
 </ul>
 </li>
-<li>优点：不会丢失消息，不会重复消费</li>
+<li>优点：可以明确控制提交时机；处理后提交仍可能重复，处理前提交可能漏处理，需结合业务幂等</li>
 <li>缺点：需要手动提交，代码复杂**</li>
 </ul>
 </li>
@@ -1104,107 +1232,77 @@
 </ol>
 <p><strong>总结</strong>：Kafka 的 Offset 管理是管理消费者消费消息的位移，包括 Offset 的提交、重置、监控等。理解 Offset 管理是掌握 Kafka  Consumer 的关键。</p>
 <hr>
-<h3 id="Q7-请详细解释-Kafka-的消息传递语义（Message-Delivery-Semantics）？"><a href="#Q7-请详细解释-Kafka-的消息传递语义（Message-Delivery-Semantics）？" class="headerlink" title="Q7: 请详细解释 Kafka 的消息传递语义（Message Delivery Semantics）？"></a>Q7: 请详细解释 Kafka 的消息传递语义（Message Delivery Semantics）？</h3><p><strong>一句话总结</strong>：Kafka 的消息传递语义是决定消息传递可靠性的规则，包括 At Most Once、At Least Once、Exactly Once 等。</p>
-<p><strong>深度解析</strong>：</p>
-<p>Kafka 的消息传递语义（Message Delivery Semantics）是决定消息传递可靠性的规则。理解 Kafka 的消息传递语义是掌握 Kafka 可靠性的关键。</p>
-<p><strong>1. At Most Once（最多一次）</strong>：</p>
-<ul>
-<li><strong>含义</strong>：消息可能丢失，但不会重复传递**</li>
-<li><strong>实现</strong>：<ul>
-<li>Producer：发送消息后不等待确认**</li>
-<li>Consumer：先提交 Offset，再处理消息**</li>
-</ul>
-</li>
-<li><strong>优点</strong>：<ul>
-<li>性能好**</li>
-</ul>
-</li>
-<li><strong>缺点</strong>：<ul>
-<li>可能丢失消息**</li>
-</ul>
-</li>
-<li><strong>使用场景</strong>：<ul>
-<li>消息可以丢失（例如：日志收集）**</li>
-</ul>
-</li>
-</ul>
-<p><strong>2. At Least Once（至少一次）</strong>：</p>
-<ul>
-<li><strong>含义</strong>：消息不会丢失，但可能重复传递**</li>
-<li><strong>实现</strong>：<ul>
-<li>Producer：发送消息后等待确认（acks&#x3D;all）**</li>
-<li>Consumer：先处理消息，再提交 Offset**</li>
-</ul>
-</li>
-<li><strong>优点</strong>：<ul>
-<li>不会丢失消息**</li>
-</ul>
-</li>
-<li><strong>缺点</strong>：<ul>
-<li>可能重复消费消息**</li>
-</ul>
-</li>
-<li><strong>使用场景</strong>：<ul>
-<li>消息不能丢失（例如：订单系统）**</li>
-</ul>
-</li>
-</ul>
-<p><strong>3. Exactly Once（精确一次）</strong>：</p>
-<ul>
-<li><strong>含义</strong>：消息不会丢失，也不会重复传递**</li>
-<li><strong>实现</strong>：<ul>
-<li>Producer：使用幂等 Producer（enable.idempotence&#x3D;true）**</li>
-<li>Consumer：使用事务（isolation.level&#x3D;read_committed）**</li>
-</ul>
-</li>
-<li><strong>优点</strong>：<ul>
-<li>不会丢失消息，也不会重复消费消息**</li>
-</ul>
-</li>
-<li><strong>缺点</strong>：<ul>
-<li>性能差**</li>
-</ul>
-</li>
-<li><strong>使用场景</strong>：<ul>
-<li>消息不能丢失，也不能重复（例如：金融系统）**</li>
-</ul>
-</li>
-</ul>
-<p><strong>4. 消息传递语义实际案例</strong>：</p>
-<p><strong>案例：电商平台的订单系统</strong></p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 订单创建消息（不能丢失，也不能重复）<br><span class="hljs-bullet">   -</span> 使用 Exactly Once 语义<br><span class="hljs-bullet">   -</span> Producer：使用幂等 Producer<br><span class="hljs-bullet">   -</span> Consumer：使用事务<br><br><span class="hljs-bullet">2.</span> 日志消息（可以丢失）<br><span class="hljs-bullet">   -</span> 使用 At Most Once 语义<br><span class="hljs-bullet">   -</span> Producer：发送消息后不等待确认<br><span class="hljs-bullet">   -</span> Consumer：先提交 Offset，再处理消息<br></code></pre></td></tr></table></figure>
+<details>
+<summary>展开：Kafka 的 Offset 管理是什么？</summary>
 
-<p><strong>5. 消息传递语义最佳实践</strong>：</p>
-<ul>
-<li><strong>根据业务需求选择合适的消息传递语义</strong>：<ul>
-<li>消息可以丢失 → At Most Once**</li>
-<li>消息不能丢失 → At Least Once**</li>
-<li>消息不能丢失，也不能重复 → Exactly Once**</li>
-</ul>
-</li>
-</ul>
-<p><strong>面试加分回答</strong>：</p>
-<p>在实际工作中，Kafka 消息传递语义的选择需要考虑业务需求：</p>
+<p><strong>一句话总结</strong>：Offset 是消费者在分区中的<strong>消费进度</strong>，Kafka 提供了多种 Offset 提交方式，包括：<strong>自动提交</strong>、<strong>手动同步提交</strong>、<strong>手动异步提交</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Offset 提交方式</strong>：</p>
 <ol>
-<li><p><strong>消息可以丢失</strong>：</p>
+<li><p><strong>自动提交</strong>（<code>enable.auto.commit=true</code>）：</p>
 <ul>
-<li>使用 At Most Once 语义**</li>
+<li>定期提交（间隔由 <code>auto.commit.interval.ms</code> 控制）</li>
+<li><strong>可能丢失消息</strong>（提交前消费者挂了）</li>
+<li><strong>可能重复消费</strong>（提交后消费者挂了）</li>
 </ul>
 </li>
-<li><p><strong>消息不能丢失</strong>：</p>
+<li><p><strong>手动同步提交</strong>（<code>commitSync()</code>）：</p>
 <ul>
-<li>使用 At Least Once 语义**</li>
+<li>提交成功后才返回</li>
+<li><strong>可靠性高</strong>，但性能差</li>
 </ul>
 </li>
-<li><p><strong>消息不能丢失，也不能重复</strong>：</p>
+<li><p><strong>手动异步提交</strong>（<code>commitAsync()</code>）：</p>
 <ul>
-<li>使用 Exactly Once 语义**</li>
+<li>提交后立即返回，不阻塞</li>
+<li><strong>性能高</strong>，但可能提交失败</li>
 </ul>
 </li>
 </ol>
-<p><strong>总结</strong>：Kafka 的消息传递语义是决定消息传递可靠性的规则，包括 At Most Once、At Least Once、Exactly Once 等。根据业务需求选择合适的消息传递语义。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Properties</span> <span class="hljs-variable">props</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Properties</span>();<br>props.put(<span class="hljs-string">&quot;enable.auto.commit&quot;</span>, <span class="hljs-string">&quot;false&quot;</span>);<br><br>KafkaConsumer&lt;String, String&gt; consumer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaConsumer</span>&lt;&gt;(props);<br>consumer.subscribe(Arrays.asList(<span class="hljs-string">&quot;my-topic&quot;</span>));<br><br><span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>    ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofMillis(<span class="hljs-number">100</span>));<br>    <span class="hljs-keyword">for</span> (ConsumerRecord&lt;String, String&gt; record : records) &#123;<br>        <span class="hljs-comment">// 处理消息</span><br>        processRecord(record);<br>    &#125;<br>    <span class="hljs-comment">// 手动同步提交</span><br>    consumer.commitSync();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>CommitFailedException</strong>（提交时组重平衡，导致提交失败）</li>
+<li>可以讲讲 <strong>自定义 Offset 管理</strong>（将 Offset 存储到数据库，实现精确一次消费）</li>
+<li>可以讲讲实际应用场景（比如金融场景，一定要手动提交，保证消息不丢失、不重复）</li>
+</ul>
 <hr>
-<h3 id="Q8-请详细解释-Kafka-的性能优化（Performance-Optimization）？"><a href="#Q8-请详细解释-Kafka-的性能优化（Performance-Optimization）？" class="headerlink" title="Q8: 请详细解释 Kafka 的性能优化（Performance Optimization）？"></a>Q8: 请详细解释 Kafka 的性能优化（Performance Optimization）？</h3><p><strong>一句话总结</strong>：Kafka 的性能优化是通过优化 Producer、Consumer、Broker 等，提高 Kafka 的吞吐量和降低延迟。</p>
+</details>
+
+<p><a id="Q7-请详细解释-Kafka-的消息传递语义（Message-Delivery-Semantics）？"></a><br><a id="Q15：Kafka-的消息传递语义（Message-Delivery-Semantics）有哪些？"></a><br><a id="qb-7"></a></p>
+<h3 id="Q7：请详细解释-Kafka-的消息传递语义（Message-Delivery-Semantics）？"><a href="#Q7：请详细解释-Kafka-的消息传递语义（Message-Delivery-Semantics）？" class="headerlink" title="Q7：请详细解释 Kafka 的消息传递语义（Message Delivery Semantics）？"></a>Q7：请详细解释 Kafka 的消息传递语义（Message Delivery Semantics）？</h3><p>**简答：**生产者幂等、Kafka事务、消费隔离级别与外部业务幂等是不同机制，不能只配置两个参数就宣称所有业务“绝不丢失、绝不重复”。</p>
+<ol>
+<li><strong>生产者幂等</strong>处理受支持范围内的生产重试重复，不自动去重业务主动重复提交。</li>
+<li><strong>Kafka事务</strong>可以将向输出Topic发布的记录与相应消费位置等作为一致性单元；消费者使用 <code>read_committed</code> 避免读取未提交事务记录。</li>
+<li><strong>外部数据库、HTTP与邮件</strong>不自动加入Kafka事务。业务需要数据库唯一约束、幂等记录、Outbox或目标系统支持的一致性协调。</li>
+<li><strong>结果未知</strong>时先查询或对账，不把超时当作未执行；重试还要考虑幂等键、事务边界与对象状态。</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">读取 Kafka → 处理 → 写 Kafka 并提交消费位置：讨论 Kafka 事务范围<br>读取 Kafka → 扣数据库余额 → 提交消费位置：还要协调数据库副作用<br></code></pre></td></tr></table></figure>
+
+<p>**追问：**数据库提交成功、消费位置尚未提交时崩溃，恢复后怎样避免重复扣减？答案应解释真实业务幂等与状态恢复，而不是只报 <code>read_committed</code>。</p>
+<p><a target="_blank" rel="noopener" href="https://kafka.apache.org/20/design/design/">Kafka设计说明</a> · <a href="/question-bank/reliability/">分布式可靠性专题</a></p>
+<hr>
+<details>
+<summary>展开：Kafka 的消息传递语义（Message Delivery Semantics）有哪些？</summary>
+
+<p>**简答：**生产者幂等、Kafka事务、消费隔离级别与外部业务幂等是不同机制，不能只配置两个参数就宣称所有业务“绝不丢失、绝不重复”。</p>
+<ol>
+<li><strong>生产者幂等</strong>处理受支持范围内的生产重试重复，不自动去重业务主动重复提交。</li>
+<li><strong>Kafka事务</strong>可以将向输出Topic发布的记录与相应消费位置等作为一致性单元；消费者使用 <code>read_committed</code> 避免读取未提交事务记录。</li>
+<li><strong>外部数据库、HTTP与邮件</strong>不自动加入Kafka事务。业务需要数据库唯一约束、幂等记录、Outbox或目标系统支持的一致性协调。</li>
+<li><strong>结果未知</strong>时先查询或对账，不把超时当作未执行；重试还要考虑幂等键、事务边界与对象状态。</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">读取 Kafka → 处理 → 写 Kafka 并提交消费位置：讨论 Kafka 事务范围<br>读取 Kafka → 扣数据库余额 → 提交消费位置：还要协调数据库副作用<br></code></pre></td></tr></table></figure>
+
+<p>**追问：**数据库提交成功、消费位置尚未提交时崩溃，恢复后怎样避免重复扣减？答案应解释真实业务幂等与状态恢复，而不是只报 <code>read_committed</code>。</p>
+<p><a target="_blank" rel="noopener" href="https://kafka.apache.org/20/design/design/">Kafka设计说明</a> · <a href="/question-bank/reliability/">分布式可靠性专题</a></p>
+<hr>
+</details>
+
+<p><a id="Q8-请详细解释-Kafka-的性能优化（Performance-Optimization）？"></a><br><a id="Q16：Kafka-的性能优化（Performance-Optimization）有哪些？"></a><br><a id="qb-8"></a></p>
+<h3 id="Q8：请详细解释-Kafka-的性能优化（Performance-Optimization）？"><a href="#Q8：请详细解释-Kafka-的性能优化（Performance-Optimization）？" class="headerlink" title="Q8：请详细解释 Kafka 的性能优化（Performance Optimization）？"></a>Q8：请详细解释 Kafka 的性能优化（Performance Optimization）？</h3><p><strong>一句话总结</strong>：Kafka 的性能优化是通过优化 Producer、Consumer、Broker 等，提高 Kafka 的吞吐量和降低延迟。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Kafka 的性能优化是提高 Kafka 吞吐量和降低延迟的重要功能。理解 Kafka 的性能优化是掌握 Kafka 运维的关键。</p>
 <p><strong>1. Producer 性能优化</strong>：</p>
@@ -1212,7 +1310,7 @@
 <li><p><strong>批量发送（Batch Sending）</strong>：</p>
 <ul>
 <li>配置：<code>batch.size=16384</code>（默认 16KB）</li>
-<li>配置：<code>linger.ms=100</code>（默认 100 毫秒）</li>
+<li>配置：<code>linger.ms=100</code>（示例等待值，不是通用默认值）</li>
 <li>优点：提高吞吐量**</li>
 <li>缺点：增加延迟**</li>
 </ul>
@@ -1226,11 +1324,11 @@
 </li>
 <li><p><strong>确认机制（Acks）</strong>：</p>
 <ul>
-<li>配置：<code>acks=1</code>（默认 1）</li>
+<li>配置：<code>acks=1</code>（示例配置；默认值按客户端版本核对）</li>
 <li>值：<ul>
 <li><code>0</code>：不等待确认（性能好，可能丢失消息）**</li>
-<li><code>1</code>：等待 Leader 确认（性能中等，不会丢失消息）**</li>
-<li><code>all</code>：等待所有 ISR 副本确认（性能差，不会丢失消息）**</li>
+<li><code>1</code>：等待 Leader 确认；Leader 故障等窗口仍可能造成数据丢失**</li>
+<li><code>all</code>：等待 ISR 确认；需结合 min.insync.replicas、故障模型与重试配置解释可靠性**</li>
 </ul>
 </li>
 <li>优点：提高可靠性**</li>
@@ -1301,7 +1399,83 @@
 </ol>
 <p><strong>总结</strong>：Kafka 的性能优化是通过优化 Producer、Consumer、Broker 等，提高 Kafka 的吞吐量和降低延迟。根据业务需求选择合适的性能优化策略。</p>
 <hr>
-<h3 id="Q9-请详细解释-Kafka-的安全（Security）？"><a href="#Q9-请详细解释-Kafka-的安全（Security）？" class="headerlink" title="Q9: 请详细解释 Kafka 的安全（Security）？"></a>Q9: 请详细解释 Kafka 的安全（Security）？</h3><p><strong>一句话总结</strong>：Kafka 的安全是通过认证、授权、加密等，保护 Kafka 集群和数据的安全性。</p>
+<details>
+<summary>展开：Kafka 的性能优化（Performance Optimization）有哪些？</summary>
+
+<p><strong>一句话总结</strong>：Kafka 性能优化包括：<strong>批量发送</strong>、<strong>压缩</strong>、<strong>调整批次大小</strong>、<strong>调整缓冲区大小</strong>、<strong>零拷贝</strong>。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>Producer 端优化</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>batch.size</code></td>
+<td>批次大小</td>
+<td>16KB</td>
+</tr>
+<tr>
+<td><code>linger.ms</code></td>
+<td>批次等待时间</td>
+<td>0ms</td>
+</tr>
+<tr>
+<td><code>compression.type</code></td>
+<td>压缩类型（none、gzip、snappy、lz4、zstd）</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>buffer.memory</code></td>
+<td>缓冲区大小</td>
+<td>32MB</td>
+</tr>
+</tbody></table>
+<p><strong>Consumer 端优化</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>fetch.min.bytes</code></td>
+<td>每次拉取的最小字节数</td>
+<td>1B</td>
+</tr>
+<tr>
+<td><code>fetch.max.bytes</code></td>
+<td>每次拉取的最大字节数</td>
+<td>50MB</td>
+</tr>
+<tr>
+<td><code>max.poll.records</code></td>
+<td>每次 poll 的最大记录数</td>
+<td>500</td>
+</tr>
+</tbody></table>
+<p><strong>Broker 端优化</strong>：</p>
+<ul>
+<li>调整 <strong>页缓存（Page Cache）</strong> 大小</li>
+<li>使用 <strong>零拷贝</strong>（sendfile 系统调用）</li>
+<li>调整 <strong>Socket 缓冲区</strong>大小</li>
+</ul>
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>零拷贝</strong>的原理（减少内核态和用户态之间的数据拷贝）</li>
+<li>可以讲讲 <strong>页缓存</strong>的原理（Linux 将磁盘文件缓存到内存中）</li>
+<li>可以讲讲实际应用场景（比如日志收集场景，开启压缩可以大幅减少网络带宽）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q9-请详细解释-Kafka-的安全（Security）？"></a><br><a id="Q17：Kafka-的安全（Security）机制有哪些？"></a><br><a id="qb-9"></a></p>
+<h3 id="Q9：请详细解释-Kafka-的安全（Security）？"><a href="#Q9：请详细解释-Kafka-的安全（Security）？" class="headerlink" title="Q9：请详细解释 Kafka 的安全（Security）？"></a>Q9：请详细解释 Kafka 的安全（Security）？</h3><p><strong>一句话总结</strong>：Kafka 的安全是通过认证、授权、加密等，保护 Kafka 集群和数据的安全性。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Kafka 的安全是保护 Kafka 集群和数据的安全性的重要功能。理解 Kafka 的安全是掌握 Kafka 运维的关键。</p>
 <p><strong>1. 认证（Authentication）</strong>：</p>
@@ -1385,7 +1559,46 @@
 </ol>
 <p><strong>总结</strong>：Kafka 的安全是通过认证、授权、加密等，保护 Kafka 集群和数据的安全性。理解 Kafka 的安全是掌握 Kafka 运维的关键。</p>
 <hr>
-<h3 id="Q10-请详细解释-Kafka-的监控和运维（Monitoring-and-Operations）？"><a href="#Q10-请详细解释-Kafka-的监控和运维（Monitoring-and-Operations）？" class="headerlink" title="Q10: 请详细解释 Kafka 的监控和运维（Monitoring and Operations）？"></a>Q10: 请详细解释 Kafka 的监控和运维（Monitoring and Operations）？</h3><p><strong>一句话总结</strong>：Kafka 的监控和运维是通过监控 Kafka 集群状态、性能指标等，确保 Kafka 集群稳定运行。</p>
+<details>
+<summary>展开：Kafka 的安全（Security）机制有哪些？</summary>
+
+<p><strong>一句话总结</strong>：Kafka 提供了<strong>身份认证</strong>（SSL、SASL）、<strong>权限控制</strong>（ACL）、<strong>数据加密</strong>（SSL&#x2F;TLS）等安全机制。</p>
+<p><strong>深度解析</strong>：</p>
+<p><strong>安全机制</strong>：</p>
+<ol>
+<li><p><strong>身份认证</strong>：</p>
+<ul>
+<li><strong>SSL</strong>：基于证书的认证</li>
+<li><strong>SASL</strong>：支持多种机制（GSSAPI、PLAIN、SCRAM、OAUTHBEARER）</li>
+</ul>
+</li>
+<li><p><strong>权限控制</strong>（ACL）：</p>
+<ul>
+<li>控制用户&#x2F;应用对主题的读写权限</li>
+<li>配置：<code>authorizer.class.name=kafka.security.auth.SimpleAclAuthorizer</code></li>
+</ul>
+</li>
+<li><p><strong>数据加密</strong>（SSL&#x2F;TLS）：</p>
+<ul>
+<li>加密客户端和 Broker 之间的通信</li>
+<li>加密 Broker 之间的通信</li>
+</ul>
+</li>
+</ol>
+<p><strong>配置示例</strong>：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-comment"># 启用 SSL</span><br><span class="hljs-attr">listeners</span>=<span class="hljs-string">SSL://localhost:9093</span><br><span class="hljs-attr">ssl.keystore.location</span>=<span class="hljs-string">/path/to/keystore.jks</span><br><span class="hljs-attr">ssl.keystore.password</span>=<span class="hljs-string">password</span><br><span class="hljs-attr">ssl.key.password</span>=<span class="hljs-string">password</span><br><span class="hljs-attr">ssl.truststore.location</span>=<span class="hljs-string">/path/to/truststore.jks</span><br><span class="hljs-attr">ssl.truststore.password</span>=<span class="hljs-string">password</span><br><span class="hljs-comment"></span><br><span class="hljs-comment"># 启用 SASL</span><br><span class="hljs-attr">listeners</span>=<span class="hljs-string">SASL_SSL://localhost:9094</span><br><span class="hljs-attr">sasl.enabled.mechanisms</span>=<span class="hljs-string">SCRAM-SHA-256</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>面试加分回答</strong>：</p>
+<ul>
+<li>可以讲讲 <strong>SASL&#x2F;SCRAM</strong> 的原理（加盐哈希）</li>
+<li>可以讲讲 <strong>Kafka ACL</strong> 的配置方法</li>
+<li>可以讲讲实际应用场景（比如生产环境，一定要启用身份认证和权限控制）</li>
+</ul>
+<hr>
+</details>
+
+<p><a id="Q10-请详细解释-Kafka-的监控和运维（Monitoring-and-Operations）？"></a><br><a id="Q18：Kafka-的监控和运维（Monitoring-and-Operations）有哪些工具？"></a><br><a id="qb-10"></a></p>
+<h3 id="Q10：请详细解释-Kafka-的监控和运维（Monitoring-and-Operations）？"><a href="#Q10：请详细解释-Kafka-的监控和运维（Monitoring-and-Operations）？" class="headerlink" title="Q10：请详细解释 Kafka 的监控和运维（Monitoring and Operations）？"></a>Q10：请详细解释 Kafka 的监控和运维（Monitoring and Operations）？</h3><p><strong>一句话总结</strong>：Kafka 的监控和运维是通过监控 Kafka 集群状态、性能指标等，确保 Kafka 集群稳定运行。</p>
 <p><strong>深度解析</strong>：</p>
 <p>Kafka 的监控和运维是确保 Kafka 集群稳定运行的重要功能。理解 Kafka 的监控和运维是掌握 Kafka 运维的关键。</p>
 <p><strong>1. 监控核心概念</strong>：</p>
@@ -1480,258 +1693,10 @@
 </ol>
 <p><strong>总结</strong>：Kafka 的监控和运维是通过监控 Kafka 集群状态、性能指标等，确保 Kafka 集群稳定运行。理解 Kafka 的监控和运维是掌握 Kafka 运维的关键。</p>
 <hr>
-<h3 id="Q11：Kafka-的分区策略（Partitioning-Strategy）有哪些？"><a href="#Q11：Kafka-的分区策略（Partitioning-Strategy）有哪些？" class="headerlink" title="Q11：Kafka 的分区策略（Partitioning Strategy）有哪些？"></a>Q11：Kafka 的分区策略（Partitioning Strategy）有哪些？</h3><p><strong>一句话总结</strong>：Kafka 提供了多种分区策略，决定了消息会被发送到哪个分区，常见的有：轮询、随机、按 key 哈希、自定义分区器。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>默认分区策略</strong>：</p>
-<ol>
-<li><strong>指定了分区号</strong>：直接发送到指定分区</li>
-<li><strong>指定了 key</strong>：根据 key 的哈希值选择分区（<strong>相同 key 的消息会发送到同一分区</strong>）</li>
-<li><strong>既没有指定分区号，也没有指定 key</strong>：使用<strong>黏性分区器（Sticky Partitioner）</strong>（尽量发送到同一分区，直到批次满了或超时）</li>
-</ol>
-<p><strong>自定义分区器</strong>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomPartitioner</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Partitioner</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">partition</span><span class="hljs-params">(String topic, Object key, <span class="hljs-type">byte</span>[] keyBytes, </span><br><span class="hljs-params">                        Object value, <span class="hljs-type">byte</span>[] valueBytes, Cluster cluster)</span> &#123;<br>        List&lt;PartitionInfo&gt; partitions = cluster.partitionsForTopic(topic);<br>        <span class="hljs-type">int</span> <span class="hljs-variable">numPartitions</span> <span class="hljs-operator">=</span> partitions.size();<br>        <br>        <span class="hljs-comment">// 自定义分区逻辑：比如根据 key 的哈希值取模</span><br>        <span class="hljs-keyword">return</span> (key.hashCode() &amp; Integer.MAX_VALUE) % numPartitions;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<details>
+<summary>展开：Kafka 的监控和运维（Monitoring and Operations）有哪些工具？</summary>
 
-<p><strong>配置自定义分区器</strong>：</p>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">partitioner.class</span>=<span class="hljs-string">com.example.CustomPartitioner</span><br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲<strong>黏性分区器</strong>的原理（减少小批次，提高吞吐量）</li>
-<li>可以讲讲<strong>分区热点问题</strong>（比如某个 key 的消息特别多，导致某个分区过大）</li>
-<li>可以讲讲实际应用场景（比如订单消息，按照订单 ID 作为 key，保证同一订单的消息有序）</li>
-</ul>
-<hr>
-<h3 id="Q12：Kafka-的副本机制（Replication-Mechanism）是什么？"><a href="#Q12：Kafka-的副本机制（Replication-Mechanism）是什么？" class="headerlink" title="Q12：Kafka 的副本机制（Replication Mechanism）是什么？"></a>Q12：Kafka 的副本机制（Replication Mechanism）是什么？</h3><p><strong>一句话总结</strong>：Kafka 为每个分区创建多个副本（Replica），分为<strong>领导者副本（Leader）<strong>和</strong>追随者副本（Follower）</strong>，Leader 处理读写请求，Follower 从 Leader 同步数据。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>副本角色</strong>：</p>
-<ul>
-<li><strong>Leader</strong>：处理所有读写请求</li>
-<li><strong>Follower</strong>：从 Leader 同步数据，作为备份</li>
-<li><strong>ISR（In-Sync Replicas）</strong>：与 Leader 保持同步的副本集合</li>
-</ul>
-<p><strong>副本同步流程</strong>：</p>
-<ol>
-<li>Producer 发送消息到 Leader</li>
-<li>Leader 将消息写入本地日志</li>
-<li>Follower 从 Leader 拉取消息</li>
-<li>Follower 将消息写入本地日志</li>
-<li>Follower 向 Leader 发送 ACK</li>
-<li>Leader 收到 <strong>ISR 中所有副本的 ACK</strong> 后，才向 Producer 发送 ACK</li>
-</ol>
-<p><strong>副本故障处理</strong>：</p>
-<ul>
-<li><strong>Follower 故障</strong>：从 ISR 中移除，恢复后重新加入 ISR</li>
-<li><strong>Leader 故障</strong>：从 ISR 中选举新的 Leader</li>
-</ul>
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 <strong>ACK 机制</strong>（<code>acks=0</code>、<code>acks=1</code>、<code>acks=all</code>）</li>
-<li>可以讲讲 <strong>LEO（Log End Offset）</strong> 和 <strong>HW（High Watermark）</strong></li>
-<li>可以讲讲实际应用场景（比如金融场景，一定要设置 <code>acks=all</code>，保证数据不丢失）</li>
-</ul>
-<hr>
-<h3 id="Q13：Kafka-的消费者组（Consumer-Group）是什么？"><a href="#Q13：Kafka-的消费者组（Consumer-Group）是什么？" class="headerlink" title="Q13：Kafka 的消费者组（Consumer Group）是什么？"></a>Q13：Kafka 的消费者组（Consumer Group）是什么？</h3><p><strong>一句话总结</strong>：消费者组是 Kafka 的<strong>多播机制</strong>，同一消费者组内的消费者<strong>瓜分分区</strong>（每个分区只能被一个消费者消费），不同消费者组<strong>各自消费全部消息</strong>。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>消费者组规则</strong>：</p>
-<ul>
-<li>同一分区只能被<strong>同一消费者组内的一个消费者</strong>消费</li>
-<li>不同消费者组<strong>各自消费全部消息</strong>（发布-订阅模式）</li>
-</ul>
-<p><strong>示例</strong>：</p>
-<ul>
-<li>1 个主题，3 个分区</li>
-<li>消费者组 A 有 2 个消费者：C1 消费分区 0、1，C2 消费分区 2</li>
-<li>消费者组 B 有 3 个消费者：C3 消费分区 0，C4 消费分区 1，C5 消费分区 2</li>
-</ul>
-<p><strong>消费者数量 vs 分区数量</strong>：</p>
-<ul>
-<li>消费者数量 <strong>&#x3D;</strong> 分区数量：每个消费者消费一个分区（<strong>最优</strong>）</li>
-<li>消费者数量 <strong>&lt;</strong> 分区数量：有的消费者消费多个分区</li>
-<li>消费者数量 <strong>&gt;</strong> 分区数量：有的消费者<strong>闲置</strong></li>
-</ul>
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲**重平衡（Rebalance）**的触发条件（消费者加入&#x2F;离开、分区数量变化）</li>
-<li>可以讲讲<strong>重平衡的弊端</strong>（STW，所有消费者停止消费）</li>
-<li>可以讲讲实际应用场景（比如避免重平衡，尽量保持消费者数量 &#x3D; 分区数量）</li>
-</ul>
-<hr>
-<h3 id="Q14：Kafka-的-Offset-管理是什么？"><a href="#Q14：Kafka-的-Offset-管理是什么？" class="headerlink" title="Q14：Kafka 的 Offset 管理是什么？"></a>Q14：Kafka 的 Offset 管理是什么？</h3><p><strong>一句话总结</strong>：Offset 是消费者在分区中的<strong>消费进度</strong>，Kafka 提供了多种 Offset 提交方式，包括：<strong>自动提交</strong>、<strong>手动同步提交</strong>、<strong>手动异步提交</strong>。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>Offset 提交方式</strong>：</p>
-<ol>
-<li><p><strong>自动提交</strong>（<code>enable.auto.commit=true</code>）：</p>
-<ul>
-<li>定期提交（间隔由 <code>auto.commit.interval.ms</code> 控制）</li>
-<li><strong>可能丢失消息</strong>（提交前消费者挂了）</li>
-<li><strong>可能重复消费</strong>（提交后消费者挂了）</li>
-</ul>
-</li>
-<li><p><strong>手动同步提交</strong>（<code>commitSync()</code>）：</p>
-<ul>
-<li>提交成功后才返回</li>
-<li><strong>可靠性高</strong>，但性能差</li>
-</ul>
-</li>
-<li><p><strong>手动异步提交</strong>（<code>commitAsync()</code>）：</p>
-<ul>
-<li>提交后立即返回，不阻塞</li>
-<li><strong>性能高</strong>，但可能提交失败</li>
-</ul>
-</li>
-</ol>
-<p><strong>示例</strong>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Properties</span> <span class="hljs-variable">props</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Properties</span>();<br>props.put(<span class="hljs-string">&quot;enable.auto.commit&quot;</span>, <span class="hljs-string">&quot;false&quot;</span>);<br><br>KafkaConsumer&lt;String, String&gt; consumer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaConsumer</span>&lt;&gt;(props);<br>consumer.subscribe(Arrays.asList(<span class="hljs-string">&quot;my-topic&quot;</span>));<br><br><span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>    ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofMillis(<span class="hljs-number">100</span>));<br>    <span class="hljs-keyword">for</span> (ConsumerRecord&lt;String, String&gt; record : records) &#123;<br>        <span class="hljs-comment">// 处理消息</span><br>        processRecord(record);<br>    &#125;<br>    <span class="hljs-comment">// 手动同步提交</span><br>    consumer.commitSync();<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 <strong>CommitFailedException</strong>（提交时组重平衡，导致提交失败）</li>
-<li>可以讲讲 <strong>自定义 Offset 管理</strong>（将 Offset 存储到数据库，实现精确一次消费）</li>
-<li>可以讲讲实际应用场景（比如金融场景，一定要手动提交，保证消息不丢失、不重复）</li>
-</ul>
-<hr>
-<h3 id="Q15：Kafka-的消息传递语义（Message-Delivery-Semantics）有哪些？"><a href="#Q15：Kafka-的消息传递语义（Message-Delivery-Semantics）有哪些？" class="headerlink" title="Q15：Kafka 的消息传递语义（Message Delivery Semantics）有哪些？"></a>Q15：Kafka 的消息传递语义（Message Delivery Semantics）有哪些？</h3><p><strong>一句话总结</strong>：Kafka 支持 3 种消息传递语义：<strong>最多一次（At Most Once）</strong>、<strong>最少一次（At Least Once）</strong>、<strong>精确一次（Exactly Once）</strong>。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>消息传递语义</strong>：</p>
-<ol>
-<li><p><strong>最多一次</strong>（At Most Once）：</p>
-<ul>
-<li>消息可能丢失，但不会重复</li>
-<li>配置：<code>acks=0</code> 或 <code>acks=1</code>（不等待所有副本确认）</li>
-<li>适用场景：日志收集（丢失几条没问题）</li>
-</ul>
-</li>
-<li><p><strong>最少一次</strong>（At Least Once）：</p>
-<ul>
-<li>消息不会丢失，但可能重复</li>
-<li>配置：<code>acks=all</code> + 手动提交 Offset</li>
-<li>适用场景：大多数场景（比如订单处理）</li>
-</ul>
-</li>
-<li><p><strong>精确一次</strong>（Exactly Once）：</p>
-<ul>
-<li>消息不丢失、不重复</li>
-<li>配置：<code>enable.idempotence=true</code>（幂等 Producer）+ 事务</li>
-<li>适用场景：金融场景（比如转账）</li>
-</ul>
-</li>
-</ol>
-<p><strong>精确一次的实现原理</strong>：</p>
-<ul>
-<li><strong>幂等 Producer</strong>：为每个 Producer 分配一个 PID，为每个分区维护一个序列号，Broker 会去重</li>
-<li><strong>事务</strong>：Producer 将消息和 Offset 提交放在同一个事务中</li>
-</ul>
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 <strong>Kafka 事务</strong>的实现原理（两阶段提交）</li>
-<li>可以讲讲 <strong>消费者端的精确一次</strong>（消费者将消息处理和 Offset 提交放在同一个事务中）</li>
-<li>可以讲讲实际应用场景（比如支付系统，一定要保证精确一次）</li>
-</ul>
-<hr>
-<h3 id="Q16：Kafka-的性能优化（Performance-Optimization）有哪些？"><a href="#Q16：Kafka-的性能优化（Performance-Optimization）有哪些？" class="headerlink" title="Q16：Kafka 的性能优化（Performance Optimization）有哪些？"></a>Q16：Kafka 的性能优化（Performance Optimization）有哪些？</h3><p><strong>一句话总结</strong>：Kafka 性能优化包括：<strong>批量发送</strong>、<strong>压缩</strong>、<strong>调整批次大小</strong>、<strong>调整缓冲区大小</strong>、<strong>零拷贝</strong>。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>Producer 端优化</strong>：</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>说明</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>batch.size</code></td>
-<td>批次大小</td>
-<td>16KB</td>
-</tr>
-<tr>
-<td><code>linger.ms</code></td>
-<td>批次等待时间</td>
-<td>0ms</td>
-</tr>
-<tr>
-<td><code>compression.type</code></td>
-<td>压缩类型（none、gzip、snappy、lz4、zstd）</td>
-<td>none</td>
-</tr>
-<tr>
-<td><code>buffer.memory</code></td>
-<td>缓冲区大小</td>
-<td>32MB</td>
-</tr>
-</tbody></table>
-<p><strong>Consumer 端优化</strong>：</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>说明</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>fetch.min.bytes</code></td>
-<td>每次拉取的最小字节数</td>
-<td>1B</td>
-</tr>
-<tr>
-<td><code>fetch.max.bytes</code></td>
-<td>每次拉取的最大字节数</td>
-<td>50MB</td>
-</tr>
-<tr>
-<td><code>max.poll.records</code></td>
-<td>每次 poll 的最大记录数</td>
-<td>500</td>
-</tr>
-</tbody></table>
-<p><strong>Broker 端优化</strong>：</p>
-<ul>
-<li>调整 <strong>页缓存（Page Cache）</strong> 大小</li>
-<li>使用 <strong>零拷贝</strong>（sendfile 系统调用）</li>
-<li>调整 <strong>Socket 缓冲区</strong>大小</li>
-</ul>
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 <strong>零拷贝</strong>的原理（减少内核态和用户态之间的数据拷贝）</li>
-<li>可以讲讲 <strong>页缓存</strong>的原理（Linux 将磁盘文件缓存到内存中）</li>
-<li>可以讲讲实际应用场景（比如日志收集场景，开启压缩可以大幅减少网络带宽）</li>
-</ul>
-<hr>
-<h3 id="Q17：Kafka-的安全（Security）机制有哪些？"><a href="#Q17：Kafka-的安全（Security）机制有哪些？" class="headerlink" title="Q17：Kafka 的安全（Security）机制有哪些？"></a>Q17：Kafka 的安全（Security）机制有哪些？</h3><p><strong>一句话总结</strong>：Kafka 提供了<strong>身份认证</strong>（SSL、SASL）、<strong>权限控制</strong>（ACL）、<strong>数据加密</strong>（SSL&#x2F;TLS）等安全机制。</p>
-<p><strong>深度解析</strong>：</p>
-<p><strong>安全机制</strong>：</p>
-<ol>
-<li><p><strong>身份认证</strong>：</p>
-<ul>
-<li><strong>SSL</strong>：基于证书的认证</li>
-<li><strong>SASL</strong>：支持多种机制（GSSAPI、PLAIN、SCRAM、OAUTHBEARER）</li>
-</ul>
-</li>
-<li><p><strong>权限控制</strong>（ACL）：</p>
-<ul>
-<li>控制用户&#x2F;应用对主题的读写权限</li>
-<li>配置：<code>authorizer.class.name=kafka.security.auth.SimpleAclAuthorizer</code></li>
-</ul>
-</li>
-<li><p><strong>数据加密</strong>（SSL&#x2F;TLS）：</p>
-<ul>
-<li>加密客户端和 Broker 之间的通信</li>
-<li>加密 Broker 之间的通信</li>
-</ul>
-</li>
-</ol>
-<p><strong>配置示例</strong>：</p>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-comment"># 启用 SSL</span><br><span class="hljs-attr">listeners</span>=<span class="hljs-string">SSL://localhost:9093</span><br><span class="hljs-attr">ssl.keystore.location</span>=<span class="hljs-string">/path/to/keystore.jks</span><br><span class="hljs-attr">ssl.keystore.password</span>=<span class="hljs-string">password</span><br><span class="hljs-attr">ssl.key.password</span>=<span class="hljs-string">password</span><br><span class="hljs-attr">ssl.truststore.location</span>=<span class="hljs-string">/path/to/truststore.jks</span><br><span class="hljs-attr">ssl.truststore.password</span>=<span class="hljs-string">password</span><br><span class="hljs-comment"></span><br><span class="hljs-comment"># 启用 SASL</span><br><span class="hljs-attr">listeners</span>=<span class="hljs-string">SASL_SSL://localhost:9094</span><br><span class="hljs-attr">sasl.enabled.mechanisms</span>=<span class="hljs-string">SCRAM-SHA-256</span><br></code></pre></td></tr></table></figure>
-
-<p><strong>面试加分回答</strong>：</p>
-<ul>
-<li>可以讲讲 <strong>SASL&#x2F;SCRAM</strong> 的原理（加盐哈希）</li>
-<li>可以讲讲 <strong>Kafka ACL</strong> 的配置方法</li>
-<li>可以讲讲实际应用场景（比如生产环境，一定要启用身份认证和权限控制）</li>
-</ul>
-<hr>
-<h3 id="Q18：Kafka-的监控和运维（Monitoring-and-Operations）有哪些工具？"><a href="#Q18：Kafka-的监控和运维（Monitoring-and-Operations）有哪些工具？" class="headerlink" title="Q18：Kafka 的监控和运维（Monitoring and Operations）有哪些工具？"></a>Q18：Kafka 的监控和运维（Monitoring and Operations）有哪些工具？</h3><p><strong>一句话总结</strong>：Kafka 监控运维工具包括：<strong>Kafka Manager</strong>、<strong>Burrow</strong>、<strong>Confluent Control Center</strong>、<strong>Prometheus + Grafana</strong>。</p>
+<p><strong>一句话总结</strong>：Kafka 监控运维工具包括：<strong>Kafka Manager</strong>、<strong>Burrow</strong>、<strong>Confluent Control Center</strong>、<strong>Prometheus + Grafana</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>监控指标</strong>：</p>
 <table>
@@ -1792,7 +1757,10 @@
 <li>可以讲讲实际应用场景（比如生产环境，一定要监控消费者 Lag，避免消息堆积）</li>
 </ul>
 <hr>
-<h3 id="Q19：Kafka-的常见问题排查方法有哪些？"><a href="#Q19：Kafka-的常见问题排查方法有哪些？" class="headerlink" title="Q19：Kafka 的常见问题排查方法有哪些？"></a>Q19：Kafka 的常见问题排查方法有哪些？</h3><p><strong>一句话总结</strong>：Kafka 常见问题包括：<strong>消息丢失</strong>、<strong>消息重复</strong>、<strong>消息顺序性</strong>、<strong>消费者 Lag 过高</strong>，排查方法包括：查看日志、查看监控指标、查看消费者组状态。</p>
+</details>
+
+<p><a id="Q19：Kafka-的常见问题排查方法有哪些？"></a><br><a id="qb-11"></a></p>
+<h3 id="Q11：Kafka-的常见问题排查方法有哪些？"><a href="#Q11：Kafka-的常见问题排查方法有哪些？" class="headerlink" title="Q11：Kafka 的常见问题排查方法有哪些？"></a>Q11：Kafka 的常见问题排查方法有哪些？</h3><p><strong>一句话总结</strong>：Kafka 常见问题包括：<strong>消息丢失</strong>、<strong>消息重复</strong>、<strong>消息顺序性</strong>、<strong>消费者 Lag 过高</strong>，排查方法包括：查看日志、查看监控指标、查看消费者组状态。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>常见问题及排查方法</strong>：</p>
 <ol>
@@ -1833,7 +1801,8 @@
 <li>可以讲讲实际应用场景（比如消息丢失问题，一定要从 Producer、Broker、Consumer 三个端排查）</li>
 </ul>
 <hr>
-<h3 id="Q20：Kafka-和-RabbitMQ-的区别是什么？"><a href="#Q20：Kafka-和-RabbitMQ-的区别是什么？" class="headerlink" title="Q20：Kafka 和 RabbitMQ 的区别是什么？"></a>Q20：Kafka 和 RabbitMQ 的区别是什么？</h3><p><strong>一句话总结</strong>：Kafka 和 RabbitMQ 都是消息队列，但 Kafka 适合<strong>高吞吐量、持久化、流处理</strong>场景，RabbitMQ 适合<strong>低延迟、复杂路由、事务</strong>场景。</p>
+<p><a id="Q20：Kafka-和-RabbitMQ-的区别是什么？"></a><br><a id="qb-12"></a></p>
+<h3 id="Q12：Kafka-和-RabbitMQ-的区别是什么？"><a href="#Q12：Kafka-和-RabbitMQ-的区别是什么？" class="headerlink" title="Q12：Kafka 和 RabbitMQ 的区别是什么？"></a>Q12：Kafka 和 RabbitMQ 的区别是什么？</h3><p><strong>一句话总结</strong>：Kafka 和 RabbitMQ 都是消息队列，但 Kafka 适合<strong>高吞吐量、持久化、流处理</strong>场景，RabbitMQ 适合<strong>低延迟、复杂路由、事务</strong>场景。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Kafka vs RabbitMQ</strong>：</p>
 <table>
@@ -1884,7 +1853,8 @@
 <li>可以讲讲实际应用场景（比如电商系统，订单消息用 RabbitMQ，日志收集用 Kafka）</li>
 </ul>
 <hr>
-<h3 id="Q21：Kafka-的分区副本分配策略是什么？"><a href="#Q21：Kafka-的分区副本分配策略是什么？" class="headerlink" title="Q21：Kafka 的分区副本分配策略是什么？"></a>Q21：Kafka 的分区副本分配策略是什么？</h3><p><strong>一句话总结</strong>：Kafka 提供了多种分区副本分配策略，决定了<strong>分区的副本如何分配到各个 Broker</strong>，常见的有：轮询策略、机架感知策略、自定义分配器。</p>
+<p><a id="Q21：Kafka-的分区副本分配策略是什么？"></a><br><a id="qb-13"></a></p>
+<h3 id="Q13：Kafka-的分区副本分配策略是什么？"><a href="#Q13：Kafka-的分区副本分配策略是什么？" class="headerlink" title="Q13：Kafka 的分区副本分配策略是什么？"></a>Q13：Kafka 的分区副本分配策略是什么？</h3><p><strong>一句话总结</strong>：Kafka 提供了多种分区副本分配策略，决定了<strong>分区的副本如何分配到各个 Broker</strong>，常见的有：轮询策略、机架感知策略、自定义分配器。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>默认分配策略</strong>（RangeAssignor）：</p>
 <ul>
@@ -1910,7 +1880,8 @@
 <li>可以讲讲实际应用场景（比如跨机房部署，一定要使用机架感知策略）</li>
 </ul>
 <hr>
-<h3 id="Q22：Kafka-的日志压缩（Log-Compaction）是什么？"><a href="#Q22：Kafka-的日志压缩（Log-Compaction）是什么？" class="headerlink" title="Q22：Kafka 的日志压缩（Log Compaction）是什么？"></a>Q22：Kafka 的日志压缩（Log Compaction）是什么？</h3><p><strong>一句话总结</strong>：日志压缩是 Kafka 的<strong>数据保留策略</strong>之一，保留<strong>每个 key 的最新值</strong>，删除旧值，适用于<strong>数据变更日志</strong>场景。</p>
+<p><a id="Q22：Kafka-的日志压缩（Log-Compaction）是什么？"></a><br><a id="qb-14"></a></p>
+<h3 id="Q14：Kafka-的日志压缩（Log-Compaction）是什么？"><a href="#Q14：Kafka-的日志压缩（Log-Compaction）是什么？" class="headerlink" title="Q14：Kafka 的日志压缩（Log Compaction）是什么？"></a>Q14：Kafka 的日志压缩（Log Compaction）是什么？</h3><p><strong>一句话总结</strong>：日志压缩是 Kafka 的<strong>数据保留策略</strong>之一，保留<strong>每个 key 的最新值</strong>，删除旧值，适用于<strong>数据变更日志</strong>场景。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>日志压缩原理</strong>：</p>
 <ol>
@@ -1936,7 +1907,8 @@
 <li>可以讲讲实际应用场景（比如存储用户最新状态，使用日志压缩）</li>
 </ul>
 <hr>
-<h3 id="Q23：Kafka-的事务（Transaction）是什么？"><a href="#Q23：Kafka-的事务（Transaction）是什么？" class="headerlink" title="Q23：Kafka 的事务（Transaction）是什么？"></a>Q23：Kafka 的事务（Transaction）是什么？</h3><p><strong>一句话总结</strong>：Kafka 事务保证了<strong>原子性</strong>（多条消息要么全部成功，要么全部失败），适用于**精确一次（Exactly Once）**场景。</p>
+<p><a id="Q23：Kafka-的事务（Transaction）是什么？"></a><br><a id="qb-15"></a></p>
+<h3 id="Q15：Kafka-的事务（Transaction）是什么？"><a href="#Q15：Kafka-的事务（Transaction）是什么？" class="headerlink" title="Q15：Kafka 的事务（Transaction）是什么？"></a>Q15：Kafka 的事务（Transaction）是什么？</h3><p><strong>一句话总结</strong>：Kafka 事务保证了<strong>原子性</strong>（多条消息要么全部成功，要么全部失败），适用于**精确一次（Exactly Once）**场景。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>事务的使用</strong>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Properties</span> <span class="hljs-variable">props</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Properties</span>();<br>props.put(<span class="hljs-string">&quot;transactional.id&quot;</span>, <span class="hljs-string">&quot;my-transactional-id&quot;</span>);<br>KafkaProducer&lt;String, String&gt; producer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaProducer</span>&lt;&gt;(props);<br><br>producer.initTransactions();<br><span class="hljs-keyword">try</span> &#123;<br>    producer.beginTransaction();<br>    producer.send(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ProducerRecord</span>&lt;&gt;(<span class="hljs-string">&quot;topic1&quot;</span>, <span class="hljs-string">&quot;key1&quot;</span>, <span class="hljs-string">&quot;value1&quot;</span>));<br>    producer.send(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ProducerRecord</span>&lt;&gt;(<span class="hljs-string">&quot;topic2&quot;</span>, <span class="hljs-string">&quot;key2&quot;</span>, <span class="hljs-string">&quot;value2&quot;</span>));<br>    producer.commitTransaction();<br>&#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>    producer.abortTransaction();<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -1958,7 +1930,8 @@
 <li>可以讲讲实际应用场景（比如支付系统，保证转账消息的原子性）</li>
 </ul>
 <hr>
-<h3 id="Q24：Kafka-的-Streams-API-是什么？"><a href="#Q24：Kafka-的-Streams-API-是什么？" class="headerlink" title="Q24：Kafka 的 Streams API 是什么？"></a>Q24：Kafka 的 Streams API 是什么？</h3><p><strong>一句话总结</strong>：Kafka Streams 是 Kafka 的<strong>流处理库</strong>，可以在代码中直接处理 Kafka 消息流，支持<strong>流表连接</strong>、<strong>窗口聚合</strong>、<strong>状态存储</strong>。</p>
+<p><a id="Q24：Kafka-的-Streams-API-是什么？"></a><br><a id="qb-16"></a></p>
+<h3 id="Q16：Kafka-的-Streams-API-是什么？"><a href="#Q16：Kafka-的-Streams-API-是什么？" class="headerlink" title="Q16：Kafka 的 Streams API 是什么？"></a>Q16：Kafka 的 Streams API 是什么？</h3><p><strong>一句话总结</strong>：Kafka Streams 是 Kafka 的<strong>流处理库</strong>，可以在代码中直接处理 Kafka 消息流，支持<strong>流表连接</strong>、<strong>窗口聚合</strong>、<strong>状态存储</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Kafka Streams 的核心概念</strong>：</p>
 <ul>
@@ -1976,7 +1949,8 @@
 <li>可以讲讲实际应用场景（比如实时统计、实时监控）</li>
 </ul>
 <hr>
-<h3 id="Q25：Kafka-的-Connect-API-是什么？"><a href="#Q25：Kafka-的-Connect-API-是什么？" class="headerlink" title="Q25：Kafka 的 Connect API 是什么？"></a>Q25：Kafka 的 Connect API 是什么？</h3><p><strong>一句话总结</strong>：Kafka Connect 是 Kafka 的<strong>数据集成工具</strong>，可以在 Kafka 和其他系统之间<strong>导入&#x2F;导出数据</strong>，支持<strong>Source Connector</strong>（导入）和 <strong>Sink Connector</strong>（导出）。</p>
+<p><a id="Q25：Kafka-的-Connect-API-是什么？"></a><br><a id="qb-17"></a></p>
+<h3 id="Q17：Kafka-的-Connect-API-是什么？"><a href="#Q17：Kafka-的-Connect-API-是什么？" class="headerlink" title="Q17：Kafka 的 Connect API 是什么？"></a>Q17：Kafka 的 Connect API 是什么？</h3><p><strong>一句话总结</strong>：Kafka Connect 是 Kafka 的<strong>数据集成工具</strong>，可以在 Kafka 和其他系统之间<strong>导入&#x2F;导出数据</strong>，支持<strong>Source Connector</strong>（导入）和 <strong>Sink Connector</strong>（导出）。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Kafka Connect 的组件</strong>：</p>
 <ul>
@@ -2000,7 +1974,8 @@
 <li>可以讲讲实际应用场景（比如数据库变更捕获，使用 Debezium）</li>
 </ul>
 <hr>
-<h3 id="Q26：Kafka-的-ACL（Access-Control-List）是什么？"><a href="#Q26：Kafka-的-ACL（Access-Control-List）是什么？" class="headerlink" title="Q26：Kafka 的 ACL（Access Control List）是什么？"></a>Q26：Kafka 的 ACL（Access Control List）是什么？</h3><p><strong>一句话总结</strong>：Kafka ACL 是 Kafka 的<strong>权限控制机制</strong>，可以控制用户&#x2F;应用对<strong>主题、消费者组、集群</strong>的访问权限。</p>
+<p><a id="Q26：Kafka-的-ACL（Access-Control-List）是什么？"></a><br><a id="qb-18"></a></p>
+<h3 id="Q18：Kafka-的-ACL（Access-Control-List）是什么？"><a href="#Q18：Kafka-的-ACL（Access-Control-List）是什么？" class="headerlink" title="Q18：Kafka 的 ACL（Access Control List）是什么？"></a>Q18：Kafka 的 ACL（Access Control List）是什么？</h3><p><strong>一句话总结</strong>：Kafka ACL 是 Kafka 的<strong>权限控制机制</strong>，可以控制用户&#x2F;应用对<strong>主题、消费者组、集群</strong>的访问权限。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>ACL 权限类型</strong>：</p>
 <table>
@@ -2049,7 +2024,8 @@
 <li>可以讲讲实际应用场景（比如多租户环境，为每个租户配置独立的 ACL）</li>
 </ul>
 <hr>
-<h3 id="Q27：Kafka-的-Quota（配额）机制是什么？"><a href="#Q27：Kafka-的-Quota（配额）机制是什么？" class="headerlink" title="Q27：Kafka 的 Quota（配额）机制是什么？"></a>Q27：Kafka 的 Quota（配额）机制是什么？</h3><p><strong>一句话总结</strong>：Kafka Quota 是 Kafka 的<strong>资源限制机制</strong>，可以限制<strong>生产者的生产速率</strong>和<strong>消费者的消费速率</strong>，避免单个客户端占用过多资源。</p>
+<p><a id="Q27：Kafka-的-Quota（配额）机制是什么？"></a><br><a id="qb-19"></a></p>
+<h3 id="Q19：Kafka-的-Quota（配额）机制是什么？"><a href="#Q19：Kafka-的-Quota（配额）机制是什么？" class="headerlink" title="Q19：Kafka 的 Quota（配额）机制是什么？"></a>Q19：Kafka 的 Quota（配额）机制是什么？</h3><p><strong>一句话总结</strong>：Kafka Quota 是 Kafka 的<strong>资源限制机制</strong>，可以限制<strong>生产者的生产速率</strong>和<strong>消费者的消费速率</strong>，避免单个客户端占用过多资源。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>Quota 类型</strong>：</p>
 <ol>
@@ -2079,7 +2055,8 @@
 <li>可以讲讲实际应用场景（比如多租户环境，为每个租户配置独立的 Quota）</li>
 </ul>
 <hr>
-<h3 id="Q28：Kafka-的-MirrorMaker-是什么？"><a href="#Q28：Kafka-的-MirrorMaker-是什么？" class="headerlink" title="Q28：Kafka 的 MirrorMaker 是什么？"></a>Q28：Kafka 的 MirrorMaker 是什么？</h3><p><strong>一句话总结</strong>：MirrorMaker 是 Kafka 的<strong>跨集群数据复制工具</strong>，可以将一个 Kafka 集群的数据复制到另一个 Kafka 集群，适用于<strong>灾备</strong>、<strong>数据迁移</strong>场景。</p>
+<p><a id="Q28：Kafka-的-MirrorMaker-是什么？"></a><br><a id="qb-20"></a></p>
+<h3 id="Q20：Kafka-的-MirrorMaker-是什么？"><a href="#Q20：Kafka-的-MirrorMaker-是什么？" class="headerlink" title="Q20：Kafka 的 MirrorMaker 是什么？"></a>Q20：Kafka 的 MirrorMaker 是什么？</h3><p><strong>一句话总结</strong>：MirrorMaker 是 Kafka 的<strong>跨集群数据复制工具</strong>，可以将一个 Kafka 集群的数据复制到另一个 Kafka 集群，适用于<strong>灾备</strong>、<strong>数据迁移</strong>场景。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>MirrorMaker 的工作原理</strong>：</p>
 <ol>
@@ -2103,7 +2080,8 @@
 <li>可以讲讲实际应用场景（比如灾备，主集群挂了，切换到备集群）</li>
 </ul>
 <hr>
-<h3 id="Q29：Kafka-的-KSQL-是什么？"><a href="#Q29：Kafka-的-KSQL-是什么？" class="headerlink" title="Q29：Kafka 的 KSQL 是什么？"></a>Q29：Kafka 的 KSQL 是什么？</h3><p><strong>一句话总结</strong>：KSQL 是 Kafka 的<strong>流式 SQL 引擎</strong>，可以用 SQL 语句处理 Kafka 消息流，支持<strong>流查询</strong>、<strong>表查询</strong>、<strong>流表连接</strong>。</p>
+<p><a id="Q29：Kafka-的-KSQL-是什么？"></a><br><a id="qb-21"></a></p>
+<h3 id="Q21：Kafka-的-KSQL-是什么？"><a href="#Q21：Kafka-的-KSQL-是什么？" class="headerlink" title="Q21：Kafka 的 KSQL 是什么？"></a>Q21：Kafka 的 KSQL 是什么？</h3><p><strong>一句话总结</strong>：KSQL 是 Kafka 的<strong>流式 SQL 引擎</strong>，可以用 SQL 语句处理 Kafka 消息流，支持<strong>流查询</strong>、<strong>表查询</strong>、<strong>流表连接</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>KSQL 的核心概念</strong>：</p>
 <ul>
@@ -2120,7 +2098,8 @@
 <li>可以讲讲实际应用场景（比如实时监控、实时报表）</li>
 </ul>
 <hr>
-<h3 id="Q30：Kafka-的最佳实践有哪些？"><a href="#Q30：Kafka-的最佳实践有哪些？" class="headerlink" title="Q30：Kafka 的最佳实践有哪些？"></a>Q30：Kafka 的最佳实践有哪些？</h3><p><strong>一句话总结</strong>：Kafka 最佳实践包括：<strong>合理设置分区数量</strong>、<strong>合理设置副本因子</strong>、<strong>监控消费者 Lag</strong>、<strong>定期清理旧数据</strong>、<strong>启用身份认证和权限控制</strong>。</p>
+<p><a id="Q30：Kafka-的最佳实践有哪些？"></a><br><a id="qb-22"></a></p>
+<h3 id="Q22：Kafka-的最佳实践有哪些？"><a href="#Q22：Kafka-的最佳实践有哪些？" class="headerlink" title="Q22：Kafka 的最佳实践有哪些？"></a>Q22：Kafka 的最佳实践有哪些？</h3><p><strong>一句话总结</strong>：Kafka 最佳实践包括：<strong>合理设置分区数量</strong>、<strong>合理设置副本因子</strong>、<strong>监控消费者 Lag</strong>、<strong>定期清理旧数据</strong>、<strong>启用身份认证和权限控制</strong>。</p>
 <p><strong>深度解析</strong>：</p>
 <p><strong>最佳实践</strong>：</p>
 <ol>
@@ -2276,7 +2255,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Kafka 面试八股文（30题）</div>
+      <div>Kafka 面试八股文（22问）</div>
       <div>https://whyalwaysme.lol/2026/06/09/2026-06-09-kafka-interview-deep/</div>
     </div>
     <div class="license-meta">
@@ -2321,9 +2300,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/09/2026-06-09-docker-interview-deep/" title="Docker 面试八股文（傻子都能懂系列）">
+                      <a href="/2026/06/09/2026-06-09-docker-interview-deep/" title="Docker 面试八股文">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Docker 面试八股文（傻子都能懂系列）</span>
+                        <span class="hidden-mobile">Docker 面试八股文</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -2331,8 +2310,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/06/09/2026-06-09-rag-interview-deep/" title="RAG 面试八股文 30 道｜深度详解版（傻子都能看懂）">
-                        <span class="hidden-mobile">RAG 面试八股文 30 道｜深度详解版（傻子都能看懂）</span>
+                      <a href="/2026/06/09/2026-06-09-rag-interview-deep/" title="RAG 面试八股文 26问｜深度详解版">
+                        <span class="hidden-mobile">RAG 面试八股文 26问｜深度详解版</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
